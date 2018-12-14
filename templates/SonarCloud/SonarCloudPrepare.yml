@@ -1,0 +1,10 @@
+steps:
+  - task: SonarCloudPrepare@1
+    displayName: 'Prepare analysis on SonarCloud'
+    inputs:
+      SonarCloud: 'HMCTS_SonarCloud'
+      organization: hmcts
+      projectKey: 'uk.gov.hmcts.vh:vh-website'
+      projectName: '$(Build.Repository.Name)'
+      projectVersion: '$(Build.BuildNumber)'
+      extraProperties: $(SonarCloudPrepareExtraProperties)

@@ -1,0 +1,40 @@
+steps:
+  - task: Npm@1
+    displayName: 'Install Node Modules'
+    inputs:
+      workingDir: $(angularWorkingDir)
+      verbose: false
+
+  - task: Npm@1
+    displayName: 'Compile ClientApp'
+    inputs:
+      command: custom
+      workingDir: $(angularWorkingDir)
+      verbose: false
+      customCommand: 'run build-prod'
+
+  - task: Npm@1
+    displayName: 'Run Jasmine Tests'
+    inputs:
+      command: custom
+      workingDir: $(angularWorkingDir)
+      verbose: false
+      customCommand: 'run test-once-ci'
+
+  - task: PublishTestResults@2
+    displayName: 'Publish Jasmine Test Results'
+    inputs:
+      testResultsFiles: '*TESTS.xml'
+      searchFolder: '$(System.DefaultWorkingDirectory)/HearingsWebsite/Website/ClientApp/jasmine-tests'
+      mergeTestResults: true
+      testRunTitle: 'Jasmine Test Results'
+    condition: succeededOrFailed()
+
+  - task: PublishCodeCoverageResults@1
+    displayName: 'Publish Jasmine Code Coverage'
+    inputs:
+      codeCoverageTool: Cobertura
+      failIfCoverageEmpty: true
+      summaryFileLocation: '$(System.DefaultWorkingDirectory)/HearingsWebsite/Website/ClientApp/coverage/cobertura-coverage.xml'
+      reportDirectory: '$(System.DefaultWorkingDirectory)/HearingsWebsite/Website/ClientApp/coverage/'
+    condition: succeededOrFailed()

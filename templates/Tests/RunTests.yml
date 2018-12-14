@@ -1,0 +1,46 @@
+steps:
+  - task: DotNetCoreCLI@2
+    displayName: 'Run Unit Tests'
+    inputs:
+      command: test
+      projects: '**\**\*UnitTests.csproj'
+      arguments: '--no-build /p:CollectCoverage=true /p:CoverletOutputFormat="\"opencover,cobertura,json\"" /p:Exclude="\"[NUnit3.TestAdapter]*\"" /p:CoverletOutput=$(Common.TestResultsDirectory)\Coverage\UnitTest\ -c $(BuildConfiguration) '
+
+  - task: AzureKeyVault@1
+    displayName: 'Azure Key Vault: vhcoreinfrapreview'
+    inputs:
+      azureSubscription: $(azureSubscription)
+      KeyVaultName: vhcoreinfrapreview
+      SecretsFilter: 'vh-website-AppID,vh-website-Key'
+
+  - task: MagicChunks@2
+    displayName: 'Config transform for Integration tests'
+    inputs:
+      sourcePath: '**\*IntegrationTests\bin\$(BuildConfiguration)\**\appsettings.json'
+      transformations: |  
+       {
+       "KeyVaultSettings/KeyVaultUri": "$(VHAzureKeyVault)",
+       "KeyVaultSettings/ClientId": "$(vh-website-AppID)",
+       "KeyVaultSettings/ClientSecret": "$(vh-website-Key)"
+       }
+  
+  - task: DotNetCoreCLI@2
+    displayName: 'Run Integration tests'
+    inputs:
+      command: test
+      projects: '**\**\*IntegrationTests.csproj'
+      arguments: '--no-build /p:CollectCoverage=true /p:CoverletOutputFormat="\"opencover,cobertura,json\"" /p:Exclude="\"[NUnit3.TestAdapter]*\"" /p:CoverletOutput=$(Common.TestResultsDirectory)\Coverage\ -c $(BuildConfiguration) '
+  
+  - task: PublishCodeCoverageResults@1
+    displayName: 'Publish code coverage'
+    inputs:
+      codeCoverageTool: Cobertura
+      summaryFileLocation: '$(Common.TestResultsDirectory)\Coverage\coverage.cobertura.xml'
+      reportDirectory: '$(Common.TestResultsDirectory)\Coverage\Reports'
+      failIfCoverageEmpty: true
+  
+  - task: SonarCloudAnalyze@1
+    displayName: 'Run Code Analysis'
+  
+  - task: SonarCloudPublish@1
+    displayName: 'Publish Quality Gate Result'

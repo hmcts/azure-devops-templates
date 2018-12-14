@@ -1,0 +1,10 @@
+steps:
+  - task: GitVersion@4
+    displayName: GitVersion
+    inputs:
+      preferBundledVersion: false
+
+  - task: NuGetToolInstaller@0
+    displayName: 'Use NuGet 4.8.1'
+    inputs:
+      versionSpec: 4.8.1
