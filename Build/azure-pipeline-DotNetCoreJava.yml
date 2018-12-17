@@ -1,3 +1,13 @@
+pool:
+  name: Azure-VSTS-VS2017 #Can't have pool name as variable
+  demands: 
+  - npm
+  - msbuild
+  - visualstudio
+  - DotNetFramework
+  - java
+
+
 # Reference templae for setting up build tools
 steps:
   - template: templates/installTools.yml
