@@ -1,9 +1,12 @@
+variables:
+  nugetVersion: 4.8.1
+
 
 # Reference templae for setting up build tools
 steps:
   - template: templates/installTools.yml
     parameters:
-      nugetVersion: 4.8.1
+      nugetVersion: $(nugetVersion)
 
 # Performs npm steps - install, build, test, test publishing
   - template: templates/npm.yml
