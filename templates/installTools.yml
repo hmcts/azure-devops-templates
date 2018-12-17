@@ -5,6 +5,6 @@ steps:
       preferBundledVersion: false
 
   - task: NuGetToolInstaller@0
-    displayName: 'Use NuGet ${{ parameters.name }}'
+    displayName: 'Use NuGet ${{ parameters.nugetVersion }}'
     inputs:
-      versionSpec: ${{ parameters.name }}
+      versionSpec: ${{ parameters.nugetVersion }}
