@@ -1,6 +1,9 @@
+parameters:
+  name: ''  # defaults for any parameters that aren't specified
+  vmImage: ''
+
 jobs:
 - job:
-
   # Reference templae for setting up build tools
   steps:
     - template: templates/Common/common.yml
