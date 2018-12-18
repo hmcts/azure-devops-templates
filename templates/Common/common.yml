@@ -1,3 +1,6 @@
+parameters:
+  nugetVersion: 4.8.1  # defaults for any parameters that aren't specified
+
 steps:
   - task: GitVersion@4
     displayName: GitVersion

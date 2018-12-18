@@ -1,10 +1,9 @@
 variables:
   nugetVersion: 4.8.1
 
-
 # Reference templae for setting up build tools
 steps:
-  - template: templates/Common/common.yml
+  - template: templates/common/common.yml
     parameters:
       nugetVersion: $(nugetVersion)
 
