@@ -1,3 +1,6 @@
+variables:
+  nugetVersion: 4.8.1
+
 
 # Reference templae for setting up build tools
 steps:
