@@ -1,6 +1,7 @@
+
 # Reference templae for setting up build tools
 steps:
-  - template: templates/common/common.yml
+  - template: templates/Common/common.yml
     parameters:
       nugetVersion: $(nugetVersion)
 
