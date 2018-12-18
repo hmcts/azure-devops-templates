@@ -4,7 +4,7 @@ steps:
     displayName: 'NuGet restore'
     inputs:
       restoreSolution: '*/*.sln'
-      vstsFeed: '${{ parameters.vstsFeedId }'
+      vstsFeed: '${{ parameters.vstsFeedId }}'
 
 # Builds VS Solution
   - task: VSBuild@1
