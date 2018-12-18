@@ -1,21 +1,22 @@
+jobs:
+- job:
 
-# Reference templae for setting up build tools
-steps:
-  - template: templates/Common/common.yml
-    parameters:
-      nugetVersion: $(nugetVersion)
+  # Reference templae for setting up build tools
+  steps:
+    - template: templates/Common/common.yml
 
-# Performs npm steps - install, build, test, test publishing
-  - template: templates/npm.yml
 
-# SonarCloud Prepare step
-  - template: templates/SonarCloud/SonarCloudPrepare.yml
+  # Performs npm steps - install, build, test, test publishing
+    - template: templates/npm.yml
 
-# Restore NuGet packages and build VS solution
-  - template: templates/VSBuild/VSBuild.yml
+  # SonarCloud Prepare step
+    - template: templates/SonarCloud/SonarCloudPrepare.yml
 
-# Executes tests and publishes results
-  - template: templates/Tests/RunTests.yml
+  # Restore NuGet packages and build VS solution
+    - template: templates/VSBuild/VSBuild.yml
 
-# Publish artifacts
-  - template: templates/PublishArtifacts/PublishArtifacts.yml
+  # Executes tests and publishes results
+    - template: templates/Tests/RunTests.yml
+
+  # Publish artifacts
+    - template: templates/PublishArtifacts/PublishArtifacts.yml
