@@ -3,6 +3,8 @@ parameters:
   vstsFeedId: '0bb8fdf9-08cc-423c-8a96-81a1e4d65711'
   pool: 'Azure-VSTS-VS2017'
   azureSubscription: 'Reform-CFT-VH-Dev'
+  sonarCloudProjectKey: ''
+  sonarCloudextraProperties: ''
   
 jobs:
 - job: 
@@ -18,9 +20,9 @@ jobs:
   # SonarCloud Prepare step
     - template: ../templates/SonarCloud/SonarCloudPrepare.yml
       parameters:
-        sonarCloudProjectKey: 'uk.gov.hmcts.vh:$(vh-website)'
+        sonarCloudProjectKey: ${{ parameters.sonarCloudProjectKey }}
         sonarCloudprojectName: '$(Build.Repository.Name)'
-        sonarCloudextraProperties: ''
+        sonarCloudextraProperties: ${{ parameters.sonarCloudextraProperties }}
 
   # Restore NuGet packages and build VS solution
     - template: ../templates/VSBuild/VSBuild.yml
