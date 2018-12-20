@@ -9,7 +9,7 @@ jobs:
   pool: ${{ parameters.pool }}
   # Reference templae for setting up build tools
   steps:
-    - template: templates/Common/common.yml
+    - template: ../templates/Common/common.yml
 
   # Performs npm steps - install, build, test, test publishing
     - template: templates/npm.yml
