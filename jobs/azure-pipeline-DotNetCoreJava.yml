@@ -7,20 +7,4 @@ jobs:
 - job: ${{ parameters.name }}
   pool: ${{ parameters.pool }}
   # Reference templae for setting up build tools
-  steps:
-    - template: templates/Common/common.yml
 
-  # Performs npm steps - install, build, test, test publishing
-    - template: templates/npm.yml
-
-  # SonarCloud Prepare step
-    - template: templates/SonarCloud/SonarCloudPrepare.yml
-
-  # Restore NuGet packages and build VS solution
-    - template: templates/VSBuild/VSBuild.yml
-
-  # Executes tests and publishes results
-    - template: templates/Tests/RunTests.yml
-
-  # Publish artifacts
-    - template: templates/PublishArtifacts/PublishArtifacts.yml
