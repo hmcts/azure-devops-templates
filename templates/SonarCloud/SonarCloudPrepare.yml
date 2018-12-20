@@ -1,5 +1,5 @@
 parameters:
-  SonarCloud.name: 'HMCTS_SonarCloud'
+  SonarCloudname: 'HMCTS_SonarCloud'
   SonarCloud.organization: 'hmcts'
   SonarCloud.ProjectKey: ''
   SonarCloud.projectName: ''
@@ -10,7 +10,7 @@ steps:
   - task: SonarCloudPrepare@1
     displayName: 'Prepare analysis on SonarCloud'
     inputs:
-      SonarCloud: '${{ parameters.SonarCloud.name }}'
+      SonarCloud: '${{ parameters.SonarCloudname }}'
       organization: '${{ parameters.SonarCloud.organization }}'
       projectKey: '${{ parameters.SonarCloud.ProjectKey }}'
       projectName: '${{ parameters.SonarCloud.projectName }}'
