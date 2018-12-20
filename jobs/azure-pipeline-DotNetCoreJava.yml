@@ -4,9 +4,9 @@ parameters:
   pool: 'Azure-VSTS-VS2017'
   azureSubscription: 'Reform-CFT-VH-Dev'
 
-  SonarCloud.ProjectKey: 'uk.gov.hmcts.vh:$(vh-website)'
-  SonarCloud.projectName: '$(Build.Repository.Name)'
-  SonarCloud.extraProperties: ''
+  sonarCloudProjectKey: 'uk.gov.hmcts.vh:$(vh-website)'
+  sonarCloudprojectName: '$(Build.Repository.Name)'
+  sonarCloudextraProperties: ''
   
 jobs:
 - job: 
