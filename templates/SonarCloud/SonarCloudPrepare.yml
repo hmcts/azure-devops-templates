@@ -1,18 +1,18 @@
 parameters:
-  SonarCloudname: 'HMCTS_SonarCloud'
-  SonarCloud.organization: 'hmcts'
-  SonarCloud.ProjectKey: ''
-  SonarCloud.projectName: ''
-  SonarCloud.projectVersion: '$(Build.BuildNumber)'
-  SonarCloud.extraProperties: ''
+  sonarCloudName: 'HMCTS_SonarCloud'
+  sonarCloudOrganization: 'hmcts'
+  sonarCloudProjectKey: ''
+  sonarCloudProjectName: ''
+  sonarCloudProjectVersion: '$(Build.BuildNumber)'
+  sonarCloudExtraProperties: ''
 
 steps:
   - task: SonarCloudPrepare@1
     displayName: 'Prepare analysis on SonarCloud'
     inputs:
-      SonarCloud: '${{ parameters.SonarCloudname }}'
-      organization: '${{ parameters.SonarCloud.organization }}'
-      projectKey: '${{ parameters.SonarCloud.ProjectKey }}'
-      projectName: '${{ parameters.SonarCloud.projectName }}'
-      projectVersion: '${{ parameters.SonarCloud.projectVersion }}'
-      extraProperties: '${{ parameters.SonarCloud.extraProperties }}'
+      SonarCloud: '${{ parameters.sonarCloudName }}'
+      organization: '${{ parameters.sonarCloudOrganization }}'
+      projectKey: '${{ parameters.sonarCloudProjectKey }}'
+      projectName: '${{ parameters.sonarCloudProjectName }}'
+      projectVersion: '${{ parameters.sonarCloudProjectVersion }}'
+      extraProperties: '${{ parameters.sonarCloudExtraProperties }}'
