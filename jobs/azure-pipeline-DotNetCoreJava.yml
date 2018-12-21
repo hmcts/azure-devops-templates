@@ -29,7 +29,7 @@ jobs:
     - template: ../templates/VSBuild/VSBuild.yml
 
   # Executes tests and publishes results
-    - template: templates/getSecrets/getSecrets.yml
+    - template: ../templates/getSecrets/getSecrets.yml
 
   # Executes tests and publishes results
     - template: ../templates/Tests/RunTests.yml
