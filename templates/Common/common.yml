@@ -1,5 +1,5 @@
 parameters:
-  nugetVersion: 4.8.1  # defaults for any parameters that aren't specified
+  nugetVersion: 4.8.1  # Min version must be 4.7.1
 
 steps:
   - task: GitVersion@4

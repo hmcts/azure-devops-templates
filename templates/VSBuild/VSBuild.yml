@@ -1,3 +1,7 @@
+parameters:
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+
 steps:
 # Restores nuget packages
   - task: NuGetCommand@2
@@ -11,6 +15,6 @@ steps:
     displayName: 'Build solution */*.sln'
     inputs:
       solution: '*/*.sln'
-      platform: '$(BuildPlatform)'
-      configuration: '$(BuildConfiguration)'
+      platform: '${{ parameters.buildPlatform }}'
+      configuration: '${{ parameters.buildPlatform }}'
       msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactstagingdirectory)\WebApp"'
