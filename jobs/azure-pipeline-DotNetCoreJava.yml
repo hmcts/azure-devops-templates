@@ -5,6 +5,7 @@ parameters:
   azureSubscription: 'Reform-CFT-VH-Dev'
   sonarCloudProjectKey: ''
   sonarCloudextraProperties: ''
+  buildConfiguration: 'Release'
   
 jobs:
 - job: 
@@ -15,7 +16,7 @@ jobs:
     - template: ../templates/Common/common.yml
 
   # Performs npm steps - install, build, test, test publishing
-    - template: ../templates/npm.yml
+    - template: ../templates/npm/npm.yml
 
   # SonarCloud Prepare step
     - template: ../templates/SonarCloud/SonarCloudPrepare.yml
