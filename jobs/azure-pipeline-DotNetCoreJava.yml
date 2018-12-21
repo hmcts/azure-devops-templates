@@ -6,7 +6,7 @@ parameters:
   sonarCloudProjectKey: ''
   sonarCloudextraProperties: ''
   buildConfiguration: 'Release'
-  solutionType: ''
+  solutionType: 'javaDotNetCore'
   
 jobs:
 - job: 
