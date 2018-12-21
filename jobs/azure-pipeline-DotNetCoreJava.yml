@@ -17,7 +17,7 @@ jobs:
     - template: ../templates/Common/common.yml
 
   # Performs npm steps - install, build, test, test publishing
-    - ${{ if eq(parameters.solutionType, 'javaDotNetCore') }}:
+    - ${{ if in(${{ parameters.solutionType }}, 'javaDotNetCore', 'Java') }}:
       - template: ../templates/npm/npm.yml
 
   # SonarCloud Prepare step
