@@ -1,6 +1,7 @@
 parameters:
   vstsFeedId: '0bb8fdf9-08cc-423c-8a96-81a1e4d65711'
   azureSubscription: Reform-CFT-VH-Dev
+  buildConfiguration: 'Release'
 
 # Reference templae for setting up build tools
 steps:

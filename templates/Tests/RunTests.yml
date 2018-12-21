@@ -1,10 +1,13 @@
+parameters:
+  buildConfiguration: '' # used in DotNetColeCLI tasks
+
 steps:
   - task: DotNetCoreCLI@2
     displayName: 'Run Unit Tests'
     inputs:
       command: test
       projects: '**\**\*UnitTests.csproj'
-      arguments: '--no-build /p:CollectCoverage=true /p:CoverletOutputFormat="\"opencover,cobertura,json\"" /p:Exclude="\"[NUnit3.TestAdapter]*\"" /p:CoverletOutput=$(Common.TestResultsDirectory)\Coverage\UnitTest\ -c $(BuildConfiguration) '
+      arguments: '--no-build /p:CollectCoverage=true /p:CoverletOutputFormat="\"opencover,cobertura,json\"" /p:Exclude="\"[NUnit3.TestAdapter]*\"" /p:CoverletOutput=$(Common.TestResultsDirectory)\Coverage\UnitTest\ -c ${{ parameters.buildConfiguration }} '
 
   - task: MagicChunks@2
     displayName: 'Config transform for Integration tests'
@@ -22,7 +25,7 @@ steps:
     inputs:
       command: test
       projects: '**\**\*IntegrationTests.csproj'
-      arguments: '--no-build /p:CollectCoverage=true /p:CoverletOutputFormat="\"opencover,cobertura,json\"" /p:Exclude="\"[NUnit3.TestAdapter]*\"" /p:CoverletOutput=$(Common.TestResultsDirectory)\Coverage\ -c $(BuildConfiguration) '
+      arguments: '--no-build /p:CollectCoverage=true /p:CoverletOutputFormat="\"opencover,cobertura,json\"" /p:Exclude="\"[NUnit3.TestAdapter]*\"" /p:CoverletOutput=$(Common.TestResultsDirectory)\Coverage\ -c ${{ parameters.buildConfiguration }} '
   
   - task: PublishCodeCoverageResults@1
     displayName: 'Publish code coverage'
