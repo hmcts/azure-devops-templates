@@ -29,6 +29,7 @@ jobs:
 
   # Restore NuGet packages and build VS solution
     - template: ../templates/VSBuild/VSBuild.yml
+      parameters:
         buildConfiguration: '${{ parameters.buildConfiguration }}'
 
   # Executes unit tests
