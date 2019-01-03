@@ -1,0 +1,10 @@
+parameters:
+  buildConfiguration: '' # used in DotNetColeCLI tasks
+
+steps:
+  - task: DotNetCoreCLI@2
+    displayName: 'Run Unit Tests'
+    inputs:
+      command: test
+      projects: '**\**\*UnitTests.csproj'
+      arguments: '--no-build /p:CollectCoverage=true /p:CoverletOutputFormat="\"opencover,cobertura,json\"" /p:Exclude="\"[NUnit3.TestAdapter]*\"" /p:CoverletOutput=$(Common.TestResultsDirectory)\Coverage\UnitTest\ -c ${{ parameters.buildConfiguration }} '

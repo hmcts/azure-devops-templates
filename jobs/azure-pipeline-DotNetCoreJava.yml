@@ -30,14 +30,21 @@ jobs:
   # Restore NuGet packages and build VS solution
     - template: ../templates/VSBuild/VSBuild.yml
 
-  # Executes tests and publishes results
+  # Executes unit tests
     - template: ../templates/getSecrets/getSecrets.yml
       parameters:
           azureSubscription: '${{ parameters.azureSubscription }}'
           KeyVaultName: '${{ parameters.KeyVaultName }}'
 
+    # Executes integration tests and publishes results
+    - template: ../templates/Tests/runUnitTests.yml
+      parameters:
+        buildConfiguration: '${{ parameters.buildConfiguration }}'
+
   # Executes tests and publishes results
     - template: ../templates/Tests/RunTests.yml
+      parameters:
+        buildConfiguration: '${{ parameters.buildConfiguration }}'
 
   # Publish artifacts
     - template: ../templates/PublishArtifacts/PublishArtifacts.yml
