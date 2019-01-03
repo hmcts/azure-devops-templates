@@ -33,6 +33,7 @@ jobs:
   # Executes tests and publishes results
     - template: ../templates/getSecrets/getSecrets.yml
       parameters:
+          azureSubscription: '${{ parameters.azureSubscription }}'
           KeyVaultName: '${{ parameters.KeyVaultName }}'
 
   # Executes tests and publishes results
