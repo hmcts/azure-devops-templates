@@ -7,7 +7,7 @@ parameters:
   sonarCloudextraProperties: ''
   buildConfiguration: 'Release'
   solutionType: 'javaDotNetCore'
-  KeyVaultName: 'vhcoreinfrapreview'
+  KeyVaultName: ''
   
 jobs:
 - job: 
@@ -37,9 +37,9 @@ jobs:
           KeyVaultName: '${{ parameters.KeyVaultName }}'
 
     # Executes integration tests and publishes results
-    #- template: ../templates/Tests/runUnitTests.yml
-    #  parameters:
-    #    buildConfiguration: '${{ parameters.buildConfiguration }}'
+    - template: ../templates/Tests/runUnitTests.yml
+      parameters:
+        buildConfiguration: '${{ parameters.buildConfiguration }}'
 
   # Executes tests and publishes results
     - template: ../templates/Tests/RunTests.yml
