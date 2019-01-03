@@ -4,7 +4,7 @@ parameters:
   - task: MagicChunks@2
     displayName: 'Config transform for Integration tests'
     inputs:
-      sourcePath: '**\*IntegrationTests\bin\$(BuildConfiguration)\**\appsettings.json'
+      sourcePath: '**\*IntegrationTests\bin\${{ parameters.buildConfiguration }}\**\appsettings.json'
       transformations: |  
        {
        "KeyVaultSettings/KeyVaultUri": "$(VHAzureKeyVault)",
