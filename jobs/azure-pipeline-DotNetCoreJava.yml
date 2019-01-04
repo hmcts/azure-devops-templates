@@ -22,6 +22,8 @@ jobs:
 
   # Performs npm steps - install, build, test, test publishing
     - template: ../templates/npm/npm.yml
+      condition: In(variables['Build.Reason'], 'Manual', 'Schedule')
+
 
   # SonarCloud Prepare step
     - template: ../templates/SonarCloud/SonarCloudPrepare.yml
