@@ -1,5 +1,5 @@
 parameters:
-  buildConfiguration: '' # used in DotNetColeCLI tasks
+  buildConfiguration: '' # used in DotNetCoreCLI tasks
 
 steps:
   - task: MagicChunks@2
