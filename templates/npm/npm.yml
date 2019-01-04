@@ -1,4 +1,5 @@
 steps:
+- ${{ if in(variables['Build.Reason'], 'Schedule') }}:
   - task: Npm@1
     displayName: 'Install Node Modules'
     inputs:
