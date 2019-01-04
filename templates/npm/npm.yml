@@ -1,5 +1,5 @@
 steps:
-- ${{ if in(variables['solutionType'], 'javaDotNetCore', 'Schedule') }}:
+- ${{ in(variables['solutionType'], 'javaDotNetCore', 'Schedule') }}:
   - task: Npm@1
     displayName: 'Install Node Modules'
     inputs:
