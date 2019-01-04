@@ -14,8 +14,6 @@ jobs:
 - job: 
   displayName: ${{ parameters.name }}
   pool: ${{ parameters.pool }}
-  workspace:
-    clean: outputs
   # Reference templae for setting up build tools
   steps:
     - template: ../templates/Common/common.yml
