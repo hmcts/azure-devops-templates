@@ -8,6 +8,7 @@ parameters:
   buildConfiguration: 'Release'
   solutionType: 'javaDotNetCore'
   KeyVaultName: ''
+  SecretsFilter: ''
   
 jobs:
 - job: 
@@ -34,13 +35,15 @@ jobs:
       parameters:
         buildConfiguration: '${{ parameters.buildConfiguration }}'
 
-  # Executes unit tests
+  # Get secrets from Key Vault
     - template: ../templates/getSecrets/getSecrets.yml
       parameters:
           azureSubscription: '${{ parameters.azureSubscription }}'
           KeyVaultName: '${{ parameters.KeyVaultName }}'
+          SecretsFilter: '${{ parameters.SecretsFilter }}'
 
-    # Executes integration tests and publishes results
+
+    # Executes unit tests
     - template: ../templates/Tests/runUnitTests.yml
       parameters:
         buildConfiguration: '${{ parameters.buildConfiguration }}'
