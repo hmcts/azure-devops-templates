@@ -19,13 +19,10 @@ jobs:
     - checkout: self  # self represents the repo where the initial Pipelines YAML file was found
       clean: false  # whether to fetch clean each time
     - template: ../templates/Common/common.yml
-- job: 
-  steps:
 
   # Performs npm steps - install, build, test, test publishing
-  - template: ../templates/npm/npm.yml
-- job: 
-  steps:
+    - template: ../templates/npm/npm.yml
+
   # SonarCloud Prepare step
     - template: ../templates/SonarCloud/SonarCloudPrepare.yml
       parameters:
