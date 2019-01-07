@@ -6,6 +6,8 @@ steps:
     inputs:
       workingDir: $(angularWorkingDir)
       verbose: false
+    condition: in(variables['solutionType'], 'javaDotNetCore')
+
 
   - task: Npm@1
     displayName: 'Compile ClientApp'
