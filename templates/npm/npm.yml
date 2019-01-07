@@ -1,6 +1,6 @@
 steps:
 # Conditions on step template do not work at this point - https://github.com/Microsoft/azure-pipelines-yaml/issues/30
-#- ${{ if in(variables['solutionType'],  'javaDotNetCore') }}:
+- ${{ if in(variables['solutionType'],  'javaDotNetCore') }}:
   - task: Npm@1
     displayName: 'Install Node Modules'
     inputs:
