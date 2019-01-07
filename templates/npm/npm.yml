@@ -6,7 +6,7 @@ steps:
     inputs:
       workingDir: $(angularWorkingDir)
       verbose: false
-    condition: in(variables['solutionType'], 'javaDotNetCore')
+    condition: in(variables['solutionType'], 'DotNetCore')
 
 
   - task: Npm@1
