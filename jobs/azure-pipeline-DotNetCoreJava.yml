@@ -15,7 +15,7 @@ jobs:
   displayName: ${{ parameters.name }}
   pool: ${{ parameters.pool }}
   # Condition for running this job
-  condition: in(variables['solutionType'], 'javaDotNetCore'))
+  condition: in(variables['solutionType'], 'javaDotNetCore')
   # Reference templae for setting up build tools
   steps:
     - checkout: self  # self represents the repo where the initial Pipelines YAML file was found
@@ -62,7 +62,7 @@ jobs:
   displayName: ${{ parameters.name }}
   pool: ${{ parameters.pool }}
   # Condition for running this job
-  condition: in(variables['solutionType'], 'DotNetCore'))
+  condition: in(variables['solutionType'], 'DotNetCore')
   # Reference templae for setting up build tools
   steps:
     - checkout: self  # self represents the repo where the initial Pipelines YAML file was found
