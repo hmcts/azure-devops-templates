@@ -1,13 +1,13 @@
 steps:
 # Conditions on step template do not work at this point - https://github.com/Microsoft/azure-pipelines-yaml/issues/30
 #- ${{ if in(variables['solutionType'],  'javaDotNetCore') }}:
+
   - task: Npm@1
     displayName: 'Install Node Modules'
     inputs:
       workingDir: $(angularWorkingDir)
       verbose: false
-    condition: in(variables['solutionType'], 'DotNetCore')
-
+    #condition: in(variables['solutionType'], 'javaDotNetCore')
 
   - task: Npm@1
     displayName: 'Compile ClientApp'
@@ -29,7 +29,7 @@ steps:
     displayName: 'Publish Jasmine Test Results'
     inputs:
       testResultsFiles: '*TESTS.xml'
-      searchFolder: '$(System.DefaultWorkingDirectory)/HearingsWebsite/Website/ClientApp/jasmine-tests'
+      searchFolder: '$(System.DefaultWorkingDirectory)/**/**/ClientApp/jasmine-tests'
       mergeTestResults: true
       testRunTitle: 'Jasmine Test Results'
     condition: succeededOrFailed()
