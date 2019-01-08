@@ -22,6 +22,7 @@ steps:
       workingDir: $(npmWorkingDir)
       verbose: false
       customCommand: 'run build-prod'
+    condition: in(variables['solutionType'], 'javaDotNetCore')
 
   - task: Npm@1
     displayName: 'Run Jasmine Tests'
@@ -30,6 +31,7 @@ steps:
       workingDir: $(npmWorkingDir)
       verbose: false
       customCommand: 'run test-once-ci'
+    condition: in(variables['solutionType'], 'javaDotNetCore')
 
   - task: PublishTestResults@2
     displayName: 'Publish Jasmine Test Results'
@@ -38,7 +40,7 @@ steps:
       searchFolder: '$(npmWorkingDir)/jasmine-tests'
       mergeTestResults: true
       testRunTitle: 'Jasmine Test Results'
-    condition: succeededOrFailed()
+    condition: in(variables['solutionType'], 'javaDotNetCore')
 
   - task: PublishCodeCoverageResults@1
     displayName: 'Publish Jasmine Code Coverage'
@@ -47,4 +49,4 @@ steps:
       failIfCoverageEmpty: true
       summaryFileLocation: '$(npmWorkingDir)/coverage/cobertura-coverage.xml'
       reportDirectory: '$(npmWorkingDir)/coverage/'
-    condition: succeededOrFailed()
+    condition: in(variables['solutionType'], 'javaDotNetCore')
