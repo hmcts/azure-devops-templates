@@ -2,10 +2,15 @@ steps:
 # Conditions on step template do not work at this point - https://github.com/Microsoft/azure-pipelines-yaml/issues/30
 #- ${{ if in(variables['solutionType'],  'javaDotNetCore') }}:
 
+  - powershell: |
+     $npmWorkingDir = (Resolve-Path $(Build.SourcesDirectory)\**\**\Website\ClientApp\package.json).path.Replace("package.json","")
+     Write-Host "##vso[task.setvariable variable=npmWorkingDir;]$npmWorkingDir"
+    displayName: Resolve Angular working directory
+
   - task: Npm@1
     displayName: 'Install Node Modules'
     inputs:
-      workingDir: $(angularWorkingDir)
+      workingDir: $(npmWorkingDir)
       verbose: false
     condition: in(variables['solutionType'], 'javaDotNetCore')
 
@@ -13,7 +18,7 @@ steps:
     displayName: 'Compile ClientApp'
     inputs:
       command: custom
-      workingDir: $(angularWorkingDir)
+      workingDir: $(npmWorkingDir)
       verbose: false
       customCommand: 'run build-prod'
 
@@ -21,7 +26,7 @@ steps:
     displayName: 'Run Jasmine Tests'
     inputs:
       command: custom
-      workingDir: $(angularWorkingDir)
+      workingDir: $(npmWorkingDir)
       verbose: false
       customCommand: 'run test-once-ci'
 
