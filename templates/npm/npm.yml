@@ -3,8 +3,8 @@ steps:
 #- ${{ if in(variables['solutionType'],  'javaDotNetCore') }}:
 
   - powershell: |
-  
-     $npmWorkingDir = (Resolve-Path $(Build.SourcesDirectory)\**\**\Website\ClientApp\package.json).path.Replace("package.json","")
+
+     $npmWorkingDir = (Resolve-Path $(Build.SourcesDirectory)\**\Website\ClientApp\package.json).path.Replace("package.json","")
      Write-Host "##vso[task.setvariable variable=npmWorkingDir;]$npmWorkingDir"
     displayName: Resolve Angular working directory
 
