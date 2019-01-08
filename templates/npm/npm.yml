@@ -35,7 +35,7 @@ steps:
     displayName: 'Publish Jasmine Test Results'
     inputs:
       testResultsFiles: '*TESTS.xml'
-      searchFolder: '$(System.DefaultWorkingDirectory)/HearingsWebsite/Website/ClientApp/jasmine-tests'
+      searchFolder: '$(npmWorkingDir)/jasmine-tests'
       mergeTestResults: true
       testRunTitle: 'Jasmine Test Results'
     condition: succeededOrFailed()
@@ -45,6 +45,6 @@ steps:
     inputs:
       codeCoverageTool: Cobertura
       failIfCoverageEmpty: true
-      summaryFileLocation: '$(System.DefaultWorkingDirectory)/HearingsWebsite/Website/ClientApp/coverage/cobertura-coverage.xml'
-      reportDirectory: '$(System.DefaultWorkingDirectory)/HearingsWebsite/Website/ClientApp/coverage/'
+      summaryFileLocation: '$(npmWorkingDir)/coverage/cobertura-coverage.xml'
+      reportDirectory: '$(npmWorkingDir)/coverage/'
     condition: succeededOrFailed()
