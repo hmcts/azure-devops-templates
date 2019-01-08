@@ -1,5 +1,6 @@
 parameters:
   buildConfiguration: '' # used in DotNetColeCLI tasks
+  coverletCoverageExclusions: ''
 
 steps:
   - task: DotNetCoreCLI@2
@@ -7,4 +8,4 @@ steps:
     inputs:
       command: test
       projects: '**\**\*UnitTests.csproj'
-      arguments: '--no-build /p:CollectCoverage=true /p:CoverletOutputFormat="\"opencover,cobertura,json\"" /p:Exclude="\"[NUnit3.TestAdapter]*\"" /p:CoverletOutput=$(Common.TestResultsDirectory)\Coverage\UnitTest\ -c ${{ parameters.buildConfiguration }} '
+      arguments: '--no-build /p:CollectCoverage=true /p:CoverletOutputFormat="\"opencover,cobertura,json\"" /p:Exclude="\"${{ parameters.coverletCoverageExclusions }}\"" /p:CoverletOutput=$(Common.TestResultsDirectory)\Coverage\UnitTest\ -c ${{ parameters.buildConfiguration }} '

@@ -1,6 +1,6 @@
 parameters:
   buildConfiguration: '' # used in DotNetCoreCLI tasks
-  coverletCoverageExclusions: '[Hearings.DAL]*,[Testing.Common]*,[NUnit3.TestAdapter]*'
+  coverletCoverageExclusions: ''
 
 steps:
   - task: MagicChunks@2
