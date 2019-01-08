@@ -1,5 +1,6 @@
 parameters:
   buildConfiguration: '' # used in DotNetCoreCLI tasks
+  coverletCoverageExclusions: '[Hearings.DAL]*,[Testing.Common]*,[NUnit3.TestAdapter]*'
 
 steps:
   - task: MagicChunks@2
@@ -18,7 +19,7 @@ steps:
     inputs:
       command: test
       projects: '**\**\*IntegrationTests.csproj'
-      arguments: '--no-build /p:CollectCoverage=true /p:CoverletOutputFormat="\"opencover,cobertura,json\"" /p:Exclude="\"[NUnit3.TestAdapter]*\"" /p:CoverletOutput=$(Common.TestResultsDirectory)\Coverage\ -c ${{ parameters.buildConfiguration }} '
+      arguments: '--no-build /p:CollectCoverage=true /p:CoverletOutputFormat="\"opencover,cobertura,json\"" /p:Exclude="\"${{ parameters.coverletCoverageExclusions }}\"" /p:CoverletOutput=$(Common.TestResultsDirectory)\Coverage\ -c ${{ parameters.buildConfiguration }} '
   
   - task: PublishCodeCoverageResults@1
     displayName: 'Publish code coverage'
