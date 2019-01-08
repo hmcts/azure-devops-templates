@@ -5,7 +5,7 @@ parameters:
   sonarCloudProjectKey: ''
   sonarCloudextraProperties: ''
   buildConfiguration: 'Release'
-  solutionType: 'javaDotNetCore'
+  solutionType: ''
   KeyVaultName: ''
   SecretsFilter: ''
   
