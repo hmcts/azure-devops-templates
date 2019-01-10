@@ -10,3 +10,9 @@ steps:
     inputs:
       PathtoPublish: '$(Build.ArtifactStagingDirectory)\**\**.AcceptanceTests\bin\$(BuildConfiguration)'
       ArtifactName: AcceptanceTests
+
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifacts'
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+      ArtifactName: Artifacts
