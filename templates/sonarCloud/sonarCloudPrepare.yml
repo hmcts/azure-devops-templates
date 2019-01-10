@@ -8,11 +8,11 @@ parameters:
 
 steps:
   - powershell: |
-     $sonarCloudProjectKey = ($(Build.Repository.Name)).Replace("hmcts/","")
+     $sonarCloudProjectKey = ("$(Build.Repository.Name)").Replace("hmcts/","")
      Write-Output ("Sonar Cloud project key {0}" -f $sonarCloudProjectKey)
      Write-Host "##vso[task.setvariable variable=sonarCloudProjectKey;]$sonarCloudProjectKey"
     displayName: Set Sonar Cloud project key
-    
+
   - task: SonarCloudPrepare@1
     displayName: 'Prepare analysis on SonarCloud'
     inputs:
