@@ -6,7 +6,7 @@ steps:
       ArtifactName: WebApp
 
   - powershell: |
-     $AcceptanceTestsPath = (Resolve-Path $(Build.SourcesDirectory)\**\*.AcceptanceTests\bin\**).path)
+     $AcceptanceTestsPath = (Resolve-Path $(Build.SourcesDirectory)\**\*.AcceptanceTests\bin\**).path
      Write-Output ("Acctepance Tests path: {0}" -f $AcceptanceTestsPath)
      Write-Host "##vso[task.setvariable variable=AcceptanceTestsPath;]$AcceptanceTestsPath"
     displayName: Resolve Acceptance Tests bin path
