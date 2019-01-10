@@ -1,2 +1,2 @@
-# vh-azure-devops-build-templates
-Contains library of Azure DevOps build templates
+# azure-devops-templates
+Contains library of Azure DevOps yaml templates
