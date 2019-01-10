@@ -1,14 +1,18 @@
 parameters:
   sonarCloudName: 'HMCTS_SonarCloud'
   sonarCloudOrganization: 'hmcts'
-  sonarCloudProjectKey: ''
+  sonarCloudProjectKey: '$(sonarCloudProjectKey)'
   sonarCloudProjectName: ''
   sonarCloudProjectVersion: '$(Build.BuildNumber)'
   sonarCloudExtraProperties: ''
 
 steps:
   - powershell: |
-     write-output $(Build.Repository.Name) 
+     $sonarCloudProjectKey = ($(Build.Repository.Name)).Replace("hmcts/","")
+     Write-Output ("Sonar Cloud project key {0}" -f $sonarCloudProjectKey)
+     Write-Host "##vso[task.setvariable variable=sonarCloudProjectKey;]$sonarCloudProjectKey"
+    displayName: Set Sonar Cloud project key
+    
   - task: SonarCloudPrepare@1
     displayName: 'Prepare analysis on SonarCloud'
     inputs:
