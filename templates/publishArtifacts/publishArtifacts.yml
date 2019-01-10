@@ -8,5 +8,5 @@ steps:
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifacts: Acceptance Tests'
     inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)\**\*.AcceptanceTests\bin\**'
+      PathtoPublish: '$(Build.SourcesDirectory)\**\*.AcceptanceTests\bin\**'
       ArtifactName: AcceptanceTests
