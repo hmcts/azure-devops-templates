@@ -5,8 +5,14 @@ steps:
       PathtoPublish: '$(Build.ArtifactStagingDirectory)\WebApp'
       ArtifactName: WebApp
 
+  - powershell: |
+     $AcceptanceTestsPath = (Resolve-Path $(Build.SourcesDirectory)\**\*.AcceptanceTests\bin\**).path)
+     Write-Output ("Acctepance Tests path: {0}" -f $AcceptanceTestsPath)
+     Write-Host "##vso[task.setvariable variable=AcceptanceTestsPath;]$AcceptanceTestsPath"
+    displayName: Resolve Acceptance Tests bin path
+
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifacts: Acceptance Tests'
     inputs:
-      PathtoPublish: '$(Build.SourcesDirectory)\**\*.AcceptanceTests\bin\**'
+      PathtoPublish: '$(AcceptanceTestsPath)'
       ArtifactName: AcceptanceTests
