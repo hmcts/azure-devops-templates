@@ -1,0 +1,33 @@
+# Set variables once
+variables:
+  solutionType: DotNetCore # angularDotNetCore, dotNetCore
+  sonarCloudPrepareExtraProperties: |  
+    sonar.exclusions=**/node_modules/**,**/*.spec.ts,*.spec.ts,**/ClientApp/src/*,**/ClientApp/coverage/**/*
+    sonar.typescript.lcov.reportPaths=$(System.DefaultWorkingDirectory)/*/Website/ClientApp/coverage/lcov.info,**/lcov.info
+    sonar.typescript.exclusions=**/node_modules/**,**/typings.d.ts,**/main.ts,**/environments/environment*.ts,**/*routing.module.ts
+    sonar.cs.opencover.reportsPaths=$(Common.TestResultsDirectory)\Coverage\coverage.opencover.xml
+  vhAzureKeyVault: 'https://vhwebsitepreview.vault.azure.net/' # Used during integration tests
+  keyVaultName: vhcoreinfrapreview # Used to get secrets for integration tests
+  secretsFilter: 'vh-website-AppID,vh-website-Key' # filters out secrets returned from key vault
+
+# GitHub Repo that conatins build templates. Reference https://docs.microsoft.com/en-us/azure/devops/pipelines/process/templates?view=vsts#using-other-repositories
+resources:
+  repositories:
+  - repository: azureDevOpsTemplates
+    type: github
+    name: hmcts/azure-devops-templates
+    endpoint: 'GitHub connection 1'
+
+trigger:
+- master
+pr:
+- master
+
+jobs:
+- template: jobs/angularDotNetCore.yml@azureDevOpsTemplates # Template reference
+  parameters:
+    sonarCloudProjectKey: $(sonarCloudProjectKey)
+    sonarCloudExtraProperties: $(sonarCloudPrepareExtraProperties)
+    KeyVaultName: $(KeyVaultName)
+    SecretsFilter: $(SecretsFilter)
+    solutionType: $(solutionType)
