@@ -6,7 +6,7 @@ steps:
       ArtifactName: WebApp
 
   - task: PublishBuildArtifacts@1
-    displayName: 'Publish Artifacts'
+    displayName: 'Publish Artifacts: Acceptance Tests'
     inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-      ArtifactName: Artifacts
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)\**\*.AcceptanceTests\bin\**'
+      ArtifactName: AcceptanceTests
