@@ -7,6 +7,8 @@ parameters:
   sonarCloudExtraProperties: ''
 
 steps:
+  - powershell: |
+     write-output $(Build.Repository.Name) 
   - task: SonarCloudPrepare@1
     displayName: 'Prepare analysis on SonarCloud'
     inputs:
