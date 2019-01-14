@@ -9,6 +9,7 @@ steps:
     inputs:
       restoreSolution: '*/*.sln'
       vstsFeed: '${{ parameters.vstsFeedId }}'
+      includeNuGetOrg: false
 
 # Builds VS Solution
   - task: VSBuild@1
