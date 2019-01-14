@@ -6,14 +6,14 @@ steps:
      $npmWorkingDir = (Resolve-Path $(Build.SourcesDirectory)\**\**\ClientApp\package.json).path.Replace("package.json","")
      Write-Host "##vso[task.setvariable variable=npmWorkingDir;]$npmWorkingDir"
     displayName: Resolve Angular working directory
-    condition: in(variables['solutionType'], 'angularDotNetCore')
+    condition: in(variables['solutionType'], 'angularDotNetCore', 'angular')
 
   - task: Npm@1
     displayName: 'Install Node Modules'
     inputs:
       workingDir: $(npmWorkingDir)
       verbose: false
-    condition: in(variables['solutionType'], 'angularDotNetCore')
+    condition: in(variables['solutionType'], 'angularDotNetCore', 'angular')
 
   - task: Npm@1
     displayName: 'Compile ClientApp'
@@ -22,7 +22,7 @@ steps:
       workingDir: $(npmWorkingDir)
       verbose: false
       customCommand: 'run build-prod'
-    condition: in(variables['solutionType'], 'angularDotNetCore')
+    condition: in(variables['solutionType'], 'angularDotNetCore', 'angular')
 
   - task: Npm@1
     displayName: 'Run Jasmine Tests'
@@ -31,7 +31,7 @@ steps:
       workingDir: $(npmWorkingDir)
       verbose: false
       customCommand: 'run test-once-ci'
-    condition: in(variables['solutionType'], 'angularDotNetCore')
+    condition: in(variables['solutionType'], 'angularDotNetCore', 'angular')
 
   - task: PublishTestResults@2
     displayName: 'Publish Jasmine Test Results'
@@ -40,7 +40,7 @@ steps:
       searchFolder: '$(npmWorkingDir)/jasmine-tests'
       mergeTestResults: true
       testRunTitle: 'Jasmine Test Results'
-    condition: in(variables['solutionType'], 'angularDotNetCore')
+    condition: in(variables['solutionType'], 'angularDotNetCore', 'angular')
 
   - task: PublishCodeCoverageResults@1
     displayName: 'Publish Jasmine Code Coverage'
@@ -49,4 +49,4 @@ steps:
       failIfCoverageEmpty: true
       summaryFileLocation: '$(npmWorkingDir)/coverage/cobertura-coverage.xml'
       reportDirectory: '$(npmWorkingDir)/coverage/'
-    condition: in(variables['solutionType'], 'angularDotNetCore')
+    condition: in(variables['solutionType'], 'angularDotNetCore', 'angular')

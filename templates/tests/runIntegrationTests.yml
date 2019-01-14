@@ -28,9 +28,3 @@ steps:
       summaryFileLocation: '$(Common.TestResultsDirectory)\Coverage\coverage.cobertura.xml'
       reportDirectory: '$(Common.TestResultsDirectory)\Coverage'
       failIfCoverageEmpty: true
-  
-  - task: SonarCloudAnalyze@1
-    displayName: 'Run Code Analysis'
-  
-  - task: SonarCloudPublish@1
-    displayName: 'Publish Quality Gate Result'

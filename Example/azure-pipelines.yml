@@ -1,6 +1,6 @@
 # Set variables once
 variables:
-  solutionType: DotNetCore # angularDotNetCore, dotNetCore
+  solutionType: DotNetCore # angularDotNetCore, dotNetCore, angular
   sonarCloudPrepareExtraProperties: |  
     sonar.exclusions=**/node_modules/**,**/*.spec.ts,*.spec.ts,**/ClientApp/src/*,**/ClientApp/coverage/**/*
     sonar.typescript.lcov.reportPaths=$(System.DefaultWorkingDirectory)/*/Website/ClientApp/coverage/lcov.info,**/lcov.info

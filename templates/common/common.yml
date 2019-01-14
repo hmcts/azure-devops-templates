@@ -6,6 +6,7 @@ steps:
     displayName: GitVersion
     inputs:
       preferBundledVersion: false
+    condition: in(variables['solutionType'], 'angular')
 
   - task: NuGetToolInstaller@0
     displayName: 'Use NuGet ${{ parameters.nugetVersion }}'
