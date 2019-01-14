@@ -56,7 +56,7 @@ jobs:
       coverletCoverageExclusions: '${{ parameters.coverletCoverageExclusions }}'
 
 # Executes tests and publishes results
-  - template: ../templates/sonarCloud/sonarCloudRunAnalysis.yml
+#  - template: ../templates/sonarCloud/sonarCloudRunAnalysis.yml
 
 # Publish artifacts
   - template: ../templates/publishArtifacts/publishArtifacts.yml
