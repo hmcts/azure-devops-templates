@@ -7,8 +7,13 @@ steps:
 
   - powershell: |
      $AcceptanceTestsPath = (Resolve-Path $(Build.SourcesDirectory)\**\*.AcceptanceTests\bin\**).path
-     Write-Output ("Acctepance Tests path: {0}" -f $AcceptanceTestsPath)
+     if ($null -eq $AcceptanceTestsPath){
+     Write-Host ##vso[task.logissue type=warning]Acceptance Tests not found
+     }
+     else{
      Write-Host "##vso[task.setvariable variable=AcceptanceTestsPath;]$AcceptanceTestsPath"
+     Write-Output ("Acctepance Tests path: {0}" -f $AcceptanceTestsPath)
+     }
     displayName: Resolve Acceptance Tests bin path
 
   - task: PublishBuildArtifacts@1
@@ -16,3 +21,4 @@ steps:
     inputs:
       PathtoPublish: '$(AcceptanceTestsPath)'
       ArtifactName: AcceptanceTests
+    condition: ne(variables['AcceptanceTestsPath'], '')
