@@ -1,5 +1,6 @@
 parameters:
   nugetVersion: 4.7.1  # Min version must be 4.7.1
+  dotNetCoreVersion: 2.1.401
 
 steps:
   - task: GitVersion@4
@@ -11,3 +12,8 @@ steps:
     displayName: 'Use NuGet ${{ parameters.nugetVersion }}'
     inputs:
       versionSpec: ${{ parameters.nugetVersion }}
+
+  - task: DotNetCoreInstaller@0
+    displayName: 'Use .NET Core sdk ${{ parameters.dotNetCoreVersion }}'
+    inputs:
+      version: ${{ parameters.dotNetCoreVersion }}
