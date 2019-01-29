@@ -1,0 +1,26 @@
+{
+  "name": "azure-devops-templates",
+  "version": "1.0.0",
+  "description": "templates to for Azure Devops build pipelines used by the hearings reforms team",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {
+    "yaml-lint": "^1.2.4"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hmcts/azure-devops-templates.git"
+  },
+  "keywords": [
+    "devops"
+  ],
+  "author": "HMCTS",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hmcts/azure-devops-templates/issues"
+  },
+  "homepage": "https://github.com/hmcts/azure-devops-templates#readme"
+}
