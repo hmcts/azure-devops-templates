@@ -10,6 +10,9 @@ pool:
   vmImage: 'Ubuntu-16.04'
 
 steps:
+
+- bash: sudo apt-get install libcurl3
+
 - task: GitVersion@3
   displayName: GitVersion
   inputs:
