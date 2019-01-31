@@ -1,14 +1,14 @@
 
 parameters:
   serviceName: 'vh-app-api' # name of the app to be registered
-  keyVaultName: 'vhcoreinfraht$(environmentName)' # key vault name to for storing AAD app's details - appId, ClientSecret, etc.
-  resourceGroupName: $(serviceName)-$(environmentName) # resource group name for where the website is located
-  AppServicePlanName: vh-core-infra-$(environmentName) # App Service Plan name
+  keyVaultName: '' # key vault name to for storing AAD app's details - appId, ClientSecret, etc.
+  resourceGroupName: '' # resource group name for where the website is located
+  AppServicePlanName: '' # App Service Plan name
   WebSiteName: $(serviceName)-$(environmentName)  # Web Site name
   CustomHostname: $(WebSiteName)$(AzureAppServiceWebSiteCustomDomainName) # custom hostname used by the website
   aadAppReplyUrls: '' #CSV list of replay urls
 
-#${{ parameters.aadAppReplyUrls }}
+#${{ parameters.AppServicePlanName }}
 
 
 jobs:
@@ -23,8 +23,8 @@ jobs:
 
   - powershell: |
      git clone https://github.com/hmcts/vh-ps-modules.git
-     cd .\vh-ps-modules\
-     git checkout updated-dns-module
+    #  cd .\vh-ps-modules\
+    #  git checkout updated-dns-module
     displayName: 'Get PowerShell module source'
 
   - powershell: | 
@@ -75,9 +75,9 @@ jobs:
     inputs:
       azureSubscription: 'Reform-CFT-VH-Dev'
       action: 'Create Or Update Resource Group'
-      resourceGroupName: '$(resourceGroupName)'
+      resourceGroupName: '${{ parameters.resourceGroupName }}'
       location: 'UK West'
       csmFile: 'infrastructure/azuredeploy.json'
       csmParametersFile: 'infrastructure/azuredeploy.parameters.json'
-      overrideParameters: -appServicePlanName $(AppServicePlanName) -AzureWebsite $(WebSiteName) -customHostname $(CustomHostname) -certificateThumbprint $(WildcardCertificateThumbprint)
+      overrideParameters: -appServicePlanName ${{ parameters.AppServicePlanName }} -AzureWebsite $(WebSiteName) -customHostname $(CustomHostname) -certificateThumbprint $(WildcardCertificateThumbprint)
       deploymentMode: Incremental
