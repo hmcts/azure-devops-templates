@@ -1,0 +1,85 @@
+
+parameters:
+  # build agent pool can be overwritten on build template level 
+  pool: 'Azure-VSTS-VS2017'
+  azureSubscription: 'Reform-CFT-VH-Dev'
+
+  appName: 'vh-app-api' # name of the app to be registered
+  keyVaultName: 'vhcoreinfraht$(environmentName)' # key vault name to for storing AAD app's details - appId, ClientSecret, etc.
+  resourceGroupName: '$(appName)-$(environmentName)' # resource group name for where the website is located
+  AppServicePlanName: 'vh-core-infra-$(environmentName)' # App Service Plan name
+  WebSiteName: $(appName)-$(environmentName)  # Web Site name
+  CustomHostname: $(WebSiteName)$(AzureAppServiceWebSiteCustomDomainName) # custom hostname used by the website
+  aadAppReplyUrls: '' #CSV list of replay urls
+
+
+jobs:
+- job: Register_AAD_App
+  displayName: 'Register AAD App'
+  pool: Azure-VSTS-VS2017
+
+  # Reference templae for setting up build tools
+  steps:
+  - checkout: self  # self represents the repo where the initial Pipelines YAML file was found
+    clean: true  # whether to fetch clean each time
+
+  - powershell: |
+     git clone https://github.com/hmcts/vh-ps-modules.git
+    #  cd .\vh-ps-modules\
+    #  git checkout updated-dns-module
+    displayName: 'Get PowerShell module source'
+
+  - powershell: | 
+      #Get-ChildItem -Recurse
+      Install-Module AzureAD
+      Install-Module AzureRM.KeyVault
+      Copy-Item -Path $(System.DefaultWorkingDirectory)/*vh-ps-modules/AzureADApplicationRegistration -Destination "C:\Program Files\WindowsPowerShell\Modules" -Recurse -Force
+      Copy-Item -Path $(System.DefaultWorkingDirectory)/*vh-ps-modules/SetDNSRecord -Destination "C:\Program Files\WindowsPowerShell\Modules" -Recurse -Force
+    displayName: 'Import PowerShell Modules'
+
+  - powershell: | 
+     Invoke-AzureADApplicationRegistration `
+     -AzureTenantId '$(vh_teantid)' `
+     -AzureAdAppId '$(vh_vsts_automation_dev_AppId)' `
+     -AzureAdAppCertificateThumbprint '$(vh_vsts_automation_dev_CertThumbprit)' `
+     -AzureSubscriptionId '$(vh_azure_subscription_id_dev)' `
+     -AzureADApplicationName '${{ parameters.appName }}-$(environmentName)' `
+     -AzureKeyVaultName '${{ parameters.keyVaultName }}' `
+     -AzureTenantIdSecondary '$(vh_hearings_tenata_id)' `
+     -AzureAdAppIdSecondary '$(vh_hearings_vsts_automation_AppId)' `
+     -AzureAdAppCertificateThumbprintSecondary '$(vh_hearings_vsts_automation_CertThumbprit)' `
+     -verbose
+    displayName: 'Register AAD App'
+
+  - powershell: | 
+      Set-AzureADApplicationReplyUrls `
+      -AzureTenantIdSecondary '$(vh_hearings_tenata_id)' `
+      -AzureAdAppIdSecondary '$(vh_hearings_vsts_automation_AppId)' `
+      -AzureAdAppCertificateThumbprintSecondary '$(vh_hearings_vsts_automation_CertThumbprit)' `
+      -AADAppName "${{ parameters.appName }}-$(environmentName)" `
+      -AADAppReplyUrls "${{ parameters.aadAppReplyUrls }}"
+    displayName: 'Set AAD App Replay URLs'
+
+  - task: AzurePowerShell@3
+    displayName: 'Set DNS records for web app'
+    inputs:
+      azureSubscription: 'DCD-CFT-VH-Pilot'
+      azurePowerShellVersion: LatestVersion
+      ScriptType: InlineScript
+      Inline: |
+        Set-AzureRmDnsRecord -WebSiteName "${{ parameters.appName }}-$(environmentName)" `
+        -AzureAppServiceWebSiteDomainName "$(AzureAppServiceWebSiteDomainName)" `
+        -AzureResourceGroupName "$(AzureResourceGroupName)" `
+        -AzureDNSZoneName "$(AzureDNSZoneName)"
+
+  - task: AzureResourceGroupDeployment@2
+    displayName: 'Provision Web App'
+    inputs:
+      azureSubscription: 'Reform-CFT-VH-Dev'
+      action: 'Create Or Update Resource Group'
+      resourceGroupName: '${{ parameters.resourceGroupName }}'
+      location: 'UK West'
+      csmFile: 'infrastructure/azuredeploy.json'
+      csmParametersFile: 'infrastructure/azuredeploy.parameters.json'
+      overrideParameters: -appServicePlanName ${{ parameters.AppServicePlanName }} -AzureWebsite $(WebSiteName) -customHostname ${{ parameters.CustomHostname }} -certificateThumbprint $(WildcardCertificateThumbprint)
+      deploymentMode: Incremental
