@@ -6,9 +6,9 @@ parameters:
   AppServicePlanName: vh-core-infra-$(environmentName) # App Service Plan name
   WebSiteName: $(serviceName)-$(environmentName)  # Web Site name
   CustomHostname: $(WebSiteName)$(AzureAppServiceWebSiteCustomDomainName) # custom hostname used by the website
-  AADAppReplyUrls: https://$(WebSiteName)$(AzureAppServiceWebSiteCustomDomainName), https://$(WebSiteName)$(AzureAppServiceWebSiteCustomDomainName)/login, https://$(WebSiteName)$(AzureAppServiceWebSiteCustomDomainName)/dashboard, https://$(WebSiteName)$(AzureAppServiceWebSiteCustomDomainName)/logout #CSV list of replay urls
+  aadAppReplyUrls: https://$(WebSiteName)$(AzureAppServiceWebSiteCustomDomainName), https://$(WebSiteName)$(AzureAppServiceWebSiteCustomDomainName)/login, https://$(WebSiteName)$(AzureAppServiceWebSiteCustomDomainName)/dashboard, https://$(WebSiteName)$(AzureAppServiceWebSiteCustomDomainName)/logout #CSV list of replay urls
 
-#${{ parameters.serviceName }}
+#${{ parameters.aadAppReplyUrls }}
 
 
 jobs:
@@ -55,7 +55,7 @@ jobs:
       -AzureAdAppIdSecondary '$(vh_hearings_vsts_automation_AppId)' `
       -AzureAdAppCertificateThumbprintSecondary '$(vh_hearings_vsts_automation_CertThumbprit)' `
       -AADAppName "${{ parameters.serviceName }}-$(environmentName)" `
-      -AADAppReplyUrls "$(AADAppReplyUrls)"
+      -AADAppReplyUrls "${{ parameters.aadAppReplyUrls }}"
     displayName: 'Set AAD App Replay URLs'
 
   - task: AzurePowerShell@3
