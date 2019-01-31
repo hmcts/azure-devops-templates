@@ -1,6 +1,7 @@
 parameters:
   buildConfiguration: '' # used in DotNetCoreCLI tasks
   coverletCoverageExclusions: ''
+  integrationTestsAppSettingsTransform: ''
 
 steps:
   - task: MagicChunks@2
@@ -9,9 +10,7 @@ steps:
       sourcePath: '**\*IntegrationTests\bin\**\**\appsettings.json'
       transformations: |  
        {
-       "KeyVaultSettings/KeyVaultUri": "$(VHAzureKeyVault)",
-       "KeyVaultSettings/ClientId": "$(vh-website-AppID)",
-       "KeyVaultSettings/ClientSecret": "$(vh-website-Key)"
+        ${{ parameters.coverletCoverageExclusions }}
        }
   
   - task: DotNetCoreCLI@2
