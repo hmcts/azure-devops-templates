@@ -19,7 +19,7 @@ jobs:
   # Reference templae for setting up build tools
   steps:
   - checkout: self  # self represents the repo where the initial Pipelines YAML file was found
-    clean: ${{ parameters.pool }}  # whether to fetch clean each time
+    clean: ${{ parameters.cleanCheckout }}  # whether to fetch clean each time
   - template: ../templates/common/common.yml
 
 # Performs npm steps - install, build, test, test publishing
