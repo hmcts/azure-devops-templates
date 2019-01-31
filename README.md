@@ -1,4 +1,5 @@
 # azure-devops-templates
+
 Contains library of Azure DevOps yaml templates
 
 ## Build status
@@ -7,8 +8,14 @@ Contains library of Azure DevOps yaml templates
 
 ## Usage
 ### Building Angular & .Net Core solution 
+
 Copy Example\azure-pipelines.yml in the root of the github repository together with applications source code
 
 Make sure to select the appropriate solution type **angularDotNetCore** or **dotNetCore** in azure-pipelines.yml file.
 
 ### AAD Application registration
+
+## Linting Yaml
+
+* run ```npm install``` at the root directory
+* then execute the command ```$(npm bin)/yamllint azure-pipelines.yml```
