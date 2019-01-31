@@ -1,9 +1,9 @@
 
 parameters:
   serviceName: 'vh-app-api' # name of the app to be registered
-  keyVaultName: '' # key vault name to for storing AAD app's details - appId, ClientSecret, etc.
-  resourceGroupName: '' # resource group name for where the website is located
-  AppServicePlanName: '' # App Service Plan name
+  keyVaultName: 'vhcoreinfraht$(environmentName)' # key vault name to for storing AAD app's details - appId, ClientSecret, etc.
+  resourceGroupName: '$(serviceName)-$(environmentName)' # resource group name for where the website is located
+  AppServicePlanName: 'vh-core-infra-$(environmentName)' # App Service Plan name
   WebSiteName: $(serviceName)-$(environmentName)  # Web Site name
   CustomHostname: $(WebSiteName)$(AzureAppServiceWebSiteCustomDomainName) # custom hostname used by the website
   aadAppReplyUrls: '' #CSV list of replay urls
