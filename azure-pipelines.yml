@@ -10,6 +10,11 @@ pool:
   vmImage: 'Ubuntu-16.04'
 
 steps:
+- task: GitVersion@3
+  displayName: GitVersion
+  inputs:
+    updateAssemblyInfo: false
+
 - task: NodeTool@0
   inputs:
     versionSpec: '8.x'

@@ -1,5 +1,9 @@
 
 parameters:
+  # build agent pool can be overwritten on build template level 
+  pool: 'Azure-VSTS-VS2017'
+  azureSubscription: 'Reform-CFT-VH-Dev'
+
   appName: 'vh-app-api' # name of the app to be registered
   keyVaultName: 'vhcoreinfraht$(environmentName)' # key vault name to for storing AAD app's details - appId, ClientSecret, etc.
   resourceGroupName: '$(appName)-$(environmentName)' # resource group name for where the website is located
@@ -7,8 +11,6 @@ parameters:
   WebSiteName: $(appName)-$(environmentName)  # Web Site name
   CustomHostname: $(WebSiteName)$(AzureAppServiceWebSiteCustomDomainName) # custom hostname used by the website
   aadAppReplyUrls: '' #CSV list of replay urls
-
-#${{ parameters.CustomHostname }}
 
 
 jobs:
