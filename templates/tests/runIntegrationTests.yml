@@ -10,7 +10,7 @@ steps:
       sourcePath: '**\*IntegrationTests\bin\**\**\appsettings.json'
       transformations: |  
        {
-        ${{ parameters.coverletCoverageExclusions }}
+        ${{ parameters.integrationTestsAppSettingsTransform }}
        }
   
   - task: DotNetCoreCLI@2
