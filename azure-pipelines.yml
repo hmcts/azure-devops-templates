@@ -17,5 +17,5 @@ steps:
 
 - script: |
     npm install
-    $(npm bin)/yamllint azure-pipelines.yml
+    npm run test
   displayName: 'Install modules and run lint'
