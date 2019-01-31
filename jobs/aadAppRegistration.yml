@@ -8,7 +8,7 @@ parameters:
   CustomHostname: $(WebSiteName)$(AzureAppServiceWebSiteCustomDomainName) # custom hostname used by the website
   aadAppReplyUrls: '' #CSV list of replay urls
 
-#${{ parameters.AppServicePlanName }}
+#${{ parameters.CustomHostname }}
 
 
 jobs:
@@ -79,5 +79,5 @@ jobs:
       location: 'UK West'
       csmFile: 'infrastructure/azuredeploy.json'
       csmParametersFile: 'infrastructure/azuredeploy.parameters.json'
-      overrideParameters: -appServicePlanName ${{ parameters.AppServicePlanName }} -AzureWebsite $(WebSiteName) -customHostname $(CustomHostname) -certificateThumbprint $(WildcardCertificateThumbprint)
+      overrideParameters: -appServicePlanName ${{ parameters.AppServicePlanName }} -AzureWebsite $(WebSiteName) -customHostname ${{ parameters.CustomHostname }} -certificateThumbprint $(WildcardCertificateThumbprint)
       deploymentMode: Incremental
