@@ -8,7 +8,7 @@ parameters:
   CustomHostname: $(WebSiteName)$(AzureAppServiceWebSiteCustomDomainName) # custom hostname used by the website
   AADAppReplyUrls: https://$(WebSiteName)$(AzureAppServiceWebSiteCustomDomainName), https://$(WebSiteName)$(AzureAppServiceWebSiteCustomDomainName)/login, https://$(WebSiteName)$(AzureAppServiceWebSiteCustomDomainName)/dashboard, https://$(WebSiteName)$(AzureAppServiceWebSiteCustomDomainName)/logout #CSV list of replay urls
 
-#'${{ parameters.serviceName }}'
+#${{ parameters.serviceName }}
 
 
 jobs:
@@ -41,7 +41,7 @@ jobs:
      -AzureAdAppId '$(vh_vsts_automation_dev_AppId)' `
      -AzureAdAppCertificateThumbprint '$(vh_vsts_automation_dev_CertThumbprit)' `
      -AzureSubscriptionId '$(vh_azure_subscription_id_dev)' `
-     -AzureADApplicationName ''${{ parameters.serviceName }}'-$(environmentName)' `
+     -AzureADApplicationName '${{ parameters.serviceName }}-$(environmentName)' `
      -AzureKeyVaultName '${{ parameters.keyVaultName }}' `
      -AzureTenantIdSecondary '$(vh_hearings_tenata_id)' `
      -AzureAdAppIdSecondary '$(vh_hearings_vsts_automation_AppId)' `
@@ -54,7 +54,7 @@ jobs:
       -AzureTenantIdSecondary '$(vh_hearings_tenata_id)' `
       -AzureAdAppIdSecondary '$(vh_hearings_vsts_automation_AppId)' `
       -AzureAdAppCertificateThumbprintSecondary '$(vh_hearings_vsts_automation_CertThumbprit)' `
-      -AADAppName "'${{ parameters.serviceName }}'-$(environmentName)" `
+      -AADAppName "${{ parameters.serviceName }}-$(environmentName)" `
       -AADAppReplyUrls "$(AADAppReplyUrls)"
     displayName: 'Set AAD App Replay URLs'
 
@@ -65,7 +65,7 @@ jobs:
       azurePowerShellVersion: LatestVersion
       ScriptType: InlineScript
       Inline: |
-        Set-AzureRmDnsRecord -WebSiteName "'${{ parameters.serviceName }}'-$(environmentName)" `
+        Set-AzureRmDnsRecord -WebSiteName "${{ parameters.serviceName }}-$(environmentName)" `
         -AzureAppServiceWebSiteDomainName "$(AzureAppServiceWebSiteDomainName)" `
         -AzureResourceGroupName "$(AzureResourceGroupName)" `
         -AzureDNSZoneName "$(AzureDNSZoneName)"
