@@ -6,78 +6,73 @@ parameters:
   AppServicePlanName: vh-core-infra-$(environmentName) # App Service Plan name
   WebSiteName: $(serviceName)-$(environmentName)  # Web Site name
   CustomHostname: $(WebSiteName)$(AzureAppServiceWebSiteCustomDomainName) # custom hostname used by the website
-  aadAppReplyUrls: https://$(WebSiteName)$(AzureAppServiceWebSiteCustomDomainName), https://$(WebSiteName)$(AzureAppServiceWebSiteCustomDomainName)/login, https://$(WebSiteName)$(AzureAppServiceWebSiteCustomDomainName)/dashboard, https://$(WebSiteName)$(AzureAppServiceWebSiteCustomDomainName)/logout #CSV list of replay urls
+  aadAppReplyUrls: '' #CSV list of replay urls
 
 #${{ parameters.aadAppReplyUrls }}
 
 
-jobs:
-- job: Register_AAD_App
+# Reference templae for setting up build tools
+steps:
+- checkout: self  # self represents the repo where the initial Pipelines YAML file was found
+  clean: true  # whether to fetch clean each time
+
+- powershell: |
+    git clone https://github.com/hmcts/vh-ps-modules.git
+    cd .\vh-ps-modules\
+    git checkout updated-dns-module
+  displayName: 'Get PowerShell module source'
+
+- powershell: | 
+    #Get-ChildItem -Recurse
+    Install-Module AzureAD
+    Install-Module AzureRM.KeyVault
+    Copy-Item -Path $(System.DefaultWorkingDirectory)/*vh-ps-modules/AzureADApplicationRegistration -Destination "C:\Program Files\WindowsPowerShell\Modules" -Recurse -Force
+    Copy-Item -Path $(System.DefaultWorkingDirectory)/*vh-ps-modules/SetDNSRecord -Destination "C:\Program Files\WindowsPowerShell\Modules" -Recurse -Force
+  displayName: 'Import PowerShell Modules'
+
+- powershell: | 
+    Invoke-AzureADApplicationRegistration `
+    -AzureTenantId '$(vh_teantid)' `
+    -AzureAdAppId '$(vh_vsts_automation_dev_AppId)' `
+    -AzureAdAppCertificateThumbprint '$(vh_vsts_automation_dev_CertThumbprit)' `
+    -AzureSubscriptionId '$(vh_azure_subscription_id_dev)' `
+    -AzureADApplicationName '${{ parameters.serviceName }}-$(environmentName)' `
+    -AzureKeyVaultName '${{ parameters.keyVaultName }}' `
+    -AzureTenantIdSecondary '$(vh_hearings_tenata_id)' `
+    -AzureAdAppIdSecondary '$(vh_hearings_vsts_automation_AppId)' `
+    -AzureAdAppCertificateThumbprintSecondary '$(vh_hearings_vsts_automation_CertThumbprit)' `
+    -verbose
   displayName: 'Register AAD App'
-  pool: Azure-VSTS-VS2017
 
-  # Reference templae for setting up build tools
-  steps:
-  - checkout: self  # self represents the repo where the initial Pipelines YAML file was found
-    clean: true  # whether to fetch clean each time
+- powershell: | 
+    Set-AzureADApplicationReplyUrls `
+    -AzureTenantIdSecondary '$(vh_hearings_tenata_id)' `
+    -AzureAdAppIdSecondary '$(vh_hearings_vsts_automation_AppId)' `
+    -AzureAdAppCertificateThumbprintSecondary '$(vh_hearings_vsts_automation_CertThumbprit)' `
+    -AADAppName "${{ parameters.serviceName }}-$(environmentName)" `
+    -AADAppReplyUrls "${{ parameters.aadAppReplyUrls }}"
+  displayName: 'Set AAD App Replay URLs'
 
-  - powershell: |
-     git clone https://github.com/hmcts/vh-ps-modules.git
-     cd .\vh-ps-modules\
-     git checkout updated-dns-module
-    displayName: 'Get PowerShell module source'
+- task: AzurePowerShell@3
+  displayName: 'Set DNS records for web app'
+  inputs:
+    azureSubscription: 'DCD-CFT-VH-Pilot'
+    azurePowerShellVersion: LatestVersion
+    ScriptType: InlineScript
+    Inline: |
+      Set-AzureRmDnsRecord -WebSiteName "${{ parameters.serviceName }}-$(environmentName)" `
+      -AzureAppServiceWebSiteDomainName "$(AzureAppServiceWebSiteDomainName)" `
+      -AzureResourceGroupName "$(AzureResourceGroupName)" `
+      -AzureDNSZoneName "$(AzureDNSZoneName)"
 
-  - powershell: | 
-      #Get-ChildItem -Recurse
-      Install-Module AzureAD
-      Install-Module AzureRM.KeyVault
-      Copy-Item -Path $(System.DefaultWorkingDirectory)/*vh-ps-modules/AzureADApplicationRegistration -Destination "C:\Program Files\WindowsPowerShell\Modules" -Recurse -Force
-      Copy-Item -Path $(System.DefaultWorkingDirectory)/*vh-ps-modules/SetDNSRecord -Destination "C:\Program Files\WindowsPowerShell\Modules" -Recurse -Force
-    displayName: 'Import PowerShell Modules'
-
-  - powershell: | 
-     Invoke-AzureADApplicationRegistration `
-     -AzureTenantId '$(vh_teantid)' `
-     -AzureAdAppId '$(vh_vsts_automation_dev_AppId)' `
-     -AzureAdAppCertificateThumbprint '$(vh_vsts_automation_dev_CertThumbprit)' `
-     -AzureSubscriptionId '$(vh_azure_subscription_id_dev)' `
-     -AzureADApplicationName '${{ parameters.serviceName }}-$(environmentName)' `
-     -AzureKeyVaultName '${{ parameters.keyVaultName }}' `
-     -AzureTenantIdSecondary '$(vh_hearings_tenata_id)' `
-     -AzureAdAppIdSecondary '$(vh_hearings_vsts_automation_AppId)' `
-     -AzureAdAppCertificateThumbprintSecondary '$(vh_hearings_vsts_automation_CertThumbprit)' `
-     -verbose
-    displayName: 'Register AAD App'
-
-  - powershell: | 
-      Set-AzureADApplicationReplyUrls `
-      -AzureTenantIdSecondary '$(vh_hearings_tenata_id)' `
-      -AzureAdAppIdSecondary '$(vh_hearings_vsts_automation_AppId)' `
-      -AzureAdAppCertificateThumbprintSecondary '$(vh_hearings_vsts_automation_CertThumbprit)' `
-      -AADAppName "${{ parameters.serviceName }}-$(environmentName)" `
-      -AADAppReplyUrls "${{ parameters.aadAppReplyUrls }}"
-    displayName: 'Set AAD App Replay URLs'
-
-  - task: AzurePowerShell@3
-    displayName: 'Set DNS records for web app'
-    inputs:
-      azureSubscription: 'DCD-CFT-VH-Pilot'
-      azurePowerShellVersion: LatestVersion
-      ScriptType: InlineScript
-      Inline: |
-        Set-AzureRmDnsRecord -WebSiteName "${{ parameters.serviceName }}-$(environmentName)" `
-        -AzureAppServiceWebSiteDomainName "$(AzureAppServiceWebSiteDomainName)" `
-        -AzureResourceGroupName "$(AzureResourceGroupName)" `
-        -AzureDNSZoneName "$(AzureDNSZoneName)"
-
-  - task: AzureResourceGroupDeployment@2
-    displayName: 'Provision Web App'
-    inputs:
-      azureSubscription: 'Reform-CFT-VH-Dev'
-      action: 'Create Or Update Resource Group'
-      resourceGroupName: '$(resourceGroupName)'
-      location: 'UK West'
-      csmFile: 'infrastructure/azuredeploy.json'
-      csmParametersFile: 'infrastructure/azuredeploy.parameters.json'
-      overrideParameters: -appServicePlanName $(AppServicePlanName) -AzureWebsite $(WebSiteName) -customHostname $(CustomHostname) -certificateThumbprint $(WildcardCertificateThumbprint)
-      deploymentMode: Incremental
+- task: AzureResourceGroupDeployment@2
+  displayName: 'Provision Web App'
+  inputs:
+    azureSubscription: 'Reform-CFT-VH-Dev'
+    action: 'Create Or Update Resource Group'
+    resourceGroupName: '$(resourceGroupName)'
+    location: 'UK West'
+    csmFile: 'infrastructure/azuredeploy.json'
+    csmParametersFile: 'infrastructure/azuredeploy.parameters.json'
+    overrideParameters: -appServicePlanName $(AppServicePlanName) -AzureWebsite $(WebSiteName) -customHostname $(CustomHostname) -certificateThumbprint $(WildcardCertificateThumbprint)
+    deploymentMode: Incremental
