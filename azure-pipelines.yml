@@ -18,8 +18,8 @@ steps:
     echo LD_LIBRARY_PATH: $lib_path
     echo "##vso[task.setvariable variable=LD_LIBRARY_PATH]$lib_path"
   displayName: Update LD_LIBRARY_PATH for GitVersion
-  
-- task: GitVersion@3
+
+- task: GitVersion@4
   displayName: GitVersion
   inputs:
     updateAssemblyInfo: false
