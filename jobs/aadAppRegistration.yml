@@ -10,13 +10,9 @@ parameters:
 
 #'${{ parameters.serviceName }}'
 
-trigger:
-- master
-pr:
-- master
 
 jobs:
-- job: 
+- job: Register_AAD_App
   displayName: 'Register AAD App'
   pool: Azure-VSTS-VS2017
 
