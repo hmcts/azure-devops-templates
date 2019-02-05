@@ -52,6 +52,20 @@ jobs:
     displayName: 'Register AAD App'
 
   - powershell: | 
+      if ( Test-Path .\access.jsn) {
+          Invoke-AzureADConnection -AzureTenantIdSecondary '$(vh_hearings_tenata_id)' `
+              -AzureAdAppIdSecondary '$(vh_hearings_vsts_automation_AppId)' `
+              -AzureAdAppCertificateThumbprintSecondary '$(vh_hearings_vsts_automation_CertThumbprit)'
+          
+          Set-AzureADResourceAccessV2 -AzureADApplicationName '${{ parameters.appName }}-$(environmentName)' `
+              -$resourceAccessDefinition .\access.json
+      }
+      else {    
+          Write-Output "##vso[task.logissue type=warning]Resource Access file not found!"
+      }
+    displayName: 'Set AAD App's Resource Access
+
+  - powershell: | 
       Set-AzureADApplicationReplyUrls `
       -AzureTenantIdSecondary '$(vh_hearings_tenata_id)' `
       -AzureAdAppIdSecondary '$(vh_hearings_vsts_automation_AppId)' `
