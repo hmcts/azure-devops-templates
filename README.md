@@ -19,4 +19,3 @@ Make sure to select the appropriate solution type **angularDotNetCore** or **dot
 
 * run ```npm install``` at the root directory
 * then execute the command ```$(npm bin)/yamllint azure-pipelines.yml```
-
