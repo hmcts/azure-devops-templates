@@ -15,7 +15,12 @@ Make sure to select the appropriate solution type **angularDotNetCore** or **dot
 
 ### AAD Application registration
 
+Use `jobs\aadAppRegistration.yml` to register AAD app, set Resource Access, set replay URLs and and provision Web App
+
+
 ## Linting Yaml
 
 * run ```npm install``` at the root directory
 * then execute the command ```$(npm bin)/yamllint azure-pipelines.yml```
+
+

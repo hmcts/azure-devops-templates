@@ -12,7 +12,6 @@ parameters:
   CustomHostname: $(WebSiteName)$(AzureAppServiceWebSiteCustomDomainName) # custom hostname used by the website
   aadAppReplyUrls: '' #CSV list of replay urls
 
-
 jobs:
 - job: Register_AAD_App
   displayName: 'Register AAD App'
@@ -56,6 +55,17 @@ jobs:
      -AzureAdAppCertificateThumbprintSecondary '$(vh_hearings_vsts_automation_CertThumbprit)' `
      -verbose
     displayName: 'Register AAD App'
+
+  - powershell: |
+      if ( Test-Path .\resourceAccess.json) {
+      Invoke-AzureADConnection -AzureTenantIdSecondary '$(vh_hearings_tenata_id)' `
+          -AzureAdAppIdSecondary '$(vh_hearings_vsts_automation_AppId)' `
+          -AzureAdAppCertificateThumbprintSecondary '$(vh_hearings_vsts_automation_CertThumbprit)'
+          
+      Set-AzureADResourceAccessV2 -AzureADApplicationName '${{ parameters.appName }}-$(environmentName)' `
+      -resourceAccessDefinition .\resourceAccess.json}
+      else {Write-Output "##vso[task.logissue type=warning]Resource Access file not found! Please add 'resourceAccess.json' file to the repo" }
+    displayName: 'Add AAD Apps Resource Access'
 
   - powershell: | 
       Set-AzureADApplicationReplyUrls `
