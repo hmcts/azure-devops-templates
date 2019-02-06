@@ -52,7 +52,7 @@ jobs:
     displayName: 'Register AAD App'
 
   - powershell: |
-      if ( Test-Path .\access.jsn) {
+      if ( Test-Path .\resourceAccess.json) {
       Invoke-AzureADConnection -AzureTenantIdSecondary '$(vh_hearings_tenata_id)' `
           -AzureAdAppIdSecondary '$(vh_hearings_vsts_automation_AppId)' `
           -AzureAdAppCertificateThumbprintSecondary '$(vh_hearings_vsts_automation_CertThumbprit)'
