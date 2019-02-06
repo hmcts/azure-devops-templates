@@ -12,7 +12,6 @@ parameters:
   CustomHostname: $(WebSiteName)$(AzureAppServiceWebSiteCustomDomainName) # custom hostname used by the website
   aadAppReplyUrls: '' #CSV list of replay urls
 
-
 jobs:
 - job: Register_AAD_App
   displayName: 'Register AAD App'
@@ -61,8 +60,6 @@ jobs:
       -resourceAccessDefinition .\resourceAccess.json}
       else {Write-Output "##vso[task.logissue type=warning]Resource Access file not found! Please add 'resourceAccess.json' file to the repo" }
     displayName: 'Add AAD Apps Resource Access'
-
-
 
   - powershell: | 
       Set-AzureADApplicationReplyUrls `
