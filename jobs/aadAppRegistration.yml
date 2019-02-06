@@ -24,7 +24,7 @@ jobs:
     clean: true  # whether to fetch clean each time
 
   - powershell: | 
-      #Get-ChildItem -Recurse
+      Write-Host $(Build.Repository.Name)
       if ('${{ parameters.allowedEnvironments }}' -match '$(environmentName)') {Write-Host "Variable validation successful!"}
       else {Write-Error ("Variable validation failed! Please check if environment {0} is from allowed environmenst {1}" -f '$(environmentName)', '"${{ parameters.allowedEnvironments }}"')}
     displayName: 'Validate variables'
