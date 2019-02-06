@@ -32,8 +32,8 @@ jobs:
   - powershell: | 
       #Get-ChildItem -Recurse
       if ($AllowedEnvironments -match $environmentName) {Write-Host "Variable validation successful!"}
-      else {Write-Host ("Variable validation failed! Please check if environment {0} is from allowed environmenst: {1}" -f $environmentName, $AllowedEnvironments)}
-    displayName: 'Import PowerShell Modules'
+      else {Write-Host ("Variable validation failed! Please check if environment "{0}" is from allowed environmenst "{1}"" -f $environmentName, $AllowedEnvironments)}
+    displayName: 'Validate variables'
 
   - powershell: | 
       #Get-ChildItem -Recurse
