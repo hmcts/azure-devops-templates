@@ -26,7 +26,7 @@ jobs:
   - powershell: | 
       #Get-ChildItem -Recurse
       if (${{ parameters.allowedEnvironments }} -match $(environmentName)) {Write-Host "Variable validation successful!"}
-      else {Write-Host ("Variable validation failed! Please check if environment {0}is from allowed environmenst {1}" -f $(environmentName)), ${{ parameters.allowedEnvironments }})}
+      else {Write-Host ("Variable validation failed! Please check if environment {0}is from allowed environmenst {1}" -f $(environmentName)), "${{ parameters.allowedEnvironments }}")}
     displayName: 'Validate variables'
 
   - powershell: |
