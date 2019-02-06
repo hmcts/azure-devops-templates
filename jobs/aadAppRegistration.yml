@@ -31,6 +31,12 @@ jobs:
 
   - powershell: | 
       #Get-ChildItem -Recurse
+      if ($AllowedEnvironments -match $environmentName) {Write-Host "Variable validation successful!"}
+      else {Write-Host ("Variable validation failed! Please check if environment {0} is from allowed environmenst: {1}" -f $environmentName, $AllowedEnvironments)}
+    displayName: 'Import PowerShell Modules'
+
+  - powershell: | 
+      #Get-ChildItem -Recurse
       Install-Module AzureAD
       Install-Module AzureRM.KeyVault
       Copy-Item -Path $(System.DefaultWorkingDirectory)/*vh-ps-modules/AzureADApplicationRegistration -Destination "C:\Program Files\WindowsPowerShell\Modules" -Recurse -Force
