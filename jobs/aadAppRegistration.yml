@@ -78,7 +78,7 @@ jobs:
           -$resourceAccessDefinition .\access.json }
       else {    
           Write-Output "##vso[task.logissue type=warning]Resource Access file not found! Please add 'resourceAccess.json' file to the repo" }
-      displayName: 'Set AAD Apps's Resource Access
+    displayName: 'Set AAD Apps's Resource Access
 
 
   - powershell: | 
