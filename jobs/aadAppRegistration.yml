@@ -41,6 +41,7 @@ jobs:
       
       elseif("refs/heads/master" -notmatch '$(Build.SourceBranch)' -and '${{ parameters.productionLikeEnvironments }}' -notmatch '$(environmentName)'){
       Write-host ("Deploying from '{0}' to non-production like environment '{1}'..." -f '$(Build.SourceBranch)', '$(environmentName)')}
+      else{Write-Error "Something went wrong! Please check your config and variables."}
     displayName: 'Validate variables'
 
   - powershell: |
