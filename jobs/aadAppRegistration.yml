@@ -34,13 +34,13 @@ jobs:
       else {Write-Error ("Variable validation failed! Please check if environment {0} is from allowed environmenst {1}" -f '$(environmentName)', '"${{ parameters.allowedEnvironments }}"')}
       
       if ('refs/heads/master' -match '$(Build.SourceBranch)' -and '${{ parameters.productionLikeEnvironments }}' -match '$(environmentName)'){
-      Write-Host ("Deployig from '{0}' to production like environment '{1}'..." -f '$(Build.SourceBranch)', '$(environmentName)')}
+      Write-Host ("Deploying from '{0}' to production like environment '{1}'..." -f '$(Build.SourceBranch)', '$(environmentName)')}
 
       elseif("refs/heads/master" -notmatch '$(Build.SourceBranch)' -and '${{ parameters.productionLikeEnvironments }}' -match '$(environmentName)'){
-      Write-Error ("Deployig from '{0}' to non-production like environment '{1}'. Make sure you deploy from master branch to production like environments. " -f '$(Build.SourceBranch)', '$(environmentName)')}
+      Write-Error ("Deploying from '{0}' to non-production like environment '{1}'. Make sure you deploy from master branch to production like environments. " -f '$(Build.SourceBranch)', '$(environmentName)')}
       
       elseif("refs/heads/master" -notmatch '$(Build.SourceBranch)' -and '${{ parameters.productionLikeEnvironments }}' -notmatch '$(environmentName)'){
-      Write-host ("Deployig from '{0}' to non-production like environment '{1}'..." -f '$(Build.SourceBranch)', '$(environmentName)')}
+      Write-host ("Deploying from '{0}' to non-production like environment '{1}'..." -f '$(Build.SourceBranch)', '$(environmentName)')}
     displayName: 'Validate variables'
 
   - powershell: |
