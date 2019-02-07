@@ -11,6 +11,8 @@ parameters:
   WebSiteName: $(appName)-$(environmentName)  # Web Site name
   CustomHostname: $(WebSiteName)$(AzureAppServiceWebSiteCustomDomainName) # custom hostname used by the website
   aadAppReplyUrls: '' #CSV list of replay urls
+  allowedEnvironments: "preview, sandbox, aat, test1, tes2, pilot, production"
+  productionLikeEnvironments: "aat, pilot, production"
 
 jobs:
 - job: Register_AAD_App
@@ -21,6 +23,26 @@ jobs:
   steps:
   - checkout: self  # self represents the repo where the initial Pipelines YAML file was found
     clean: true  # whether to fetch clean each time
+
+  - task: GitVersion@4
+    displayName: GitVersion
+    inputs:
+      preferBundledVersion: false
+
+  - powershell: | 
+      if ('${{ parameters.allowedEnvironments }}' -match '$(environmentName)') {Write-Host "Variable validation successful!"}
+      else {Write-Error ("Variable validation failed! Please check if environment {0} is from allowed environmenst {1}" -f '$(environmentName)', '"${{ parameters.allowedEnvironments }}"')}
+      
+      if ('refs/heads/master' -match '$(Build.SourceBranch)' -and '${{ parameters.productionLikeEnvironments }}' -match '$(environmentName)'){
+      Write-Host ("Deploying from '{0}' to production like environment '{1}'..." -f '$(Build.SourceBranch)', '$(environmentName)')}
+
+      elseif("refs/heads/master" -notmatch '$(Build.SourceBranch)' -and '${{ parameters.productionLikeEnvironments }}' -match '$(environmentName)'){
+      Write-Error ("Deploying from '{0}' to non-production like environment '{1}'. Make sure you deploy from master branch to production like environments. " -f '$(Build.SourceBranch)', '$(environmentName)')}
+      
+      elseif("refs/heads/master" -notmatch '$(Build.SourceBranch)' -and '${{ parameters.productionLikeEnvironments }}' -notmatch '$(environmentName)'){
+      Write-host ("Deploying from '{0}' to non-production like environment '{1}'..." -f '$(Build.SourceBranch)', '$(environmentName)')}
+      else{Write-Error "Something went wrong! Please check your config and variables."}
+    displayName: 'Validate variables'
 
   - powershell: |
      git clone https://github.com/hmcts/vh-ps-modules.git
