@@ -39,7 +39,7 @@ jobs:
       elseif("refs/heads/master" -notmatch '$(Build.SourceBranch)' -and '${{ parameters.productionLikeEnvironments }}' -match '$(environmentName)'){
       Write-Error ("Deploying from '{0}' to non-production like environment '{1}'. Make sure you deploy from master branch to production like environments. " -f '$(Build.SourceBranch)', '$(environmentName)')}
       
-      elseif("refs/heads/master" -notmatch '$(Build.SourceBranch)' -and '${{ parameters.productionLikeEnvironments }}' -notmatch '$(environmentName)'){
+      elseif("refs/heads/master" -match '$(Build.SourceBranch)' -and '${{ parameters.productionLikeEnvironments }}' -notmatch '$(environmentName)' -or "refs/heads/master" -notmatch '$(Build.SourceBranch)' -and '${{ parameters.productionLikeEnvironments }}' -notmatch '$(environmentName)'){
       Write-host ("Deploying from '{0}' to non-production like environment '{1}'..." -f '$(Build.SourceBranch)', '$(environmentName)')}
       else{Write-Error "Something went wrong! Please check your config and variables."}
     displayName: 'Validate variables'
