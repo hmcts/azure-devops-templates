@@ -11,7 +11,7 @@ parameters:
   WebSiteName: $(appName)-$(environmentName)  # Web Site name
   CustomHostname: $(WebSiteName)$(AzureAppServiceWebSiteCustomDomainName) # custom hostname used by the website
   aadAppReplyUrls: '' #CSV list of replay urls
-  allowedEnvironments: "preview, sandbox, aat, test1, tes2, pilot, production"
+  allowedEnvironments: "preview, sandbox, aat, test1, test2, pilot, production"
   productionLikeEnvironments: "aat, pilot, production"
 
 jobs:
