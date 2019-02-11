@@ -2,7 +2,7 @@
 parameters:
   # build agent pool can be overwritten on build template level 
   pool: 'Azure-VSTS-VS2017'
-  #azureSubscription: 'Reform-CFT-VH-Dev'
+  azureSubscription: 'Reform-CFT-VH-Dev'
   productionAzureSubscription: 'DCD-CFT-VH-Pilot'
 
   appName: 'vh-app-api' # name of the app to be registered
@@ -145,7 +145,7 @@ jobs:
 
   - template: ../templates/azureResourceGroupDeployment/azureResourceGroupDeployment.yml # Template reference
     parameters:
-      azureSubscription: $(azureSubscription)
+      azureSubscription: ${{ parameters.azureSubscription }}
       resourceGroupName: ${{ parameters.resourceGroupName }}
       appServicePlanName: ${{ parameters.AppServicePlanName }}
       webSiteName: $(WebSiteName)
