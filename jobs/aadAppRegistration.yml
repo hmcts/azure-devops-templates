@@ -54,7 +54,7 @@ jobs:
       if('$(environmentName)' -eq "pilot"){Write-Output ("##vso[task.setvariable variable=azureSubscription;]DCD-CFT-VH-Pilot")}
       else {
         Write-Output ("##vso[task.setvariable variable=azureSubscription;]Reform-CFT-VH-Dev")}
-      displayName: 'Set Azure Subscription'
+    displayName: 'Set Azure Subscription'
 
 
   - powershell: |
