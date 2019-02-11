@@ -52,14 +52,8 @@ jobs:
   - powershell: |
       # Check if deployment is targeting production (pilot) environment if so set the azure subscription to "DCD-CFT-VH-Pilot".
       if('$(environmentName)' -eq "pilot"){Write-Output ("##vso[task.setvariable variable=azureSubscription;]DCD-CFT-VH-Pilot")
-      Write-Output ("##vso[task.setvariable variable=vh_vsts_automation_AppId;]'$(vh_vsts_automation_prod_AppId)'")
-      Write-Output ("##vso[task.setvariable variable=vh_vsts_automation_CertThumbprit;]'$(vh_vsts_automation_dev_CertThumbprit)'")
-      Write-Output ("##vso[task.setvariable variable=vh_azure_subscription_id;]'$(vh_azure_subscription_id_prod)")}
       else {
         Write-Output ("##vso[task.setvariable variable=azureSubscription;]Reform-CFT-VH-Dev")
-      Write-Output ("##vso[task.setvariable variable=vh_vsts_automation_AppId;]'$(vh_vsts_automation_dev_AppId)'")
-      Write-Output ("##vso[task.setvariable variable=vh_vsts_automation_CertThumbprit;]'$(vh_vsts_automation_dev_CertThumbprit)'")
-      Write-Output ("##vso[task.setvariable variable=vh_azure_subscription_id;]'$(vh_azure_subscription_id_dev)")}
       displayName: 'Set Azure Subscription'
 
 
@@ -80,9 +74,9 @@ jobs:
   - powershell: | 
      Invoke-AzureADApplicationRegistration `
      -AzureTenantId '$(vh_teantid)' `
-     -AzureAdAppId '$(vh_vsts_automation_AppId)' `
-     -AzureAdAppCertificateThumbprint '$(vh_vsts_automation_CertThumbprit)' `
-     -AzureSubscriptionId '$(vh_azure_subscription_id)' `
+     -AzureAdAppId '$(vh_vsts_automation_dev_AppId)' `
+     -AzureAdAppCertificateThumbprint '$(vh_vsts_automation_dev_CertThumbprit)' `
+     -AzureSubscriptionId '$(vh_azure_subscription_id_dev)' `
      -AzureADApplicationName '${{ parameters.appName }}-$(environmentName)' `
      -AzureKeyVaultName '${{ parameters.keyVaultName }}' `
      -AzureTenantIdSecondary '$(vh_hearings_tenata_id)' `
