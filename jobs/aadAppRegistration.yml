@@ -3,6 +3,7 @@ parameters:
   # build agent pool can be overwritten on build template level 
   pool: 'Azure-VSTS-VS2017'
   azureSubscription: 'Reform-CFT-VH-Dev'
+  productionAzureSubscription: 'DCD-CFT-VH-Pilot'
 
   appName: 'vh-app-api' # name of the app to be registered
   keyVaultName: 'vhcoreinfraht$(environmentName)' # key vault name to for storing AAD app's details - appId, ClientSecret, etc.
@@ -30,9 +31,12 @@ jobs:
       preferBundledVersion: false
 
   - powershell: | 
+      # Check if the input environment name is one of the allowe d environmants.
       if ('${{ parameters.allowedEnvironments }}' -match '$(environmentName)') {Write-Host "Variable validation successful!"}
-      else {Write-Error ("Variable validation failed! Please check if environment {0} is from allowed environmenst {1}" -f '$(environmentName)', '"${{ parameters.allowedEnvironments }}"')}
+      else {
+        Write-Error ("Variable validation failed! Please check if environment {0} is from allowed environmenst {1}" -f '$(environmentName)', '"${{ parameters.allowedEnvironments }}"')}
       
+      # Check if if the build for production like environments is executed form a master brach.
       if ('refs/heads/master' -match '$(Build.SourceBranch)' -and '${{ parameters.productionLikeEnvironments }}' -match '$(environmentName)'){
       Write-Host ("Deploying from '{0}' to production like environment '{1}'..." -f '$(Build.SourceBranch)', '$(environmentName)')}
 
@@ -41,8 +45,22 @@ jobs:
       
       elseif("refs/heads/master" -match '$(Build.SourceBranch)' -and '${{ parameters.productionLikeEnvironments }}' -notmatch '$(environmentName)' -or "refs/heads/master" -notmatch '$(Build.SourceBranch)' -and '${{ parameters.productionLikeEnvironments }}' -notmatch '$(environmentName)'){
       Write-host ("Deploying from '{0}' to non-production like environment '{1}'..." -f '$(Build.SourceBranch)', '$(environmentName)')}
-      else{Write-Error "Something went wrong! Please check your config and variables."}
+      else {
+        Write-Error "Something went wrong! Please check your config and variables."}
+
+      # Check if deployment is targeting production (pilot) environment if so set the azure subscription to "DCD-CFT-VH-Pilot".
+      if('$(environmentName)' -eq "pilot"){Write-Output ("##vso[task.setvariable variable=azureSubscription;]DCD-CFT-VH-Pilot")
+      Write-Output ("##vso[task.setvariable variable=vh_vsts_automation_AppId;]'$(vh_vsts_automation_prod_AppId)'")
+      Write-Output ("##vso[task.setvariable variable=vh_vsts_automation_CertThumbprit;]'$(vh_vsts_automation_dev_CertThumbprit)'")
+      Write-Output ("##vso[task.setvariable variable=vh_azure_subscription_id;]'$(vh_azure_subscription_id_prod)")}
+      else {
+        Write-Output ("##vso[task.setvariable variable=azureSubscription;]Reform-CFT-VH-Dev")
+      Write-Output ("##vso[task.setvariable variable=vh_vsts_automation_AppId;]'$(vh_vsts_automation_dev_AppId)'")
+      Write-Output ("##vso[task.setvariable variable=vh_vsts_automation_CertThumbprit;]'$(vh_vsts_automation_dev_CertThumbprit)'")
+      Write-Output ("##vso[task.setvariable variable=vh_azure_subscription_id;]'$(vh_azure_subscription_id_dev)")}
+      
     displayName: 'Validate variables'
+
 
   - powershell: |
      git clone https://github.com/hmcts/vh-ps-modules.git
@@ -61,9 +79,9 @@ jobs:
   - powershell: | 
      Invoke-AzureADApplicationRegistration `
      -AzureTenantId '$(vh_teantid)' `
-     -AzureAdAppId '$(vh_vsts_automation_dev_AppId)' `
-     -AzureAdAppCertificateThumbprint '$(vh_vsts_automation_dev_CertThumbprit)' `
-     -AzureSubscriptionId '$(vh_azure_subscription_id_dev)' `
+     -AzureAdAppId '$(vh_vsts_automation_AppId)' `
+     -AzureAdAppCertificateThumbprint '$(vh_vsts_automation_CertThumbprit)' `
+     -AzureSubscriptionId '$(vh_azure_subscription_id)' `
      -AzureADApplicationName '${{ parameters.appName }}-$(environmentName)' `
      -AzureKeyVaultName '${{ parameters.keyVaultName }}' `
      -AzureTenantIdSecondary '$(vh_hearings_tenata_id)' `
@@ -107,7 +125,7 @@ jobs:
   - task: AzureResourceGroupDeployment@2
     displayName: 'Provision Web App'
     inputs:
-      azureSubscription: 'Reform-CFT-VH-Dev'
+      azureSubscription: '$(azureSubscription)'
       action: 'Create Or Update Resource Group'
       resourceGroupName: '${{ parameters.resourceGroupName }}'
       location: 'UK West'
