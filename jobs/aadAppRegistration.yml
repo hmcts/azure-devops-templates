@@ -145,21 +145,9 @@ jobs:
 
   - template: ../templates/azureResourceGroupDeployment/azureResourceGroupDeployment.yml # Template reference
     parameters:
-      azureSubscription: $(azureSubscription)
       resourceGroupName: ${{ parameters.resourceGroupName }}
       appServicePlanName: ${{ parameters.AppServicePlanName }}
       webSiteName: $(WebSiteName)
       customHostname: ${{ parameters.CustomHostname }}
       wildcardCertificateThumbprint: $(WildcardCertificateThumbprint)
   
-  # - task: AzureResourceGroupDeployment@2
-  #   displayName: 'Provision Web App'
-  #   inputs:
-  #     azureSubscription: '${{ parameters.azureSubscription }}'
-  #     action: 'Create Or Update Resource Group'
-  #     resourceGroupName: '${{ parameters.resourceGroupName }}'
-  #     location: 'UK West'
-  #     csmFile: 'infrastructure/azuredeploy.json'
-  #     csmParametersFile: 'infrastructure/azuredeploy.parameters.json'
-  #     overrideParameters: -appServicePlanName ${{ parameters.AppServicePlanName }} -AzureWebsite $(WebSiteName) -customHostname ${{ parameters.CustomHostname }} -certificateThumbprint $(WildcardCertificateThumbprint)
-  #     deploymentMode: Incremental

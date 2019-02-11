@@ -10,7 +10,7 @@ steps:
   - task: AzureResourceGroupDeployment@2
     displayName: 'Provision Web App'
     inputs:
-      azureSubscription: ${{ parameters.azureSubscription }}
+      azureSubscription: 'Reform-CFT-VH-Dev'
       action: 'Create Or Update Resource Group'
       resourceGroupName: ${{ parameters.resourceGroupName }}
       location: 'UK West'
@@ -18,3 +18,17 @@ steps:
       csmParametersFile: 'infrastructure/azuredeploy.parameters.json'
       overrideParameters: -appServicePlanName ${{ parameters.appServicePlanName }} -AzureWebsite ${{ parameters.webSiteName }} -customHostname ${{ parameters.customHostname }} -certificateThumbprint ${{ parameters.wildcardCertificateThumbprint }} 
       deploymentMode: Incremental
+    condition: notIn(variables['environmentName'], 'pilot', 'production')
+
+  - task: AzureResourceGroupDeployment@2
+    displayName: 'Provision Web App'
+    inputs:
+      azureSubscription: 'DCD-CFT-VH-Pilot'
+      action: 'Create Or Update Resource Group'
+      resourceGroupName: ${{ parameters.resourceGroupName }}
+      location: 'UK West'
+      csmFile: 'infrastructure/azuredeploy.json'
+      csmParametersFile: 'infrastructure/azuredeploy.parameters.json'
+      overrideParameters: -appServicePlanName ${{ parameters.appServicePlanName }} -AzureWebsite ${{ parameters.webSiteName }} -customHostname ${{ parameters.customHostname }} -certificateThumbprint ${{ parameters.wildcardCertificateThumbprint }} 
+      deploymentMode: Incremental
+    condition: in(variables['environmentName'], 'pilot', 'production')
