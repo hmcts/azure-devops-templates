@@ -61,11 +61,23 @@ jobs:
       Write-Output ("##vso[task.setvariable variable=vh_vsts_automation_CertThumbprit;]'$(vh_vsts_automation_dev_CertThumbprit)'")
       Write-Output ("##vso[task.setvariable variable=vh_azure_subscription_id;]'$(vh_azure_subscription_id_dev)")}
       
-      Write-Output ("Azure Subscription set to {0}" -f $env:AZURESUBSCRIPTION)
+      Write-Output ("Azure Subscription set to {0}" -f $env:azureSubscription)
       #Write-Output ("vh_vsts_automation_AppId set to {0}" -f $(vh_vsts_automation_AppId))
       #Write-Output ("vh_vsts_automation_CertThumbprit set to {0}" -f $(vh_vsts_automation_CertThumbprit))
       #Write-Output ("vh_azure_subscription_idset to {0}" -f $(vh_azure_subscription_id))
     displayName: 'Set Azure Subscription'
+
+  - powershell: |
+      $var = (gci env:*).GetEnumerator() | Sort-Object Name
+      $out = ""
+      Foreach ($v in $var) {$out = $out + "`t{0,-28} = {1,-28}`n" -f $v.Name, $v.Value}
+      
+      write-output "dump variables on $env:BUILD_ARTIFACTSTAGINGDIRECTORY\test.md"
+      $fileName = "$env:BUILD_ARTIFACTSTAGINGDIRECTORY\test.md"
+      set-content $fileName $out
+      Write-output $out
+      write-output "##vso[task.addattachment type=Distributedtask.Core.Summary;name=Environment Variables;]$fileName"
+    condition: 
 
 
   - powershell: |
