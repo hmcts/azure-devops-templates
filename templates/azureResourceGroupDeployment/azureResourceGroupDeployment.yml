@@ -10,9 +10,9 @@ steps:
   - task: AzureResourceGroupDeployment@2
     displayName: 'Provision Web App'
     inputs:
-      azureSubscription: '${{ parameters.azureSubscription }}'
+      azureSubscription: ${{ parameters.azureSubscription }}
       action: 'Create Or Update Resource Group'
-      resourceGroupName: '${{ parameters.resourceGroupName }}'
+      resourceGroupName: ${{ parameters.resourceGroupName }}
       location: 'UK West'
       csmFile: 'infrastructure/azuredeploy.json'
       csmParametersFile: 'infrastructure/azuredeploy.parameters.json'
