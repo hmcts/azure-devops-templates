@@ -146,7 +146,7 @@ jobs:
   - task: AzureResourceGroupDeployment@2
     displayName: 'Provision Web App'
     inputs:
-      azureSubscription: '${{ parameters.azureSubscription }}'
+      azureSubscription: $(azureSubscription)
       action: 'Create Or Update Resource Group'
       resourceGroupName: '${{ parameters.resourceGroupName }}'
       location: 'UK West'
