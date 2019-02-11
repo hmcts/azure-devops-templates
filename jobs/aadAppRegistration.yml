@@ -62,8 +62,8 @@ jobs:
       Write-Output ("##vso[task.setvariable variable=vh_azure_subscription_id;]'$(vh_azure_subscription_id_dev)")}
       
       Write-Output ("Azure Subscription set to {0}" -f $env:AZURESUBSCRIPTION)
-      Write-Output ("Azure Subscription set to {0}" -f '$(azureSubscription)')
-      Write-Output ("Azure Subscription set to {0}" -f "$(azureSubscription)")
+      #Write-Output ("Azure Subscription set to {0}" -f '$(azureSubscription)')
+      #Write-Output ("Azure Subscription set to {0}" -f "$(azureSubscription)")
 
       #Write-Output ("vh_vsts_automation_AppId set to {0}" -f $(vh_vsts_automation_AppId))
       #Write-Output ("vh_vsts_automation_CertThumbprit set to {0}" -f $(vh_vsts_automation_CertThumbprit))
