@@ -46,8 +46,10 @@ jobs:
       elseif("refs/heads/master" -match '$(Build.SourceBranch)' -and '${{ parameters.productionLikeEnvironments }}' -notmatch '$(environmentName)' -or "refs/heads/master" -notmatch '$(Build.SourceBranch)' -and '${{ parameters.productionLikeEnvironments }}' -notmatch '$(environmentName)'){
       Write-host ("Deploying from '{0}' to non-production like environment '{1}'..." -f '$(Build.SourceBranch)', '$(environmentName)')}
       else {
-        Write-Error "Something went wrong! Please check your config and variables."}
+        Write-Error "Something went wrong! Please check your config and variables."}      
+    displayName: 'Validate variables'
 
+  - powershell: |
       # Check if deployment is targeting production (pilot) environment if so set the azure subscription to "DCD-CFT-VH-Pilot".
       if('$(environmentName)' -eq "pilot"){Write-Output ("##vso[task.setvariable variable=azureSubscription;]DCD-CFT-VH-Pilot")
       Write-Output ("##vso[task.setvariable variable=vh_vsts_automation_AppId;]'$(vh_vsts_automation_prod_AppId)'")
@@ -58,8 +60,7 @@ jobs:
       Write-Output ("##vso[task.setvariable variable=vh_vsts_automation_AppId;]'$(vh_vsts_automation_dev_AppId)'")
       Write-Output ("##vso[task.setvariable variable=vh_vsts_automation_CertThumbprit;]'$(vh_vsts_automation_dev_CertThumbprit)'")
       Write-Output ("##vso[task.setvariable variable=vh_azure_subscription_id;]'$(vh_azure_subscription_id_dev)")}
-      
-    displayName: 'Validate variables'
+      displayName: 'Set Azure Subscription'
 
 
   - powershell: |
