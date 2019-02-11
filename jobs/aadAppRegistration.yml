@@ -145,7 +145,7 @@ jobs:
 
   - template: ../templates/azureResourceGroupDeployment/azureResourceGroupDeployment.yml # Template reference
     parameters:
-      azureSubscription: ${{ parameters.azureSubscription }}
+      azureSubscription: $(azureSubscription)
       resourceGroupName: ${{ parameters.resourceGroupName }}
       appServicePlanName: ${{ parameters.AppServicePlanName }}
       webSiteName: $(WebSiteName)
