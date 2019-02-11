@@ -51,7 +51,8 @@ jobs:
 
   - powershell: |
       # Check if deployment is targeting production (pilot) environment if so set the azure subscription to "DCD-CFT-VH-Pilot".
-      if('$(environmentName)' -eq "pilot"){Write-Output ("##vso[task.setvariable variable=azureSubscription;]DCD-CFT-VH-Pilot")
+      if('$(environmentName)' -eq "pilot"){
+        #Write-Output ("##vso[task.setvariable variable=azureSubscription;]DCD-CFT-VH-Pilot")
       Write-Output ("##vso[task.setvariable variable=vh_vsts_automation_AppId;]'$(vh_vsts_automation_prod_AppId)'")
       Write-Output ("##vso[task.setvariable variable=vh_vsts_automation_CertThumbprit;]'$(vh_vsts_automation_CertThumbprit)'")
       Write-Output ("##vso[task.setvariable variable=vh_azure_subscription_id;]'$(vh_azure_subscription_id_prod)")}
@@ -65,7 +66,7 @@ jobs:
       #Write-Output ("Azure Subscription set to {0}" -f '$(azureSubscription)')
       #Write-Output ("Azure Subscription set to {0}" -f "$(azureSubscription)")
 
-      Write-Output ("vh_vsts_automation_AppId set to {0}" -f $env:vh_vsts_automation_AppId)
+      Write-Output ("vh_vsts_automation_AppId set to {0}" -f $env:VH_VSTS_AUTOMATION_APPID)
       Write-Output ("vh_vsts_automation_CertThumbprit set to {0}" -f $env:vh_vsts_automation_CertThumbprit)
       Write-Output ("vh_azure_subscription_idset to {0}" -f $env:vh_azure_subscription_id)
     displayName: 'Set Azure Subscription'
