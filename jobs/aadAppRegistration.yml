@@ -2,7 +2,7 @@
 parameters:
   # build agent pool can be overwritten on build template level 
   pool: 'Azure-VSTS-VS2017'
-  azureSubscription: 'Reform-CFT-VH-Dev'
+  azureSubscription: ''
   productionAzureSubscription: 'DCD-CFT-VH-Pilot'
 
   appName: 'vh-app-api' # name of the app to be registered
@@ -56,7 +56,7 @@ jobs:
       Write-Output ("##vso[task.setvariable variable=vh_vsts_automation_CertThumbprit;]'$(vh_vsts_automation_CertThumbprit)'")
       Write-Output ("##vso[task.setvariable variable=vh_azure_subscription_id;]'$(vh_azure_subscription_id_prod)")}
       else {
-        Write-Output ("##vso[task.setvariable variable=azureSubscription;]Reform-CFT-VH-Dev")
+      #  Write-Output ("##vso[task.setvariable variable=azureSubscription;]Reform-CFT-VH-Dev")
       Write-Output ("##vso[task.setvariable variable=vh_vsts_automation_AppId;]'$(vh_vsts_automation_dev_AppId)'")
       Write-Output ("##vso[task.setvariable variable=vh_vsts_automation_CertThumbprit;]'$(vh_vsts_automation_dev_CertThumbprit)'")
       Write-Output ("##vso[task.setvariable variable=vh_azure_subscription_id;]'$(vh_azure_subscription_id_dev)")}
