@@ -61,13 +61,13 @@ jobs:
       Write-Output ("##vso[task.setvariable variable=vh_vsts_automation_CertThumbprit;]'$(vh_vsts_automation_dev_CertThumbprit)'")
       Write-Output ("##vso[task.setvariable variable=vh_azure_subscription_id;]'$(vh_azure_subscription_id_dev)")}
       
-      Write-Output ("Azure Subscription set to {0}" -f $env:AZURESUBSCRIPTION)
+      #Write-Output ("Azure Subscription set to {0}" -f $env:AZURESUBSCRIPTION)
       #Write-Output ("Azure Subscription set to {0}" -f '$(azureSubscription)')
       #Write-Output ("Azure Subscription set to {0}" -f "$(azureSubscription)")
 
-      #Write-Output ("vh_vsts_automation_AppId set to {0}" -f $(vh_vsts_automation_AppId))
-      #Write-Output ("vh_vsts_automation_CertThumbprit set to {0}" -f $(vh_vsts_automation_CertThumbprit))
-      #Write-Output ("vh_azure_subscription_idset to {0}" -f $(vh_azure_subscription_id))
+      Write-Output ("vh_vsts_automation_AppId set to {0}" -f $env:vh_vsts_automation_AppId)
+      Write-Output ("vh_vsts_automation_CertThumbprit set to {0}" -f $env:vh_vsts_automation_CertThumbprit)
+      Write-Output ("vh_azure_subscription_idset to {0}" -f $env:vh_azure_subscription_id)
     displayName: 'Set Azure Subscription'
 
   - powershell: |
