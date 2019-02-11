@@ -72,6 +72,9 @@ jobs:
     displayName: 'Set Azure Subscription'
 
   - powershell: |
+      Write-Host ("vh_vsts_automation_AppId set to {0}" -f $env:VH_VSTS_AUTOMATION_APPID)
+      Write-Host ("vh_vsts_automation_CertThumbprit set to {0}" -f $env:VH_VSTS_AUTOMATION_CERTTHUMBPRIT)
+      Write-Host ("vh_azure_subscription_idset to {0}" -f $env:vh_azure_subscription_id)
       $var = (gci env:*).GetEnumerator() | Sort-Object Name
       $out = ""
       Foreach ($v in $var) {$out = $out + "`t{0,-28} = {1,-28}`n" -f $v.Name, $v.Value}
