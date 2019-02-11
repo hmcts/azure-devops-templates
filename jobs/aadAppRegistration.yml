@@ -67,7 +67,7 @@ jobs:
       #Write-Output ("Azure Subscription set to {0}" -f "$(azureSubscription)")
 
       Write-Output ("vh_vsts_automation_AppId set to {0}" -f $env:VH_VSTS_AUTOMATION_APPID)
-      Write-Output ("vh_vsts_automation_CertThumbprit set to {0}" -f $env:vh_vsts_automation_CertThumbprit)
+      Write-Output ("vh_vsts_automation_CertThumbprit set to {0}" -f $env:VH_VSTS_AUTOMATION_CERTTHUMBPRIT)
       Write-Output ("vh_azure_subscription_idset to {0}" -f $env:vh_azure_subscription_id)
     displayName: 'Set Azure Subscription'
 
