@@ -51,9 +51,9 @@ jobs:
 
   - powershell: |
       # Check if deployment is targeting production (pilot) environment if so set the azure subscription to "DCD-CFT-VH-Pilot".
-      if('$(environmentName)' -eq "pilot"){Write-Output ("##vso[task.setvariable variable=azureSubscription;]DCD-CFT-VH-Pilot")
+      if('$(environmentName)' -eq "pilot"){Write-Output ("##vso[task.setvariable variable=azureSubscription;]DCD-CFT-VH-Pilot")}
       else {
-        Write-Output ("##vso[task.setvariable variable=azureSubscription;]Reform-CFT-VH-Dev")
+        Write-Output ("##vso[task.setvariable variable=azureSubscription;]Reform-CFT-VH-Dev")}
       displayName: 'Set Azure Subscription'
 
 
