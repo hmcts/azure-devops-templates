@@ -56,7 +56,7 @@ jobs:
       Write-Output ("##vso[task.setvariable variable=vh_vsts_automation_CertThumbprit;]'$(vh_vsts_automation_CertThumbprit)'")
       Write-Output ("##vso[task.setvariable variable=vh_azure_subscription_id;]'$(vh_azure_subscription_id_prod)")}
       else {
-        Write-Host ("##vso[task.setvariable variable=azureSubscription;]Reform-CFT-VH-Dev")
+        Write-Output ("##vso[task.setvariable variable=azureSubscription;]Reform-CFT-VH-Dev")
       Write-Output ("##vso[task.setvariable variable=vh_vsts_automation_AppId;]'$(vh_vsts_automation_dev_AppId)'")
       Write-Output ("##vso[task.setvariable variable=vh_vsts_automation_CertThumbprit;]'$(vh_vsts_automation_dev_CertThumbprit)'")
       Write-Output ("##vso[task.setvariable variable=vh_azure_subscription_id;]'$(vh_azure_subscription_id_dev)")}
