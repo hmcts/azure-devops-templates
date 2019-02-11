@@ -77,7 +77,7 @@ jobs:
       set-content $fileName $out
       Write-output $out
       write-output "##vso[task.addattachment type=Distributedtask.Core.Summary;name=Environment Variables;]$fileName"
-    condition: 
+    condition: succeededOrFailed() 
 
 
   - powershell: |
