@@ -54,7 +54,7 @@ jobs:
       if('$(environmentName)' -eq "pilot"){Write-Output ("##vso[task.setvariable variable=azureSubscription;]DCD-CFT-VH-Pilot")
       Write-Output ("##vso[task.setvariable variable=vh_vsts_automation_AppId;]'$(vh_vsts_automation_prod_AppId)'")
       Write-Output ("##vso[task.setvariable variable=vh_vsts_automation_CertThumbprit;]'$(vh_vsts_automation_CertThumbprit)'")
-      Write-Output ("##vso[task.setvariable variable=vh_azure_subscription_id;]'$(vh_azure_subscription_id_prod)")}}
+      Write-Output ("##vso[task.setvariable variable=vh_azure_subscription_id;]'$(vh_azure_subscription_id_prod)")}
       else {
         Write-Output ("##vso[task.setvariable variable=azureSubscription;]Reform-CFT-VH-Dev")
       Write-Output ("##vso[task.setvariable variable=vh_vsts_automation_AppId;]'$(vh_vsts_automation_dev_AppId)'")
