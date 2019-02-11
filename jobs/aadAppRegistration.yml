@@ -2,7 +2,7 @@
 parameters:
   # build agent pool can be overwritten on build template level 
   pool: 'Azure-VSTS-VS2017'
-  azureSubscription: 'Reform-CFT-VH-Dev'
+  #azureSubscription: 'Reform-CFT-VH-Dev'
   productionAzureSubscription: 'DCD-CFT-VH-Pilot'
 
   appName: 'vh-app-api' # name of the app to be registered
@@ -63,7 +63,7 @@ jobs:
       
       Write-Output ("Azure Subscription set to {0}" -f $env:AZURESUBSCRIPTION)
       Write-Output ("Azure Subscription set to {0}" -f '$(azureSubscription)')
-      
+
       #Write-Output ("vh_vsts_automation_AppId set to {0}" -f $(vh_vsts_automation_AppId))
       #Write-Output ("vh_vsts_automation_CertThumbprit set to {0}" -f $(vh_vsts_automation_CertThumbprit))
       #Write-Output ("vh_azure_subscription_idset to {0}" -f $(vh_azure_subscription_id))
