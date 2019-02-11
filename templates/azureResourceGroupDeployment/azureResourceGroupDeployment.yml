@@ -6,14 +6,15 @@ parameters:
   customHostname: ''
   wildcardCertificateThumbprint: ''
 
-- task: AzureResourceGroupDeployment@2
-  displayName: 'Provision Web App'
-  inputs:
-    azureSubscription: '${{ parameters.azureSubscription }}'
-    action: 'Create Or Update Resource Group'
-    resourceGroupName: '${{ parameters.resourceGroupName }}'
-    location: 'UK West'
-    csmFile: 'infrastructure/azuredeploy.json'
-    csmParametersFile: 'infrastructure/azuredeploy.parameters.json'
-    overrideParameters: -appServicePlanName ${{ parameters.appServicePlanName }} -AzureWebsite ${{ parameters.webSiteName }} -customHostname ${{ parameters.customHostname }} -certificateThumbprint ${{ parameters.wildcardCertificateThumbprint }} 
-    deploymentMode: Incremental
+steps:
+  - task: AzureResourceGroupDeployment@2
+    displayName: 'Provision Web App'
+    inputs:
+      azureSubscription: '${{ parameters.azureSubscription }}'
+      action: 'Create Or Update Resource Group'
+      resourceGroupName: '${{ parameters.resourceGroupName }}'
+      location: 'UK West'
+      csmFile: 'infrastructure/azuredeploy.json'
+      csmParametersFile: 'infrastructure/azuredeploy.parameters.json'
+      overrideParameters: -appServicePlanName ${{ parameters.appServicePlanName }} -AzureWebsite ${{ parameters.webSiteName }} -customHostname ${{ parameters.customHostname }} -certificateThumbprint ${{ parameters.wildcardCertificateThumbprint }} 
+      deploymentMode: Incremental
