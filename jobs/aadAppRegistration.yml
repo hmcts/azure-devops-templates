@@ -52,23 +52,23 @@ jobs:
   - powershell: |
       # Check if deployment is targeting production (pilot) environment if so set the azure subscription to "DCD-CFT-VH-Pilot".
       if('$(environmentName)' -eq "pilot"){
-        #Write-Output ("##vso[task.setvariable variable=azureSubscription;]DCD-CFT-VH-Pilot")
-      Write-Output ("##vso[task.setvariable variable=vh_vsts_automation_AppId;]'$(vh_vsts_automation_prod_AppId)'")
-      Write-Output ("##vso[task.setvariable variable=vh_vsts_automation_CertThumbprit;]'$(vh_vsts_automation_CertThumbprit)'")
-      Write-Output ("##vso[task.setvariable variable=vh_azure_subscription_id;]'$(vh_azure_subscription_id_prod)")}
+        #Write-Host ("##vso[task.setvariable variable=azureSubscription;]DCD-CFT-VH-Pilot")
+      Write-Host ("##vso[task.setvariable variable=vh_vsts_automation_AppId;]'$(vh_vsts_automation_prod_AppId)'")
+      Write-Host ("##vso[task.setvariable variable=vh_vsts_automation_CertThumbprit;]'$(vh_vsts_automation_CertThumbprit)'")
+      Write-Host ("##vso[task.setvariable variable=vh_azure_subscription_id;]'$(vh_azure_subscription_id_prod)")}
       else {
-      #  Write-Output ("##vso[task.setvariable variable=azureSubscription;]Reform-CFT-VH-Dev")
-      Write-Output ("##vso[task.setvariable variable=vh_vsts_automation_AppId;]'$(vh_vsts_automation_dev_AppId)'")
-      Write-Output ("##vso[task.setvariable variable=vh_vsts_automation_CertThumbprit;]'$(vh_vsts_automation_dev_CertThumbprit)'")
-      Write-Output ("##vso[task.setvariable variable=vh_azure_subscription_id;]'$(vh_azure_subscription_id_dev)")}
+      #  Write-Host ("##vso[task.setvariable variable=azureSubscription;]Reform-CFT-VH-Dev")
+      Write-Host ("##vso[task.setvariable variable=vh_vsts_automation_AppId;]'$(vh_vsts_automation_dev_AppId)'")
+      Write-Host ("##vso[task.setvariable variable=vh_vsts_automation_CertThumbprit;]'$(vh_vsts_automation_dev_CertThumbprit)'")
+      Write-Host ("##vso[task.setvariable variable=vh_azure_subscription_id;]'$(vh_azure_subscription_id_dev)")}
       
-      #Write-Output ("Azure Subscription set to {0}" -f $env:AZURESUBSCRIPTION)
-      #Write-Output ("Azure Subscription set to {0}" -f '$(azureSubscription)')
-      #Write-Output ("Azure Subscription set to {0}" -f "$(azureSubscription)")
+      #Write-Host ("Azure Subscription set to {0}" -f $env:AZURESUBSCRIPTION)
+      #Write-Host ("Azure Subscription set to {0}" -f '$(azureSubscription)')
+      #Write-Host ("Azure Subscription set to {0}" -f "$(azureSubscription)")
 
-      Write-Output ("vh_vsts_automation_AppId set to {0}" -f $env:VH_VSTS_AUTOMATION_APPID)
-      Write-Output ("vh_vsts_automation_CertThumbprit set to {0}" -f $env:VH_VSTS_AUTOMATION_CERTTHUMBPRIT)
-      Write-Output ("vh_azure_subscription_idset to {0}" -f $env:vh_azure_subscription_id)
+      Write-Host ("vh_vsts_automation_AppId set to {0}" -f $env:VH_VSTS_AUTOMATION_APPID)
+      Write-Host ("vh_vsts_automation_CertThumbprit set to {0}" -f $env:VH_VSTS_AUTOMATION_CERTTHUMBPRIT)
+      Write-Host ("vh_azure_subscription_idset to {0}" -f $env:vh_azure_subscription_id)
     displayName: 'Set Azure Subscription'
 
   - powershell: |
@@ -76,11 +76,11 @@ jobs:
       $out = ""
       Foreach ($v in $var) {$out = $out + "`t{0,-28} = {1,-28}`n" -f $v.Name, $v.Value}
       
-      write-output "dump variables on $env:BUILD_ARTIFACTSTAGINGDIRECTORY\test.md"
+      Write-Host "dump variables on $env:BUILD_ARTIFACTSTAGINGDIRECTORY\test.md"
       $fileName = "$env:BUILD_ARTIFACTSTAGINGDIRECTORY\test.md"
       set-content $fileName $out
-      Write-output $out
-      write-output "##vso[task.addattachment type=Distributedtask.Core.Summary;name=Environment Variables;]$fileName"
+      Write-Host $out
+      Write-Host "##vso[task.addattachment type=Distributedtask.Core.Summary;name=Environment Variables;]$fileName"
     condition: succeededOrFailed() 
 
 
@@ -120,7 +120,7 @@ jobs:
           
       Set-AzureADResourceAccessV2 -AzureADApplicationName '${{ parameters.appName }}-$(environmentName)' `
       -resourceAccessDefinition .\resourceAccess.json}
-      else {Write-Output "##vso[task.logissue type=warning]Resource Access file not found! Please add 'resourceAccess.json' file to the repo" }
+      else {Write-Host "##vso[task.logissue type=warning]Resource Access file not found! Please add 'resourceAccess.json' file to the repo" }
     displayName: 'Add AAD Apps Resource Access'
 
   - powershell: | 
