@@ -63,7 +63,7 @@ jobs:
       
       Write-Output ("Azure Subscription set to {0}" -f $env:AZURESUBSCRIPTION)
       Write-Output ("Azure Subscription set to {0}" -f '$(azureSubscription)')
-      #Write-Output ("Azure Subscription set to {0}" -f "$(azureSubscription)")
+      Write-Output ("Azure Subscription set to {0}" -f "$(azureSubscription)")
 
       #Write-Output ("vh_vsts_automation_AppId set to {0}" -f $(vh_vsts_automation_AppId))
       #Write-Output ("vh_vsts_automation_CertThumbprit set to {0}" -f $(vh_vsts_automation_CertThumbprit))
@@ -143,14 +143,23 @@ jobs:
         -AzureResourceGroupName "$(AzureResourceGroupName)" `
         -AzureDNSZoneName "$(AzureDNSZoneName)"
 
-  - task: AzureResourceGroupDeployment@2
-    displayName: 'Provision Web App'
-    inputs:
-      azureSubscription: $(azureSubscription)
-      action: 'Create Or Update Resource Group'
+  - template: templates/azureResourceGroupDeployment/azureResourceGroupDeployment.yml # Template reference
+    parameters:
+      azureSubscription: '$(azureSubscription)'
       resourceGroupName: '${{ parameters.resourceGroupName }}'
-      location: 'UK West'
-      csmFile: 'infrastructure/azuredeploy.json'
-      csmParametersFile: 'infrastructure/azuredeploy.parameters.json'
-      overrideParameters: -appServicePlanName ${{ parameters.AppServicePlanName }} -AzureWebsite $(WebSiteName) -customHostname ${{ parameters.CustomHostname }} -certificateThumbprint $(WildcardCertificateThumbprint)
-      deploymentMode: Incremental
+      appServicePlanName: ${{ parameters.AppServicePlanName }}
+      webSiteName: $(WebSiteName)
+      customHostname: ${{ parameters.CustomHostname }}
+      wildcardCertificateThumbprint: $(WildcardCertificateThumbprint)
+  
+  # - task: AzureResourceGroupDeployment@2
+  #   displayName: 'Provision Web App'
+  #   inputs:
+  #     azureSubscription: '${{ parameters.azureSubscription }}'
+  #     action: 'Create Or Update Resource Group'
+  #     resourceGroupName: '${{ parameters.resourceGroupName }}'
+  #     location: 'UK West'
+  #     csmFile: 'infrastructure/azuredeploy.json'
+  #     csmParametersFile: 'infrastructure/azuredeploy.parameters.json'
+  #     overrideParameters: -appServicePlanName ${{ parameters.AppServicePlanName }} -AzureWebsite $(WebSiteName) -customHostname ${{ parameters.CustomHostname }} -certificateThumbprint $(WildcardCertificateThumbprint)
+  #     deploymentMode: Incremental
