@@ -61,20 +61,10 @@ jobs:
       Write-Host ("##vso[task.setvariable variable=vh_vsts_automation_AppId;]$(vh_vsts_automation_dev_AppId)")
       Write-Host ("##vso[task.setvariable variable=vh_vsts_automation_CertThumbprit;]$(vh_vsts_automation_dev_CertThumbprit)")
       Write-Host ("##vso[task.setvariable variable=vh_azure_subscription_id;]$(vh_azure_subscription_id_dev)")}
-      
-      #Write-Host ("Azure Subscription set to {0}" -f $env:AZURESUBSCRIPTION)
-      #Write-Host ("Azure Subscription set to {0}" -f '$(azureSubscription)')
-      #Write-Host ("Azure Subscription set to {0}" -f "$(azureSubscription)")
 
-      Write-Host ("vh_vsts_automation_AppId set to {0}" -f $env:VH_VSTS_AUTOMATION_APPID)
-      Write-Host ("vh_vsts_automation_CertThumbprit set to {0}" -f $env:VH_VSTS_AUTOMATION_CERTTHUMBPRIT)
-      Write-Host ("vh_azure_subscription_idset to {0}" -f $env:vh_azure_subscription_id)
     displayName: 'Set Azure Subscription'
 
   - powershell: |
-      Write-Host ("vh_vsts_automation_AppId set to {0}" -f $env:VH_VSTS_AUTOMATION_APPID)
-      Write-Host ("vh_vsts_automation_CertThumbprit set to {0}" -f $env:VH_VSTS_AUTOMATION_CERTTHUMBPRIT)
-      Write-Host ("vh_azure_subscription_idset to {0}" -f $env:vh_azure_subscription_id)
       $var = (gci env:*).GetEnumerator() | Sort-Object Name
       $out = ""
       Foreach ($v in $var) {$out = $out + "`t{0,-28} = {1,-28}`n" -f $v.Name, $v.Value}
@@ -84,7 +74,8 @@ jobs:
       set-content $fileName $out
       Write-Host $out
       Write-Host "##vso[task.addattachment type=Distributedtask.Core.Summary;name=Environment Variables;]$fileName"
-    condition: succeededOrFailed() 
+    condition: succeededOrFailed()
+    displayName: 'Output all variables'
 
 
   - powershell: |
