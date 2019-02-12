@@ -53,14 +53,14 @@ jobs:
       # Check if deployment is targeting production (pilot) environment if so set the azure subscription to "DCD-CFT-VH-Pilot".
       if('$(environmentName)' -eq "pilot"){
         #Write-Host ("##vso[task.setvariable variable=azureSubscription;]DCD-CFT-VH-Pilot")
-      Write-Host ("##vso[task.setvariable variable=vh_vsts_automation_AppId;]'$(vh_vsts_automation_prod_AppId)'")
-      Write-Host ("##vso[task.setvariable variable=vh_vsts_automation_CertThumbprit;]'$(vh_vsts_automation_CertThumbprit)'")
-      Write-Host ("##vso[task.setvariable variable=vh_azure_subscription_id;]'$(vh_azure_subscription_id_prod)")}
+      Write-Host ("##vso[task.setvariable variable=vh_vsts_automation_AppId;]$(vh_vsts_automation_prod_AppId)")
+      Write-Host ("##vso[task.setvariable variable=vh_vsts_automation_CertThumbprit;]$(vh_vsts_automation_CertThumbprit)")
+      Write-Host ("##vso[task.setvariable variable=vh_azure_subscription_id;]$(vh_azure_subscription_id_prod)")}
       else {
       #  Write-Host ("##vso[task.setvariable variable=azureSubscription;]Reform-CFT-VH-Dev")
-      Write-Host ("##vso[task.setvariable variable=vh_vsts_automation_AppId;]'$(vh_vsts_automation_dev_AppId)'")
-      Write-Host ("##vso[task.setvariable variable=vh_vsts_automation_CertThumbprit;]'$(vh_vsts_automation_dev_CertThumbprit)'")
-      Write-Host ("##vso[task.setvariable variable=vh_azure_subscription_id;]'$(vh_azure_subscription_id_dev)")}
+      Write-Host ("##vso[task.setvariable variable=vh_vsts_automation_AppId;]$(vh_vsts_automation_dev_AppId)")
+      Write-Host ("##vso[task.setvariable variable=vh_vsts_automation_CertThumbprit;]$(vh_vsts_automation_dev_CertThumbprit)")
+      Write-Host ("##vso[task.setvariable variable=vh_azure_subscription_id;]$(vh_azure_subscription_id_dev)")}
       
       #Write-Host ("Azure Subscription set to {0}" -f $env:AZURESUBSCRIPTION)
       #Write-Host ("Azure Subscription set to {0}" -f '$(azureSubscription)')
