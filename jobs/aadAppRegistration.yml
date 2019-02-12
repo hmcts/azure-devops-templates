@@ -104,9 +104,9 @@ jobs:
   - powershell: | 
      Invoke-AzureADApplicationRegistration `
      -AzureTenantId '$(vh_teantid)' `
-     -AzureAdAppId '$(vh_vsts_automation_AppId)' `
-     -AzureAdAppCertificateThumbprint '$(vh_vsts_automation_CertThumbprit)' `
-     -AzureSubscriptionId '$(vh_azure_subscription_id)' `
+     -AzureAdAppId '$env:vh_vsts_automation_AppId' `
+     -AzureAdAppCertificateThumbprint '$env:vh_vsts_automation_CertThumbprit' `
+     -AzureSubscriptionId '$env:vh_azure_subscription_id' `
      -AzureADApplicationName '${{ parameters.appName }}-$(environmentName)' `
      -AzureKeyVaultName '${{ parameters.keyVaultName }}' `
      -AzureTenantIdSecondary '$(vh_hearings_tenata_id)' `
