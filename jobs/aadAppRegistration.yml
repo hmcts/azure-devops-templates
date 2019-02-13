@@ -8,7 +8,7 @@ parameters:
   AppServicePlanName: 'vh-core-infra-$(environmentName)' # App Service Plan name
   WebSiteName: $(appName)-$(environmentName)  # Web Site name
   CustomHostname: $(WebSiteName)$(AzureAppServiceWebSiteCustomDomainName) # Custom hostname used by the website
-  aadAppReplyUrls: '' #CSV list of replay urls
+  aadAppReplyUrls: '' #CSV list of reply urls
   allowedEnvironments: "preview, sandbox, aat, test1, test2, pilot, production" # List of allowed environment names
   productionLikeEnvironments: "aat, pilot, production" # Production like environments. Deployments to these environments are allowed only from master branch
 
@@ -102,7 +102,7 @@ jobs:
       else {Write-Host "##vso[task.logissue type=warning]Resource Access file not found! Please add 'resourceAccess.json' file to the repo" }
     displayName: 'Add AAD Apps Resource Access'
 
-#Task to set AAD app replay URLs
+#Task to set AAD app reply URLs
   - powershell: | 
       Set-AzureADApplicationReplyUrls `
       -AzureTenantIdSecondary '$(vh_hearings_tenant_id)' `
@@ -110,7 +110,7 @@ jobs:
       -AzureAdAppCertificateThumbprintSecondary '$(vh_hearings_vsts_automation_CertThumbprit)' `
       -AADAppName "${{ parameters.appName }}-$(environmentName)" `
       -AADAppReplyUrls "${{ parameters.aadAppReplyUrls }}"
-    displayName: 'Set AAD App Replay URLs'
+    displayName: 'Set AAD App reply URLs'
 
 # Created new DNS records for websites
   - task: AzurePowerShell@3
