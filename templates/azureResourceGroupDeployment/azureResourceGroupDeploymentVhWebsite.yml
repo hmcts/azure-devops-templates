@@ -8,7 +8,7 @@ parameters:
 
 steps:
   - task: AzureResourceGroupDeployment@2
-    displayName: 'Provision Web App'
+    displayName: 'Provision Web App Dev'
     inputs:
       azureSubscription: 'Reform-CFT-VH-Dev'
       action: 'Create Or Update Resource Group'
@@ -21,7 +21,7 @@ steps:
     condition: notIn(variables['environmentName'], 'pilot', 'production')
 
   - task: AzureResourceGroupDeployment@2
-    displayName: 'Provision Web App'
+    displayName: 'Provision Web App Prod'
     inputs:
       azureSubscription: 'DCD-CFT-VH-Pilot'
       action: 'Create Or Update Resource Group'
