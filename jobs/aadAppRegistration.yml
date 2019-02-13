@@ -1,38 +1,40 @@
 
 parameters:
-  # build agent pool can be overwritten on build template level 
-  pool: 'Azure-VSTS-VS2017'
-  azureSubscription: 'Reform-CFT-VH-Dev'
-
-  appName: 'vh-app-api' # name of the app to be registered
-  keyVaultName: 'vhcoreinfraht$(environmentName)' # key vault name to for storing AAD app's details - appId, ClientSecret, etc.
-  resourceGroupName: '$(appName)-$(environmentName)' # resource group name for where the website is located
+  pool: 'Azure-VSTS-VS2017' # Build agent pool can be overwritten on build template level 
+  productionAzureSubscription: 'DCD-CFT-VH-Pilot' # Azure subscription name
+  appName: 'vh-app-api' # Name of the app to be registered, can be overwritten
+  keyVaultName: 'vhcoreinfraht$(environmentName)' # Key vault name to for storing AAD app's details - appId, ClientSecret, etc.
+  resourceGroupName: '$(appName)-$(environmentName)' # Resource group name that is used by website
   AppServicePlanName: 'vh-core-infra-$(environmentName)' # App Service Plan name
   WebSiteName: $(appName)-$(environmentName)  # Web Site name
-  CustomHostname: $(WebSiteName)$(AzureAppServiceWebSiteCustomDomainName) # custom hostname used by the website
+  CustomHostname: $(WebSiteName)$(AzureAppServiceWebSiteCustomDomainName) # Custom hostname used by the website
   aadAppReplyUrls: '' #CSV list of replay urls
-  allowedEnvironments: "preview, sandbox, aat, test1, test2, pilot, production"
-  productionLikeEnvironments: "aat, pilot, production"
+  allowedEnvironments: "preview, sandbox, aat, test1, test2, pilot, production" # List of allowed environment names
+  productionLikeEnvironments: "aat, pilot, production" # Production like environments. Deployments to these environments are allowed only from master branch
 
 jobs:
 - job: Register_AAD_App
   displayName: 'Register AAD App'
-  pool: Azure-VSTS-VS2017
+  pool: ${{ parameters.pool }}
 
   # Reference templae for setting up build tools
   steps:
-  - checkout: self  # self represents the repo where the initial Pipelines YAML file was found
-    clean: true  # whether to fetch clean each time
+  - checkout: self  # Self represents the repo where the initial Pipelines YAML file was found
+    clean: true  # Whether to fetch clean each time
 
   - task: GitVersion@4
     displayName: GitVersion
     inputs:
       preferBundledVersion: false
 
+# Validates if deployment branch is allowed to target a environmet
   - powershell: | 
+      # Check if the input environment name is one of the allowe d environmants.
       if ('${{ parameters.allowedEnvironments }}' -match '$(environmentName)') {Write-Host "Variable validation successful!"}
-      else {Write-Error ("Variable validation failed! Please check if environment {0} is from allowed environmenst {1}" -f '$(environmentName)', '"${{ parameters.allowedEnvironments }}"')}
+      else {
+        Write-Error ("Variable validation failed! Please check if environment {0} is from allowed environmenst {1}" -f '$(environmentName)', '"${{ parameters.allowedEnvironments }}"')}
       
+      # Check if if the build for production like environments is executed form a master brach.
       if ('refs/heads/master' -match '$(Build.SourceBranch)' -and '${{ parameters.productionLikeEnvironments }}' -match '$(environmentName)'){
       Write-Host ("Deploying from '{0}' to production like environment '{1}'..." -f '$(Build.SourceBranch)', '$(environmentName)')}
 
@@ -41,8 +43,23 @@ jobs:
       
       elseif("refs/heads/master" -match '$(Build.SourceBranch)' -and '${{ parameters.productionLikeEnvironments }}' -notmatch '$(environmentName)' -or "refs/heads/master" -notmatch '$(Build.SourceBranch)' -and '${{ parameters.productionLikeEnvironments }}' -notmatch '$(environmentName)'){
       Write-host ("Deploying from '{0}' to non-production like environment '{1}'..." -f '$(Build.SourceBranch)', '$(environmentName)')}
-      else{Write-Error "Something went wrong! Please check your config and variables."}
+      else {
+        Write-Error "Something went wrong! Please check your config and variables."}      
     displayName: 'Validate variables'
+
+# Task will set the values based on target enviornment. These variables are then consumed during AAD app registration
+  - powershell: |
+      # Check if deployment is targeting production (pilot) environment if so set the azure subscription to "DCD-CFT-VH-Pilot".
+      if('$(environmentName)' -eq "pilot"){
+      Write-Host ("##vso[task.setvariable variable=vh_vsts_automation_AppId;]$(vh_vsts_automation_prod_AppId)")
+      Write-Host ("##vso[task.setvariable variable=vh_vsts_automation_CertThumbprit;]$(vh_vsts_automation_CertThumbprit)")
+      Write-Host ("##vso[task.setvariable variable=vh_azure_subscription_id;]$(vh_azure_subscription_id_prod)")}
+
+      else {
+      Write-Host ("##vso[task.setvariable variable=vh_vsts_automation_AppId;]$(vh_vsts_automation_dev_AppId)")
+      Write-Host ("##vso[task.setvariable variable=vh_vsts_automation_CertThumbprit;]$(vh_vsts_automation_dev_CertThumbprit)")
+      Write-Host ("##vso[task.setvariable variable=vh_azure_subscription_id;]$(vh_azure_subscription_id_dev)")}
+    displayName: 'Set Azure Subscription'
 
   - powershell: |
      git clone https://github.com/hmcts/vh-ps-modules.git
@@ -50,52 +67,56 @@ jobs:
     #  git checkout updated-dns-module
     displayName: 'Get PowerShell module source'
 
+# Imports PS modules used during AAD app registration
   - powershell: | 
-      #Get-ChildItem -Recurse
       Install-Module AzureAD
       Install-Module AzureRM.KeyVault
       Copy-Item -Path $(System.DefaultWorkingDirectory)/*vh-ps-modules/AzureADApplicationRegistration -Destination "C:\Program Files\WindowsPowerShell\Modules" -Recurse -Force
       Copy-Item -Path $(System.DefaultWorkingDirectory)/*vh-ps-modules/SetDNSRecord -Destination "C:\Program Files\WindowsPowerShell\Modules" -Recurse -Force
     displayName: 'Import PowerShell Modules'
 
+# Task to regiter AAD App
   - powershell: | 
      Invoke-AzureADApplicationRegistration `
      -AzureTenantId '$(vh_teantid)' `
-     -AzureAdAppId '$(vh_vsts_automation_dev_AppId)' `
-     -AzureAdAppCertificateThumbprint '$(vh_vsts_automation_dev_CertThumbprit)' `
-     -AzureSubscriptionId '$(vh_azure_subscription_id_dev)' `
+     -AzureAdAppId $env:vh_vsts_automation_AppId `
+     -AzureAdAppCertificateThumbprint $env:vh_vsts_automation_CertThumbprit `
+     -AzureSubscriptionId $env:vh_azure_subscription_id `
      -AzureADApplicationName '${{ parameters.appName }}-$(environmentName)' `
      -AzureKeyVaultName '${{ parameters.keyVaultName }}' `
-     -AzureTenantIdSecondary '$(vh_hearings_tenata_id)' `
+     -AzureTenantIdSecondary '$(vh_hearings_tenant_id)' `
      -AzureAdAppIdSecondary '$(vh_hearings_vsts_automation_AppId)' `
      -AzureAdAppCertificateThumbprintSecondary '$(vh_hearings_vsts_automation_CertThumbprit)' `
      -verbose
     displayName: 'Register AAD App'
 
+# Task to set resource access permissions as defined in resourceAccess.json file
   - powershell: |
       if ( Test-Path .\resourceAccess.json) {
-      Invoke-AzureADConnection -AzureTenantIdSecondary '$(vh_hearings_tenata_id)' `
+      Invoke-AzureADConnection -AzureTenantIdSecondary '$(vh_hearings_tenant_id)' `
           -AzureAdAppIdSecondary '$(vh_hearings_vsts_automation_AppId)' `
           -AzureAdAppCertificateThumbprintSecondary '$(vh_hearings_vsts_automation_CertThumbprit)'
           
       Set-AzureADResourceAccessV2 -AzureADApplicationName '${{ parameters.appName }}-$(environmentName)' `
       -resourceAccessDefinition .\resourceAccess.json}
-      else {Write-Output "##vso[task.logissue type=warning]Resource Access file not found! Please add 'resourceAccess.json' file to the repo" }
+      else {Write-Host "##vso[task.logissue type=warning]Resource Access file not found! Please add 'resourceAccess.json' file to the repo" }
     displayName: 'Add AAD Apps Resource Access'
 
+#Task to set AAD app replay URLs
   - powershell: | 
       Set-AzureADApplicationReplyUrls `
-      -AzureTenantIdSecondary '$(vh_hearings_tenata_id)' `
+      -AzureTenantIdSecondary '$(vh_hearings_tenant_id)' `
       -AzureAdAppIdSecondary '$(vh_hearings_vsts_automation_AppId)' `
       -AzureAdAppCertificateThumbprintSecondary '$(vh_hearings_vsts_automation_CertThumbprit)' `
       -AADAppName "${{ parameters.appName }}-$(environmentName)" `
       -AADAppReplyUrls "${{ parameters.aadAppReplyUrls }}"
     displayName: 'Set AAD App Replay URLs'
 
+# Created new DNS records for websites
   - task: AzurePowerShell@3
     displayName: 'Set DNS records for web app'
     inputs:
-      azureSubscription: 'DCD-CFT-VH-Pilot'
+      azureSubscription: ${{ parameters.productionAzureSubscription }}
       azurePowerShellVersion: LatestVersion
       ScriptType: InlineScript
       Inline: |
@@ -104,14 +125,12 @@ jobs:
         -AzureResourceGroupName "$(AzureResourceGroupName)" `
         -AzureDNSZoneName "$(AzureDNSZoneName)"
 
-  - task: AzureResourceGroupDeployment@2
-    displayName: 'Provision Web App'
-    inputs:
-      azureSubscription: 'Reform-CFT-VH-Dev'
-      action: 'Create Or Update Resource Group'
-      resourceGroupName: '${{ parameters.resourceGroupName }}'
-      location: 'UK West'
-      csmFile: 'infrastructure/azuredeploy.json'
-      csmParametersFile: 'infrastructure/azuredeploy.parameters.json'
-      overrideParameters: -appServicePlanName ${{ parameters.AppServicePlanName }} -AzureWebsite $(WebSiteName) -customHostname ${{ parameters.CustomHostname }} -certificateThumbprint $(WildcardCertificateThumbprint)
-      deploymentMode: Incremental
+# Template reference to ARM template for provisioning Web Site on App Serivice
+  - template: ../templates/azureResourceGroupDeployment/azureResourceGroupDeploymentVhWebsite.yml 
+    parameters:
+      resourceGroupName: ${{ parameters.resourceGroupName }}
+      appServicePlanName: ${{ parameters.AppServicePlanName }}
+      webSiteName: $(WebSiteName)
+      customHostname: ${{ parameters.CustomHostname }}
+      wildcardCertificateThumbprint: $(WildcardCertificateThumbprint)
+  

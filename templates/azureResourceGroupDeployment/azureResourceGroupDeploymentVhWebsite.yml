@@ -1,0 +1,34 @@
+parameters:
+  azureSubscription: ''
+  resourceGroupName: ''
+  appServicePlanName: ''
+  webSiteName: ''
+  customHostname: ''
+  wildcardCertificateThumbprint: ''
+
+steps:
+  - task: AzureResourceGroupDeployment@2
+    displayName: 'Provision Web App Dev'
+    inputs:
+      azureSubscription: 'Reform-CFT-VH-Dev'
+      action: 'Create Or Update Resource Group'
+      resourceGroupName: ${{ parameters.resourceGroupName }}
+      location: 'UK West'
+      csmFile: 'infrastructure/azuredeploy.json'
+      csmParametersFile: 'infrastructure/azuredeploy.parameters.json'
+      overrideParameters: -appServicePlanName ${{ parameters.appServicePlanName }} -AzureWebsite ${{ parameters.webSiteName }} -customHostname ${{ parameters.customHostname }} -certificateThumbprint ${{ parameters.wildcardCertificateThumbprint }} 
+      deploymentMode: Incremental
+    condition: notIn(variables['environmentName'], 'pilot', 'production')
+
+  - task: AzureResourceGroupDeployment@2
+    displayName: 'Provision Web App Prod'
+    inputs:
+      azureSubscription: 'DCD-CFT-VH-Pilot'
+      action: 'Create Or Update Resource Group'
+      resourceGroupName: ${{ parameters.resourceGroupName }}
+      location: 'UK West'
+      csmFile: 'infrastructure/azuredeploy.json'
+      csmParametersFile: 'infrastructure/azuredeploy.parameters.json'
+      overrideParameters: -appServicePlanName ${{ parameters.appServicePlanName }} -AzureWebsite ${{ parameters.webSiteName }} -customHostname ${{ parameters.customHostname }} -certificateThumbprint ${{ parameters.wildcardCertificateThumbprint }} 
+      deploymentMode: Incremental
+    condition: in(variables['environmentName'], 'pilot', 'production')
