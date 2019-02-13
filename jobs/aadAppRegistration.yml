@@ -110,7 +110,7 @@ jobs:
       -AzureAdAppCertificateThumbprintSecondary '$(vh_hearings_vsts_automation_CertThumbprit)' `
       -AADAppName "${{ parameters.appName }}-$(environmentName)" `
       -AADAppReplyUrls "${{ parameters.aadAppReplyUrls }}"
-    displayName: 'Set AAD App reply URLs'
+    displayName: 'Set AAD App Reply URLs'
 
 # Created new DNS records for websites
   - task: AzurePowerShell@3
