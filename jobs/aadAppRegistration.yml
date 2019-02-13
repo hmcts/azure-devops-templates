@@ -84,7 +84,7 @@ jobs:
      -AzureSubscriptionId $env:vh_azure_subscription_id `
      -AzureADApplicationName '${{ parameters.appName }}-$(environmentName)' `
      -AzureKeyVaultName '${{ parameters.keyVaultName }}' `
-     -AzureTenantIdSecondary '$(vh_hearings_tenata_id)' `
+     -AzureTenantIdSecondary '$(vh_hearings_tenant_id)' `
      -AzureAdAppIdSecondary '$(vh_hearings_vsts_automation_AppId)' `
      -AzureAdAppCertificateThumbprintSecondary '$(vh_hearings_vsts_automation_CertThumbprit)' `
      -verbose
@@ -93,7 +93,7 @@ jobs:
 # Task to set resource access permissions as defined in resourceAccess.json file
   - powershell: |
       if ( Test-Path .\resourceAccess.json) {
-      Invoke-AzureADConnection -AzureTenantIdSecondary '$(vh_hearings_tenata_id)' `
+      Invoke-AzureADConnection -AzureTenantIdSecondary '$(vh_hearings_tenant_id)' `
           -AzureAdAppIdSecondary '$(vh_hearings_vsts_automation_AppId)' `
           -AzureAdAppCertificateThumbprintSecondary '$(vh_hearings_vsts_automation_CertThumbprit)'
           
@@ -105,7 +105,7 @@ jobs:
 #Task to set AAD app replay URLs
   - powershell: | 
       Set-AzureADApplicationReplyUrls `
-      -AzureTenantIdSecondary '$(vh_hearings_tenata_id)' `
+      -AzureTenantIdSecondary '$(vh_hearings_tenant_id)' `
       -AzureAdAppIdSecondary '$(vh_hearings_vsts_automation_AppId)' `
       -AzureAdAppCertificateThumbprintSecondary '$(vh_hearings_vsts_automation_CertThumbprit)' `
       -AADAppName "${{ parameters.appName }}-$(environmentName)" `
