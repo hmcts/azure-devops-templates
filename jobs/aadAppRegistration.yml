@@ -59,7 +59,6 @@ jobs:
       Write-Host ("##vso[task.setvariable variable=vh_vsts_automation_AppId;]$(vh_vsts_automation_dev_AppId)")
       Write-Host ("##vso[task.setvariable variable=vh_vsts_automation_CertThumbprit;]$(vh_vsts_automation_dev_CertThumbprit)")
       Write-Host ("##vso[task.setvariable variable=vh_azure_subscription_id;]$(vh_azure_subscription_id_dev)")}
-
     displayName: 'Set Azure Subscription'
 
   - powershell: |
@@ -67,6 +66,7 @@ jobs:
     #  cd .\vh-ps-modules\
     #  git checkout updated-dns-module
     displayName: 'Get PowerShell module source'
+
 # Imports PS modules used during AAD app registration
   - powershell: | 
       Install-Module AzureAD
@@ -111,6 +111,7 @@ jobs:
       -AADAppName "${{ parameters.appName }}-$(environmentName)" `
       -AADAppReplyUrls "${{ parameters.aadAppReplyUrls }}"
     displayName: 'Set AAD App Replay URLs'
+
 # Created new DNS records for websites
   - task: AzurePowerShell@3
     displayName: 'Set DNS records for web app'
