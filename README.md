@@ -15,7 +15,7 @@ Make sure to select the appropriate solution type **angularDotNetCore** or **dot
 
 ### AAD Application registration
 
-Use `jobs\aadAppRegistration.yml` to register AAD app, set Resource Access, set replay URLs and and provision Web App
+Use `jobs\aadAppRegistration.yml` to register AAD app, set Resource Access, set reply URLs and and provision Web App
 
 
 ## Linting Yaml
