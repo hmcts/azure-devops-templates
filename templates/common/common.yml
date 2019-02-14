@@ -12,10 +12,3 @@ steps:
     displayName: 'Use .NET Core sdk ${{ parameters.dotNetCoreVersion }}'
     inputs:
       version: ${{ parameters.dotNetCoreVersion }}
-
-  - task: DotNetCoreCLI@2
-    displayName: 'dotnet restore'
-    inputs:
-      command: restore
-      projects: '**/*.sln'
-      
