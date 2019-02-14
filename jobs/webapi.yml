@@ -10,19 +10,6 @@ parameters:
   integrationTestsAppSettingsTransform: ''
   solutionType: ''
 
-resources:
-  repositories:
-    - repository: azureDevOpsTemplates
-      type: github
-      name: hmcts/azure-devops-templates
-      endpoint: 'GitHub connection 1'
-
-
-trigger:
-- master
-pr:
-- master
-
 jobs:
 - job: 
   displayName: 'Build a .Net Core Web API'
