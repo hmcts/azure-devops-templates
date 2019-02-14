@@ -8,10 +8,12 @@ steps:
     inputs:
       preferBundledVersion: false
 
-  - task: NuGetToolInstaller@0
-    displayName: 'Use NuGet ${{ parameters.nugetVersion }}'
+  - task: DotNetCoreCLI@2
+    displayName: 'dotnet restore'
     inputs:
-      versionSpec: ${{ parameters.nugetVersion }}
+      command: restore
+      projects: '**\*.sln'
+
 
   - task: DotNetCoreInstaller@0
     displayName: 'Use .NET Core sdk ${{ parameters.dotNetCoreVersion }}'
