@@ -7,12 +7,7 @@ steps:
     displayName: GitVersion
     inputs:
       preferBundledVersion: false
-
-  - task: NuGetToolInstaller@0
-    displayName: 'Use NuGet ${{ parameters.nugetVersion }}'
-    inputs:
-      versionSpec: ${{ parameters.nugetVersion }}
-
+  
   - task: DotNetCoreInstaller@0
     displayName: 'Use .NET Core sdk ${{ parameters.dotNetCoreVersion }}'
     inputs:
