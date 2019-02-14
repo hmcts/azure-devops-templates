@@ -4,7 +4,7 @@ parameters:
 
 steps:
   - task: DotNetCoreCLI@2
-    displayName: 'dotnet restore'
+    displayName: 'DotNet Core Restore'
     inputs:
       command: restore
       projects: '**/*.sln'
