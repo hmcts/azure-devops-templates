@@ -7,15 +7,15 @@ steps:
     displayName: GitVersion
     inputs:
       preferBundledVersion: false
+  
+  - task: DotNetCoreInstaller@0
+    displayName: 'Use .NET Core sdk ${{ parameters.dotNetCoreVersion }}'
+    inputs:
+      version: ${{ parameters.dotNetCoreVersion }}
 
   - task: DotNetCoreCLI@2
     displayName: 'dotnet restore'
     inputs:
       command: restore
-      projects: '**\*.sln'
-
-
-  - task: DotNetCoreInstaller@0
-    displayName: 'Use .NET Core sdk ${{ parameters.dotNetCoreVersion }}'
-    inputs:
-      version: ${{ parameters.dotNetCoreVersion }}
+      projects: '**/*.sln'
+      
