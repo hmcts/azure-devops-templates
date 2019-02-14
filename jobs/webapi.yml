@@ -1,0 +1,67 @@
+parameters:
+  vstsFeedId: '0bb8fdf9-08cc-423c-8a96-81a1e4d65711'
+  pool: 'Azure-VSTS-VS2017'
+  cleanCheckout: 'false'
+  azureSubscription: 'Reform-CFT-VH-Dev'
+  buildConfiguration: 'Release'
+  sonarCloudProjectKey: ''
+  sonarCloudextraProperties: ''
+  coverletCoverageExclusions: ''
+  integrationTestsAppSettingsTransform: ''
+  solutionType: ''
+
+resources:
+  repositories:
+    - repository: azureDevOpsTemplates
+      type: github
+      name: hmcts/azure-devops-templates
+      endpoint: 'GitHub connection 1'
+
+
+trigger:
+- master
+pr:
+- master
+
+jobs:
+- job: 
+  displayName: 'Build a .Net Core Web API'
+  pool: ${{ parameters.pool }}
+
+  # Reference templae for setting up build tools
+  steps:
+  - checkout: self  # self represents the repo where the initial Pipelines YAML file was found
+    clean: ${{ parameters.cleanCheckout }}  # whether to fetch clean each time
+  - template: ../templates/common/common.yml
+
+# SonarCloud Prepare step
+  - template: ../templates/sonarCloud/sonarCloudPrepare.yml
+    parameters:
+       sonarCloudProjectKey: ${{ parameters.sonarCloudProjectKey }}
+       sonarCloudprojectName: '$(Build.Repository.Name)'
+       sonarCloudextraProperties: ${{ parameters.sonarCloudextraProperties }}
+
+# Restore NuGet packages and build VS solution
+  - task: DotNetCoreCLI@2
+    displayName: Build
+    inputs:
+      projects: '$(Parameters.RestoreBuildProjects)'
+      arguments: '--configuration $(BuildConfiguration)'
+
+  # Executes unit tests
+  - template: ../templates/tests/runUnitTests.yml
+    parameters:
+      buildConfiguration: '${{ parameters.buildConfiguration }}'
+      coverletCoverageExclusions: '${{ parameters.coverletCoverageExclusions }}'
+
+# Executes tests and publishes results
+  - template: ../templates/tests/runIntegrationTests.yml
+    parameters:
+      buildConfiguration: '${{ parameters.buildConfiguration }}'
+      coverletCoverageExclusions: '${{ parameters.coverletCoverageExclusions }}'
+
+# Executes tests and publishes results
+  - template: ../templates/sonarCloud/sonarCloudRunAnalysis.yml
+
+# Publish artifacts
+  - template: ../templates/publishArtifacts/publishArtifacts.yml
