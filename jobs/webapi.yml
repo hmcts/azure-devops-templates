@@ -16,6 +16,10 @@ jobs:
 
   # Reference templae for setting up build tools
   steps:
+  - powershell: |      
+      Write-output '${{ parameters.integrationTestsAppSettingsTransform }}'
+    displayName: 'Print integrationTestsAppSettingsTransform on start'
+
   - checkout: self  # self represents the repo where the initial Pipelines YAML file was found
     clean: ${{ parameters.cleanCheckout }}  # whether to fetch clean each time
   - template: ../templates/common/common.yml
