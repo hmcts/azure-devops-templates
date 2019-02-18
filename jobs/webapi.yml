@@ -20,6 +20,18 @@ jobs:
     clean: ${{ parameters.cleanCheckout }}  # whether to fetch clean each time
   - template: ../templates/common/common.yml
 
+  - powershell: |
+      $var = (gci env:*).GetEnumerator() | Sort-Object Name
+      $out = ""
+      Foreach ($v in $var) {$out = $out + "`t{0,-28} = {1,-28}`n" -f $v.Name, $v.Value}
+      
+      write-output "dump variables on $env:BUILD_ARTIFACTSTAGINGDIRECTORY\test.md"
+      $fileName = "$env:BUILD_ARTIFACTSTAGINGDIRECTORY\test.md"
+      set-content $fileName $out
+      Write-output $out
+      write-output "##vso[task.addattachment type=Distributedtask.Core.Summary;name=Environment Variables;]$fileName"
+    displayName: 'Print all variables'
+
 # SonarCloud Prepare step
   - template: ../templates/sonarCloud/sonarCloudPrepare.yml
     parameters:
