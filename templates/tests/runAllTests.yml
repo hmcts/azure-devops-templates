@@ -21,7 +21,7 @@ steps:
     inputs:
       command: test
       projects: '**/*[Tt]ests/*.csproj'
-      arguments: '--configuration $(BuildConfiguration) --no-build'
+      arguments: '--configuration ${{ parameters.buildConfiguration}} --no-build'
   
   - task: PublishCodeCoverageResults@1
     displayName: 'Publish code coverage'
