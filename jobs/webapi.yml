@@ -8,6 +8,7 @@ parameters:
   sonarCloudextraProperties: ''
   coverletCoverageExclusions: ''
   integrationTestsAppSettingsTransform: ''
+  apiDirectory: ''
 
 jobs:
 - job: 
@@ -43,9 +44,10 @@ jobs:
     displayName: Publish
     inputs:
       command: publish
-      publishWebProjects: True
+      publishWebProjects: false
       arguments: '--configuration ${{ parameters.buildConfiguration }} --output $(build.artifactstagingdirectory)\WebApp'
       zipAfterPublish: True
+      workingDirectory: '${{ parameters.apiDirectory }}'
 
 # Executes tests and publishes results
   # - template: ../templates/sonarCloud/sonarCloudRunAnalysis.yml
