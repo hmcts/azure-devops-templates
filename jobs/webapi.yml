@@ -36,6 +36,7 @@ jobs:
   - template: ../templates/tests/runAllTests.yml
     parameters:
       buildConfiguration: '${{ parameters.buildConfiguration }}'
+      integrationTestsAppSettingsTransform: '${{ parameters.integrationTestsAppSettingsTransform }}'
       coverletCoverageExclusions: '${{ parameters.coverletCoverageExclusions }}'
 
 # Executes tests and publishes results
