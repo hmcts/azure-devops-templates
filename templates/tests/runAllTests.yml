@@ -6,9 +6,8 @@ parameters:
 
 
 steps:
-  - powershell: |
-      
-      Write-output ${{ parameters.integrationTestsAppSettingsTransform }}
+  - powershell: |      
+      Write-output ${{ integrationTestsAppSettingsTransform }}
     displayName: 'Print integrationTestsAppSettingsTransform'
 
   - task: sergeyzwezdin.magic-chunks.magic.chunks.MagicChunks@2
