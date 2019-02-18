@@ -1,5 +1,5 @@
 parameters:
-  nugetVersion: 4.7.1  # Min version must be 4.7.1
+  nugetVersion: 4.8.1  # Min version must be 4.7.1
   dotNetCoreVersion: 2.2.103
 
 steps:
