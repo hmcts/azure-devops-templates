@@ -3,11 +3,12 @@ parameters:
   buildConfiguration: ''
 
 steps:
-  - task: DotNetCoreCLI@2
-    displayName: 'dotnet restore'
+  - task: NuGetCommand@2
+    displayName: 'NuGet restore'
     inputs:
-      command: restore
-      projects: '**/*.sln'
+      restoreSolution: '*/*.sln'
+      vstsFeed: '${{ parameters.vstsFeedId }}'
+      includeNuGetOrg: false
 
 # Builds VS Solution
   - task: VSBuild@1
