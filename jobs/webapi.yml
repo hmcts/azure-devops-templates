@@ -21,11 +21,11 @@ jobs:
   - template: ../templates/common/common.yml
 
 # SonarCloud Prepare step
-  - template: ../templates/sonarCloud/sonarCloudPrepare.yml
-    parameters:
-       sonarCloudProjectKey: ${{ parameters.sonarCloudProjectKey }}
-       sonarCloudprojectName: '$(Build.Repository.Name)'
-       sonarCloudextraProperties: ${{ parameters.sonarCloudextraProperties }}
+  # - template: ../templates/sonarCloud/sonarCloudPrepare.yml
+  #   parameters:
+  #      sonarCloudProjectKey: ${{ parameters.sonarCloudProjectKey }}
+  #      sonarCloudprojectName: '$(Build.Repository.Name)'
+  #      sonarCloudextraProperties: ${{ parameters.sonarCloudextraProperties }}
 
 
   - template: ../templates/vsBuild/dotnetBuild.yml
@@ -39,8 +39,18 @@ jobs:
       integrationTestsAppSettingsTransform: '${{ parameters.integrationTestsAppSettingsTransform }}'
       coverletCoverageExclusions: '${{ parameters.coverletCoverageExclusions }}'
 
+  - task: DotNetCoreCLI@2
+    displayName: Publish
+    inputs:
+      command: publish
+      publishWebProjects: True
+      arguments: '--configuration ${{ parameters.buildConfiguration }} --output $(build.artifactstagingdirectory)\WebApp'
+      zipAfterPublish: True
+
 # Executes tests and publishes results
-  - template: ../templates/sonarCloud/sonarCloudRunAnalysis.yml
+  # - template: ../templates/sonarCloud/sonarCloudRunAnalysis.yml
 
 # Publish artifacts
   - template: ../templates/publishArtifacts/publishArtifacts.yml
+
+  
