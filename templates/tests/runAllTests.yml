@@ -6,7 +6,7 @@ parameters:
 
 
 steps:
-  - task: MagicChunks@2
+  - task: sergeyzwezdin.magic-chunks.magic.chunks.MagicChunks@2
     displayName: 'Transform App Settings'
     inputs:
       sourcePath: '*/*/appsettings.json'
