@@ -20,10 +20,7 @@ steps:
     displayName: Run all test projects
     inputs:
       command: test
-      projects: '
-      **/*[Tt]ests/*.csproj
-      !**/*Acceptance[Tt]ests/*.csproj
-      '
+      projects: '**/*[Tt]ests/*.csproj'
       arguments: '--configuration ${{ parameters.buildConfiguration}} --no-build /p:CollectCoverage=true /p:CoverletOutputFormat="\"opencover,cobertura,json\"" /p:Exclude="\"${{ parameters.coverletCoverageExclusions }}\"" /p:CoverletOutput=$(Common.TestResultsDirectory)\Coverage\'
   
   - task: PublishCodeCoverageResults@1
