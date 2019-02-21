@@ -12,7 +12,7 @@ steps:
      }
      else{
      Write-Output "##vso[task.setvariable variable=AcceptanceTestsPath;]$AcceptanceTestsPath"
-     Write-Output ("Acctepance Tests path: {0}" -f $AcceptanceTestsPath)
+     Write-Output ("Acctepance Tests path {0}" -f $AcceptanceTestsPath)
      }
     displayName: Resolve Acceptance Tests bin path
 
@@ -23,9 +23,20 @@ steps:
       ArtifactName: AcceptanceTests
     condition: ne(variables['AcceptanceTestsPath'], '')
 
+    - powershell: |
+     $infrastructurePath = (Resolve-Path $(Build.SourcesDirectory)\Infrastructure).path
+     if ($null -eq $infrastructurePath){
+     Write-Output "##vso[task.logissue type=warning]Infrastructure files not found"
+     }
+     else{
+     Write-Output "##vso[task.setvariable variable=Infrastructure;]$infrastructurePath"
+     Write-Output ("Infrastructure file path {0}" -f $infrastructurePath)
+     }
+    displayName: Resolve Infrastructure files path
+
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifact: Infrastructure'
     inputs:
       PathtoPublish: Infrastructure
-
       ArtifactName: Infrastructure
+    condition: ne(variables['Infrastructure'], '')
