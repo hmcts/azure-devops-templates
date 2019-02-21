@@ -5,15 +5,18 @@ steps:
       PathtoPublish: '$(Build.ArtifactStagingDirectory)\WebApp'
       ArtifactName: WebApp
 
+  # This step will check if the Acceptance tests exists if not the consecutive step will be skipped.
+  # Some source code repos might not have Acceptance tests.
+
   - powershell: |
-     $AcceptanceTestsPath = (Resolve-Path $(Build.SourcesDirectory)\**\*.AcceptanceTests\bin\**).path
-     if ($null -eq $AcceptanceTestsPath){
-     Write-Output "##vso[task.logissue type=warning]Acceptance Tests not found"
-     }
-     else{
-     Write-Output "##vso[task.setvariable variable=AcceptanceTestsPath;]$AcceptanceTestsPath"
-     Write-Output ("Acctepance Tests path: {0}" -f $AcceptanceTestsPath)
-     }
+      $AcceptanceTestsPath = (Resolve-Path $(Build.SourcesDirectory)\**\*.AcceptanceTests\bin\**).path
+      if ($null -eq $AcceptanceTestsPath) {
+          Write-Output "##vso[task.logissue type=warning]Acceptance Tests not found"
+      }
+      else {
+          Write-Output "##vso[task.setvariable variable=AcceptanceTestsPath;]$AcceptanceTestsPath"
+          Write-Output ("Acctepance Tests path {0}" -f $AcceptanceTestsPath)
+      }
     displayName: Resolve Acceptance Tests bin path
 
   - task: PublishBuildArtifacts@1
@@ -23,9 +26,22 @@ steps:
       ArtifactName: AcceptanceTests
     condition: ne(variables['AcceptanceTestsPath'], '')
 
+  # This step will check if the Infrastructure code folder exists if not the consecutive step will be skipped.
+  # Some source code repos might not have Infrastructure code.
+  - powershell: |
+      $infrastructurePath = (Resolve-Path .\Infrastructure -ErrorAction Continue).path
+      if ($null -eq $infrastructurePath) {
+          Write-Output "##vso[task.logissue type=warning]Infrastructure files not found"
+      }
+      else {
+          Write-Output "##vso[task.setvariable variable=InfrastructurePath;]$infrastructurePath"
+          Write-Output ("Infrastructure file path {0}" -f $infrastructurePath)
+      }
+    displayName: Resolve Infrastructure files path
+
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifact: Infrastructure'
     inputs:
       PathtoPublish: Infrastructure
-
       ArtifactName: Infrastructure
+    condition: ne(variables['Infrastructure'], '')
