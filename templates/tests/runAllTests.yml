@@ -2,7 +2,7 @@ parameters:
   buildConfiguration: '' # used in DotNetCoreCLI tasks
   coverletCoverageExclusions: ''
   integrationTestsAppSettingsTransform: ''
-
+  dalWorkingDirectory: ''
 
 
 steps:
@@ -15,6 +15,14 @@ steps:
        {
         ${{ parameters.integrationTestsAppSettingsTransform }}
        }
+
+  - script: |
+      dotnet ef database drop --force -v
+      dotnet ef database update -v
+    workingDirectory: ${{ parameters.dalWorkingDirectory}}
+    failOnStderr: true
+    displayName: 'Clear LocalDB'
+    condition: ne(variables['dalWorkingDirectory'], '')
 
   - task: DotNetCoreCLI@2
     displayName: Run all test projects
