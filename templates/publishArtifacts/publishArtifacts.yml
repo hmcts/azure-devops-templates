@@ -23,7 +23,7 @@ steps:
       ArtifactName: AcceptanceTests
     condition: ne(variables['AcceptanceTestsPath'], '')
 
-    - powershell: |
+  - powershell: |
      $infrastructurePath = (Resolve-Path $(Build.SourcesDirectory)\Infrastructure).path
      if ($null -eq $infrastructurePath){
      Write-Output "##vso[task.logissue type=warning]Infrastructure files not found"
