@@ -24,7 +24,7 @@ steps:
     condition: ne(variables['AcceptanceTestsPath'], '')
 
   - powershell: |
-     $infrastructurePath = (Resolve-Path $(Build.SourcesDirectory)\Infrastructure).path
+     $infrastructurePath = (Resolve-Path $(Build.SourcesDirectory)\Infrastructure -ErrorAction Continue).path
      if ($null -eq $infrastructurePath){
      Write-Output "##vso[task.logissue type=warning]Infrastructure files not found"
      }
