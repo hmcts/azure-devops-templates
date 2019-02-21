@@ -45,7 +45,7 @@ jobs:
     inputs:
       command: publish
       publishWebProjects: false
-      arguments: '--configuration ${{ parameters.buildConfiguration }} --output $(build.artifactstagingdirectory)\WebApp'
+      arguments: '--configuration ${{ parameters.buildConfiguration }} --output $(build.artifactstagingdirectory)\WebApp --no-build'
       zipAfterPublish: True
       workingDirectory: '${{ parameters.apiDirectory }}'
 
