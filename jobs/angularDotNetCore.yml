@@ -21,6 +21,8 @@ jobs:
   steps:
   - checkout: self  # self represents the repo where the initial Pipelines YAML file was found
     clean: ${{ parameters.cleanCheckout }}  # whether to fetch clean each time
+
+# Runs common steps - gitVersion, Nuget  
   - template: ../templates/common/common.yml
 
 # Performs npm steps - install, build, test, test publishing
@@ -37,6 +39,7 @@ jobs:
   - template: ../templates/vsBuild/dotnetBuild.yml
     parameters:
       buildConfiguration: '${{ parameters.buildConfiguration }}'
+      vstsFeedId: '${{ parameters.vstsFeedId }}'
 
 # Get secrets from Key Vault
   - template: ../templates/getSecrets/getSecrets.yml
