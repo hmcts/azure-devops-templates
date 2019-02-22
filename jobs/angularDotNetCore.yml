@@ -48,7 +48,7 @@ jobs:
         KeyVaultName: '${{ parameters.KeyVaultName }}'
         SecretsFilter: '${{ parameters.SecretsFilter }}'
 
-  # Executes unit tests
+  # Executes tests projects that do not contain acceptance in the name
   - template: ../templates/tests/runAllTests.yml
     parameters:
       buildConfiguration: '${{ parameters.buildConfiguration }}'
@@ -56,14 +56,11 @@ jobs:
       coverletCoverageExclusions: '${{ parameters.coverletCoverageExclusions }}'
       dalWorkingDirectory: '${{ parameters.dalWorkingDirectory }}'
 
-  - task: DotNetCoreCLI@2
-    displayName: Publish
-    inputs:
-      command: publish
-      publishWebProjects: false
-      arguments: '--configuration ${{ parameters.buildConfiguration }} --output $(build.artifactstagingdirectory)\WebApp --no-build'
-      zipAfterPublish: True
-      workingDirectory: '${{ parameters.apiDirectory }}'
+  # Executes the Donet CLI publish command to package the application
+  - template: ../templates/publishArtifacts/dotnetPublish.yml
+    parameters:
+      buildConfiguration: '${{ parameters.buildConfiguration }}'
+      apiDirectory: '${{ parameters.apiDirectory }}'
 
 # Executes tests and publishes results
   - template: ../templates/sonarCloud/sonarCloudRunAnalysis.yml
