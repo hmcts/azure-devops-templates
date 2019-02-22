@@ -6,7 +6,7 @@ parameters:
   buildConfiguration: 'Release'
   sonarCloudProjectKey: ''
   sonarCloudextraProperties: ''
-  coverletCoverageExclusions: '[Hearings.DAL]*,[Testing.Common]*,[NUnit3.TestAdapter]*'
+  coverletCoverageExclusions: ''
   integrationTestsAppSettingsTransform: ''
   solutionType: ''
   KeyVaultName: ''
@@ -34,7 +34,7 @@ jobs:
        sonarCloudextraProperties: ${{ parameters.sonarCloudextraProperties }}
 
 # Restore NuGet packages and build VS solution
-  - template: ../templates/vsBuild/vsBuild.yml
+  - template: ../templates/vsBuild/dotnetBuild.yml
     parameters:
       buildConfiguration: '${{ parameters.buildConfiguration }}'
 
@@ -46,16 +46,21 @@ jobs:
         SecretsFilter: '${{ parameters.SecretsFilter }}'
 
   # Executes unit tests
-  - template: ../templates/tests/runUnitTests.yml
+  - template: ../templates/tests/runAllTests.yml
     parameters:
       buildConfiguration: '${{ parameters.buildConfiguration }}'
+      integrationTestsAppSettingsTransform: '${{ parameters.integrationTestsAppSettingsTransform }}'
       coverletCoverageExclusions: '${{ parameters.coverletCoverageExclusions }}'
+      dalWorkingDirectory: '${{ parameters.dalWorkingDirectory }}'
 
-# Executes tests and publishes results
-  - template: ../templates/tests/runIntegrationTests.yml
-    parameters:
-      buildConfiguration: '${{ parameters.buildConfiguration }}'
-      coverletCoverageExclusions: '${{ parameters.coverletCoverageExclusions }}'
+  - task: DotNetCoreCLI@2
+    displayName: Publish
+    inputs:
+      command: publish
+      publishWebProjects: false
+      arguments: '--configuration ${{ parameters.buildConfiguration }} --output $(build.artifactstagingdirectory)\WebApp --no-build'
+      zipAfterPublish: True
+      workingDirectory: '${{ parameters.apiDirectory }}'
 
 # Executes tests and publishes results
   - template: ../templates/sonarCloud/sonarCloudRunAnalysis.yml
