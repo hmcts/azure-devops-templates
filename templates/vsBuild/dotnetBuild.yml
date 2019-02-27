@@ -1,0 +1,18 @@
+parameters:
+  buildPlatform: 'Any CPU'
+  buildConfiguration: ''
+
+steps:
+  - task: DotNetCoreCLI@2
+    displayName: 'DotNet Core Restore'
+    inputs:
+      command: restore
+      projects: '**/*.sln'
+      vstsFeed: '${{ parameters.vstsFeedId }}'
+      includeNuGetOrg: false
+
+  - task: DotNetCoreCLI@2
+    displayName: Build
+    inputs:
+      projects: '*/*.sln'
+      arguments: '--configuration ${{ parameters.buildConfiguration }} --no-restore'

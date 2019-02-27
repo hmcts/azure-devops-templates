@@ -6,7 +6,7 @@ parameters:
   buildConfiguration: 'Release'
   sonarCloudProjectKey: ''
   sonarCloudextraProperties: ''
-  coverletCoverageExclusions: '[Hearings.DAL]*,[Testing.Common]*,[NUnit3.TestAdapter]*'
+  coverletCoverageExclusions: ''
   integrationTestsAppSettingsTransform: ''
   solutionType: ''
   KeyVaultName: ''
@@ -36,7 +36,7 @@ jobs:
        sonarCloudextraProperties: ${{ parameters.sonarCloudextraProperties }}
 
 # Restore NuGet packages and build VS solution
-  - template: ../templates/vsBuild/vsBuild.yml
+  - template: ../templates/vsBuild/dotnetBuild.yml
     parameters:
       buildConfiguration: '${{ parameters.buildConfiguration }}'
       vstsFeedId: '${{ parameters.vstsFeedId }}'
@@ -48,17 +48,19 @@ jobs:
         KeyVaultName: '${{ parameters.KeyVaultName }}'
         SecretsFilter: '${{ parameters.SecretsFilter }}'
 
-  # Executes unit tests
-  - template: ../templates/tests/runUnitTests.yml
+  # Executes tests projects that do not contain acceptance in the name
+  - template: ../templates/tests/runAllTests.yml
     parameters:
       buildConfiguration: '${{ parameters.buildConfiguration }}'
+      integrationTestsAppSettingsTransform: '${{ parameters.integrationTestsAppSettingsTransform }}'
       coverletCoverageExclusions: '${{ parameters.coverletCoverageExclusions }}'
+      dalWorkingDirectory: '${{ parameters.dalWorkingDirectory }}'
 
-# Executes tests and publishes results
-  - template: ../templates/tests/runIntegrationTests.yml
+  # Executes the Donet CLI publish command to package the application
+  - template: ../templates/publishArtifacts/dotnetPublish.yml
     parameters:
       buildConfiguration: '${{ parameters.buildConfiguration }}'
-      coverletCoverageExclusions: '${{ parameters.coverletCoverageExclusions }}'
+      apiDirectory: '${{ parameters.apiDirectory }}'
 
 # Executes tests and publishes results
   - template: ../templates/sonarCloud/sonarCloudRunAnalysis.yml

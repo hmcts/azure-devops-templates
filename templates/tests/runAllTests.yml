@@ -1,0 +1,42 @@
+parameters:
+  buildConfiguration: '' # used in DotNetCoreCLI tasks
+  coverletCoverageExclusions: ''
+  integrationTestsAppSettingsTransform: ''
+  dalWorkingDirectory: ''
+
+
+steps:
+  - task: sergeyzwezdin.magic-chunks.magic.chunks.MagicChunks@2
+    displayName: 'Transform App Settings'
+    inputs:
+      sourcePath: '*/*/appsettings.json'
+      sourcePathRecurse: true
+      transformations: |  
+       {
+        ${{ parameters.integrationTestsAppSettingsTransform }}
+       }
+
+  - script: |
+      dotnet ef database drop --force -v
+      dotnet ef database update -v
+    workingDirectory: ${{ parameters.dalWorkingDirectory}}
+    failOnStderr: true
+    displayName: 'Clear LocalDB'
+    condition: ne(variables['dalWorkingDirectory'], '')
+
+  - task: DotNetCoreCLI@2
+    displayName: Run all test projects
+    inputs:
+      command: test
+      projects: |
+        **/*[Tt]ests/*.csproj
+        !**/*Acceptance[Tt]ests/*.csproj
+      arguments: '--configuration ${{ parameters.buildConfiguration}} --no-build /p:CollectCoverage=true /p:CoverletOutputFormat="\"opencover,cobertura,json,lcov\"" /p:Exclude="\"${{ parameters.coverletCoverageExclusions }}\"" /p:CoverletOutput=$(Common.TestResultsDirectory)\Coverage\'
+  
+  - task: PublishCodeCoverageResults@1
+    displayName: 'Publish code coverage'
+    inputs:
+      codeCoverageTool: Cobertura
+      summaryFileLocation: '$(Common.TestResultsDirectory)\Coverage\coverage.cobertura.xml'
+      reportDirectory: '$(Common.TestResultsDirectory)\Coverage'
+      failIfCoverageEmpty: true
