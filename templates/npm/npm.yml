@@ -16,7 +16,7 @@ steps:
     condition: in(variables['solutionType'], 'angularDotNetCore', 'angular')
 
   - task: Npm@1
-    displayName: 'Compile ClientApp'
+    displayName: 'Run Lint'
     inputs:
       command: custom
       workingDir: $(npmWorkingDir)
