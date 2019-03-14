@@ -64,15 +64,15 @@ jobs:
 
   - powershell: |
      git clone https://github.com/hmcts/vh-ps-modules.git
-    #  cd .\vh-ps-modules\
-    #  git checkout updated-dns-module
+     cd .\vh-ps-modules\
+     git checkout set-group-membership-claims-rdo-3526
     displayName: 'Get PowerShell module source'
 
 # Imports PS modules used during AAD app registration
   - powershell: | 
       Install-Module AzureAD
       Install-Module AzureRM.KeyVault
-      Copy-Item -Path $(System.DefaultWorkingDirectory)/*vh-ps-modules/AzureADApplicationRegistration -Destination "C:\Program Files\WindowsPowerShell\Modules" -Recurse -Force
+      Copy-Item -Path $(System.DefaultWorkingDirectory)/*vh-ps-modules/AzureADApplicationRegistration -Destination "C:\Program Files\WindowsPowerShell\Modules" -Recurse -Force -verbose
       Copy-Item -Path $(System.DefaultWorkingDirectory)/*vh-ps-modules/SetDNSRecord -Destination "C:\Program Files\WindowsPowerShell\Modules" -Recurse -Force
     displayName: 'Import PowerShell Modules'
 
