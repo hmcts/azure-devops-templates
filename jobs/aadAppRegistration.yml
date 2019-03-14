@@ -3,6 +3,7 @@ parameters:
   pool: 'Azure-VSTS-VS2017' # Build agent pool can be overwritten on build template level 
   productionAzureSubscription: 'DCD-CFT-VH-Pilot' # Azure subscription name
   appName: 'vh-app-api' # Name of the app to be registered, can be overwritten
+  groupMembershipClaims: '' # Available values: SecurityGroup, All
   keyVaultName: 'vhcoreinfraht$(environmentName)' # Key vault name to for storing AAD app's details - appId, ClientSecret, etc.
   resourceGroupName: '$(appName)-$(environmentName)' # Resource group name that is used by website
   AppServicePlanName: 'vh-core-infra-$(environmentName)' # App Service Plan name
@@ -63,15 +64,15 @@ jobs:
 
   - powershell: |
      git clone https://github.com/hmcts/vh-ps-modules.git
-    #  cd .\vh-ps-modules\
-    #  git checkout updated-dns-module
+     #cd .\vh-ps-modules\
+     #git checkout set-group-membership-claims-rdo-3526
     displayName: 'Get PowerShell module source'
 
 # Imports PS modules used during AAD app registration
   - powershell: | 
       Install-Module AzureAD
       Install-Module AzureRM.KeyVault
-      Copy-Item -Path $(System.DefaultWorkingDirectory)/*vh-ps-modules/AzureADApplicationRegistration -Destination "C:\Program Files\WindowsPowerShell\Modules" -Recurse -Force
+      Copy-Item -Path $(System.DefaultWorkingDirectory)/*vh-ps-modules/AzureADApplicationRegistration -Destination "C:\Program Files\WindowsPowerShell\Modules" -Recurse -Force -verbose
       Copy-Item -Path $(System.DefaultWorkingDirectory)/*vh-ps-modules/SetDNSRecord -Destination "C:\Program Files\WindowsPowerShell\Modules" -Recurse -Force
     displayName: 'Import PowerShell Modules'
 
@@ -101,6 +102,17 @@ jobs:
       -resourceAccessDefinition .\resourceAccess.json}
       else {Write-Host "##vso[task.logissue type=warning]Resource Access file not found! Please add 'resourceAccess.json' file to the repo" }
     displayName: 'Add AAD Apps Resource Access'
+
+# Task to set resource access permissions as defined in resourceAccess.json file
+  - powershell: |
+      Invoke-AzureADConnection -AzureTenantIdSecondary '$(vh_hearings_tenant_id)' `
+          -AzureAdAppIdSecondary '$(vh_hearings_vsts_automation_AppId)' `
+          -AzureAdAppCertificateThumbprintSecondary '$(vh_hearings_vsts_automation_CertThumbprit)'
+          
+      Set-AzureADApplicationGroupMemebershipClaims -AzureADApplicationName '${{ parameters.appName }}-$(environmentName)' -GroupMembershipClaims ${{ parameters.groupMembershipClaims }}
+    displayName: 'Set AAD Apps Group Membership Claims'
+    condition: in(variables['groupMembershipClaims'], 'SecurityGroup', 'All')
+
 
 #Task to set AAD app reply URLs
   - powershell: | 
