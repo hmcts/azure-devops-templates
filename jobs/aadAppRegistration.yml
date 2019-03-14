@@ -3,6 +3,7 @@ parameters:
   pool: 'Azure-VSTS-VS2017' # Build agent pool can be overwritten on build template level 
   productionAzureSubscription: 'DCD-CFT-VH-Pilot' # Azure subscription name
   appName: 'vh-app-api' # Name of the app to be registered, can be overwritten
+  groupMembershipClaims: '' # Available values: SecurityGroup, All
   keyVaultName: 'vhcoreinfraht$(environmentName)' # Key vault name to for storing AAD app's details - appId, ClientSecret, etc.
   resourceGroupName: '$(appName)-$(environmentName)' # Resource group name that is used by website
   AppServicePlanName: 'vh-core-infra-$(environmentName)' # App Service Plan name
@@ -101,6 +102,17 @@ jobs:
       -resourceAccessDefinition .\resourceAccess.json}
       else {Write-Host "##vso[task.logissue type=warning]Resource Access file not found! Please add 'resourceAccess.json' file to the repo" }
     displayName: 'Add AAD Apps Resource Access'
+
+# Task to set resource access permissions as defined in resourceAccess.json file
+  - powershell: |
+      Invoke-AzureADConnection -AzureTenantIdSecondary '$(vh_hearings_tenant_id)' `
+          -AzureAdAppIdSecondary '$(vh_hearings_vsts_automation_AppId)' `
+          -AzureAdAppCertificateThumbprintSecondary '$(vh_hearings_vsts_automation_CertThumbprit)'
+          
+      Set-AzureADApplicationGroupMemebershipClaims -AzureADApplicationName '${{ parameters.appName }}-$(environmentName)' -GroupMembershipClaims ${{ parameters.groupMembershipClaims }}
+    displayName: 'Set AAD Apps Group Membership Claims'
+    condition: in(variables['groupMembershipClaims'], 'SecurityGroup', 'All')
+
 
 #Task to set AAD app reply URLs
   - powershell: | 
