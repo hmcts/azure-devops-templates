@@ -33,7 +33,7 @@ steps:
   # This step will check if the Infrastructure code folder exists if not the consecutive step will be skipped.
   # Some source code repos might not have Infrastructure code.
   - powershell: |
-      $infrastructurePath = (Resolve-Path .\Infrastructure -ErrorAction Continue).path
+      $infrastructurePath = (Resolve-Path '.\${{ parameters.dalWorkingDirectory}}' -ErrorAction Continue).path
       if ($null -eq $infrastructurePath) {
           Write-Output "##vso[task.logissue type=warning]Infrastructure files not found"
       }
@@ -51,15 +51,15 @@ steps:
     condition: ne(variables['Infrastructure'], '')
 
   - powershell: |
-      $DalWorkingDirectoryPath = (Resolve-Path $(Build.SourcesDirectory)\${{dalWorkingDirectory}}\bin\**).path
+      $DalWorkingDirectoryPath = (Resolve-Path $(Build.SourcesDirectory)\).path
       if ($null -eq $DalWorkingDirectoryPath) {
-          Write-Output "##vso[task.logissue type=warning]DAL project not found"
+          Write-Output "##vso[task.logissue type=warning]DAL Project not found"
       }
       else {
           Write-Output "##vso[task.setvariable variable=DalWorkingDirectoryPath;]$DalWorkingDirectoryPath"
           Write-Output ("DAL Project path {0}" -f $DalWorkingDirectoryPath)
       }
-    displayName: Resolve Acceptance Tests bin path
+    displayName: Resolve DAL project path
     condition: ne(variables['dalWorkingDirectory'], '')
 
   - task: PublishBuildArtifacts@1
