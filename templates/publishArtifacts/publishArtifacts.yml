@@ -52,6 +52,6 @@ steps:
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifact: DAL'
     inputs:
-      PathtoPublish: ${{ parameters.dalWorkingDirectory}}
+      PathtoPublish: $(Build.SourcesDirectory)\${{ parameters.dalWorkingDirectory}}
       ArtifactName: DAL
     condition: ne(variables['dalWorkingDirectory'], '')
