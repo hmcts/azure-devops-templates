@@ -67,3 +67,6 @@ jobs:
 
 # Publish artifacts
   - template: ../templates/publishArtifacts/publishArtifacts.yml
+    parameters:
+      dalWorkingDirectory: '${{ parameters.dalWorkingDirectory }}'
+      buildConfiguration: '${{ parameters.buildConfiguration }}'
