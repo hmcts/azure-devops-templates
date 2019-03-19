@@ -1,3 +1,6 @@
+parameters:
+  dalWorkingDirectory: ''
+
 steps:
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifact: WebApp'
@@ -45,3 +48,10 @@ steps:
       PathtoPublish: Infrastructure
       ArtifactName: Infrastructure
     condition: ne(variables['Infrastructure'], '')
+
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact: DAL'
+    inputs:
+      PathtoPublish: ${{ parameters.dalWorkingDirectory}}
+      ArtifactName: DAL
+    condition: ne(variables['dalWorkingDirectory'], '')
