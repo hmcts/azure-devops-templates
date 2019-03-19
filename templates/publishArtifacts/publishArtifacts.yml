@@ -61,3 +61,10 @@ steps:
       }
     displayName: Resolve DAL Project path
     condition: ne(variables['dalWorkingDirectory'], '')
+
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifacts: DAL Project'
+    inputs:
+      PathtoPublish: '$(DalProjectPath)'
+      ArtifactName: DalProject
+    condition: ne(variables['DalProjectPath'], '')
