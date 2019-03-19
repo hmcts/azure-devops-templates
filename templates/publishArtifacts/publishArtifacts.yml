@@ -1,3 +1,7 @@
+parameters:
+  dalWorkingDirectory: ''
+  buildConfiguration: 'Release'
+
 steps:
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifact: WebApp'
@@ -45,3 +49,22 @@ steps:
       PathtoPublish: Infrastructure
       ArtifactName: Infrastructure
     condition: ne(variables['Infrastructure'], '')
+
+  - powershell: |
+      $DalProjectPath = (Resolve-Path $(Build.SourcesDirectory)\${{ parameters.dalWorkingDirectory }}).path
+      if ($null -eq $DalProjectPath) {
+          Write-Output "##vso[task.logissue type=warning]DAL Project not found"
+      }
+      else {
+          Write-Output "##vso[task.setvariable variable=DalProjectPath;]$DalProjectPath"
+          Write-Output ("DAL Project path {0}" -f $DalProjectPath)
+      }
+    displayName: Resolve DAL Project path
+    condition: ne(variables['dalWorkingDirectory'], '')
+
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifacts: DAL Project'
+    inputs:
+      PathtoPublish: '$(DalProjectPath)'
+      ArtifactName: DalProject
+    condition: ne(variables['DalProjectPath'], '')
