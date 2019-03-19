@@ -19,7 +19,7 @@ steps:
       }
       else {
           Write-Output "##vso[task.setvariable variable=AcceptanceTestsPath;]$AcceptanceTestsPath"
-          Write-Output ("Acceptance Tests path {0}" -f $AcceptanceTestsPath)
+          Write-Output ("Acctepance Tests path {0}" -f $AcceptanceTestsPath)
       }
     displayName: Resolve Acceptance Tests bin path
 
@@ -33,7 +33,7 @@ steps:
   # This step will check if the Infrastructure code folder exists if not the consecutive step will be skipped.
   # Some source code repos might not have Infrastructure code.
   - powershell: |
-      $infrastructurePath = (Resolve-Path '.\${{ parameters.dalWorkingDirectory}}' -ErrorAction Continue).path
+      $infrastructurePath = (Resolve-Path .\Infrastructure -ErrorAction Continue).path
       if ($null -eq $infrastructurePath) {
           Write-Output "##vso[task.logissue type=warning]Infrastructure files not found"
       }
@@ -51,20 +51,13 @@ steps:
     condition: ne(variables['Infrastructure'], '')
 
   - powershell: |
-      $DalWorkingDirectoryPath = (Resolve-Path $(Build.SourcesDirectory)\).path
-      if ($null -eq $DalWorkingDirectoryPath) {
+      $DalProjectPath = (Resolve-Path $(Build.SourcesDirectory)\${{ parameters.dalWorkingDirectory }}).path
+      if ($null -eq $DalProjectPath) {
           Write-Output "##vso[task.logissue type=warning]DAL Project not found"
       }
       else {
-          Write-Output "##vso[task.setvariable variable=DalWorkingDirectoryPath;]$DalWorkingDirectoryPath"
-          Write-Output ("DAL Project path {0}" -f $DalWorkingDirectoryPath)
+          Write-Output "##vso[task.setvariable variable=DalProjectPath;]$DalProjectPath"
+          Write-Output ("DAL Project path {0}" -f $DalProjectPath)
       }
-    displayName: Resolve DAL project path
+    displayName: Resolve DAL Project path
     condition: ne(variables['dalWorkingDirectory'], '')
-
-  - task: PublishBuildArtifacts@1
-    displayName: 'Publish Artifact: DAL'
-    inputs:
-      PathtoPublish: '$(DalWorkingDirectoryPath)'
-      ArtifactName: DAL
-    condition: ne(variables['DalWorkingDirectoryPath'], '')
