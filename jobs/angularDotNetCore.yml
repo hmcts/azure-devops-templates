@@ -25,12 +25,45 @@ jobs:
 # Runs common steps - gitVersion, Nuget  
   - template: ../templates/common/common.yml
 
+# Performs npm steps - install, build, test, test publishing
+  - template: ../templates/npm/npm.yml
+
+# SonarCloud Prepare step
+  - template: ../templates/sonarCloud/sonarCloudPrepare.yml
+    parameters:
+       sonarCloudProjectKey: ${{ parameters.sonarCloudProjectKey }}
+       sonarCloudprojectName: '$(Build.Repository.Name)'
+       sonarCloudextraProperties: ${{ parameters.sonarCloudextraProperties }}
 
 # Restore NuGet packages and build VS solution
   - template: ../templates/vsBuild/dotnetBuild.yml
     parameters:
       buildConfiguration: '${{ parameters.buildConfiguration }}'
       vstsFeedId: '${{ parameters.vstsFeedId }}'
+
+# Get secrets from Key Vault
+  - template: ../templates/getSecrets/getSecrets.yml
+    parameters:
+        azureSubscription: '${{ parameters.azureSubscription }}'
+        KeyVaultName: '${{ parameters.KeyVaultName }}'
+        SecretsFilter: '${{ parameters.SecretsFilter }}'
+
+  # Executes tests projects that do not contain acceptance in the name
+  - template: ../templates/tests/runAllTests.yml
+    parameters:
+      buildConfiguration: '${{ parameters.buildConfiguration }}'
+      integrationTestsAppSettingsTransform: '${{ parameters.integrationTestsAppSettingsTransform }}'
+      coverletCoverageExclusions: '${{ parameters.coverletCoverageExclusions }}'
+      dalWorkingDirectory: '${{ parameters.dalWorkingDirectory }}'
+
+  # Executes the Donet CLI publish command to package the application
+  - template: ../templates/publishArtifacts/dotnetPublish.yml
+    parameters:
+      buildConfiguration: '${{ parameters.buildConfiguration }}'
+      apiDirectory: '${{ parameters.apiDirectory }}'
+
+# Executes tests and publishes results
+  - template: ../templates/sonarCloud/sonarCloudRunAnalysis.yml
 
 # Publish artifacts
   - template: ../templates/publishArtifacts/publishArtifacts.yml
