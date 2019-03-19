@@ -19,7 +19,7 @@ steps:
       }
       else {
           Write-Output "##vso[task.setvariable variable=AcceptanceTestsPath;]$AcceptanceTestsPath"
-          Write-Output ("Acctepance Tests path {0}" -f $AcceptanceTestsPath)
+          Write-Output ("Acceptance Tests path {0}" -f $AcceptanceTestsPath)
       }
     displayName: Resolve Acceptance Tests bin path
 
@@ -50,9 +50,21 @@ steps:
       ArtifactName: Infrastructure
     condition: ne(variables['Infrastructure'], '')
 
+  - powershell: |
+      $DalWorkingDirectoryPath = (Resolve-Path $(Build.SourcesDirectory)\${{dalWorkingDirectory}}\bin\**).path
+      if ($null -eq $DalWorkingDirectoryPath) {
+          Write-Output "##vso[task.logissue type=warning]DAL project not found"
+      }
+      else {
+          Write-Output "##vso[task.setvariable variable=DalWorkingDirectoryPath;]$DalWorkingDirectoryPath"
+          Write-Output ("DAL Project path {0}" -f $DalWorkingDirectoryPath)
+      }
+    displayName: Resolve Acceptance Tests bin path
+    condition: ne(variables['dalWorkingDirectory'], '')
+
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifact: DAL'
     inputs:
-      PathtoPublish: '$(Build.SourcesDirectory)\${{ parameters.dalWorkingDirectory}}\bin\${{ parameters.buildConfiguration }}'
+      PathtoPublish: '$(DalWorkingDirectoryPath)'
       ArtifactName: DAL
-    condition: ne(variables['dalWorkingDirectory'], '')
+    condition: ne(variables['DalWorkingDirectoryPath'], '')
