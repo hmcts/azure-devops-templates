@@ -11,7 +11,7 @@ parameters:
   solutionType: ''
   KeyVaultName: ''
   SecretsFilter: ''
-  infraKeyVaultName: 'bob'
+  infraKeyVaultName2: 'bob'
   infraSecretsFilter: ''
   
 jobs:
@@ -53,7 +53,7 @@ jobs:
   - template: ../templates/getSecrets/getSecrets.yml
     parameters:
         azureSubscription: '${{ parameters.azureSubscription }}'
-        KeyVaultName: '${{ parameters.infraKeyVaultName }}'
+        KeyVaultName: '${{ parameters.infraKeyVaultName2 }}'
         SecretsFilter: '${{ parameters.infraSecretsFilter }}'
 
   # Executes tests projects that do not contain acceptance in the name
