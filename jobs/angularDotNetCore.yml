@@ -11,7 +11,7 @@ parameters:
   solutionType: ''
   KeyVaultName: ''
   SecretsFilter: ''
-  infraKeyVaultName: ''
+  infraKeyVaultName: 'bob'
   infraSecretsFilter: ''
   
 jobs:
