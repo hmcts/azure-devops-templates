@@ -105,15 +105,13 @@ jobs:
 
 # Task to grant resource access as defined in resourceAccess.json file
   - powershell: |
-
       Invoke-AzureADConnection -AzureTenantIdSecondary '$(vh_hearings_tenant_id)' `
           -AzureAdAppIdSecondary '$(vh_hearings_vsts_automation_AppId)' `
           -AzureAdAppCertificateThumbprintSecondary '$(vh_hearings_vsts_automation_CertThumbprit)'
           
       Grant-OAuth2PermissionsToApp -AzureADApplicationName '${{ parameters.appName }}-$(environmentName)' `
         -AzureTenantIdSecondary '$(vh_hearings_tenant_id)' `
-        -AzureAdAppIdSecondary '$(vh_hearings_vsts_automation_AppId)' `
-
+        -AzureAdAppIdSecondary '$(vh_hearings_vsts_automation_AppId)'
     displayName: 'Grant Permissions for Azure AD App'
 
 # Task to set resource access permissions as defined in resourceAccess.json file
