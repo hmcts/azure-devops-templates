@@ -64,8 +64,8 @@ jobs:
 
   - powershell: |
      git clone https://github.com/hmcts/vh-ps-modules.git
-     cd .\vh-ps-modules\
-     git checkout grant_permissions_for_ad
+     #cd .\vh-ps-modules\
+     #git checkout grant_permissions_for_ad
     displayName: 'Get PowerShell module source'
 
 # Imports PS modules used during AAD app registration
