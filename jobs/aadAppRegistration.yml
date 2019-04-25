@@ -65,7 +65,7 @@ jobs:
   - powershell: |
      git clone https://github.com/hmcts/vh-ps-modules.git
      #cd .\vh-ps-modules\
-     #git checkout set-group-membership-claims-rdo-3526
+     #git checkout grant_permissions_for_ad
     displayName: 'Get PowerShell module source'
 
 # Imports PS modules used during AAD app registration
@@ -102,6 +102,17 @@ jobs:
       -resourceAccessDefinition .\resourceAccess.json}
       else {Write-Host "##vso[task.logissue type=warning]Resource Access file not found! Please add 'resourceAccess.json' file to the repo" }
     displayName: 'Add AAD Apps Resource Access'
+
+# Task to grant resource access as defined in resourceAccess.json file
+  - powershell: |
+      Invoke-AzureADConnection -AzureTenantIdSecondary '$(vh_hearings_tenant_id)' `
+          -AzureAdAppIdSecondary '$(vh_hearings_vsts_automation_AppId)' `
+          -AzureAdAppCertificateThumbprintSecondary '$(vh_hearings_vsts_automation_CertThumbprit)'
+          
+      Grant-OAuth2PermissionsToApp -AzureADApplicationName '${{ parameters.appName }}-$(environmentName)' `
+        -AzureTenantIdSecondary '$(vh_hearings_tenant_id)' `
+        -AzureAdAppIdSecondary '$(vh_hearings_vsts_automation_AppId)' -AzureAdAppCertificateThumbprint '$(vh_hearings_vsts_automation_CertThumbprit)'
+    displayName: 'Grant Permissions for Azure AD App'
 
 # Task to set resource access permissions as defined in resourceAccess.json file
   - powershell: |
