@@ -13,7 +13,7 @@ parameters:
   SecretsFilter: ''
   infraKeyVaultName: ''
   infraSecretsFilter: ''
-  runtimeIdentifier: 'win10-x64'
+  runtimeIdentifier: 'win-x64'
   
 jobs:
 - job: 
