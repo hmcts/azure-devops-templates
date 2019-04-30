@@ -42,6 +42,7 @@ jobs:
   - template: ../templates/vsBuild/dotnetBuild.yml
     parameters:
       buildConfiguration: '${{ parameters.buildConfiguration }}'
+      runtimeIdentifier: '${{ parameters.runtimeIdentifier }}'
       vstsFeedId: '${{ parameters.vstsFeedId }}'
 
 # Get secrets from Key Vault
@@ -79,3 +80,4 @@ jobs:
     parameters:
       dalWorkingDirectory: '${{ parameters.dalWorkingDirectory }}'
       buildConfiguration: '${{ parameters.buildConfiguration }}'
+      runtimeIdentifier: '${{ parameters.runtimeIdentifier }}'
