@@ -10,6 +10,7 @@ steps:
       projects: '**/*.sln'
       vstsFeed: '${{ parameters.vstsFeedId }}'
       includeNuGetOrg: false
+      arguments: '--runtime ${{ parameters.runtimeIdentifier }}'
 
   - task: DotNetCoreCLI@2
     displayName: Build
