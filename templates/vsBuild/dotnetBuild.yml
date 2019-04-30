@@ -1,6 +1,6 @@
 parameters:
   buildConfiguration: ''
-  runtimeIdentifier: 'win-x64'
+  runtimeIdentifier: ''
 
 steps:
   - task: DotNetCoreCLI@2
