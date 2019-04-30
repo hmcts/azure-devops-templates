@@ -1,6 +1,6 @@
 parameters:
-  buildPlatform: 'Any CPU'
   buildConfiguration: ''
+  runtimeIdentifier: 'win-x64'
 
 steps:
   - task: DotNetCoreCLI@2
@@ -15,4 +15,4 @@ steps:
     displayName: Build
     inputs:
       projects: '*/*.sln'
-      arguments: '--configuration ${{ parameters.buildConfiguration }} --no-restore'
+      arguments: '--configuration ${{ parameters.buildConfiguration }} --runtime ${{ parameters.runtimeIdentifier }} --no-restore'
