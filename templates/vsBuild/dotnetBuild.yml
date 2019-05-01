@@ -3,13 +3,21 @@ parameters:
   runtimeIdentifier: ''
 
 steps:
+  # - task: DotNetCoreCLI@2
+  #   displayName: 'DotNet Core Restore'
+  #   inputs:
+  #     command: restore
+  #     projects: '**/*.sln'
+  #     vstsFeed: '${{ parameters.vstsFeedId }}'
+  #     includeNuGetOrg: false
+  #     arguments: '--runtime ${{ parameters.runtimeIdentifier }}'
+
   - task: DotNetCoreCLI@2
-    displayName: 'DotNet Core Restore'
+    displayName: 'dotnet custom'
     inputs:
-      command: restore
+      command: custom
       projects: '**/*.sln'
-      vstsFeed: '${{ parameters.vstsFeedId }}'
-      includeNuGetOrg: false
+      custom: restore
       arguments: '--runtime ${{ parameters.runtimeIdentifier }}'
 
   - task: DotNetCoreCLI@2
