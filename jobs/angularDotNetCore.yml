@@ -71,6 +71,8 @@ jobs:
     parameters:
       buildConfiguration: '${{ parameters.buildConfiguration }}'
       apiDirectory: '${{ parameters.apiDirectory }}'
+      runtimeIdentifier: '${{ parameters.runtimeIdentifier }}'
+
 
 # Executes tests and publishes results
   - template: ../templates/sonarCloud/sonarCloudRunAnalysis.yml
@@ -80,4 +82,3 @@ jobs:
     parameters:
       dalWorkingDirectory: '${{ parameters.dalWorkingDirectory }}'
       buildConfiguration: '${{ parameters.buildConfiguration }}'
-      runtimeIdentifier: '${{ parameters.runtimeIdentifier }}'
