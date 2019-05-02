@@ -1,0 +1,28 @@
+parameters:
+  buildConfiguration: ''
+  runtimeIdentifier: ''
+  apiDirectory: ''
+
+steps:
+  - task: DotNetCoreCLI@2
+    displayName: 'dotnet custom'
+    inputs:
+      command: custom
+      projects: '**/*.sln'
+      custom: restore '${{ parameters.apiDirectory }}'
+      arguments: '--runtime ${{ parameters.runtimeIdentifier }}'
+
+  - task: DotNetCoreCLI@2
+    displayName: Build
+    inputs:
+      projects: '${{ parameters.apiDirectory }}'
+      arguments: '--configuration ${{ parameters.buildConfiguration }} --runtime ${{ parameters.runtimeIdentifier }} --no-restore'
+  
+  - task: DotNetCoreCLI@2
+    displayName: Publish
+    inputs:
+      command: publish
+      publishWebProjects: false
+      arguments: '--configuration ${{ parameters.buildConfiguration }} --runtime ${{ parameters.runtimeIdentifier }} --output $(build.artifactstagingdirectory)\WebApp --no-build'
+      zipAfterPublish: false
+      workingDirectory: '${{ parameters.apiDirectory }}'
