@@ -8,8 +8,8 @@ steps:
     displayName: 'dotnet custom'
     inputs:
       command: custom
-      projects: '**/*.sln'
-      custom: restore '${{ parameters.apiDirectory }}'
+      projects: '${{ parameters.apiDirectory }}'
+      custom: restore
       arguments: '--runtime ${{ parameters.runtimeIdentifier }}'
 
   - task: DotNetCoreCLI@2
