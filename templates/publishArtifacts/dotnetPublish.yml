@@ -1,7 +1,6 @@
 parameters:
   buildConfiguration: 'Release'
   apiDirectory: ''
-  runtimeIdentifier: ''
 
 steps:
   - task: DotNetCoreCLI@2
@@ -9,6 +8,6 @@ steps:
     inputs:
       command: publish
       publishWebProjects: false
-      arguments: '--configuration ${{ parameters.buildConfiguration }} --runtime ${{ parameters.runtimeIdentifier }} --output $(build.artifactstagingdirectory)\WebApp --no-build'
+      arguments: '--configuration ${{ parameters.buildConfiguration }} --output $(build.artifactstagingdirectory)\WebApp --no-build'
       zipAfterPublish: True
       workingDirectory: '${{ parameters.apiDirectory }}'

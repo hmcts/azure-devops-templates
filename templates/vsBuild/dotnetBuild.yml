@@ -1,27 +1,17 @@
 parameters:
   buildConfiguration: ''
-  runtimeIdentifier: ''
 
 steps:
-  # - task: DotNetCoreCLI@2
-  #   displayName: 'DotNet Core Restore'
-  #   inputs:
-  #     command: restore
-  #     projects: '**/*.sln'
-  #     vstsFeed: '${{ parameters.vstsFeedId }}'
-  #     includeNuGetOrg: false
-  #     arguments: '--runtime ${{ parameters.runtimeIdentifier }}'
-
   - task: DotNetCoreCLI@2
-    displayName: 'dotnet custom'
+    displayName: 'DotNet Core Restore'
     inputs:
-      command: custom
+      command: restore
       projects: '**/*.sln'
-      custom: restore
-      arguments: '--runtime ${{ parameters.runtimeIdentifier }}'
+      vstsFeed: '${{ parameters.vstsFeedId }}'
+      includeNuGetOrg: false
 
   - task: DotNetCoreCLI@2
     displayName: Build
     inputs:
       projects: '*/*.sln'
-      arguments: '--configuration ${{ parameters.buildConfiguration }} --runtime ${{ parameters.runtimeIdentifier }} --no-restore'
+      arguments: '--configuration ${{ parameters.buildConfiguration }} --no-restore'
