@@ -9,19 +9,19 @@ steps:
       command: custom
       projects: '${{ parameters.apiDirectory }}'
       custom: restore
-      arguments: ''
+      arguments: '--runtime ${{ parameters.runtimeIdentifier }}'
 
   - task: DotNetCoreCLI@2
     displayName: Build
     inputs:
       projects: '${{ parameters.apiDirectory }}'
-      arguments: '--configuration ${{ parameters.buildConfiguration }} --no-restore'
+      arguments: '--configuration ${{ parameters.buildConfiguration }} --runtime ${{ parameters.runtimeIdentifier }} --no-restore'
   
   - task: DotNetCoreCLI@2
     displayName: Publish
     inputs:
       command: publish
       publishWebProjects: false
-      arguments: '--configuration ${{ parameters.buildConfiguration }} --output $(build.artifactstagingdirectory)\WebApp --no-build'
+      arguments: '--configuration ${{ parameters.buildConfiguration }} --runtime ${{ parameters.runtimeIdentifier }} --output $(build.artifactstagingdirectory)\WebApp --no-build'
       zipAfterPublish: false
       workingDirectory: '${{ parameters.apiDirectory }}'
