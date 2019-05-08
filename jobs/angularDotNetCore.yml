@@ -18,6 +18,8 @@ jobs:
 - job: 
   displayName: 'Build & Test Java Script and .Net Core'
   pool: ${{ parameters.pool }}
+  workspace:
+    clean: all
 
   # Reference templae for setting up build tools
   steps:
