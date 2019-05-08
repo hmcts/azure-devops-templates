@@ -13,7 +13,6 @@ parameters:
   SecretsFilter: ''
   infraKeyVaultName: ''
   infraSecretsFilter: ''
-  runtimeIdentifier: 'win-x64'
   
 jobs:
 - job: 
@@ -42,7 +41,6 @@ jobs:
   - template: ../templates/vsBuild/dotnetBuild.yml
     parameters:
       buildConfiguration: '${{ parameters.buildConfiguration }}'
-      runtimeIdentifier: '${{ parameters.runtimeIdentifier }}'
       vstsFeedId: '${{ parameters.vstsFeedId }}'
 
 # Get secrets from Key Vault
@@ -71,7 +69,6 @@ jobs:
     parameters:
       buildConfiguration: '${{ parameters.buildConfiguration }}'
       apiDirectory: '${{ parameters.apiDirectory }}'
-      runtimeIdentifier: '${{ parameters.runtimeIdentifier }}'
 
 
 # Executes tests and publishes results
