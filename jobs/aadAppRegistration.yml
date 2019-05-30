@@ -11,7 +11,7 @@ parameters:
   CustomHostname: $(WebSiteName)$(AzureAppServiceWebSiteCustomDomainName) # Custom hostname used by the website
   aadAppReplyUrls: '' #CSV list of reply urls
   allowedEnvironments: "preview, dev, sandbox, aat, test1, test2, pilot, demo, preprod, production" # List of allowed environment names
-  productionLikeEnvironments: "aat, pilot, production" # Production like environments. Deployments to these environments are allowed only from master branch
+  productionLikeEnvironments: "aat, pilot, production, demo, preprod" # Production like environments. Deployments to these environments are allowed only from master branch
 
 jobs:
 - job: Register_AAD_App
@@ -51,7 +51,7 @@ jobs:
 # Task will set the values based on target enviornment. These variables are then consumed during AAD app registration
   - powershell: |
       # Check if deployment is targeting production (pilot) environment if so set the azure subscription to "DCD-CFT-VH-Pilot".
-      if('$(environmentName)' -eq "pilot"){
+      if("pilot", "preProd", "prod" -contains '$(environmentName)'){
       Write-Host ("##vso[task.setvariable variable=vh_vsts_automation_AppId;]$(vh_vsts_automation_prod_AppId)")
       Write-Host ("##vso[task.setvariable variable=vh_vsts_automation_CertThumbprit;]$(vh_vsts_automation_prod_CertThumbprit)")
       Write-Host ("##vso[task.setvariable variable=vh_azure_subscription_id;]$(vh_azure_subscription_id_prod)")}
