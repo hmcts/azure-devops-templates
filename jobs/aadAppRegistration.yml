@@ -11,7 +11,7 @@ parameters:
   CustomHostname: $(WebSiteName)$(AzureAppServiceWebSiteCustomDomainName) # Custom hostname used by the website
   aadAppReplyUrls: '' #CSV list of reply urls
   allowedEnvironments: "preview, dev, sandbox, aat, test1, test2, pilot, demo, preprod, production" # List of allowed environment names
-  productionLikeEnvironments: "aat, pilot, production, demo, preprod" # Production like environments. Deployments to these environments are allowed only from master branch
+  productionLikeEnvironments: "aat, pilot, prod, demo, preprod" # Production like environments. Deployments to these environments are allowed only from master branch
 
 jobs:
 - job: Register_AAD_App
