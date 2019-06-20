@@ -18,7 +18,7 @@ steps:
       csmParametersFile: 'infrastructure/azuredeploy.parameters.json'
       overrideParameters: -appServicePlanName ${{ parameters.appServicePlanName }} -AzureWebsite ${{ parameters.webSiteName }} -customHostname ${{ parameters.customHostname }} -certificateThumbprint ${{ parameters.wildcardCertificateThumbprint }} 
       deploymentMode: Incremental
-    condition: and(succeeded(), notIn(variables['environmentName'], 'pilot', 'production'))
+    condition: and(succeeded(), notIn(variables['environmentName'], 'pilot', 'preprod', 'prod'))
 
   - task: AzureResourceGroupDeployment@2
     displayName: 'Provision Web App Prod'
@@ -31,4 +31,4 @@ steps:
       csmParametersFile: 'infrastructure/azuredeploy.parameters.json'
       overrideParameters: -appServicePlanName ${{ parameters.appServicePlanName }} -AzureWebsite ${{ parameters.webSiteName }} -customHostname ${{ parameters.customHostname }} -certificateThumbprint ${{ parameters.wildcardCertificateThumbprint }} 
       deploymentMode: Incremental
-    condition: and(succeeded(),in(variables['environmentName'], 'pilot', 'production'))
+    condition: and(succeeded(),in(variables['environmentName'], 'pilot', 'preprod', 'prod'))

@@ -10,8 +10,8 @@ parameters:
   WebSiteName: $(appName)-$(environmentName)  # Web Site name
   CustomHostname: $(WebSiteName)$(AzureAppServiceWebSiteCustomDomainName) # Custom hostname used by the website
   aadAppReplyUrls: '' #CSV list of reply urls
-  allowedEnvironments: "preview, dev, sandbox, aat, test1, test2, pilot, production" # List of allowed environment names
-  productionLikeEnvironments: "aat, pilot, production" # Production like environments. Deployments to these environments are allowed only from master branch
+  allowedEnvironments: "preview, dev, sandbox, aat, test1, test2, pilot, demo, preprod, production" # List of allowed environment names
+  productionLikeEnvironments: "aat, pilot, prod, demo, preprod" # Production like environments. Deployments to these environments are allowed only from master branch
 
 jobs:
 - job: Register_AAD_App
@@ -51,7 +51,7 @@ jobs:
 # Task will set the values based on target enviornment. These variables are then consumed during AAD app registration
   - powershell: |
       # Check if deployment is targeting production (pilot) environment if so set the azure subscription to "DCD-CFT-VH-Pilot".
-      if('$(environmentName)' -eq "pilot"){
+      if("pilot", "preProd", "prod" -contains '$(environmentName)'){
       Write-Host ("##vso[task.setvariable variable=vh_vsts_automation_AppId;]$(vh_vsts_automation_prod_AppId)")
       Write-Host ("##vso[task.setvariable variable=vh_vsts_automation_CertThumbprit;]$(vh_vsts_automation_prod_CertThumbprit)")
       Write-Host ("##vso[task.setvariable variable=vh_azure_subscription_id;]$(vh_azure_subscription_id_prod)")}
@@ -65,7 +65,7 @@ jobs:
   - powershell: |
      git clone https://github.com/hmcts/vh-ps-modules.git
      #cd .\vh-ps-modules\
-     #git checkout set-group-membership-claims-rdo-3526
+     #git checkout grant_permissions_for_ad
     displayName: 'Get PowerShell module source'
 
 # Imports PS modules used during AAD app registration
@@ -102,6 +102,17 @@ jobs:
       -resourceAccessDefinition .\resourceAccess.json}
       else {Write-Host "##vso[task.logissue type=warning]Resource Access file not found! Please add 'resourceAccess.json' file to the repo" }
     displayName: 'Add AAD Apps Resource Access'
+
+# Task to grant resource access as defined in resourceAccess.json file
+  - powershell: |
+      Invoke-AzureADConnection -AzureTenantIdSecondary '$(vh_hearings_tenant_id)' `
+          -AzureAdAppIdSecondary '$(vh_hearings_vsts_automation_AppId)' `
+          -AzureAdAppCertificateThumbprintSecondary '$(vh_hearings_vsts_automation_CertThumbprit)'
+          
+      Grant-OAuth2PermissionsToApp -AzureADApplicationName '${{ parameters.appName }}-$(environmentName)' `
+        -AzureTenantIdSecondary '$(vh_hearings_tenant_id)' `
+        -AzureAdAppIdSecondary '$(vh_hearings_vsts_automation_AppId)' -AzureAdAppCertificateThumbprint '$(vh_hearings_vsts_automation_CertThumbprit)'
+    displayName: 'Grant Permissions for Azure AD App'
 
 # Task to set resource access permissions as defined in resourceAccess.json file
   - powershell: |
