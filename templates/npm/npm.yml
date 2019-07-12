@@ -1,3 +1,6 @@
+parameters:
+  nodeVersion: ''
+
 steps:
 # Conditions on step template do not work at this point - https://github.com/Microsoft/azure-pipelines-yaml/issues/30
 #- ${{ if in(variables['solutionType'],  'angularDotNetCore') }}:
@@ -7,6 +10,11 @@ steps:
      Write-Host "##vso[task.setvariable variable=npmWorkingDir;]$npmWorkingDir"
     displayName: Resolve Angular working directory
     condition: in(variables['solutionType'], 'angularDotNetCore', 'angular')
+
+  - task: NodeTool@0
+    displayName: 'Configure node version'
+    inputs:
+      versionSpec: ${{ parameters.nodeVersion }}
 
   - task: Npm@1
     displayName: 'Install Node Modules'
