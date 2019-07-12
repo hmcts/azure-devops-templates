@@ -11,7 +11,7 @@ steps:
   - task: NodeTool@0
     displayName: 'Configure node version'
     inputs:
-      versionSpec: variables['nodeVersion']
+      versionSpec: ${{ parameters.nodeVersion}}
 
   - task: Npm@1
     displayName: 'Install Node Modules'
