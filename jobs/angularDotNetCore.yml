@@ -31,11 +31,7 @@ jobs:
 # Performs npm steps - install, build, test, test publishing
   - template: ../templates/npm/npm.yml
     parameters:
-<<<<<<< HEAD
       nodeVersion: ${{ parameters.nodeVersion }}
-=======
-      sonarCloudProjectKey: ${{ parameters.nodeVersion }}
->>>>>>> fc47e2f443aa4a1ad7aceb573c47338882faf9c2
 
 # SonarCloud Prepare step
   - template: ../templates/sonarCloud/sonarCloudPrepare.yml
