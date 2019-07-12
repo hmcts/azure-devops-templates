@@ -13,7 +13,7 @@ parameters:
   SecretsFilter: ''
   infraKeyVaultName: ''
   infraSecretsFilter: ''
-  nodeVersion: '8.16.0'
+  nodeVersion: '8.11.4'
   
 jobs:
 - job: 
