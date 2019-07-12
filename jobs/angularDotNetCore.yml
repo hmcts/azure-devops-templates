@@ -30,6 +30,8 @@ jobs:
 
 # Performs npm steps - install, build, test, test publishing
   - template: ../templates/npm/npm.yml
+    parameters:
+      nodeVersion: ${{ parameters.nodeVersion }}
 
 # SonarCloud Prepare step
   - template: ../templates/sonarCloud/sonarCloudPrepare.yml
