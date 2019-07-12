@@ -1,3 +1,6 @@
+parameters:
+  nodeVersion: ''
+
 steps:
 # Conditions on step template do not work at this point - https://github.com/Microsoft/azure-pipelines-yaml/issues/30
 #- ${{ if in(variables['solutionType'],  'angularDotNetCore') }}:
