@@ -10,6 +10,7 @@ parameters:
   WebSiteName: $(appName)-$(environmentName)  # Web Site name
   CustomHostname: $(WebSiteName)$(AzureAppServiceWebSiteCustomDomainName) # Custom hostname used by the website
   aadAppReplyUrls: '' #CSV list of reply urls
+  allowedCorsOrigins: http://localhost, https://localhost
   allowedEnvironments: "preview, dev, sandbox, aat, test1, test2, pilot, demo, preprod, production" # List of allowed environment names
   productionLikeEnvironments: "aat, pilot, prod, demo, preprod" # Production like environments. Deployments to these environments are allowed only from master branch
 
@@ -149,11 +150,11 @@ jobs:
         -AzureDNSZoneName "$(AzureDNSZoneName)"
 
 # Template reference to ARM template for provisioning Web Site on App Serivice
-  - template: ../templates/azureResourceGroupDeployment/azureResourceGroupDeploymentVhWebsite.yml 
+  - template: ../templates/azureResourceGroupDeployment/azureResourceGroupDeploymentVhWebsite.yml
     parameters:
       resourceGroupName: ${{ parameters.resourceGroupName }}
       appServicePlanName: ${{ parameters.AppServicePlanName }}
       webSiteName: $(WebSiteName)
       customHostname: ${{ parameters.CustomHostname }}
       wildcardCertificateThumbprint: $(WildcardCertificateThumbprint)
-  
+      allowedCorsOrigins: ${{ parameters.allowedCorsOrigins }}
