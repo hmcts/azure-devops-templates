@@ -5,7 +5,7 @@ parameters:
   webSiteName: ''
   customHostname: ''
   wildcardCertificateThumbprint: ''
-  allowedCorsOrigins: $(allowedCorsOrigins)
+  allowedCorsOrigins: 'http://localhost, https://localhost'
 
 steps:
   - task: AzureResourceGroupDeployment@2
