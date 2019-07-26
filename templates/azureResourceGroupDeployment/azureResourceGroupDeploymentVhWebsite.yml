@@ -5,6 +5,7 @@ parameters:
   webSiteName: ''
   customHostname: ''
   wildcardCertificateThumbprint: ''
+  allowedCorsOrigins: 'http://localhost, https://localhost'
 
 steps:
   - task: AzureResourceGroupDeployment@2
@@ -16,7 +17,7 @@ steps:
       location: 'UK West'
       csmFile: 'infrastructure/azuredeploy.json'
       csmParametersFile: 'infrastructure/azuredeploy.parameters.json'
-      overrideParameters: -appServicePlanName ${{ parameters.appServicePlanName }} -AzureWebsite ${{ parameters.webSiteName }} -customHostname ${{ parameters.customHostname }} -certificateThumbprint ${{ parameters.wildcardCertificateThumbprint }} 
+      overrideParameters: -appServicePlanName ${{ parameters.appServicePlanName }} -AzureWebsite ${{ parameters.webSiteName }} -customHostname ${{ parameters.customHostname }} -certificateThumbprint ${{ parameters.wildcardCertificateThumbprint }} -allowedCorsOrigins ${{ parameters.allowedCorsOrigins}}
       deploymentMode: Incremental
     condition: and(succeeded(), notIn(variables['environmentName'], 'pilot', 'preprod', 'prod'))
 
@@ -29,6 +30,6 @@ steps:
       location: 'UK West'
       csmFile: 'infrastructure/azuredeploy.json'
       csmParametersFile: 'infrastructure/azuredeploy.parameters.json'
-      overrideParameters: -appServicePlanName ${{ parameters.appServicePlanName }} -AzureWebsite ${{ parameters.webSiteName }} -customHostname ${{ parameters.customHostname }} -certificateThumbprint ${{ parameters.wildcardCertificateThumbprint }} 
+      overrideParameters: -appServicePlanName ${{ parameters.appServicePlanName }} -AzureWebsite ${{ parameters.webSiteName }} -customHostname ${{ parameters.customHostname }} -certificateThumbprint ${{ parameters.wildcardCertificateThumbprint }} -allowedCorsOrigins ${{ parameters.allowedCorsOrigins}}
       deploymentMode: Incremental
     condition: and(succeeded(),in(variables['environmentName'], 'pilot', 'preprod', 'prod'))
