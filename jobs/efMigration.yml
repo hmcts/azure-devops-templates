@@ -12,11 +12,11 @@ jobs:
         displayName: "Generate DB Migration Script"
         inputs:
           command: custom
-          projects: ${{ parameters.dbProjectPath }}
-          custom: "ef migrations script"
-          arguments: "-o $(build.artifactstagingdirectory)/migrations/scripts.sql –i"
+          custom: ef
+          arguments: ${{ format('migrations script -p {0} -o $(build.artifactstagingdirectory)/migrations/script.sql -i', parameters.dbProjectPath) }}
 
       - task: PublishPipelineArtifact@1
         displayName: "Publish Migration Script"
         inputs:
-          targetPath: "$(build.artifactstagingdirectory)/migrations/*"
+          targetPath: '$(build.artifactstagingdirectory)/migrations/'
+          artifact: migration
