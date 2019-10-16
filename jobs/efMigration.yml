@@ -1,0 +1,22 @@
+parameters:
+  dbProjectPath: ""
+  pool: "Azure-VSTS-VS2017"
+
+jobs:
+  - job:
+    displayName: "Build and Publish DB Migration Scripts"
+    pool: ${{ parameters.pool }}
+
+    steps:
+      - task: DotNetCoreCLI@2
+        displayName: "Generate DB Migration Script"
+        inputs:
+          command: custom
+          projects: ${{ parameters.dbProjectPath }}
+          custom: "ef migrations script"
+          arguments: "-o $(build.artifactstagingdirectory)/migrations/scripts.sql –i"
+
+      - task: PublishPipelineArtifact@1
+        displayName: "Publish Migration Script"
+        inputs:
+          targetPath: "$(build.artifactstagingdirectory)/migrations/*"
