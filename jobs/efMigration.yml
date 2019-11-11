@@ -8,6 +8,9 @@ jobs:
     pool: ${{ parameters.pool }}
 
     steps:
+      # Runs common steps - gitVersion, Nuget
+      - template: ../templates/common/common.yml
+      
       - task: DotNetCoreCLI@2
         displayName: "Generate DB Migration Script"
         inputs:
