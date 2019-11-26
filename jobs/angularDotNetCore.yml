@@ -45,10 +45,6 @@ jobs:
     parameters:
       buildConfiguration: '${{ parameters.buildConfiguration }}'
       vstsFeedId: '${{ parameters.vstsFeedId }}'
-      
-# Execute WhiteSource tests
-  - task: whitesource.ws-bolt.bolt.wss.WhiteSource Bolt@19
-    displayName: 'WhiteSource Bolt'
 
 # Get secrets from Key Vault
   - template: ../templates/getSecrets/getSecrets.yml
