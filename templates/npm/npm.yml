@@ -26,6 +26,19 @@ steps:
         in(variables['solutionType'], 'angularDotNetCore', 'angular'),
         succeeded()
         )
+        
+   - task: Npm@1
+    displayName: 'Rebuild Node Modules'
+    inputs:
+      command: custom
+      workingDir: $(npmWorkingDir)
+      verbose: false
+      customCommand: 'rebuild'
+    condition: |
+        and(
+        in(variables['solutionType'], 'angularDotNetCore', 'angular'),
+        succeeded()
+        )
 
   - task: Npm@1
     displayName: 'Run Lint'
