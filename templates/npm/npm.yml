@@ -27,7 +27,7 @@ steps:
         succeeded()
         )
         
-   - task: Npm@1
+  - task: Npm@1
     displayName: 'Rebuild Node Modules'
     inputs:
       command: custom
