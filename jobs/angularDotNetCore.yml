@@ -14,6 +14,7 @@ parameters:
   infraKeyVaultName: ''
   infraSecretsFilter: ''
   nodeVersion: '8.11.4'
+  dotNetCoreVersion: '2.2.104'
 
 jobs:
 - job:
@@ -27,6 +28,7 @@ jobs:
 
 # Runs common steps - gitVersion, Nuget
   - template: ../templates/common/common.yml
+    dotNetCoreVersion: ${{ parameters.dotNetCoreVersion }}
 
 # Performs npm steps - install, build, test, test publishing
   - template: ../templates/npm/npm.yml
