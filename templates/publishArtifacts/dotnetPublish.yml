@@ -8,6 +8,6 @@ steps:
     inputs:
       command: publish
       publishWebProjects: false
-      arguments: '--configuration ${{ parameters.buildConfiguration }} --output $(build.artifactstagingdirectory)\WebApp --no-build'
+      arguments: '--configuration ${{ parameters.buildConfiguration }} --output $(build.artifactstagingdirectory)\WebApp -r win-x64'
       zipAfterPublish: True
       workingDirectory: '${{ parameters.apiDirectory }}'
