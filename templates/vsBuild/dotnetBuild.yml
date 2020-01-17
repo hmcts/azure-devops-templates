@@ -22,4 +22,4 @@ steps:
     displayName: Build
     inputs:
       projects: '*/*.sln'
-      arguments: '--configuration ${{ parameters.buildConfiguration }} -r win-x64'
+      arguments: '--configuration ${{ parameters.buildConfiguration }}'
