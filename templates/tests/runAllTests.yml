@@ -8,6 +8,7 @@ parameters:
 steps:
   - task: sergeyzwezdin.magic-chunks.magic.chunks.MagicChunks@2
     displayName: 'Transform App Settings'
+    condition: ne(variables['integrationTestsAppSettingsTransform'], '')
     inputs:
       sourcePath: '*/*/appsettings.json'
       sourcePathRecurse: true
@@ -15,9 +16,28 @@ steps:
        {
         ${{ parameters.integrationTestsAppSettingsTransform }}
        }
+     
 
+  - powershell: |
+      write-verbose "fetching installed tools" -verbose
+      $tools = dotnet tool list --global
+      write-verbose "$($tools | convertto-json)" -verbose
+      
+      if(($tools -match '^dotnet-ef\s').count > 0) {
+        write-verbose "installing dotnet-ef" -verbose
+        dotnet tool install --global dotnet-ef
+      } else {
+        write-verbose "updating dotnet-ef" -verbose
+        dotnet tool update --global dotnet-ef
+      }
+    failOnStderr: true
+    displayName: 'Install dotnet-ef'
+    condition: ne(variables['dalWorkingDirectory'], '')
+    
   - script: |
+      echo "dropping db"
       dotnet ef database drop --force -v
+      echo "updateing db"
       dotnet ef database update -v
     workingDirectory: ${{ parameters.dalWorkingDirectory}}
     failOnStderr: true

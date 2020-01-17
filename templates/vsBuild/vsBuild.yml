@@ -1,6 +1,7 @@
 parameters:
   buildPlatform: 'Any CPU'
   buildConfiguration: ''
+  vstsFeed: ''
 
 steps:
   - task: DotNetCoreCLI@2

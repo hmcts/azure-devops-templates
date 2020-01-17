@@ -1,8 +1,15 @@
 parameters:
   buildPlatform: 'Any CPU'
   buildConfiguration: ''
+  vstsFeed: ''
+
 
 steps:
+  - pwsh: Get-ChildItem bin -Depth 2 | Remove-Item -Force -Recurse
+    displayName: Clear Bin directories
+    failOnStderr: true
+    errorActionPreference: stop
+    
   - task: DotNetCoreCLI@2
     displayName: 'DotNet Core Restore'
     inputs:
@@ -15,4 +22,4 @@ steps:
     displayName: Build
     inputs:
       projects: '*/*.sln'
-      arguments: '--configuration ${{ parameters.buildConfiguration }} --no-restore'
+      arguments: '--configuration ${{ parameters.buildConfiguration }} -r win-x64'
