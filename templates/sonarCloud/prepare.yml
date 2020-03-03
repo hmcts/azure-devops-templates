@@ -1,0 +1,25 @@
+parameters:
+  EndpointName: HMCTS_SonarCloud
+  Organization: hmcts
+  ProjectKey: ''
+  ProjectName: $(Build.Repository.Name)
+  ProjectVersion: $(Build.BuildNumber)
+  ExtraProperties:
+
+steps:
+  - ${{ if eq(parameters.ProjectKey, '')}}:
+    - powershell: |
+        $ProjectKey = "$(Build.Repository.Name)" -ireplace "hmcts\/"
+        Write-Output ("Sonar Cloud project key: {0}" -f $ProjectKey)
+        Write-Host "##vso[task.setvariable variable=ProjectKey;]$ProjectKey"
+      displayName: Set Sonar Cloud project key
+
+  - task: SonarCloudPrepare@1
+    displayName: Prepare analysis on SonarCloud
+    inputs:
+      SonarCloud: ${{ parameters.EndpointName }}
+      organization: ${{ parameters.Organization }}
+      projectKey: $(ProjectKey)
+      projectName: ${{ parameters.ProjectName }}
+      projectVersion: ${{ parameters.ProjectVersion }}
+      extraProperties: ${{ parameters.ExtraProperties }}

@@ -24,14 +24,14 @@ jobs:
   - template: ../templates/npm/npm.yml
 
 # SonarCloud Prepare step
-#  - template: ../templates/sonarCloud/sonarCloudPrepare.yml
+#  - template: ../templates/sonarCloud/prepare.yml
 #    parameters:
-#      sonarCloudProjectKey: ${{ parameters.sonarCloudProjectKey }}
-#      sonarCloudprojectName: '$(Build.Repository.Name)'
-#      sonarCloudextraProperties: ${{ parameters.sonarCloudextraProperties }}
+#      ProjectKey: ${{ parameters.sonarCloudProjectKey }}
+#      projectName: '$(Build.Repository.Name)'
+#      extraProperties: ${{ parameters.sonarCloudextraProperties }}
 
 # Executes tests and publishes results
-#  - template: ../templates/sonarCloud/sonarCloudRunAnalysis.yml
+#  - template: ../templates/sonarCloud/runAnalysis.yml
 
 # Publish artifacts
   - template: ../templates/publishArtifacts/publishArtifacts.yml

@@ -1,0 +1,100 @@
+parameters:
+  - template: ../parameters/common.yml
+
+  - name: packageManagers
+    type: string
+    default: [nuget]
+
+  - name: PackageApp
+    type: boolean
+    default: true
+  - name: PackageAcceptanceTests
+    type: boolean
+    default: true
+
+  - name: Test
+    type: boolean
+    default: true
+
+stages:
+  - stage: PackageApp
+    dependsOn: ${{ parameters.dependantStages }}
+
+    jobs:
+    - ${{ if eq(parameters.PackageApp, true) }}:
+      - job: Publish_App
+
+        pool:
+          vmImage: ${{ parameters.baseAgent }}
+
+        container: ${{ parameters.dotnetContainer }}
+
+        steps:
+        - checkout: self
+
+        - template: ../templates/pipelineCaching.yml
+          parameters:
+            projectPath: ${{ parameters.coreProjectPath }}
+            packageManagers: ${{ parameters.packageManagers }}
+
+        - task: DotNetCoreCLI@2
+          displayName: dotnet Restore
+          inputs:
+            command: restore
+            projects: ${{ parameters.coreProjectPath }}/*.csproj
+            vstsFeed: ${{ parameters.vstsFeedId }}
+            includeNuGetOrg: false
+
+        - task: DotNetCoreCLI@2
+          displayName: donet Publish
+          inputs:
+            command: publish
+            publishWebProjects: false
+            arguments: --configuration Release --output $(build.artifactstagingdirectory)/App
+            zipAfterPublish: True
+            workingDirectory: ${{ parameters.coreProjectPath }}
+
+        - task: PublishBuildArtifacts@1
+          displayName: Publish App
+          inputs:
+            PathtoPublish: $(Build.ArtifactStagingDirectory)/App
+            ArtifactName: App
+
+    - ${{ if eq(parameters.PackageAcceptanceTests, true) }}:
+      - job: Publish_AcceptanceTests
+
+        pool:
+          vmImage: ${{ parameters.baseAgent }}
+
+        container: ${{ parameters.dotnetContainer }}
+
+        steps:
+        - checkout: self
+
+        - template: ../templates/pipelineCaching.yml
+          parameters:
+            projectPath: ${{ parameters.coreProjectPath }}
+            packageManagers: ${{ parameters.packageManagers }}
+
+        - task: DotNetCoreCLI@2
+          displayName: dotnet Restore
+          inputs:
+            command: restore
+            projects: '**/*AcceptanceTests.csproj'
+            vstsFeed: ${{ parameters.vstsFeedId }}
+            includeNuGetOrg: false
+
+        - task: DotNetCoreCLI@2
+          displayName: donet Publish
+          inputs:
+            command: publish
+            publishWebProjects: false
+            arguments: --configuration Release --output $(build.artifactstagingdirectory)/AcceptanceTests
+            zipAfterPublish: True
+            workingDirectory: ${{ parameters.coreProjectPath }}.AcceptanceTests
+
+        - task: PublishBuildArtifacts@1
+          displayName: Publish AcceptanceTests
+          inputs:
+            PathtoPublish: $(Build.ArtifactStagingDirectory)/AcceptanceTests
+            ArtifactName: AcceptanceTests

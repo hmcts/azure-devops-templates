@@ -1,0 +1,58 @@
+parameters:
+  - name: projectPath
+    type: string
+  
+  - name: nodeProjectPath
+    type: string
+    default: ${{ parameters.projectPath }}/ClientApp
+
+  - name: packageManagers
+    type: string
+    default: [
+      'nuget'
+      ]
+    values:
+    - nuget
+    - npm
+    - yarn
+
+  - name: NUGET_PACKAGES
+    type: string
+    default: $(Pipeline.Workspace)/.nuget/packages
+  - name: npm_config_cache
+    type: string
+    default: $(Pipeline.Workspace)/.npm
+  - name: YARN_CACHE_FOLDER
+    type: string
+    default: $(Pipeline.Workspace)/.yarn
+
+steps:
+- ${{ contains(parameters.packageManagers, 'nuget') }}:
+  - task: Cache@2
+    displayName: Cache NuGet packages
+    inputs:
+    key: nuget | "$(Agent.OS)" | ${{ parameters.projectPath }}/packages.lock.json
+    restoreKeys: |
+      nuget | "$(Agent.OS)"
+      nuget
+    path: $(NUGET_PACKAGES)
+
+- ${{ contains(parameters.packageManagers, 'npm') }}:
+  - task: Cache@2
+    displayName: Cache npm
+    inputs:
+      key: 'npm | "$(Agent.OS)" | ${{ parameters.nodeProjectPath }}/package-lock.json'
+      restoreKeys: |
+        npm | "$(Agent.OS)"
+        npm
+      path: $(npm_config_cache)
+
+- ${{ contains(parameters.packageManagers, 'yarn') }}:
+  - task: Cache@2
+    displayName: Cache Yarn packages
+    inputs:
+      key: 'yarn | "$(Agent.OS)" | ${{ parameters.projectPath }}/yarn.lock'
+      restoreKeys: |
+        yarn | "$(Agent.OS)"
+        yarn
+      path: $(YARN_CACHE_FOLDER)

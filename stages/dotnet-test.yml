@@ -1,0 +1,188 @@
+parameters:
+  - template: ../parameters/common.yml
+
+  - name: packageManagers
+    type: string
+    default:
+      - nuget
+
+  - name: secret_KeyVault
+    type: string
+
+  - name: secret_Subscription
+    type: string
+  
+  - name: secret_TestSecrets
+    type: object
+
+  - name: RunUnitTests
+    type: boolean
+    default: true
+  - name: RunIntegrationTests
+    type: boolean
+    default: true
+  - name: RunSonarCloud
+    type: boolean
+    default: true
+
+  - name: testParameters
+    type: string
+    default: --configuration Release /p:CollectCoverage=true /p:CoverletOutputFormat="\"opencover,cobertura,json,lcov\"" /p:Exclude="\"$(coverletCoverageExclusions)\"" /p:CoverletOutput=$(Common.TestResultsDirectory)/Coverage/ /p:MergeWith=$(Common.TestResultsDirectory)/Coverage/coverage.json
+    readonly: true
+
+  - name: sonarCloud_ExtraProperties
+    type: string
+    default: ''
+
+stages:
+  - stage: Test
+    dependsOn:
+    - ${{ if parameters.dependantStages }}:
+      - ${{ parameters.dependantStages }}
+
+    jobs:
+    - ${{ if eq(parameters.RunIntegrationTests, true) }}:
+      - job: Secret_Gathering
+
+        pool:
+            vmImage: ${{ parameters.baseAgent }}
+
+        steps:
+        - checkout: none
+
+        - task: AzureCLI@2
+          displayName: Add KeyVault FW Exception
+          inputs:
+            azureSubscription: ${{ paremeters.secret_Subscription }}
+            scriptType: pscore
+            scriptLocation: inlineScript
+            inlineScript: |
+              $ip = (Invoke-WebRequest -uri "http://ifconfig.me/ip").Content
+              az keyvault network-rule add --name $env:keyVaultName --ip-address "$IP/32"
+          env:
+            keyVaultName: ${{ paremeters.secret_KeyVault }}
+
+        - task: AzureKeyVault@1
+          displayName: Gather Test Secrets
+          inputs:
+            azureSubscription: ${{ paremeters.secret_Subscription }}
+            KeyVaultName: ${{ paremeters.secret_KeyVault }}
+            SecretsFilter: ${{ join(parameters.secret_TestSecrets.values, ',') }}
+
+        - task: AzureCLI@2
+          displayName: Remove KeyVault FW Exception
+          inputs:
+            azureSubscription: ${{ paremeters.secret_Subscription }}
+            scriptType: pscore
+            scriptLocation: inlineScript
+            inlineScript: |
+              $ip = (Invoke-WebRequest -uri "http://ifconfig.me/ip").Content
+              az keyvault network-rule remove --name $env:keyVaultName --ip-address "$IP/32"
+          env:
+            keyVaultName: ${{ paremeters.secret_KeyVault }}
+
+        - pwsh: |
+            $script = @()
+
+            Get-ChildItem ENV: | Where-Object -FilterScript { $_.Name -like "appsetting_*" } | Foreach-Object -Process {
+              $script += "Write-Host '##vso[task.setvariable variable=$($_.Name -replace '^appsetting_')]$($_.Value)'"
+            }
+
+            New-Item -ItemType File -Path $(Pipeline.Workspace) -Name appsettings_variables.ps1 -Force -Value ($script -join [System.Environment]::NewLine)
+          displayName: Config Transform
+          env:
+            ${{ each secret in parameters.secret_TestSecrets }}:
+              appsetting_${{ secret.key }}: ${{ secret.value }}
+
+        - task: PublishPipelineArtifact@1
+          displayName: Publish appsettingsvariable Script
+          inputs:
+            targetPath: $(Pipeline.Workspace)/appsettings_variables.ps1
+            artifact: appsettingsvariable
+
+    - job: Build_and_Test
+
+      pool:
+        vmImage: ${{ parameters.baseAgent }}
+
+      container: ${{ parameters.dotnetContainer }}
+
+      ${{ if eq(parameters.RunIntegrationTests, true) }}:
+        dependsOn:
+        - Secret_Gathering
+      ${{ if and(eq(parameters.dependantStages, true), eq(parameters.RunIntegrationTests, true)) }}:
+        dependsOn:
+        - ${{ parameters.dependantStages }}
+
+      steps:
+      - checkout: self
+
+      - task: gittools.gitversion.gitversion-task.GitVersion@5
+        displayName: GitVersion
+
+      - template: ../templates/pipelineCaching.yml
+        parameters:
+          projectPath: ${{ parameters.coreProjectPath }}
+          packageManagers: ${{ parameters.packageManagers }}
+
+      - task: DotNetCoreCLI@2
+        displayName: dotnet Restore
+        inputs:
+          command: restore
+          projects: '**/*[Tt]ests.csproj'
+          vstsFeed: ${{ parameters.vstsFeedId }}
+          includeNuGetOrg: false
+
+      - ${{ if eq(parameters.RunSonarCloud, true) }}:
+        - template: ../templates/sonarCloud/prepare.yml
+          parameters:
+            extraProperties: ${{ parameters.sonarCloud_ExtraProperties }}
+
+      - task: DotNetCoreCLI@2
+        displayName: Run unit tests
+        inputs:
+          command: test
+          projects: |
+            **/*[Uu]nit[Tt]ests.csproj
+          arguments: ${{ parameters.testParameters }}
+
+      ${{ if eq(parameters.RunIntegrationTests, true) }}:
+        - task: DownloadPipelineArtifact@2
+          displayName: Download Code
+          inputs:
+            artifactName: appsettingsvariable
+
+        - task: PowerShell@2
+          displayName: Load Secrets
+          inputs:
+            targetType: filePath
+            filePath: $(Pipeline.Workspace)/appsettings_variables.ps1
+
+        - task: FileTransform@1
+          displayName: Integration Tests Config Transform
+          inputs:
+            folderPath: $(Build.SourcesDirectory)/$(projectName)/$(projectName).IntegrationTests
+            enableXmlTransform: false
+            fileType: json
+            targetFiles: |
+              appsettings.json
+
+        - task: DotNetCoreCLI@2
+          displayName: Run Integration tests
+          inputs:
+            command: test
+            projects: |
+              **/*.[Ii]ntegration[Tt]ests.csproj
+            arguments: ${{ parameters.testParameters }}
+
+      - ${{ if eq(parameters.RunSonarCloud, true) }}:
+        - template: ../templates/sonarCloud/runAnalysis.yml
+
+      - task: PublishCodeCoverageResults@1
+        displayName: Publish code coverage
+        inputs:
+          codeCoverageTool: Cobertura
+          summaryFileLocation: $(Common.TestResultsDirectory)/Coverage/coverage.cobertura.xml
+          reportDirectory: $(Common.TestResultsDirectory)/Coverage
+          failIfCoverageEmpty: true
+        condition: always()
