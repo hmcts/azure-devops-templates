@@ -1,6 +1,7 @@
-parameters:
-  - template: ../parameters/common.yml
+extends:
+    template: ../parameters/common.yml
 
+parameters:
   - name: packageManagers
     type: string
     default: [nuget]

@@ -1,5 +1,7 @@
+extends:
+    template: ../parameters/common.yml
+
 parameters:
-  - template: ../parameters/common.yml
 
   - name: packageManagers
     type: string
