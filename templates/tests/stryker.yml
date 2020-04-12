@@ -1,0 +1,84 @@
+parameters:
+  path: ''
+  breakThreshold: 85
+  lowThreshold: 90
+  highThreshold: 95
+
+steps:
+  - script: |
+      dotnet tool restore
+      dotnet stryker --mutate "['!**/AssemblyInfo.cs']" --threshold-break ${{ parameters.breakThreshold }} --threshold-low ${{ parameters.lowThreshold }} --threshold-high ${{ parameters.highThreshold }} --reporters "['json','dots']"
+    workingDirectory: ${{ parameters.path }}
+    failOnStderr: true
+    displayName: Run dotnet stryker
+
+  - task: PublishBuildArtifacts@1
+    displayName: Publish Stryker Report
+    condition: always()
+    inputs:
+      PathtoPublish: ${{ parameters.path }}/StrykerOutput
+      ArtifactName: stryker
+  
+  - pwsh: |
+      $reportfile = Get-Item ${{ parameters.path }}/StrykerOutput/*/reports/mutation-report.json
+      Write-Host "##vso[task.uploadfile]$($reportfile.fullname)" 
+      $reportdata = Get-Content $reportfile.FullName -Raw | ConvertFrom-Json
+    
+      function ConvertTo-MarkdownTableRow {
+          param(
+              [parameter(Mandatory)]
+              $Mutants,
+
+              [parameter(Mandatory)]
+              [string]
+              $Name
+          )
+
+          begin {
+              $mutants = $Mutants | where status -ne 'Skipped'
+              $mutantGroups = $mutants | group status
+              $Killed = [int]($mutantGroups.where{$_.name -eq 'Killed'} | select -ExpandProperty count)
+              $Survived = [int]($mutantGroups.where{$_.name -eq 'Survived'} | select -ExpandProperty count)
+              $TimedOut = [int]($mutantGroups.where{$_.name -eq 'TimedOut'} | select -ExpandProperty count)
+              $NoCoverage = [int]($mutantGroups.where{$_.name -eq 'NoCoverage'} | select -ExpandProperty count)
+              $RuntimeError = [int]($mutantGroups.where{$_.name -eq 'RuntimeError'} | select -ExpandProperty count)
+              $CompileError = [int]($mutantGroups.where{$_.name -eq 'CompileError'} | select -ExpandProperty count)
+              $detected = $TimedOut + $Killed
+              $undetected = $Survived + $NoCoverage
+              $total = $detected + $undetected
+
+              $inputs = @($Name,
+                      $(if($total -gt 0){"{0:n2}%" -f ($detected / $total * 100)}else{'100%'}),
+                      $killed,
+                      $Survived,
+                      $TimedOut,
+                      $NoCoverage,
+                      $RuntimeError,
+                      $CompileError,
+                      $detected,
+                      $undetected,
+                      [int]$mutants.Count)
+            "{0} | {1} | {2} | {3} | {4} | {5} | {6} | {7} | {8} | {9} | {10}" -f $inputs
+          }
+      }
+
+      $mddata = @()
+
+      $mddata += "File / Directory | Mutation Score | Killed | Survived | Timeout | No Coverage | Runtime Errors | Compile Errors | Total Detected | Total Undetected | Total Mutants"
+      $mddata += "--- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ---"
+
+      $mddata += ConvertTo-MarkdownTableRow -Name "All Files" -Mutants $reportdata.files.psobject.properties.value.mutants
+
+      $reportdata.files.psobject.properties | Foreach {
+          $mddata += ConvertTo-MarkdownTableRow -Name $_.name -Mutants $_.value.mutants
+      }
+
+      $mdreport = $mddata -join [system.environment]::newline
+      $mdreportfile = New-Item -Path $env:BUILD_ARTIFACTSTAGINGDIRECTORY -Name Stryker.md -ItemType File -Value $mdreport -Force
+      Write-Host "##vso[task.uploadsummary]$($mdreportfile.fullname)"
+
+      Get-ChildItem ${{ parameters.path }}/StrykerOutput/*/logs -Recurse -Depth 0 | Foreach {
+        Write-Host "##vso[task.uploadfile]$($_.fullname)"
+      }
+
+    displayName: Process Stryker Report

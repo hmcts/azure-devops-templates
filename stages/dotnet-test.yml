@@ -1,21 +1,54 @@
-extends:
-    template: ../parameters/common.yml
-
 parameters:
+  - name: baseAgent
+    type: string
+    default: Ubuntu-16.04
+
+  - name: dotnetContainer
+    type: string
+    default: dotnetsdk
+
+  - name: dotnetCIToolsContainer
+    type: string
+    default: dotnetsdk-cipipeline
+
+  - name: vstsFeedId
+    type: string
+    default: 3f69a23d-fbc7-4541-afc7-4cccefcad773/e48b2732-376c-4052-ba97-b28783c9bab5
+
+  - name: coreProjectPath
+    type: string
+    default: ''
+
+  - name: unitTestProjectPath
+    type: string
+    default: ''
+
+  - name: integTestProjectPath
+    type: string
+    default: ''
+
+  - name: dependantStages
+    type: object
+    default: []
 
   - name: packageManagers
-    type: string
+    type: object
     default:
       - nuget
 
-  - name: secret_KeyVault
+  - name: secrets_KeyVault
     type: string
 
-  - name: secret_Subscription
+  - name: secrets_Subscription
     type: string
-  
-  - name: secret_TestSecrets
+
+  - name: IntegrationTestSettings
     type: object
+    default: []
+
+  - name: variables
+    type: object
+    default: []
 
   - name: RunUnitTests
     type: boolean
@@ -26,15 +59,33 @@ parameters:
   - name: RunSonarCloud
     type: boolean
     default: true
+  - name: RunStryker
+    type: boolean
+    default: true
 
   - name: testParameters
     type: string
-    default: --configuration Release /p:CollectCoverage=true /p:CoverletOutputFormat="\"opencover,cobertura,json,lcov\"" /p:Exclude="\"$(coverletCoverageExclusions)\"" /p:CoverletOutput=$(Common.TestResultsDirectory)/Coverage/ /p:MergeWith=$(Common.TestResultsDirectory)/Coverage/coverage.json
-    readonly: true
+    default: --configuration Release /p:CollectCoverage=true /p:CoverletOutputFormat="\"opencover,cobertura,json,lcov\"" /p:Exclude="\"{0}\"" /p:CoverletOutput=$(Common.TestResultsDirectory)/Coverage/ /p:MergeWith=$(Common.TestResultsDirectory)/Coverage/coverage.json
+
+  - name: coverletCoverageExclusions
+    type: object
+    default: []
 
   - name: sonarCloud_ExtraProperties
     type: string
     default: ''
+
+  - name: strykerBreak
+    type: number
+    default: -1
+
+  - name: strykerHigh
+    type: number
+    default: -1
+
+  - name: strykerLow
+    type: number
+    default: -1
 
 stages:
   - stage: Test
@@ -42,149 +93,314 @@ stages:
     - ${{ if parameters.dependantStages }}:
       - ${{ parameters.dependantStages }}
 
+    variables:
+    - template: ../templates/variables/packageManagers.yml
+    - ${{ each variable in parameters.variables }}:
+      - ${{ each property in variable }}:
+        - ${{ if eq('group', property.key) }}:
+          - group: ${{ variable.group }}
+        - ${{ if eq('name', property.key) }}:
+          - name: ${{ variable.name }}
+            value: ${{ variable.value }}
+
     jobs:
     - ${{ if eq(parameters.RunIntegrationTests, true) }}:
-      - job: Secret_Gathering
+      - template: ../jobs/secretGathering.yml
+        parameters:
+          baseAgent: ${{ parameters.baseAgent }}
+          keyVault: ${{ parameters.secrets_KeyVault }}
+          subscription: ${{ parameters.secrets_Subscription }}
+          secrets:
+          - ${{ each setting in parameters.IntegrationTestSettings }}:
+            - appsetting: ${{ setting.name }}
+              ${{ if ne(setting.secret, true) }}:
+                value: ${{ setting.value }}
+              ${{ if eq(setting.secret, true) }}:
+                secretref: ${{ setting.value }}
+                value: $(${{ setting.value }})
+
+    - ${{ if or(parameters.RunIntegrationTests, parameters.RunUnitTests) }}:
+      - job: Build_and_Test
+
+        ${{ if eq(parameters.RunIntegrationTests, true) }}:
+          variables:
+            integrationSettings: ''
+            ${{ each setting in parameters.IntegrationTestSettings }}:
+              "secrets_${{ setting.name }}": $[ dependencies.Secret_Gathering.outputs['SetSecretVariables._${{ setting.name }}'] ]
 
         pool:
-            vmImage: ${{ parameters.baseAgent }}
+          vmImage: ${{ parameters.baseAgent }}
+
+        container: ${{ parameters.dotnetCIToolsContainer }}
+
+        ${{ if eq(parameters.RunIntegrationTests, true) }}:
+          dependsOn:
+          - Secret_Gathering
 
         steps:
-        - checkout: none
+        - checkout: self
 
-        - task: AzureCLI@2
-          displayName: Add KeyVault FW Exception
+        - task: gittools.gitversion.gitversion-task.GitVersion@5
+          displayName: GitVersion
           inputs:
-            azureSubscription: ${{ paremeters.secret_Subscription }}
-            scriptType: pscore
-            scriptLocation: inlineScript
-            inlineScript: |
-              $ip = (Invoke-WebRequest -uri "http://ifconfig.me/ip").Content
-              az keyvault network-rule add --name $env:keyVaultName --ip-address "$IP/32"
-          env:
-            keyVaultName: ${{ paremeters.secret_KeyVault }}
+            additionalArguments: /updateassemblyinfo ${{ parameters.coreProjectPath }}/AssemblyInfo.cs /ensureassemblyinfo
 
-        - task: AzureKeyVault@1
-          displayName: Gather Test Secrets
+        - task: Cache@2
+          displayName: Cache NuGet packages
           inputs:
-            azureSubscription: ${{ paremeters.secret_Subscription }}
-            KeyVaultName: ${{ paremeters.secret_KeyVault }}
-            SecretsFilter: ${{ join(parameters.secret_TestSecrets.values, ',') }}
+            ${{ if and(eq(parameters.RunIntegrationTests, false), eq(parameters.RunUnitTests, true))}}:
+              key: 'nuget | ${{ parameters.unitTestProjectPath }}/packages.lock.json'
+            ${{ if and(eq(parameters.RunIntegrationTests, true), eq(parameters.RunUnitTests, false))}}:
+              key: 'nuget | ${{ parameters.integTestProjectPath }}/packages.lock.json'
+            ${{ if and(eq(parameters.RunIntegrationTests, true), eq(parameters.RunUnitTests, true))}}:
+              key: 'nuget | ${{ parameters.integTestProjectPath }}/packages.lock.json | ${{ parameters.unitTestProjectPath }}/packages.lock.json'
+              restoreKeys: |
+                nuget | ${{ parameters.unitTestProjectPath }}/packages.lock.json
+                nuget | ${{ parameters.integTestProjectPath }}/packages.lock.json
+            path: ${{ variables.NUGET_PACKAGES }}
+            cacheHitVar: NUGET_CACHE_RESTORED
 
-        - task: AzureCLI@2
-          displayName: Remove KeyVault FW Exception
+        - ${{ if eq(parameters.RunUnitTests, true) }}:
+          - task: DotNetCoreCLI@2
+            displayName: dotnet Restore Unit Test Project
+            inputs:
+              command: restore
+              projects: ${{ parameters.unitTestProjectPath }}/*.csproj
+              vstsFeed: ${{ parameters.vstsFeedId }}
+              includeNuGetOrg: false
+              restoreArguments: --locked-mode --use-lock-file
+            condition: ne(variables.NUGET_CACHE_RESTORED, 'true')
+
+        - ${{ if eq(parameters.RunIntegrationTests, true) }}:
+          - task: DotNetCoreCLI@2
+            displayName: dotnet Restore Integration Test Project
+            inputs:
+              command: restore
+              projects: ${{ parameters.integTestProjectPath }}/*.csproj
+              vstsFeed: ${{ parameters.vstsFeedId }}
+              includeNuGetOrg: false
+              restoreArguments: --locked-mode --use-lock-file
+            condition: ne(variables.NUGET_CACHE_RESTORED, 'true')
+
+        - ${{ if eq(parameters.RunSonarCloud, true) }}:
+          - template: ../templates/sonarCloud/prepare.yml
+            parameters:
+              extraProperties: ${{ parameters.sonarCloud_ExtraProperties }}
+
+        - ${{ if eq(parameters.RunUnitTests, true) }}:
+          - task: DotNetCoreCLI@2
+            displayName: Run unit tests
+            inputs:
+              testRunTitle: Unit Tests
+              command: test
+              projects: |
+                ${{ parameters.unitTestProjectPath }}/*.csproj
+              arguments: ${{ format(parameters.testParameters, join(',', parameters.coverletCoverageExclusions)) }}
+
+        - ${{ if eq(parameters.RunIntegrationTests, true) }}:
+          - pwsh: |
+              Function ConvertTo-FlatObject {
+                  [cmdletbinding()]
+                  param(
+
+                      [parameter( Mandatory = $True,
+                          ValueFromPipeline = $True)]
+                      [PSObject[]]$InputObject
+                  )
+                  Begin {
+                      Function Get-Exclude {
+                          [cmdletbinding()]
+                          param($obj)
+
+
+                          Try {
+                              $DefaultTypeProps = @( $obj.gettype().GetProperties() | Select -ExpandProperty Name -ErrorAction Stop )
+                          } Catch {
+                              $DefaultTypeProps = @()
+                          }
+
+                          @( $DefaultTypeProps ) | Select -Unique
+                      }
+
+                      Function Recurse-Object {
+                          [cmdletbinding()]
+                          param(
+                              $Object,
+                              [string[]]$path = @(),
+                              [psobject]$Output
+                          )
+
+                          $ExcludeProps = @( Get-Exclude $object )
+
+                          $Children = $object.psobject.properties | Where { $ExcludeProps -notcontains $_.Name }
+
+                          foreach ($Child in @($Children)) {
+                              $ChildName = $Child.Name
+                              $ChildValue = $Child.Value
+
+                              if ($ChildName -match '[^a-zA-Z0-9_]') {
+                                  $FriendlyChildName = "'$ChildName'"
+                              } else {
+                                  $FriendlyChildName = $ChildName
+                              }
+
+                              $ThisPath = @( $Path + $FriendlyChildName ) -join ":"
+                              if ($ChildValue.GetType().Name -ne "PSCustomObject") {
+                                  $Output | Add-Member -MemberType NoteProperty -Name $ThisPath -Value $ChildValue
+                              }
+
+                              if ($ChildValue -eq $null) {
+                                  continue
+                              }
+
+                              if (
+                                  (
+                                      $ChildValue.GetType() -eq $Object.GetType() -and
+                                      $ChildValue -is [datetime]
+                                  ) -or
+                                  (
+                                      $ChildName -eq "SyncRoot" -and
+                                      -not $ChildValue
+                                  )
+                              ) {
+                                  continue
+                              }
+
+                              if (($ChildValue.GetType()).basetype.Name -eq "Array") {
+                                  $IsArray = $true
+                              } else {
+                                  $IsArray = @($ChildValue).count -gt 1
+                              }
+
+                              $count = 0
+
+                              $CurrentPath = @( $Path + $FriendlyChildName ) -join ":"
+
+                              $ExcludeProps = @( Get-Exclude $ChildValue )
+
+                              $ChildrensChildren = $ChildValue.psobject.properties | Where { $ExcludeProps -notcontains $_.Name }
+                              $HashKeys = if ($ChildValue.Keys -notlike $null -and $ChildValue.Values) {
+                                  $ChildValue.Keys
+                              } else {
+                                  $null
+                              }
+
+                              if (
+                                  (@($ChildrensChildren).count -ne 0 -or $HashKeys)
+                              ) {
+                                  if ($HashKeys) {
+                                      foreach ($key in $HashKeys) {
+                                          if ($ChildValue["$key"].GetType().Name -ne "PSCustomObject") {
+                                              $Output | Add-Member -MemberType NoteProperty -name "$CurrentPath['$key']" -value $ChildValue["$key"]
+                                          }
+                                          $Output = Recurse-Object -Object $ChildValue["$key"] -Path "$CurrentPath['$key']" -Output $Output
+                                      }
+                                  } else {
+                                      if ($IsArray) {
+                                          foreach ($item in @($ChildValue)) {
+                                              $Output = Recurse-Object -Object $item -Path "$CurrentPath[$count]" -Output $Output
+                                              $Count++
+                                          }
+                                      } else {
+                                          $Output = Recurse-Object -Object $ChildValue -Path $CurrentPath -Output $Output
+                                      }
+                                  }
+                              }
+                          }
+
+                          $Output
+                      }
+                  }
+                  Process {
+                      Foreach ($Object in $InputObject) {
+                          Recurse-Object -Object $Object -Output $( New-Object -TypeName PSObject )
+                      }
+                  }
+              }
+
+              $appsettings = Get-Content ${{parameters.integTestProjectPath}}/appsettings.json -raw | ConvertFrom-Json | ConvertTo-FlatObject
+
+              Get-ChildItem ENV: | Where-Object -FilterScript { $_.Name -cmatch "^secrets_(.+)" } | Foreach-Object -Process {
+                  $appsettings."$($matches[1])" = $_.value
+              }
+
+              $appSettings = $appSettings | ConvertTo-Json -Depth 99
+              Set-Content -Path ${{parameters.integTestProjectPath}}/appsettings.json -Value $appSettings -Force | Out-Null
+            displayName: Transform Test Config
+            env:
+              ${{ each setting in parameters.IntegrationTestSettings }}:
+                "secrets_${{ setting.name }}": $(secrets_${{ setting.name }})
+
+          - task: DotNetCoreCLI@2
+            displayName: Run Integration tests
+            inputs:
+              testRunTitle: Integration Tests
+              command: test
+              projects: |
+                ${{ parameters.integTestProjectPath }}/*.csproj
+              arguments: ${{ format(parameters.testParameters, join(',', parameters.coverletCoverageExclusions)) }}
+            env:
+              ASPNETCORE_ENVIRONMENT: Production
+
+        - ${{ if eq(parameters.RunSonarCloud, true) }}:
+          - template: ../templates/sonarCloud/runAnalysis.yml
+
+        - task: PublishCodeCoverageResults@1
+          displayName: Publish code coverage
           inputs:
-            azureSubscription: ${{ paremeters.secret_Subscription }}
-            scriptType: pscore
-            scriptLocation: inlineScript
-            inlineScript: |
-              $ip = (Invoke-WebRequest -uri "http://ifconfig.me/ip").Content
-              az keyvault network-rule remove --name $env:keyVaultName --ip-address "$IP/32"
-          env:
-            keyVaultName: ${{ paremeters.secret_KeyVault }}
+            codeCoverageTool: Cobertura
+            summaryFileLocation: $(Common.TestResultsDirectory)/Coverage/coverage.cobertura.xml
+            reportDirectory: $(Common.TestResultsDirectory)/Coverage
+            failIfCoverageEmpty: true
+          condition: always()
+
+    - ${{ if eq(parameters.RunStryker, true) }}:
+      - job: Stryker_Mutation
+
+        pool:
+          vmImage: ${{ parameters.baseAgent }}
+
+        container: ${{ parameters.dotnetContainer }}
+
+        steps:
+        - checkout: self
+
+        - task: Cache@2
+          displayName: Cache NuGet packages
+          inputs:
+            key: 'nuget | ${{ parameters.unitTestProjectPath }}/packages.lock.json'
+            restoreKeys: 'nuget | ${{ parameters.integTestProjectPath }}/packages.lock.json | ${{ parameters.unitTestProjectPath }}/packages.lock.json'
+            path: ${{ variables.NUGET_PACKAGES }}
+            cacheHitVar: NUGET_CACHE_RESTORED
+
+        - ${{ if eq(parameters.RunUnitTests, true) }}:
+          - task: DotNetCoreCLI@2
+            displayName: dotnet Restore Unit Test Project
+            inputs:
+              command: restore
+              projects: ${{ parameters.unitTestProjectPath }}/*.csproj
+              vstsFeed: ${{ parameters.vstsFeedId }}
+              includeNuGetOrg: false
+              restoreArguments: --locked-mode --use-lock-file
+            condition: ne(variables.NUGET_CACHE_RESTORED, 'true')
 
         - pwsh: |
-            $script = @()
-
-            Get-ChildItem ENV: | Where-Object -FilterScript { $_.Name -like "appsetting_*" } | Foreach-Object -Process {
-              $script += "Write-Host '##vso[task.setvariable variable=$($_.Name -replace '^appsetting_')]$($_.Value)'"
-            }
-
-            New-Item -ItemType File -Path $(Pipeline.Workspace) -Name appsettings_variables.ps1 -Force -Value ($script -join [System.Environment]::NewLine)
-          displayName: Config Transform
+            $file = get-item $env:projectPath\*.csproj
+            [xml]$project = get-content $file.FullName
+            $project.project.propertygroup[1].GenerateAssemblyFileVersionAttribute = $true
+            $project.project.propertygroup[1].GenerateAssemblyVersionAttribute = $true
+            $project.project.propertygroup[1].GenerateAssemblyInformationalVersionAttribute = $true
+            $project.OuterXml | set-content $file.FullName
+          displayName: Force enable assembly info generation from project
           env:
-            ${{ each secret in parameters.secret_TestSecrets }}:
-              appsetting_${{ secret.key }}: ${{ secret.value }}
+            projectPath: ${{  parameters.coreProjectPath  }}
 
-        - task: PublishPipelineArtifact@1
-          displayName: Publish appsettingsvariable Script
-          inputs:
-            targetPath: $(Pipeline.Workspace)/appsettings_variables.ps1
-            artifact: appsettingsvariable
-
-    - job: Build_and_Test
-
-      pool:
-        vmImage: ${{ parameters.baseAgent }}
-
-      container: ${{ parameters.dotnetContainer }}
-
-      ${{ if eq(parameters.RunIntegrationTests, true) }}:
-        dependsOn:
-        - Secret_Gathering
-      ${{ if and(eq(parameters.dependantStages, true), eq(parameters.RunIntegrationTests, true)) }}:
-        dependsOn:
-        - ${{ parameters.dependantStages }}
-
-      steps:
-      - checkout: self
-
-      - task: gittools.gitversion.gitversion-task.GitVersion@5
-        displayName: GitVersion
-
-      - template: ../templates/pipelineCaching.yml
-        parameters:
-          projectPath: ${{ parameters.coreProjectPath }}
-          packageManagers: ${{ parameters.packageManagers }}
-
-      - task: DotNetCoreCLI@2
-        displayName: dotnet Restore
-        inputs:
-          command: restore
-          projects: '**/*[Tt]ests.csproj'
-          vstsFeed: ${{ parameters.vstsFeedId }}
-          includeNuGetOrg: false
-
-      - ${{ if eq(parameters.RunSonarCloud, true) }}:
-        - template: ../templates/sonarCloud/prepare.yml
+        - template: ../templates/tests/stryker.yml
           parameters:
-            extraProperties: ${{ parameters.sonarCloud_ExtraProperties }}
-
-      - task: DotNetCoreCLI@2
-        displayName: Run unit tests
-        inputs:
-          command: test
-          projects: |
-            **/*[Uu]nit[Tt]ests.csproj
-          arguments: ${{ parameters.testParameters }}
-
-      ${{ if eq(parameters.RunIntegrationTests, true) }}:
-        - task: DownloadPipelineArtifact@2
-          displayName: Download Code
-          inputs:
-            artifactName: appsettingsvariable
-
-        - task: PowerShell@2
-          displayName: Load Secrets
-          inputs:
-            targetType: filePath
-            filePath: $(Pipeline.Workspace)/appsettings_variables.ps1
-
-        - task: FileTransform@1
-          displayName: Integration Tests Config Transform
-          inputs:
-            folderPath: $(Build.SourcesDirectory)/$(projectName)/$(projectName).IntegrationTests
-            enableXmlTransform: false
-            fileType: json
-            targetFiles: |
-              appsettings.json
-
-        - task: DotNetCoreCLI@2
-          displayName: Run Integration tests
-          inputs:
-            command: test
-            projects: |
-              **/*.[Ii]ntegration[Tt]ests.csproj
-            arguments: ${{ parameters.testParameters }}
-
-      - ${{ if eq(parameters.RunSonarCloud, true) }}:
-        - template: ../templates/sonarCloud/runAnalysis.yml
-
-      - task: PublishCodeCoverageResults@1
-        displayName: Publish code coverage
-        inputs:
-          codeCoverageTool: Cobertura
-          summaryFileLocation: $(Common.TestResultsDirectory)/Coverage/coverage.cobertura.xml
-          reportDirectory: $(Common.TestResultsDirectory)/Coverage
-          failIfCoverageEmpty: true
-        condition: always()
+            path: ${{ parameters.unitTestProjectPath }}
+            ${{ if ge(parameters.strykerBreak, 0)}}:
+              breakThreshold: ${{ parameters.strykerBreak }}
+            ${{ if ge(parameters.strykerHigh, 0)}}:
+              highThreshold: ${{ parameters.strykerHigh }}
+            ${{ if ge(parameters.strykerLow, 0)}}:
+              lowThreshold: ${{ parameters.strykerLow }}

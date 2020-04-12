@@ -1,16 +1,20 @@
 parameters:
-  - name: projectPath
+  - name: nugetProjectPath
     type: string
-  
+    default: '.'
+
   - name: nodeProjectPath
     type: string
-    default: ${{ parameters.projectPath }}/ClientApp
+    default: '.'
+
+  - name: yarnProjectPath
+    type: string
+    default: '.'
 
   - name: packageManagers
-    type: string
-    default: [
-      'nuget'
-      ]
+    type: object
+    default:
+      - nuget
     values:
     - nuget
     - npm
@@ -27,32 +31,32 @@ parameters:
     default: $(Pipeline.Workspace)/.yarn
 
 steps:
-- ${{ contains(parameters.packageManagers, 'nuget') }}:
+- ${{ if containsValue(parameters.packageManagers, 'nuget') }}:
   - task: Cache@2
     displayName: Cache NuGet packages
     inputs:
-    key: nuget | "$(Agent.OS)" | ${{ parameters.projectPath }}/packages.lock.json
-    restoreKeys: |
-      nuget | "$(Agent.OS)"
-      nuget
-    path: $(NUGET_PACKAGES)
+      key: 'nuget | "$(Agent.OS)" | ${{ parameters.nugetProjectPath }}/packages.lock.json'
+      restoreKeys: |
+        nuget | "$(Agent.OS)"
+      path: ${{ parameters.NUGET_PACKAGES }}
+      cacheHitVar: NUGET_CACHE_RESTORED
 
-- ${{ contains(parameters.packageManagers, 'npm') }}:
+- ${{ if containsValue(parameters.packageManagers, 'npm') }}:
   - task: Cache@2
     displayName: Cache npm
     inputs:
       key: 'npm | "$(Agent.OS)" | ${{ parameters.nodeProjectPath }}/package-lock.json'
       restoreKeys: |
         npm | "$(Agent.OS)"
-        npm
-      path: $(npm_config_cache)
+      path: ${{ parameters.npm_config_cache }}
+      cacheHitVar: NPM_CACHE_RESTORED
 
-- ${{ contains(parameters.packageManagers, 'yarn') }}:
+- ${{ if containsValue(parameters.packageManagers, 'yarn') }}:
   - task: Cache@2
     displayName: Cache Yarn packages
     inputs:
-      key: 'yarn | "$(Agent.OS)" | ${{ parameters.projectPath }}/yarn.lock'
+      key: 'yarn | "$(Agent.OS)" | "${{ parameters.yarnProjectPath }}/yarn.lock'
       restoreKeys: |
         yarn | "$(Agent.OS)"
-        yarn
-      path: $(YARN_CACHE_FOLDER)
+      path: ${{ parameters.YARN_CACHE_FOLDER }}
+      cacheHitVar: YARN_CACHE_RESTORED

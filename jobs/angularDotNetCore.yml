@@ -14,12 +14,15 @@ parameters:
   infraKeyVaultName: ''
   infraSecretsFilter: ''
   nodeVersion: '8.11.4'
-  dotNetCoreVersion: '3.1.102'
+  dotNetCoreVersion: '3.1.x'
 
 jobs:
 - job:
   displayName: 'Build & Test Java Script and .Net Core'
   pool: ${{ parameters.pool }}
+
+  variables:
+    MSBUILDSINGLELOADCONTEXT=1
 
   # Reference templae for setting up build tools
   steps:
