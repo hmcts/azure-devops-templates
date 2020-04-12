@@ -1,10 +1,27 @@
-extends:
-    template: ../parameters/common.yml
-
 parameters:
-  - name: packageManagers
+  - name: baseAgent
     type: string
-    default: [nuget]
+    default: Ubuntu-16.04
+
+  - name: dotnetContainer
+    type: string
+    default: dotnetsdk
+
+  - name: vstsFeedId
+    type: string
+    default: 3f69a23d-fbc7-4541-afc7-4cccefcad773/e48b2732-376c-4052-ba97-b28783c9bab5
+
+  - name: coreProjectPath
+    type: string
+
+  - name: dependantStages
+    type: object
+    default: []
+
+  - name: packageManagers
+    type: object
+    default:
+     - nuget
 
   - name: PackageApp
     type: boolean
@@ -15,14 +32,32 @@ parameters:
 
   - name: Test
     type: boolean
-    default: true
+    default: false
+
+  - name: ACTest
+    type: boolean
+    default: false
+
+  - name: testParameters
+    type: object
+    default: {}
+
+  - name: releaseParameters
+    type: object
+    default: {}
 
 stages:
-  - stage: PackageApp
-    dependsOn: ${{ parameters.dependantStages }}
+- ${{ if or(parameters.PackageApp, parameters.PackageAcceptanceTests, parameters.ACTest) }}:
+  - stage: Package
+    dependsOn:
+    - ${{ if parameters.dependantStages }}:
+      - ${{ parameters.dependantStages }}
+
+    variables:
+      - template: ../templates/variables/packageManagers.yml
 
     jobs:
-    - ${{ if eq(parameters.PackageApp, true) }}:
+    - ${{ if or(parameters.PackageApp, parameters.ACTest) }}:
       - job: Publish_App
 
         pool:
@@ -30,13 +65,22 @@ stages:
 
         container: ${{ parameters.dotnetContainer }}
 
+        dependsOn: []
+
         steps:
         - checkout: self
 
+        - task: gittools.gitversion.gitversion-task.GitVersion@5
+          displayName: GitVersion
+          inputs:
+            additionalArguments: /updateassemblyinfo ${{ parameters.coreProjectPath }}/AssemblyInfo.cs /ensureassemblyinfo
+
         - template: ../templates/pipelineCaching.yml
           parameters:
-            projectPath: ${{ parameters.coreProjectPath }}
-            packageManagers: ${{ parameters.packageManagers }}
+            nugetProjectPath: ${{ parameters.coreProjectPath }}
+            packageManagers:
+            - ${{ if parameters.packageManagers }}:
+              - ${{ parameters.packageManagers }}
 
         - task: DotNetCoreCLI@2
           displayName: dotnet Restore
@@ -45,6 +89,8 @@ stages:
             projects: ${{ parameters.coreProjectPath }}/*.csproj
             vstsFeed: ${{ parameters.vstsFeedId }}
             includeNuGetOrg: false
+            restoreArguments: --locked-mode --use-lock-file
+          condition: ne(variables.NUGET_CACHE_RESTORED, 'true')
 
         - task: DotNetCoreCLI@2
           displayName: donet Publish
@@ -61,7 +107,7 @@ stages:
             PathtoPublish: $(Build.ArtifactStagingDirectory)/App
             ArtifactName: App
 
-    - ${{ if eq(parameters.PackageAcceptanceTests, true) }}:
+    - ${{ if or(parameters.PackageAcceptanceTests, parameters.ACTest) }}:
       - job: Publish_AcceptanceTests
 
         pool:
@@ -69,13 +115,22 @@ stages:
 
         container: ${{ parameters.dotnetContainer }}
 
+        dependsOn: []
+
         steps:
         - checkout: self
 
+        - task: gittools.gitversion.gitversion-task.GitVersion@5
+          displayName: GitVersion
+          inputs:
+            additionalArguments: /updateassemblyinfo ${{ parameters.coreProjectPath }}.AcceptanceTests/AssemblyInfo.cs /ensureassemblyinfo
+
         - template: ../templates/pipelineCaching.yml
           parameters:
-            projectPath: ${{ parameters.coreProjectPath }}
-            packageManagers: ${{ parameters.packageManagers }}
+            nugetProjectPath: ${{ parameters.coreProjectPath }}.AcceptanceTests
+            packageManagers:
+            - ${{ if parameters.packageManagers }}:
+              - ${{ parameters.packageManagers }}
 
         - task: DotNetCoreCLI@2
           displayName: dotnet Restore
@@ -84,6 +139,8 @@ stages:
             projects: '**/*AcceptanceTests.csproj'
             vstsFeed: ${{ parameters.vstsFeedId }}
             includeNuGetOrg: false
+            restoreArguments: --locked-mode --use-lock-file
+          condition: ne(variables.NUGET_CACHE_RESTORED, 'true')
 
         - task: DotNetCoreCLI@2
           displayName: donet Publish
@@ -91,7 +148,7 @@ stages:
             command: publish
             publishWebProjects: false
             arguments: --configuration Release --output $(build.artifactstagingdirectory)/AcceptanceTests
-            zipAfterPublish: True
+            zipAfterPublish: false
             workingDirectory: ${{ parameters.coreProjectPath }}.AcceptanceTests
 
         - task: PublishBuildArtifacts@1
@@ -99,3 +156,19 @@ stages:
           inputs:
             PathtoPublish: $(Build.ArtifactStagingDirectory)/AcceptanceTests
             ArtifactName: AcceptanceTests
+
+- ${{ if eq(parameters.Test, true) }}:
+  - template: ./dotnet-test.yml
+    parameters:
+      ${{ insert }}: ${{ parameters.testParameters }}
+
+- ${{ if eq(parameters.ACTest, true)}}:
+  - template: ./dotnet-release.yml
+    parameters:
+      dependantStages: Package
+      useCurrentPipeline: true
+      stageName: AcceptanceTest
+      runZapTests: ${{ coalesce(parameters.releaseParameters.runZapTests, true) }}
+      ${{ each setting in parameters.releaseParameters }}:
+        ${{ if ne(setting.key, 'runZapTests') }}:
+          ${{ setting.key }}: ${{ setting.value }}
