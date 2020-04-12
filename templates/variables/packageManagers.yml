@@ -1,0 +1,7 @@
+variables:
+- name: NUGET_PACKAGES
+  value: $(Pipeline.Workspace)/.nuget/packages
+- name: npm_config_cache
+  value: $(Pipeline.Workspace)/.npm
+- name: YARN_CACHE_FOLDER
+  value: $(Pipeline.Workspace)/.yarn
