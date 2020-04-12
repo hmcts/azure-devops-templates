@@ -1,0 +1,154 @@
+parameters:
+  - name: baseAgent
+    type: string
+    default: Ubuntu-16.04
+
+  - name: stageName
+    type: string
+
+  - name: environment
+    type: string
+    default: Preview
+
+  - name: subscription
+    type: string
+
+  - name: secrets_KeyVault
+    type: string
+
+  - name: secrets_Subscription
+    type: string
+
+  - name: appName
+    type: string
+
+  - name: devOpsResource
+    type: string
+
+  - name: resourceGroup
+    type: string
+
+  - name: dependantStages
+    type: object
+    default: []
+
+  - name: acceptanceTestSettings
+    type: object
+
+  - name: appSettings
+    type: object
+
+  - name: useCurrentPipeline
+    type: boolean
+    default: false
+
+  - name: CIPipelineResourceID
+    type: string
+    default: CI
+
+  - name: deployBranch
+    type: string
+    default: refs/heads/master
+
+  - name: variables
+    type: object
+    default: []
+
+  - name: runZapTests
+    type: boolean
+    default: false
+
+  - name: zapThresholdHigh
+    type: number
+    default: 99999
+
+  - name: zapThresholdMedium
+    type: number
+    default: 99999
+
+  - name: zapThresholdLow
+    type: number
+    default: 99999
+
+stages:
+  - stage: ${{ parameters.stageName }}
+    dependsOn:
+    - ${{ if parameters.dependantStages }}:
+      - ${{ parameters.dependantStages }}
+
+    jobs:
+    - template: ../jobs/secretGathering.yml
+      parameters:
+        baseAgent: ${{ parameters.baseAgent }}
+        keyVault: ${{ parameters.secrets_KeyVault }}
+        subscription: ${{ parameters.secrets_Subscription }}
+        variables: ${{ parameters.variables }}
+        secrets:
+        - ${{ each setting in parameters.appSettings }}:
+          - ${{ if eq(format(',{0}', setting.slot.deployment.value), ',') }}:
+            - appsetting: ${{ setting.name }}
+              ${{ if ne(setting.secret, true) }}:
+                value: ${{ setting.value }}
+              ${{ if eq(setting.secret, true) }}:
+                secretref: ${{ setting.value }}
+                value: $(${{ setting.value }})
+          - ${{ if ne(format(',{0}', setting.slot.deployment.value), ',') }}:
+            - appsetting: ${{ setting.name }}
+              slot: 'deployment'
+              ${{ if ne(setting.slot.deployment.secret, true) }}:
+                value: ${{ setting.slot.deployment.value}}
+              ${{ if eq(setting.slot.deployment.secret, true) }}:
+                secretref: ${{ setting.slot.deployment.value}}
+                value: $(${{ setting.slot.deployment.value}})
+            - appsetting: ${{ setting.name }}
+              slot: 'active'
+              ${{ if ne(setting.slot.active.secret, true) }}:
+                value: ${{ setting.slot.active.value}}
+              ${{ if eq(setting.slot.active.secret, true) }}:
+                secretref: ${{ setting.slot.active.value}}
+                value: $(${{ setting.slot.active.value}})
+
+        - ${{ each setting in parameters.acceptanceTestSettings }}:
+          - ${{ if eq(contains(format(',{0}', join(',', parameters.appSettings.*.name)), format(',{0}', setting.name)), false) }}:
+            - appsetting: ${{ setting.name }}
+              ${{ if ne(setting.secret, true) }}:
+                value: ${{ setting.value }}
+              ${{ if eq(setting.secret, true) }}:
+                secretref: ${{ setting.value }}
+                value: $(${{ setting.value }})
+
+    - template: ../jobs/azWebAppDeployJob.yml
+      parameters:
+        baseAgent: ${{ parameters.baseAgent }}
+        environment: ${{ parameters.environment }}
+        devOpsResource: ${{ parameters.devOpsResource }}
+        appName: ${{ parameters.appName }}
+        resourceGroup: ${{ parameters.resourceGroup }}
+        subscription: ${{ parameters.subscription }}
+        dependantJobs: Secret_Gathering
+        appSettings:
+          - ${{ each setting in parameters.appSettings }}:
+            - name: ${{ setting.name }}
+              ${{ if ne(format(',{0}', setting.slot.deployment.value), ',') }}:
+                slot: true
+              ${{ if eq(format(',{0}', setting.slot.deployment.value), ',') }}:
+                slot: false
+        acSettings:
+          - ${{ each setting in parameters.acceptanceTestSettings }}:
+            - name: ${{ setting.name }}
+              slot: ${{ eq(setting.slot, true) }}
+        variables: ${{ parameters.variables }}
+
+        useCurrentPipeline: ${{ parameters.useCurrentPipeline }}
+        ${{ if not(parameters.useCurrentPipeline) }}:
+          releaseName: $(resources.pipeline.${{ parameters.CIPipelineResourceID }}.runName)
+          CIPipelineID: $(resources.pipeline.${{ parameters.CIPipelineResourceID }}.pipelineID)
+          deployBranch: ${{ parameters.deployBranch }}
+
+        runZapTests: ${{ parameters.runZapTests }}
+        ${{ if ne(parameters.zapThresholdHigh, '99999') }}:
+          zapThresholdHigh: ${{ parameters.zapThresholdHigh }}
+        ${{ if ne(parameters.zapThresholdMedium, '99999') }}:
+          zapThresholdMedium: ${{ parameters.zapThresholdMedium }}
+        ${{ if ne(parameters.zapThresholdLow, '99999') }}:
+          zapThresholdLow: ${{ parameters.zapThresholdLow }}

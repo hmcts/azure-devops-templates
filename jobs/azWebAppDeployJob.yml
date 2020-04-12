@@ -1,0 +1,382 @@
+parameters:
+  - name: baseAgent
+    type: string
+    default: Ubuntu-16.04
+
+  - name: dotnetContainer
+    type: string
+    default: dotnetsdk
+
+  - name: dependantJobs
+    type: object
+    default: []
+
+  - name: environment
+    type: string
+
+  - name: devOpsResource
+    type: string
+
+  - name: releaseName
+    type: string
+    default: ''
+
+  - name: useCurrentPipeline
+    type: boolean
+    default: false
+
+  - name: projectId
+    type: string
+    default: 3f69a23d-fbc7-4541-afc7-4cccefcad773
+
+  - name: CIPipelineID
+    type: string
+    default: ''
+
+  - name: deployBranch
+    type: string
+    default: refs/heads/master
+
+  - name: appName
+    type: string
+
+  - name: resourceGroup
+    type: string
+
+  - name: slot
+    type: string
+    default: staging
+
+  - name: subscription
+    type: string
+
+  - name: appSettings
+    type: object
+    default: []
+
+  - name: acSettings
+    type: object
+    default: []
+
+  - name: variables
+    type: object
+    default: []
+
+  - name: runZapTests
+    type: boolean
+    default: false
+
+  - name: zapThresholdHigh
+    type: number
+    default: 99999
+
+  - name: zapThresholdMedium
+    type: number
+    default: 99999
+
+  - name: zapThresholdLow
+    type: number
+    default: 99999
+
+jobs:
+- deployment: ${{ parameters.devOpsResource }}
+  pool:
+      vmImage: ${{ parameters.baseAgent }}
+
+  dependsOn:
+  - ${{ if parameters.dependantJobs }}:
+    - ${{ parameters.dependantJobs }}
+
+  environment: ${{ parameters.environment }}
+
+  services:
+    ${{ if parameters.runZapTests }}:
+      zapapi:
+        image: sspublicsbox.azurecr.io/secops/zaproxy:latest
+        endpoint: sspublicsbox
+        ports:
+          - 8080:8080
+
+  variables:
+    - ${{ each variable in parameters.variables }}:
+      - ${{ each property in variable }}:
+        - ${{ if eq('group', property.key) }}:
+          - group: ${{ variable.group }}
+        - ${{ if eq('name', property.key) }}:
+          - name: ${{ variable.name }}
+            value: ${{ variable.value }}
+    - name: deploymentSettings
+      value: ''
+    - name: activeSettings
+      value: ''
+    - ${{ each setting in parameters.appSettings }}:
+        - ${{ if eq(setting.slot, true)}}:
+          - name: "secrets_azDeploymentSlotSetting_${{ setting.name }}"
+            value: $[ dependencies.Secret_Gathering.outputs['SetSecretVariables.deployment_${{ setting.name }}'] ]
+          - name: "secrets_azActiveSlotSetting_${{ setting.name }}"
+            value: $[ dependencies.Secret_Gathering.outputs['SetSecretVariables.active_${{ setting.name }}'] ]
+        - ${{ if ne(setting.slot, true)}}:
+          - name: "secrets_${{ setting.name }}"
+            value: $[ dependencies.Secret_Gathering.outputs['SetSecretVariables._${{ setting.name }}'] ]
+    - ${{ each setting in parameters.acSettings }}:
+        - ${{ if eq(setting.slot, true)}}:
+          - name: "acDevSettings_azDeploymentSlotSetting_${{ setting.name }}"
+            value: $[ dependencies.Secret_Gathering.outputs['SetSecretVariables.deployment_${{ setting.name }}'] ]
+        - ${{ if ne(setting.slot, true)}}:
+          - name: "acDevSettings_${{ setting.name }}"
+            value: $[ dependencies.Secret_Gathering.outputs['SetSecretVariables._${{ setting.name }}'] ]
+
+  strategy:
+    runOnce:
+      deploy:
+        steps:
+        - checkout: none
+
+        - download: none
+
+        - ${{ if eq(parameters.useCurrentPipeline, false) }}:
+          - pwsh: |
+              Write-Host "##vso[build.updatebuildnumber]${{ parameters.releaseName }}"
+            displayName: Set Release Name
+
+        - pwsh: |
+            $environment = '${{ parameters.environment }}'.tolower()
+            Write-Host "##vso[task.setvariable variable=environment]$environment"
+            Write-Host "##vso[task.setvariable variable=Release.EnvironmentName]$environment"
+          displayName: Set Environment Alias ENVVARS
+
+        - pwsh: |
+            $stagingSettings=@()
+            Get-ChildItem ENV: | Where-Object -FilterScript { $_.Name -cmatch "^secrets_((|azDeploymentSlotSetting)(?!azActiveSlotSetting|azDeploymentSlotSetting)_?(.+))" } | Foreach-Object -Process {
+              $stagingSettings += @{
+                name         = $matches[3]
+                slotSettings = [Boolean]$matches[2]
+                value        = $_.Value
+              }
+            }
+            $stagingSettings = $stagingSettings | ConvertTo-Json -Depth 99 -Compress
+            Write-Host "##vso[task.setvariable variable=deploymentSettings]$stagingSettings"
+          displayName: Set Slot Specific App Config
+          env:
+            ${{ each setting in parameters.appSettings }}:
+              ${{ if eq(setting.slot, true)}}:
+                "secrets_azDeploymentSlotSetting_${{ setting.name }}": $(secrets_azDeploymentSlotSetting_${{ setting.name }})
+              ${{ if ne(setting.slot, true)}}:
+                "secrets_${{ setting.name }}": $(secrets_${{ setting.name }})
+
+        - task: DownloadPipelineArtifact@2
+          displayName: Download App Binaries
+          inputs:
+            artifact: App
+            path: $(Pipeline.Workspace)/App
+            preferTriggeringPipeline: true
+            ${{ if parameters.useCurrentPipeline }}:
+              source: current
+            ${{ if eq(parameters.useCurrentPipeline, false) }}:
+              buildType: specific
+              project: ${{ parameters.projectId }}
+              pipeline: ${{ parameters.CIPipelineId }}
+              runVersion: latestFromBranch
+              runBranch: ${{ parameters.deployBranch }}
+
+        - task: AzureRmWebAppDeployment@4
+          name: azureDeployment
+          displayName: Deploy to ${{ parameters.slot }} Slot
+          inputs:
+            azureSubscription: ${{ parameters.subscription }}
+            WebAppName: ${{ parameters.appName }}
+            deployToSlotOrASE: true
+            ResourceGroupName: ${{ parameters.resourceGroup }}
+            SlotName: ${{ parameters.slot }}
+            packageForLinux:  $(Pipeline.Workspace)/App/App.zip
+
+        - task: AzureAppServiceSettings@1
+          displayName: Update ${{ parameters.slot }} Slot Settings
+          inputs:
+            azureSubscription: ${{ parameters.subscription }}
+            appName: ${{ parameters.appName }}
+            resourceGroupName: ${{ parameters.resourceGroup }}
+            slotName: ${{ parameters.slot }}
+            appSettings: $(deploymentSettings)
+
+      postRouteTraffic:
+        steps:
+        - checkout: none
+
+        - ${{ if parameters.runZapTests }}:
+          - script: |
+              sudo curl 'http://localhost:8080/OTHER/core/other/rootcert?apikey=ryUH6nrB1i!M' -o /usr/local/share/ca-certificates/zap.crt
+              sudo update-ca-certificates
+
+              curl 'http://localhost:8080/JSON/pscan/action/setEnabled/?enabled=true&apikey=ryUH6nrB1i!M'
+              curl 'http://localhost:8080/JSON/pscan/action/enableAllScanners/?apikey=ryUH6nrB1i!M'
+            displayName: Install ZAP Cert and Enable Scanners
+
+        - pwsh: |
+            $environment = '${{ parameters.environment }}'.tolower()
+            Write-Host "##vso[task.setvariable variable=environment]$environment"
+            Write-Host "##vso[task.setvariable variable=Release.EnvironmentName]$environment"
+          displayName: Set Environment Alias ENVVARS
+
+        - task: DownloadPipelineArtifact@2
+          displayName: Download Acceptance Test Binaries
+          inputs:
+            artifact: AcceptanceTests
+            path: $(Pipeline.Workspace)/AcceptanceTests
+            preferTriggeringPipeline: true
+            ${{ if parameters.useCurrentPipeline }}:
+              source: current
+            ${{ if eq(parameters.useCurrentPipeline, false) }}:
+              buildType: specific
+              project: ${{ parameters.projectId }}
+              pipeline: ${{ parameters.CIPipelineId }}
+              runVersion: latestFromBranch
+              runBranch: ${{ parameters.deployBranch }}
+
+        - pwsh: |
+            $appsettings = @{}
+            Get-ChildItem ENV: | Where-Object -FilterScript { $_.Name -cmatch "^acDevSettings_((|azDeploymentSlotSetting)(?!azActiveSlotSetting|azDeploymentSlotSetting)_?(.+))" } | Foreach-Object -Process {
+              $appsettings[$matches[3]] = $_.value
+            }
+
+            $appSettings = $appSettings | ConvertTo-Json -Depth 99
+            New-Item -Path $(Pipeline.Workspace)/AcceptanceTests -Name appsettings.Production.json -ItemType File -Value $appSettings -Force | Out-Null
+
+            $runtimeSettings = '<?xml version="1.0" encoding="utf-8"?><RunSettings><TestRunParameters><Parameter name="TargetEnvironment" value="Production"/></TestRunParameters></RunSettings>'
+            New-Item -Path $(Pipeline.Workspace)/AcceptanceTests -Name parameters.runsettings -ItemType File -Value $runtimeSettings -Force | Out-Null
+
+            gc $(Pipeline.Workspace)/AcceptanceTests/appsettings.Production.json -raw
+          displayName: Set Environment Variables for Config Transform
+          env:
+            ${{ each setting in parameters.acSettings }}:
+              ${{ if eq(setting.slot, true)}}:
+                "acDevSettings_azDeploymentSlotSetting_${{ setting.name }}": $(acDevSettings_azDeploymentSlotSetting_${{ setting.name }})
+              ${{ if ne(setting.slot, true)}}:
+                "acDevSettings_${{ setting.name }}": $(acDevSettings_${{ setting.name }})
+            ${{ if parameters.runZapTests }}:
+              acDevSettings_ZapConfiguration.SetupProxy: true
+              acDevSettings_ZapConfiguration.ApiAddress: localhost
+              acDevSettings_ZapConfiguration.ApiPort: 8080
+
+        - task: AzureCLI@2
+          displayName: Add ${{ parameters.slot }} Slot Exception
+          inputs:
+            azureSubscription: ${{ parameters.subscription }}
+            scriptType: pscore
+            scriptLocation: inlineScript
+            inlineScript: |
+              $ip = (Invoke-WebRequest -uri "http://ifconfig.me/ip").Content
+              az webapp config access-restriction add -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --rule-name $env:BUILD_BUILDID --action Allow --ip-address $ip/32 --priority 200 --slot ${{ parameters.slot }}
+
+        - task: DotNetCoreCLI@2
+          displayName: Smoke Test
+          inputs:
+            testRunTitle: Acceptance Tests
+            command: custom
+            projects: $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll
+            custom: vstest
+            arguments: --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings
+
+        - task: AzureCLI@2
+          displayName: Remove ${{ parameters.slot }} Slot Exception
+          condition: always()
+          inputs:
+            azureSubscription: ${{ parameters.subscription }}
+            scriptType: pscore
+            scriptLocation: inlineScript
+            inlineScript: |
+              $ip = (Invoke-WebRequest -uri "http://ifconfig.me/ip").Content
+              az webapp config access-restriction remove -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --rule-name $env:BUILD_BUILDID --slot ${{ parameters.slot }}
+
+        - task: PublishTestResults@2
+          displayName: Publish Test Results
+          condition: succeededOrFailed()
+          inputs:
+            testResultsFormat: VSTest
+            testResultsFiles: '**/*.trx'
+            searchFolder: $(Agent.TempDirectory)/TestResults
+            mergeTestResults: true
+            testRunTitle: Smoke Test
+
+        - ${{ if parameters.runZapTests }}:
+          - pwsh: |
+              while ((irm "http://localhost:8080/JSON/pscan/view/recordsToScan/?apikey=ryUH6nrB1i!M").recordsToScan -gt 0) {
+                sleep 1
+              }
+
+              $report = irm "http://localhost:8080/OTHER/core/other/htmlreport/?apikey=ryUH6nrB1i!M"
+              $reportfile = New-Item -Path $env:BUILD_ARTIFACTSTAGINGDIRECTORY -Name zap.html -ItemType File -Value $report -Force
+              Write-Host "##vso[task.uploadfile]$($reportfile.fullname)"
+
+              $mdreport = irm "http://localhost:8080/OTHER/core/other/mdreport//?apikey=ryUH6nrB1i!M"
+              $mdreportfile = New-Item -Path $env:BUILD_ARTIFACTSTAGINGDIRECTORY -Name ZAP.md -ItemType File -Value $mdreport -Force
+              Write-Host "##vso[task.uploadsummary]$($mdreportfile.fullname)"
+
+              $summary = (irm "http://localhost:8080/JSON/core/view/alertsSummary/?apikey=ryUH6nrB1i!M").alertsSummary
+              if($summary.High -gt $env:HighThreshold) {
+                Write-Host  "##vso[task.LogIssue type=error;]$('{0} high alerts found and threshold is {1}' -f $summary.High, $env:HighThreshold)"
+                exit 1
+              }
+
+              if($summary.Medium -gt $env:MediumThreshold) {
+                Write-Host  "##vso[task.LogIssue type=error;]$('{0} medium alerts found and threshold is {1}' -f $summary.Medium, $env:HighThreshold)"
+                exit 1
+              }
+
+              if($summary.Low -gt $env:LowThreshold) {
+                Write-Host  "##vso[task.LogIssue type=error;]$('{0} low alerts found and threshold is {1}' -f $summary.Low, $env:LowThreshold)"
+                exit 1
+              }
+
+            displayName: Process ZAP Alert Summary
+            condition: succeededOrFailed()
+            env:
+              HighThreshold: ${{ parameters.zapThresholdHigh }}
+              MediumThreshold: ${{ parameters.zapThresholdMedium }}
+              LowThreshold: ${{ parameters.zapThresholdLow }}
+
+      on:
+        success:
+          steps:
+            - checkout: none
+
+            - pwsh: |
+                $environment = '${{ parameters.environment }}'.tolower()
+                Write-Host "##vso[task.setvariable variable=environment]$environment"
+                Write-Host "##vso[task.setvariable variable=Release.EnvironmentName]$environment"
+              displayName: Set Environment Alias ENVVARS
+
+            - pwsh: |
+                $activeSettings=@()
+                Get-ChildItem ENV: | Where-Object -FilterScript { $_.Name -cmatch "^secrets_((|azActiveSlotSetting)(?!azActiveSlotSetting|azDeploymentSlotSetting)_?(.+))" } | Foreach-Object -Process {
+                  $activeSettings += @{
+                    name         = $matches[3]
+                    slotSettings = [Boolean]$matches[2]
+                    value        = $_.Value
+                  }
+                }
+                $activeSettings = $activeSettings | ConvertTo-Json -Depth 99 -Compress
+                Write-Host "##vso[task.setvariable variable=activeSettings]$activeSettings"
+              displayName: Set Slot Specific App Config
+              env:
+                ${{ each setting in parameters.appSettings }}:
+                  ${{ if eq(setting.slot, true)}}:
+                    "secrets_azActiveSlotSetting_${{ setting.name }}": $(secrets_azActiveSlotSetting_${{ setting.name }})
+                  ${{ if ne(setting.slot, true)}}:
+                    "secrets_${{ setting.name }}": $(secrets_${{ setting.name }})
+
+            - task: AzureAppServiceSettings@1
+              displayName: Update Production Slot Settings
+              inputs:
+                azureSubscription: ${{ parameters.subscription }}
+                appName: ${{ parameters.appName }}
+                resourceGroupName: ${{ parameters.resourceGroup }}
+                appSettings: $(activeSettings)
+
+            - task: AzureAppServiceManage@0
+              displayName: Swap Slots
+              inputs:
+                azureSubscription: ${{ parameters.subscription }}
+                WebAppName: ${{ parameters.appName }}
+                ResourceGroupName: ${{ parameters.resourceGroup }}
+                SourceSlot: ${{ parameters.slot }}
