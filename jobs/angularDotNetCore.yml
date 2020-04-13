@@ -22,7 +22,7 @@ jobs:
   pool: ${{ parameters.pool }}
 
   variables:
-    MSBUILDSINGLELOADCONTEXT=1
+    MSBUILDSINGLELOADCONTEXT: 1
 
   # Reference templae for setting up build tools
   steps:
