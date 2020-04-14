@@ -157,18 +157,19 @@ stages:
             PathtoPublish: $(Build.ArtifactStagingDirectory)/AcceptanceTests
             ArtifactName: AcceptanceTests
 
-- ${{ if eq(parameters.Test, true) }}:
-  - template: ./dotnet-test.yml
-    parameters:
-      ${{ insert }}: ${{ parameters.testParameters }}
+- ${{ if ne(build.reason, 'IndividualCI') }}:
+  - ${{ if eq(parameters.Test, true) }}:
+    - template: ./dotnet-test.yml
+      parameters:
+        ${{ insert }}: ${{ parameters.testParameters }}
 
-- ${{ if eq(parameters.ACTest, true)}}:
-  - template: ./dotnet-release.yml
-    parameters:
-      dependantStages: Package
-      useCurrentPipeline: true
-      stageName: AcceptanceTest
-      runZapTests: ${{ coalesce(parameters.releaseParameters.runZapTests, true) }}
-      ${{ each setting in parameters.releaseParameters }}:
-        ${{ if ne(setting.key, 'runZapTests') }}:
-          ${{ setting.key }}: ${{ setting.value }}
+  - ${{ if eq(parameters.ACTest, true)}}:
+    - template: ./dotnet-release.yml
+      parameters:
+        dependantStages: Package
+        useCurrentPipeline: true
+        stageName: AcceptanceTest
+        runZapTests: ${{ coalesce(parameters.releaseParameters.runZapTests, true) }}
+        ${{ each setting in parameters.releaseParameters }}:
+          ${{ if ne(setting.key, 'runZapTests') }}:
+            ${{ setting.key }}: ${{ setting.value }}
