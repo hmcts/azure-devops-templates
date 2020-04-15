@@ -12,7 +12,7 @@ parameters:
   type: string
 
 stages:
-- ${{ if or(eq(Build.Reason, 'BuildCompletion'), containsValue(parameters.environments, 'Preview')) }}:
+- ${{ if or(eq(variables['Build.Reason'], 'BuildCompletion'), containsValue(parameters.environments, 'Preview')) }}:
   - template: stages\dotnet-release.yml@templates
     parameters:
       environment: Preview
@@ -29,10 +29,10 @@ stages:
       ${{ each setting in parameters.releaseParameters }}:
         ${{ if ne(setting.key, 'variables') }}:
           ${{ setting.key }}: ${{ setting.value }}
-        ${{ if eq(Build.Reason, 'BuildCompletion') }}:
+        ${{ if eq(variables['Build.Reason'], 'BuildCompletion') }}:
           condition: and(succeeded(), eq(variables['parameters.deploymentBranch'], 'refs/heads/feature/newpipeline'))
 
-- ${{ if or(eq(Build.Reason, 'BuildCompletion'), containsValue(parameters.environments, 'Dev')) }}:
+- ${{ if or(eq(variables['Build.Reason'], 'BuildCompletion'), containsValue(parameters.environments, 'Dev')) }}:
   - template: stages\dotnet-release.yml@templates
     parameters:
       environment: Dev
@@ -49,10 +49,10 @@ stages:
       ${{ each setting in parameters.releaseParameters }}:
         ${{ if ne(setting.key, 'variables') }}:
           ${{ setting.key }}: ${{ setting.value }}
-        ${{ if eq(Build.Reason, 'BuildCompletion') }}:
+        ${{ if eq(variables['Build.Reason'], 'BuildCompletion') }}:
           condition: and(succeeded(), eq(variables['parameters.deploymentBranch'], 'refs/heads/master'))
 
-- ${{ if or(eq(Build.Reason, 'BuildCompletion'), containsValue(parameters.environments, 'AAT')) }}:
+- ${{ if or(eq(variables['Build.Reason'], 'BuildCompletion'), containsValue(parameters.environments, 'AAT')) }}:
   - template: stages\dotnet-release.yml@templates
     parameters:
       environment: AAT
@@ -69,7 +69,7 @@ stages:
       ${{ each setting in parameters.releaseParameters }}:
         ${{ if ne(setting.key, 'variables') }}:
           ${{ setting.key }}: ${{ setting.value }}
-        ${{ if eq(Build.Reason, 'BuildCompletion') }}:
+        ${{ if eq(variables['Build.Reason'], 'BuildCompletion') }}:
           condition: and(succeeded(), eq(variables['parameters.deploymentBranch'], 'refs/heads/master'))
 
 - ${{ if containsValue(parameters.environments, 'Demo') }}:
@@ -126,7 +126,7 @@ stages:
         ${{ if ne(setting.key, 'variables') }}:
           ${{ setting.key }}: ${{ setting.value }}
 
-- ${{ if or(eq(Build.Reason, 'BuildCompletion'), and(containsValue(parameters.environments, 'Preprod'), or(startsWith(parameters.deploymentBranch, 'refs/heads/release/'), startsWith(parameters.deploymentBranch, 'refs/heads/hotfix/')))) }}:
+- ${{ if or(eq(variables['Build.Reason'], 'BuildCompletion'), and(containsValue(parameters.environments, 'Preprod'), or(startsWith(parameters.deploymentBranch, 'refs/heads/release/'), startsWith(parameters.deploymentBranch, 'refs/heads/hotfix/')))) }}:
   - template: stages\dotnet-release.yml@templates
     parameters:
       environment: Preprod
@@ -145,7 +145,7 @@ stages:
           ${{ setting.key }}: ${{ setting.value }}
         condition: and(succeeded(), or(startsWith(variables['parameters.deploymentBranch'], 'refs/heads/release/'), startsWith(variables['parameters.deploymentBranch'], 'refs/heads/hotfix/')))
 
-- ${{ if or(eq(Build.Reason, 'BuildCompletion'), and(containsValue(parameters.environments, 'Prod'), or(startsWith(parameters.deploymentBranch, 'refs/heads/release/'), startsWith(parameters.deploymentBranch, 'refs/heads/hotfix/')))) }}:
+- ${{ if or(eq(variables['Build.Reason'], 'BuildCompletion'), and(containsValue(parameters.environments, 'Prod'), or(startsWith(parameters.deploymentBranch, 'refs/heads/release/'), startsWith(parameters.deploymentBranch, 'refs/heads/hotfix/')))) }}:
   - template: stages\dotnet-release.yml@templates
     parameters:
       environment: Prod
