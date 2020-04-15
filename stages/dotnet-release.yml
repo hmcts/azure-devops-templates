@@ -70,8 +70,14 @@ parameters:
     type: number
     default: 99999
 
+  - name: condition
+    type: string
+    default: ''
+
 stages:
   - stage: ${{ parameters.stageName }}
+    ${{ if ne(parameters.condition, '') }}:
+      condition: ${{ parameters.condition }}
     dependsOn:
     - ${{ if parameters.dependantStages }}:
       - ${{ parameters.dependantStages }}
