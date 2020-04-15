@@ -30,7 +30,7 @@ stages:
         ${{ if ne(setting.key, 'variables') }}:
           ${{ setting.key }}: ${{ setting.value }}
         ${{ if eq(Build.Reason, 'BuildCompletion') }}:
-          condition: and(succeeded(), eq(variables['parameters.deploymentBranch'], 'refs/heads/master'))
+          condition: and(succeeded(), eq(variables['parameters.deploymentBranch'], 'refs/heads/feature/newpipeline'))
 
 - ${{ if or(eq(Build.Reason, 'BuildCompletion'), containsValue(parameters.environments, 'Dev')) }}:
   - template: stages\dotnet-release.yml@templates
