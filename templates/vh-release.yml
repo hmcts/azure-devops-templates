@@ -9,7 +9,7 @@ parameters:
   default: {}
 
 - name: environments
-  type: string
+  type: object
 
 stages:
 - ${{ if or(eq(variables['Build.Reason'], 'BuildCompletion'), containsValue(parameters.environments, 'Preview')) }}:
