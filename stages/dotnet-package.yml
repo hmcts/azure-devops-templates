@@ -157,7 +157,7 @@ stages:
             PathtoPublish: $(Build.ArtifactStagingDirectory)/AcceptanceTests
             ArtifactName: AcceptanceTests
 
-- ${{ if ne(build.reason, 'IndividualCI') }}:
+- ${{ if ne(variables['Build.Reason'], 'IndividualCI') }}:
   - ${{ if eq(parameters.Test, true) }}:
     - template: ./dotnet-test.yml
       parameters:
