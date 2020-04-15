@@ -1,0 +1,167 @@
+parameters:
+- name: deploymentBranch
+  displayName: Branch to Deploy
+  type: string
+  default: refs/heads/master
+
+- name: releaseParameters
+  type: object
+  default: {}
+
+- name: environments
+  type: string
+
+stages:
+- ${{ if or(eq(Build.Reason, 'BuildCompletion'), containsValue(parameters.environments, 'Preview')) }}:
+  - template: stages\dotnet-release.yml@templates
+    parameters:
+      environment: Preview
+      stageName: Preview
+      variables:
+        - group: vh-preview
+        - ${{ each variable in parameters.releaseParameters.variables }}:
+          - ${{ each property in variable }}:
+            - ${{ if eq('group', property.key) }}:
+              - group: ${{ variable.group }}
+            - ${{ if eq('name', property.key) }}:
+              - name: ${{ variable.name }}
+                value: ${{ variable.value }}
+      ${{ each setting in parameters.releaseParameters }}:
+        ${{ if ne(setting.key, 'variables') }}:
+          ${{ setting.key }}: ${{ setting.value }}
+        ${{ if eq(Build.Reason, 'BuildCompletion') }}:
+          condition: and(succeeded(), eq(variables['parameters.deploymentBranch'], 'refs/heads/master'))
+
+- ${{ if or(eq(Build.Reason, 'BuildCompletion'), containsValue(parameters.environments, 'Dev')) }}:
+  - template: stages\dotnet-release.yml@templates
+    parameters:
+      environment: Dev
+      stageName: Dev
+      variables:
+        - group: vh-dev
+        - ${{ each variable in parameters.releaseParameters.variables }}:
+          - ${{ each property in variable }}:
+            - ${{ if eq('group', property.key) }}:
+              - group: ${{ variable.group }}
+            - ${{ if eq('name', property.key) }}:
+              - name: ${{ variable.name }}
+                value: ${{ variable.value }}
+      ${{ each setting in parameters.releaseParameters }}:
+        ${{ if ne(setting.key, 'variables') }}:
+          ${{ setting.key }}: ${{ setting.value }}
+        ${{ if eq(Build.Reason, 'BuildCompletion') }}:
+          condition: and(succeeded(), eq(variables['parameters.deploymentBranch'], 'refs/heads/master'))
+
+- ${{ if or(eq(Build.Reason, 'BuildCompletion'), containsValue(parameters.environments, 'AAT')) }}:
+  - template: stages\dotnet-release.yml@templates
+    parameters:
+      environment: AAT
+      stageName: AAT
+      variables:
+        - group: vh-aat
+        - ${{ each variable in parameters.releaseParameters.variables }}:
+          - ${{ each property in variable }}:
+            - ${{ if eq('group', property.key) }}:
+              - group: ${{ variable.group }}
+            - ${{ if eq('name', property.key) }}:
+              - name: ${{ variable.name }}
+                value: ${{ variable.value }}
+      ${{ each setting in parameters.releaseParameters }}:
+        ${{ if ne(setting.key, 'variables') }}:
+          ${{ setting.key }}: ${{ setting.value }}
+        ${{ if eq(Build.Reason, 'BuildCompletion') }}:
+          condition: and(succeeded(), eq(variables['parameters.deploymentBranch'], 'refs/heads/master'))
+
+- ${{ if containsValue(parameters.environments, 'Demo') }}:
+  - template: stages\dotnet-release.yml@templates
+    parameters:
+      environment: Demo
+      stageName: Demo
+      variables:
+        - group: vh-demo
+        - ${{ each variable in parameters.releaseParameters.variables }}:
+          - ${{ each property in variable }}:
+            - ${{ if eq('group', property.key) }}:
+              - group: ${{ variable.group }}
+            - ${{ if eq('name', property.key) }}:
+              - name: ${{ variable.name }}
+                value: ${{ variable.value }}
+      ${{ each setting in parameters.releaseParameters }}:
+        ${{ if ne(setting.key, 'variables') }}:
+          ${{ setting.key }}: ${{ setting.value }}
+
+- ${{ if containsValue(parameters.environments, 'Sandbox') }}:
+  - template: stages\dotnet-release.yml@templates
+    parameters:
+      environment: Sandbox
+      stageName: Sandbox
+      variables:
+        - group: vh-sandbox
+        - ${{ each variable in parameters.releaseParameters.variables }}:
+          - ${{ each property in variable }}:
+            - ${{ if eq('group', property.key) }}:
+              - group: ${{ variable.group }}
+            - ${{ if eq('name', property.key) }}:
+              - name: ${{ variable.name }}
+                value: ${{ variable.value }}
+      ${{ each setting in parameters.releaseParameters }}:
+        ${{ if ne(setting.key, 'variables') }}:
+          ${{ setting.key }}: ${{ setting.value }}
+
+- ${{ if containsValue(parameters.environments, 'Test1') }}:
+  - template: stages\dotnet-release.yml@templates
+    parameters:
+      environment: Test1
+      stageName: Test1
+      variables:
+        - group: vh-test1
+        - ${{ each variable in parameters.releaseParameters.variables }}:
+          - ${{ each property in variable }}:
+            - ${{ if eq('group', property.key) }}:
+              - group: ${{ variable.group }}
+            - ${{ if eq('name', property.key) }}:
+              - name: ${{ variable.name }}
+                value: ${{ variable.value }}
+      ${{ each setting in parameters.releaseParameters }}:
+        ${{ if ne(setting.key, 'variables') }}:
+          ${{ setting.key }}: ${{ setting.value }}
+
+- ${{ if or(eq(Build.Reason, 'BuildCompletion'), and(containsValue(parameters.environments, 'Preprod'), or(startsWith(parameters.deploymentBranch, 'refs/heads/release/'), startsWith(parameters.deploymentBranch, 'refs/heads/hotfix/')))) }}:
+  - template: stages\dotnet-release.yml@templates
+    parameters:
+      environment: Preprod
+      stageName: Preprod
+      variables:
+        - group: vh-preprod
+        - ${{ each variable in parameters.releaseParameters.variables }}:
+          - ${{ each property in variable }}:
+            - ${{ if eq('group', property.key) }}:
+              - group: ${{ variable.group }}
+            - ${{ if eq('name', property.key) }}:
+              - name: ${{ variable.name }}
+                value: ${{ variable.value }}
+      ${{ each setting in parameters.releaseParameters }}:
+        ${{ if ne(setting.key, 'variables') }}:
+          ${{ setting.key }}: ${{ setting.value }}
+        condition: and(succeeded(), or(startsWith(variables['parameters.deploymentBranch'], 'refs/heads/release/'), startsWith(variables['parameters.deploymentBranch'], 'refs/heads/hotfix/')))
+
+- ${{ if or(eq(Build.Reason, 'BuildCompletion'), and(containsValue(parameters.environments, 'Prod'), or(startsWith(parameters.deploymentBranch, 'refs/heads/release/'), startsWith(parameters.deploymentBranch, 'refs/heads/hotfix/')))) }}:
+  - template: stages\dotnet-release.yml@templates
+    parameters:
+      environment: Prod
+      stageName: Prod
+      dependantStages:
+        - Preprod
+      variables:
+        - group: vh-prod
+        - ${{ each variable in parameters.releaseParameters.variables }}:
+          - ${{ each property in variable }}:
+            - ${{ if eq('group', property.key) }}:
+              - group: ${{ variable.group }}
+            - ${{ if eq('name', property.key) }}:
+              - name: ${{ variable.name }}
+                value: ${{ variable.value }}
+      ${{ each setting in parameters.releaseParameters }}:
+        ${{ if ne(setting.key, 'variables') }}:
+          ${{ setting.key }}: ${{ setting.value }}
+        condition: and(succeeded(), or(startsWith(variables['parameters.deploymentBranch'], 'refs/heads/release/'), startsWith(variables['parameters.deploymentBranch'], 'refs/heads/hotfix/')))
