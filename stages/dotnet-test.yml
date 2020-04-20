@@ -384,17 +384,6 @@ stages:
               restoreArguments: --locked-mode --use-lock-file
             condition: ne(variables.NUGET_CACHE_RESTORED, 'true')
 
-        - pwsh: |
-            $file = get-item $env:projectPath\*.csproj
-            [xml]$project = get-content $file.FullName
-            $project.project.propertygroup[1].GenerateAssemblyFileVersionAttribute = $true
-            $project.project.propertygroup[1].GenerateAssemblyVersionAttribute = $true
-            $project.project.propertygroup[1].GenerateAssemblyInformationalVersionAttribute = $true
-            $project.OuterXml | set-content $file.FullName
-          displayName: Force enable assembly info generation from project
-          env:
-            projectPath: ${{  parameters.coreProjectPath  }}
-
         - template: ../templates/tests/stryker.yml
           parameters:
             path: ${{ parameters.unitTestProjectPath }}
