@@ -195,7 +195,7 @@ stages:
               command: test
               projects: |
                 ${{ parameters.unitTestProjectPath }}/*.csproj
-              arguments: -c Release ${{ format(parameters.testParameters, join(',', parameters.coverletCoverageExclusions)) }}
+              arguments: ${{ format(parameters.testParameters, join(',', parameters.coverletCoverageExclusions)) }}
 
         - ${{ if eq(parameters.RunIntegrationTests, true) }}:
           - pwsh: |
@@ -338,7 +338,7 @@ stages:
               command: test
               projects: |
                 ${{ parameters.integTestProjectPath }}/*.csproj
-              arguments: -c Release ${{ format(parameters.testParameters, join(',', parameters.coverletCoverageExclusions)) }}
+              arguments: ${{ format(parameters.testParameters, join(',', parameters.coverletCoverageExclusions)) }}
             env:
               ASPNETCORE_ENVIRONMENT: Production
 
