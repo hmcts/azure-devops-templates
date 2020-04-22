@@ -16,7 +16,7 @@ steps:
       command: restore
       projects: '**/*.sln'
       vstsFeed: '${{ parameters.vstsFeedId }}'
-      includeNuGetOrg: false
+      includeNuGetOrg: true
 
   - task: DotNetCoreCLI@2
     displayName: Build

@@ -10,7 +10,7 @@ steps:
       command: restore
       projects: '**/*.sln'
       vstsFeed: '${{ parameters.vstsFeedId }}'
-      includeNuGetOrg: false
+      includeNuGetOrg: true
 
 # Builds VS Solution
   - task: VSBuild@1

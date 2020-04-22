@@ -88,7 +88,7 @@ stages:
             command: restore
             projects: ${{ parameters.coreProjectPath }}/*.csproj
             vstsFeed: ${{ parameters.vstsFeedId }}
-            includeNuGetOrg: false
+            includeNuGetOrg: true
             restoreArguments: --locked-mode --use-lock-file
           condition: ne(variables.NUGET_CACHE_RESTORED, 'true')
 
@@ -138,7 +138,7 @@ stages:
             command: restore
             projects: '**/*AcceptanceTests.csproj'
             vstsFeed: ${{ parameters.vstsFeedId }}
-            includeNuGetOrg: false
+            includeNuGetOrg: true
             restoreArguments: --locked-mode --use-lock-file
           condition: ne(variables.NUGET_CACHE_RESTORED, 'true')
 
