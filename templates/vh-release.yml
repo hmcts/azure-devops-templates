@@ -31,7 +31,7 @@ stages:
         ${{ if ne(setting.key, 'variables') }}:
           ${{ setting.key }}: ${{ setting.value }}
         ${{ if eq(variables['Build.Reason'], 'ResourceTrigger') }}:
-          condition: and(succeeded(), eq(variables['parameters.deploymentBranch'], 'refs/heads/master'))
+      condition: and(succeeded(), eq(variables['parameters.deploymentBranch'], 'refs/heads/master'))
 
 - ${{ if or(eq(variables['Build.Reason'], 'ResourceTrigger'), containsValue(parameters.environments, 'Dev')) }}:
   - template: ..\stages\dotnet-release.yml
@@ -52,7 +52,7 @@ stages:
         ${{ if ne(setting.key, 'variables') }}:
           ${{ setting.key }}: ${{ setting.value }}
         ${{ if eq(variables['Build.Reason'], 'ResourceTrigger') }}:
-          condition: and(succeeded(), eq(variables['parameters.deploymentBranch'], 'refs/heads/master'))
+      condition: and(succeeded(), eq(variables['parameters.deploymentBranch'], 'refs/heads/master'))
 
 - ${{ if or(eq(variables['Build.Reason'], 'ResourceTrigger'), containsValue(parameters.environments, 'AAT')) }}:
   - template: ..\stages\dotnet-release.yml
@@ -73,7 +73,7 @@ stages:
         ${{ if ne(setting.key, 'variables') }}:
           ${{ setting.key }}: ${{ setting.value }}
         ${{ if eq(variables['Build.Reason'], 'ResourceTrigger') }}:
-          condition: and(succeeded(), eq(variables['parameters.deploymentBranch'], 'refs/heads/master'))
+      condition: and(succeeded(), eq(variables['parameters.deploymentBranch'], 'refs/heads/master'))
 
 - ${{ if containsValue(parameters.environments, 'Demo') }}:
   - template: ..\stages\dotnet-release.yml
@@ -150,7 +150,7 @@ stages:
       ${{ each setting in parameters.releaseParameters }}:
         ${{ if ne(setting.key, 'variables') }}:
           ${{ setting.key }}: ${{ setting.value }}
-        condition: and(succeeded(), or(startsWith(variables['parameters.deploymentBranch'], 'refs/heads/release/'), startsWith(variables['parameters.deploymentBranch'], 'refs/heads/hotfix/')))
+      condition: and(succeeded(), or(startsWith(variables['parameters.deploymentBranch'], 'refs/heads/release/'), startsWith(variables['parameters.deploymentBranch'], 'refs/heads/hotfix/')))
 
 - ${{ if or(eq(variables['Build.Reason'], 'ResourceTrigger'), and(containsValue(parameters.environments, 'Prod'), or(startsWith(parameters.deploymentBranch, 'refs/heads/release/'), startsWith(parameters.deploymentBranch, 'refs/heads/hotfix/')))) }}:
   - template: ..\stages\dotnet-release.yml
@@ -172,4 +172,4 @@ stages:
       ${{ each setting in parameters.releaseParameters }}:
         ${{ if ne(setting.key, 'variables') }}:
           ${{ setting.key }}: ${{ setting.value }}
-        condition: and(succeeded(), or(startsWith(variables['parameters.deploymentBranch'], 'refs/heads/release/'), startsWith(variables['parameters.deploymentBranch'], 'refs/heads/hotfix/')))
+      condition: and(succeeded(), or(startsWith(variables['parameters.deploymentBranch'], 'refs/heads/release/'), startsWith(variables['parameters.deploymentBranch'], 'refs/heads/hotfix/')))
