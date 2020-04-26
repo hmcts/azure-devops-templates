@@ -158,8 +158,9 @@ stages:
       environment: Prod
       stageName: Prod
       deployBranch: ${{ parameters.deploymentBranch }}
-      dependantStages:
-        - Preprod
+      ${{ if eq(variables['Build.Reason'], 'ResourceTrigger') }}:
+        dependantStages:
+          - Preprod
       variables:
         - group: vh-prod
         - ${{ each variable in parameters.releaseParameters.variables }}:
