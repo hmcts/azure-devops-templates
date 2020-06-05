@@ -137,14 +137,9 @@ stages:
         - template: ../templates/pipelineCaching.yml
           parameters:
             ${{ if containsValue(parameters.packageManagers, 'nuget') }}:
-              nugetProjectPath: ${{ parameters.coreProjectPath }}
-            ${{ if containsValue(parameters.packageManagers, 'npm') }}:
-              nodeProjectPath: ${{ parameters.nodeProjectPath }}
-            ${{ if containsValue(parameters.packageManagers, 'yarn') }}:
-              yarnProjectPath: ${{ parameters.nodeProjectPath }}
+              nugetProjectPath: ${{ parameters.coreProjectPath }}.AcceptanceTests
             packageManagers:
-            - ${{ if parameters.packageManagers }}:
-              - ${{ parameters.packageManagers }}
+            - npm
 
         - task: DotNetCoreCLI@2
           displayName: dotnet Restore
