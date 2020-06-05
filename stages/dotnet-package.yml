@@ -139,7 +139,7 @@ stages:
             ${{ if containsValue(parameters.packageManagers, 'nuget') }}:
               nugetProjectPath: ${{ parameters.coreProjectPath }}.AcceptanceTests
             packageManagers:
-            - npm
+            - nuget
 
         - task: DotNetCoreCLI@2
           displayName: dotnet Restore
