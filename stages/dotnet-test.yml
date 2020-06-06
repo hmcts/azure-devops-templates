@@ -140,6 +140,13 @@ stages:
         steps:
         - checkout: self
 
+        - pwsh: |
+            Get-Content ${{parameters.integTestProjectPath}}/appsettings.json -raw
+          displayName: Transform Test Config
+          env:
+            ${{ each setting in parameters.IntegrationTestSettings }}:
+              "secrets_${{ setting.name }}": $(secrets_${{ setting.name }})
+
         - task: gittools.gitversion.gitversion-task.GitVersion@5
           displayName: GitVersion
           inputs:
@@ -198,13 +205,6 @@ stages:
               arguments: ${{ format(parameters.testParameters, join(',', parameters.coverletCoverageExclusions)) }}
 
         - ${{ if eq(parameters.RunIntegrationTests, true) }}:
-          - pwsh: |
-              Get-Content ${{parameters.integTestProjectPath}}/appsettings.json -raw
-            displayName: Transform Test Config
-            env:
-              ${{ each setting in parameters.IntegrationTestSettings }}:
-                "secrets_${{ setting.name }}": $(secrets_${{ setting.name }})
-
           - pwsh: |
               Function ConvertTo-FlatObject {
                   [cmdletbinding()]
