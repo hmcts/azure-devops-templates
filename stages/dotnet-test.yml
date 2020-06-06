@@ -260,6 +260,12 @@ stages:
             }
 
             $appsettings = Get-Content ${{parameters.integTestProjectPath}}/appsettings.json -raw | ConvertFrom-Json | ConvertTo-FlatObject
+
+            Get-ChildItem ENV: | Where-Object -FilterScript { $_.Name -cmatch "^secrets_(.+)" } | Foreach-Object -Process {
+              $appsettings."$($matches[1])" = $_.value
+            }
+
+            $appSettings = $appSettings | ConvertTo-Json -Depth 99
           displayName: Transform Test Config
           env:
             ${{ each setting in parameters.IntegrationTestSettings }}:
