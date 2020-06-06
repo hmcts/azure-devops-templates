@@ -141,7 +141,125 @@ stages:
         - checkout: self
 
         - pwsh: |
-            Get-Content ${{parameters.integTestProjectPath}}/appsettings.json -raw
+            Function ConvertTo-FlatObject {
+              [cmdletbinding()]
+              param(
+                [parameter( Mandatory = $True,
+                  ValueFromPipeline = $True)]
+                [PSObject[]]$InputObject
+              )
+              Begin {
+                Function Get-Exclude {
+                    [cmdletbinding()]
+                    param($obj)
+
+
+                    Try {
+                        $DefaultTypeProps = @( $obj.gettype().GetProperties() | Select -ExpandProperty Name -ErrorAction Stop )
+                    } Catch {
+                        $DefaultTypeProps = @()
+                    }
+
+                    @( $DefaultTypeProps ) | Select -Unique
+                }
+
+                Function Recurse-Object {
+                    [cmdletbinding()]
+                    param(
+                        $Object,
+                        [string[]]$path = @(),
+                        [psobject]$Output
+                    )
+
+                    $ExcludeProps = @( Get-Exclude $object )
+
+                    $Children = $object.psobject.properties | Where { $ExcludeProps -notcontains $_.Name }
+
+                    foreach ($Child in @($Children)) {
+                        $ChildName = $Child.Name
+                        $ChildValue = $Child.Value
+
+                        if ($ChildName -match '[^a-zA-Z0-9_]') {
+                            $FriendlyChildName = "'$ChildName'"
+                        } else {
+                            $FriendlyChildName = $ChildName
+                        }
+
+                        $ThisPath = @( $Path + $FriendlyChildName ) -join ":"
+                        if ($ChildValue.GetType().Name -ne "PSCustomObject") {
+                            $Output | Add-Member -MemberType NoteProperty -Name $ThisPath -Value $ChildValue
+                        }
+
+                        if ($ChildValue -eq $null) {
+                            continue
+                        }
+
+                        if (
+                            (
+                                $ChildValue.GetType() -eq $Object.GetType() -and
+                                $ChildValue -is [datetime]
+                            ) -or
+                            (
+                                $ChildName -eq "SyncRoot" -and
+                                -not $ChildValue
+                            )
+                        ) {
+                            continue
+                        }
+
+                        if (($ChildValue.GetType()).basetype.Name -eq "Array") {
+                            $IsArray = $true
+                        } else {
+                            $IsArray = @($ChildValue).count -gt 1
+                        }
+
+                        $count = 0
+
+                        $CurrentPath = @( $Path + $FriendlyChildName ) -join ":"
+
+                        $ExcludeProps = @( Get-Exclude $ChildValue )
+
+                        $ChildrensChildren = $ChildValue.psobject.properties | Where { $ExcludeProps -notcontains $_.Name }
+                        $HashKeys = if ($ChildValue.Keys -notlike $null -and $ChildValue.Values) {
+                            $ChildValue.Keys
+                        } else {
+                            $null
+                        }
+
+                        if (
+                            (@($ChildrensChildren).count -ne 0 -or $HashKeys)
+                        ) {
+                            if ($HashKeys) {
+                                foreach ($key in $HashKeys) {
+                                    if ($ChildValue["$key"].GetType().Name -ne "PSCustomObject") {
+                                        $Output | Add-Member -MemberType NoteProperty -name "$CurrentPath['$key']" -value $ChildValue["$key"]
+                                    }
+                                    $Output = Recurse-Object -Object $ChildValue["$key"] -Path "$CurrentPath['$key']" -Output $Output
+                                }
+                            } else {
+                                if ($IsArray) {
+                                    foreach ($item in @($ChildValue)) {
+                                        $Output = Recurse-Object -Object $item -Path "$CurrentPath[$count]" -Output $Output
+                                        $Count++
+                                    }
+                                } else {
+                                    $Output = Recurse-Object -Object $ChildValue -Path $CurrentPath -Output $Output
+                                }
+                            }
+                        }
+                    }
+
+                    $Output
+                }
+              }
+              Process {
+                Foreach ($Object in $InputObject) {
+                  Recurse-Object -Object $Object -Output $( New-Object -TypeName PSObject )
+                }
+              }
+            }
+
+            $appsettings = Get-Content ${{parameters.integTestProjectPath}}/appsettings.json -raw | ConvertFrom-Json | ConvertTo-FlatObject
           displayName: Transform Test Config
           env:
             ${{ each setting in parameters.IntegrationTestSettings }}:
