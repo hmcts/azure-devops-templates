@@ -199,6 +199,13 @@ stages:
 
         - ${{ if eq(parameters.RunIntegrationTests, true) }}:
           - pwsh: |
+              Get-Content ${{parameters.integTestProjectPath}}/appsettings.json -raw
+            displayName: Transform Test Config
+            env:
+              ${{ each setting in parameters.IntegrationTestSettings }}:
+                "secrets_${{ setting.name }}": $(secrets_${{ setting.name }})
+
+          - pwsh: |
               Function ConvertTo-FlatObject {
                   [cmdletbinding()]
                   param(
