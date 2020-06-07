@@ -62,6 +62,10 @@ parameters:
     type: object
     default: []
 
+  - name: testCaseFilter
+    type: string
+    default: ''
+
   - name: runZapTests
     type: boolean
     default: false
@@ -266,7 +270,11 @@ jobs:
             scriptLocation: inlineScript
             inlineScript: |
               $ip = (Invoke-WebRequest -uri "http://ifconfig.me/ip").Content
-              az webapp config access-restriction add -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --rule-name $env:BUILD_BUILDID --action Allow --ip-address $ip/32 --priority 200 --slot ${{ parameters.slot }}
+              if('${{ parameters.slot }}' -eq 'production') {
+                az webapp config access-restriction add -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --rule-name $env:BUILD_BUILDID --action Allow --ip-address $ip/32 --priority 200
+              } else {
+                az webapp config access-restriction add -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --rule-name $env:BUILD_BUILDID --action Allow --ip-address $ip/32 --priority 200 --slot ${{ parameters.slot }}
+              }
 
         - task: DotNetCoreCLI@2
           displayName: Smoke Test
@@ -275,7 +283,10 @@ jobs:
             command: custom
             projects: $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll
             custom: vstest
-            arguments: --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings
+            ${{if ne(parameters.testCaseFilter, '')}}:
+              arguments: --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings --TestCaseFilter ${{ parameters.testCaseFilter }}
+            ${{if eq(parameters.testCaseFilter, '')}}:
+              arguments: --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings
 
         - task: AzureCLI@2
           displayName: Remove ${{ parameters.slot }} Slot Exception
@@ -285,8 +296,11 @@ jobs:
             scriptType: pscore
             scriptLocation: inlineScript
             inlineScript: |
-              $ip = (Invoke-WebRequest -uri "http://ifconfig.me/ip").Content
-              az webapp config access-restriction remove -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --rule-name $env:BUILD_BUILDID --slot ${{ parameters.slot }}
+              if('${{ parameters.slot }}' -eq 'production') {
+                az webapp config access-restriction remove -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --rule-name $env:BUILD_BUILDID
+              } else {
+                az webapp config access-restriction remove -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --rule-name $env:BUILD_BUILDID --slot ${{ parameters.slot }}
+              }
 
         - task: PublishTestResults@2
           displayName: Publish Test Results

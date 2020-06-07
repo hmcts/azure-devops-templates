@@ -58,6 +58,10 @@ parameters:
     type: object
     default: []
 
+  - name: testCaseFilter
+    type: string
+    default: ''
+
   - name: runZapTests
     type: boolean
     default: false
@@ -155,6 +159,8 @@ stages:
           releaseName: $(resources.pipeline.${{ parameters.CIPipelineResourceID }}.runName)
           CIPipelineID: $(resources.pipeline.${{ parameters.CIPipelineResourceID }}.pipelineID)
           deployBranch: ${{ parameters.deployBranch }}
+
+        testCaseFilter: ${{ parameters.testCaseFilter }}
 
         runZapTests: ${{ parameters.runZapTests }}
         ${{ if ne(parameters.zapThresholdHigh, '99999') }}:
