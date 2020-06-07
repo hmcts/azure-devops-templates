@@ -260,9 +260,10 @@ stages:
             }
 
             $appsettings = Get-Content ${{parameters.integTestProjectPath}}/appsettings.json -raw | ConvertFrom-Json | ConvertTo-FlatObject
+            $appsettings | get-member
 
             Get-ChildItem ENV: | Where-Object -FilterScript { $_.Name -cmatch "^secrets_(.+)" } | Foreach-Object -Process {
-              $appsettings."$($matches[1])" = $_.value
+              $appsettings| Add-Member -MemberType NoteProperty -Name "$($matches[1])" -value $_.value -Force
             }
 
             $appSettings = $appSettings | ConvertTo-Json -Depth 99
@@ -454,11 +455,11 @@ stages:
               $appsettings = Get-Content ${{parameters.integTestProjectPath}}/appsettings.json -raw | ConvertFrom-Json | ConvertTo-FlatObject
 
               Get-ChildItem ENV: | Where-Object -FilterScript { $_.Name -cmatch "^secrets_(.+)" } | Foreach-Object -Process {
-                  $appsettings."$($matches[1])" = $_.value
+                  # $appsettings."$($matches[1])" = $_.value
               }
 
               $appSettings = $appSettings | ConvertTo-Json -Depth 99
-              Set-Content -Path ${{parameters.integTestProjectPath}}/appsettings.json -Value $appSettings -Force | Out-Null
+              # Set-Content -Path ${{parameters.integTestProjectPath}}/appsettings.json -Value $appSettings -Force | Out-Null
             displayName: Transform Test Config
             env:
               ${{ each setting in parameters.IntegrationTestSettings }}:
