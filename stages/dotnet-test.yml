@@ -263,7 +263,8 @@ stages:
             $appsettings.gettype()
             Get-ChildItem ENV: | Where-Object -FilterScript { $_.Name -cmatch "^secrets_(.+)" } | Foreach-Object -Process {
               try {
-                $appsettings | Add-Member -MemberType NoteProperty -Name "test" -value $_.value -Force
+                $matches[1]
+                # $appsettings | Add-Member -MemberType NoteProperty -Name "test" -value $_.value -Force
               } catch {
                 write-host $($_ | convertto-json -depth 3)
               }
