@@ -1,0 +1,99 @@
+parameters:
+  - name: baseAgent
+    type: string
+    default: Ubuntu-16.04
+
+  - name: nodeContainer
+    type: string
+    default: node
+
+  - name: coreProjectPath
+    type: string
+    default: ''
+
+  - name: dependantStages
+    type: object
+    default: []
+
+  - name: packageManagers
+    type: object
+    default:
+      - npm
+
+  - name: variables
+    type: object
+    default: []
+
+stages:
+  - stage: NodeTest
+    dependsOn:
+    - ${{ if parameters.dependantStages }}:
+      - ${{ parameters.dependantStages }}
+
+    variables:
+    - template: ../templates/variables/packageManagers.yml
+    - ${{ each variable in parameters.variables }}:
+      - ${{ each property in variable }}:
+        - ${{ if eq('group', property.key) }}:
+          - group: ${{ variable.group }}
+        - ${{ if eq('name', property.key) }}:
+          - name: ${{ variable.name }}
+            value: ${{ variable.value }}
+
+    jobs:
+    - job: Build_and_Test
+
+      pool:
+        vmImage: ${{ parameters.baseAgent }}
+
+      container: ${{ parameters.nodeContainer }}
+
+      steps:
+      - checkout: self
+
+      - task: gittools.gitversion.gitversion-task.GitVersion@5
+        displayName: GitVersion
+
+      - template: ../templates/pipelineCaching.yml
+        parameters:
+          nodeProjectPath: ${{ parameters.coreProjectPath }}
+          packageManagers: ${{ parameters.packageManagers }}
+
+      - task: Npm@1
+        displayName: Install Node Modules
+        inputs:
+          workingDir: ${{ parameters.coreProjectPath }}
+          verbose: false
+        condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+
+      - task: Npm@1
+        displayName: Run Lint
+        inputs:
+          command: custom
+          workingDir: ${{ parameters.coreProjectPath }}
+          verbose: false
+          customCommand: run lint
+
+      - task: Npm@1
+        displayName: Run Jasmine Tests
+        inputs:
+          command: custom
+          workingDir: ${{ parameters.coreProjectPath }}
+          verbose: false
+          customCommand: run test-once-ci
+
+      - task: PublishTestResults@2
+        displayName: Publish Jasmine Test Results
+        inputs:
+          testResultsFiles: '*TESTS.xml'
+          searchFolder: ${{ parameters.coreProjectPath }}/jasmine-tests
+          mergeTestResults: true
+          testRunTitle: Jasmine Test Results
+
+      - task: PublishCodeCoverageResults@1
+        displayName: Publish Jasmine Code Coverage
+        inputs:
+          codeCoverageTool: Cobertura
+          failIfCoverageEmpty: true
+          summaryFileLocation: ${{ parameters.coreProjectPath }}/coverage/cobertura-coverage.xml
+          reportDirectory: ${{ parameters.coreProjectPath }}/coverage/
