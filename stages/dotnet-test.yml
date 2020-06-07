@@ -263,13 +263,14 @@ stages:
 
             Get-ChildItem ENV: | Where-Object -FilterScript { $_.Name -cmatch "^secrets_(.+)" } | Foreach-Object -Process {
               try {
-                $appsettings | Add-Member -MemberType NoteProperty -Name "test" -value $_.value -Force
+                $appsettings | Add-Member -MemberType NoteProperty -Name $matches[1] -value $_.value -Force
               } catch {
-                write-host $($_ | convertto-json -depth 3)
+                write-host $_.exception.message
               }
             }
 
             $appSettings = $appSettings | ConvertTo-Json -Depth 99
+            $appsettings
             Set-Content -Path ${{parameters.integTestProjectPath}}/appsettings.json -Value $appSettings -Force | Out-Null
 
           displayName: Transform Test Config
