@@ -262,7 +262,10 @@ stages:
             $appsettings = Get-Content ${{parameters.integTestProjectPath}}/appsettings.json -raw | ConvertFrom-Json | ConvertTo-FlatObject
 
             Get-ChildItem ENV: | Where-Object -FilterScript { $_.Name -cmatch "^secrets_(.+)" } | Foreach-Object -Process {
-              $appsettings | Add-Member -MemberType NoteProperty -Name $matches[1] -value $_.value -Force -ea continue
+              try {
+                $appsettings | Add-Member -MemberType NoteProperty -Name $matches[1] -value $_.value -Force
+            } catch {
+              write-host $_.exception.message
             }
 
             $appSettings = $appSettings | ConvertTo-Json -Depth 99
