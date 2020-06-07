@@ -50,6 +50,10 @@ parameters:
     type: string
     default: refs/heads/master
 
+  - name: deploymentSlot
+    type: string
+    default: staging
+
   - name: variables
     type: object
     default: []
@@ -132,6 +136,7 @@ stages:
         resourceGroup: ${{ parameters.resourceGroup }}
         subscription: ${{ parameters.subscription }}
         dependantJobs: Secret_Gathering
+        slot: ${{ parameters.deploymentSlot }}
         appSettings:
           - ${{ each setting in parameters.appSettings }}:
             - name: ${{ setting.name }}

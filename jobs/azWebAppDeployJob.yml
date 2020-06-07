@@ -340,43 +340,44 @@ jobs:
           steps:
             - checkout: none
 
-            - pwsh: |
-                $environment = '${{ parameters.environment }}'.tolower()
-                Write-Host "##vso[task.setvariable variable=environment]$environment"
-                Write-Host "##vso[task.setvariable variable=Release.EnvironmentName]$environment"
-              displayName: Set Environment Alias ENVVARS
+            - ${{ if ne(parameters.slot, 'production')}}:
+              - pwsh: |
+                  $environment = '${{ parameters.environment }}'.tolower()
+                  Write-Host "##vso[task.setvariable variable=environment]$environment"
+                  Write-Host "##vso[task.setvariable variable=Release.EnvironmentName]$environment"
+                displayName: Set Environment Alias ENVVARS
 
-            - pwsh: |
-                $activeSettings=@()
-                Get-ChildItem ENV: | Where-Object -FilterScript { $_.Name -cmatch "^secrets_((|azActiveSlotSetting)(?!azActiveSlotSetting|azDeploymentSlotSetting)_?(.+))" } | Foreach-Object -Process {
-                  $activeSettings += @{
-                    name         = $matches[3]
-                    slotSettings = [Boolean]$matches[2]
-                    value        = $_.Value
+              - pwsh: |
+                  $activeSettings=@()
+                  Get-ChildItem ENV: | Where-Object -FilterScript { $_.Name -cmatch "^secrets_((|azActiveSlotSetting)(?!azActiveSlotSetting|azDeploymentSlotSetting)_?(.+))" } | Foreach-Object -Process {
+                    $activeSettings += @{
+                      name         = $matches[3]
+                      slotSettings = [Boolean]$matches[2]
+                      value        = $_.Value
+                    }
                   }
-                }
-                $activeSettings = $activeSettings | ConvertTo-Json -Depth 99 -Compress
-                Write-Host "##vso[task.setvariable variable=activeSettings]$activeSettings"
-              displayName: Set Slot Specific App Config
-              env:
-                ${{ each setting in parameters.appSettings }}:
-                  ${{ if eq(setting.slot, true)}}:
-                    "secrets_azActiveSlotSetting_${{ setting.name }}": $(secrets_azActiveSlotSetting_${{ setting.name }})
-                  ${{ if ne(setting.slot, true)}}:
-                    "secrets_${{ setting.name }}": $(secrets_${{ setting.name }})
+                  $activeSettings = $activeSettings | ConvertTo-Json -Depth 99 -Compress
+                  Write-Host "##vso[task.setvariable variable=activeSettings]$activeSettings"
+                displayName: Set Slot Specific App Config
+                env:
+                  ${{ each setting in parameters.appSettings }}:
+                    ${{ if eq(setting.slot, true)}}:
+                      "secrets_azActiveSlotSetting_${{ setting.name }}": $(secrets_azActiveSlotSetting_${{ setting.name }})
+                    ${{ if ne(setting.slot, true)}}:
+                      "secrets_${{ setting.name }}": $(secrets_${{ setting.name }})
 
-            - task: AzureAppServiceSettings@1
-              displayName: Update Production Slot Settings
-              inputs:
-                azureSubscription: ${{ parameters.subscription }}
-                appName: ${{ parameters.appName }}
-                resourceGroupName: ${{ parameters.resourceGroup }}
-                appSettings: $(activeSettings)
+              - task: AzureAppServiceSettings@1
+                displayName: Update Production Slot Settings
+                inputs:
+                  azureSubscription: ${{ parameters.subscription }}
+                  appName: ${{ parameters.appName }}
+                  resourceGroupName: ${{ parameters.resourceGroup }}
+                  appSettings: $(activeSettings)
 
-            - task: AzureAppServiceManage@0
-              displayName: Swap Slots
-              inputs:
-                azureSubscription: ${{ parameters.subscription }}
-                WebAppName: ${{ parameters.appName }}
-                ResourceGroupName: ${{ parameters.resourceGroup }}
-                SourceSlot: ${{ parameters.slot }}
+              - task: AzureAppServiceManage@0
+                displayName: Swap Slots
+                inputs:
+                  azureSubscription: ${{ parameters.subscription }}
+                  WebAppName: ${{ parameters.appName }}
+                  ResourceGroupName: ${{ parameters.resourceGroup }}
+                  SourceSlot: ${{ parameters.slot }}
