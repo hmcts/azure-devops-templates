@@ -46,8 +46,6 @@ stages:
       pool:
         vmImage: ${{ parameters.baseAgent }}
 
-      container: ${{ parameters.nodeContainer }}
-
       steps:
       - checkout: self
 
