@@ -260,10 +260,10 @@ stages:
             }
 
             $appsettings = Get-Content ${{parameters.integTestProjectPath}}/appsettings.json -raw | ConvertFrom-Json | ConvertTo-FlatObject
-            $appsettings.gettype()
+
             Get-ChildItem ENV: | Where-Object -FilterScript { $_.Name -cmatch "^secrets_(.+)" } | Foreach-Object -Process {
               try {
-                # $appsettings | Add-Member -MemberType NoteProperty -Name "test" -value $_.value -Force
+                $appsettings | Add-Member -MemberType NoteProperty -Name "test" -value $_.value -Force
               } catch {
                 write-host $($_ | convertto-json -depth 3)
               }
