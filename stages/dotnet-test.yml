@@ -263,9 +263,9 @@ stages:
 
             Get-ChildItem ENV: | Where-Object -FilterScript { $_.Name -cmatch "^secrets_(.+)" } | Foreach-Object -Process {
               try {
-                $appsettings | Add-Member -MemberType NoteProperty -Name $matches[1] -value $_.value -Force
-            } catch {
-              write-host $_.exception.message
+                $appsettings | Add-Member -MemberType NoteProperty -Name $matches[1] -value $_.value -Force -ea stop
+              } catch {
+              write-host $($_ | convertto-json -depth 3)
             }
 
             $appSettings = $appSettings | ConvertTo-Json -Depth 99
