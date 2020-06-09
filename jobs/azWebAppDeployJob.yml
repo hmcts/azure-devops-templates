@@ -280,7 +280,7 @@ jobs:
               }
 
               $env:dependencies -split ';' | % {
-                az webapp config access-restriction add -g ${{ parameters.resourceGroup }} -n $_ --rule-name $env:BUILD_BUILDID --action Allow --ip-address $ip/32 --priority 200
+                az webapp config access-restriction add -g $_ -n $_ --rule-name $env:BUILD_BUILDID --action Allow --ip-address $ip/32 --priority 200
               }
           env:
             dependencies: ${{ join(';',parameters.dependentApps) }}
@@ -313,7 +313,7 @@ jobs:
               }
 
               $env:dependencies -split ';' | % {
-                az webapp config access-restriction remove -g ${{ parameters.resourceGroup }} -n $_ --rule-name $env:BUILD_BUILDID
+                az webapp config access-restriction remove -g $_ -n $_ --rule-name $env:BUILD_BUILDID
               }
           env:
             dependencies: ${{ join(';',parameters.dependentApps) }}
