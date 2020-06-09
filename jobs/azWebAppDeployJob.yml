@@ -284,7 +284,7 @@ jobs:
             projects: $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll
             custom: vstest
             ${{if ne(parameters.testCaseFilter, '')}}:
-              arguments: --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings --TestCaseFilter:'${{ parameters.testCaseFilter }}'
+              arguments: --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings --TestCaseFilter:${{ parameters.testCaseFilter }}
             ${{if eq(parameters.testCaseFilter, '')}}:
               arguments: --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings
 
