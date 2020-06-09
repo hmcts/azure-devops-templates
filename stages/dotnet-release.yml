@@ -50,9 +50,17 @@ parameters:
     type: string
     default: refs/heads/master
 
+  - name: deploymentSlot
+    type: string
+    default: staging
+
   - name: variables
     type: object
     default: []
+
+  - name: testCaseFilter
+    type: string
+    default: ''
 
   - name: runZapTests
     type: boolean
@@ -132,6 +140,7 @@ stages:
         resourceGroup: ${{ parameters.resourceGroup }}
         subscription: ${{ parameters.subscription }}
         dependantJobs: Secret_Gathering
+        slot: ${{ parameters.deploymentSlot }}
         appSettings:
           - ${{ each setting in parameters.appSettings }}:
             - name: ${{ setting.name }}
@@ -150,6 +159,8 @@ stages:
           releaseName: $(resources.pipeline.${{ parameters.CIPipelineResourceID }}.runName)
           CIPipelineID: $(resources.pipeline.${{ parameters.CIPipelineResourceID }}.pipelineID)
           deployBranch: ${{ parameters.deployBranch }}
+
+        testCaseFilter: ${{ parameters.testCaseFilter }}
 
         runZapTests: ${{ parameters.runZapTests }}
         ${{ if ne(parameters.zapThresholdHigh, '99999') }}:

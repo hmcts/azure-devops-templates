@@ -321,7 +321,11 @@ stages:
               $appsettings = Get-Content ${{parameters.integTestProjectPath}}/appsettings.json -raw | ConvertFrom-Json | ConvertTo-FlatObject
 
               Get-ChildItem ENV: | Where-Object -FilterScript { $_.Name -cmatch "^secrets_(.+)" } | Foreach-Object -Process {
-                  $appsettings."$($matches[1])" = $_.value
+                try {
+                  $appsettings | Add-Member -MemberType NoteProperty -Name $matches[1] -value $_.value -Force
+                } catch {
+                  write-host $_.exception.message
+                }
               }
 
               $appSettings = $appSettings | ConvertTo-Json -Depth 99
@@ -339,8 +343,6 @@ stages:
               projects: |
                 ${{ parameters.integTestProjectPath }}/*.csproj
               arguments: ${{ format(parameters.testParameters, join(',', parameters.coverletCoverageExclusions)) }}
-            env:
-              ASPNETCORE_ENVIRONMENT: Production
 
         - ${{ if eq(parameters.RunSonarCloud, true) }}:
           - template: ../templates/sonarCloud/runAnalysis.yml

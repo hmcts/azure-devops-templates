@@ -7,7 +7,7 @@ parameters:
 steps:
   - script: |
       dotnet tool restore
-      dotnet stryker --mutate "['!**/AssemblyInfo.cs']" --threshold-break ${{ parameters.breakThreshold }} --threshold-low ${{ parameters.lowThreshold }} --threshold-high ${{ parameters.highThreshold }} --reporters "['json','dots']"
+      dotnet stryker --threshold-break ${{ parameters.breakThreshold }} --threshold-low ${{ parameters.lowThreshold }} --threshold-high ${{ parameters.highThreshold }} --reporters "['json','dots']"
     workingDirectory: ${{ parameters.path }}
     failOnStderr: true
     displayName: Run dotnet stryker
@@ -18,12 +18,12 @@ steps:
     inputs:
       PathtoPublish: ${{ parameters.path }}/StrykerOutput
       ArtifactName: stryker
-  
+
   - pwsh: |
       $reportfile = Get-Item ${{ parameters.path }}/StrykerOutput/*/reports/mutation-report.json
-      Write-Host "##vso[task.uploadfile]$($reportfile.fullname)" 
+      Write-Host "##vso[task.uploadfile]$($reportfile.fullname)"
       $reportdata = Get-Content $reportfile.FullName -Raw | ConvertFrom-Json
-    
+
       function ConvertTo-MarkdownTableRow {
           param(
               [parameter(Mandatory)]
@@ -82,3 +82,4 @@ steps:
       }
 
     displayName: Process Stryker Report
+    condition: always()

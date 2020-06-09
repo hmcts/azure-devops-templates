@@ -38,11 +38,19 @@ parameters:
     type: boolean
     default: false
 
+  - name: NodeTest
+    type: boolean
+    default: false
+
   - name: ACTest
     type: boolean
     default: false
 
   - name: testParameters
+    type: object
+    default: {}
+
+  - name: nodeTestParameters
     type: object
     default: {}
 
@@ -171,6 +179,11 @@ stages:
     - template: ./dotnet-test.yml
       parameters:
         ${{ insert }}: ${{ parameters.testParameters }}
+
+  - ${{ if eq(parameters.NodeTest, true) }}:
+    - template: ./node-test.yml
+      parameters:
+        ${{ insert }}: ${{ parameters.nodeTestParameters }}
 
   - ${{ if eq(parameters.ACTest, true)}}:
     - template: ./dotnet-release.yml
