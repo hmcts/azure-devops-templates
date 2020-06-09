@@ -47,6 +47,10 @@ parameters:
     type: string
     default: staging
 
+  - name: dependentApps
+    type: object
+    default: []
+
   - name: subscription
     type: string
 
@@ -248,8 +252,6 @@ jobs:
 
             $runtimeSettings = '<?xml version="1.0" encoding="utf-8"?><RunSettings><TestRunParameters><Parameter name="TargetEnvironment" value="Production"/></TestRunParameters></RunSettings>'
             New-Item -Path $(Pipeline.Workspace)/AcceptanceTests -Name parameters.runsettings -ItemType File -Value $runtimeSettings -Force | Out-Null
-
-            gc $(Pipeline.Workspace)/AcceptanceTests/appsettings.Production.json -raw
           displayName: Set Environment Variables for Config Transform
           env:
             ${{ each setting in parameters.acSettings }}:
@@ -263,18 +265,25 @@ jobs:
               acDevSettings_ZapConfiguration.ApiPort: 8080
 
         - task: AzureCLI@2
-          displayName: Add ${{ parameters.slot }} Slot Exception
+          displayName: Add FW Exception(s)
           inputs:
             azureSubscription: ${{ parameters.subscription }}
             scriptType: pscore
             scriptLocation: inlineScript
             inlineScript: |
+              $ErrorActionPreference = "Continue"
               $ip = (Invoke-WebRequest -uri "http://ifconfig.me/ip").Content
               if('${{ parameters.slot }}' -eq 'production') {
                 az webapp config access-restriction add -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --rule-name $env:BUILD_BUILDID --action Allow --ip-address $ip/32 --priority 200
               } else {
                 az webapp config access-restriction add -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --rule-name $env:BUILD_BUILDID --action Allow --ip-address $ip/32 --priority 200 --slot ${{ parameters.slot }}
               }
+
+              $env:dependencies -split ';' | % {
+                az webapp config access-restriction add -g ${{ parameters.resourceGroup }} -n $_ --rule-name $env:BUILD_BUILDID --action Allow --ip-address $ip/32 --priority 200
+              }
+          env:
+            dependencies: ${{ join(';',parameters.dependentApps) }}
 
         - task: DotNetCoreCLI@2
           displayName: Smoke Test
@@ -289,18 +298,25 @@ jobs:
               arguments: --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings
 
         - task: AzureCLI@2
-          displayName: Remove ${{ parameters.slot }} Slot Exception
+          displayName: Remove FW Exception(s)
           condition: always()
           inputs:
             azureSubscription: ${{ parameters.subscription }}
             scriptType: pscore
             scriptLocation: inlineScript
             inlineScript: |
+              $ErrorActionPreference = "Continue"
               if('${{ parameters.slot }}' -eq 'production') {
                 az webapp config access-restriction remove -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --rule-name $env:BUILD_BUILDID
               } else {
                 az webapp config access-restriction remove -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --rule-name $env:BUILD_BUILDID --slot ${{ parameters.slot }}
               }
+
+              $env:dependencies -split ';' | % {
+                az webapp config access-restriction remove -g ${{ parameters.resourceGroup }} -n $_ --rule-name $env:BUILD_BUILDID
+              }
+          env:
+            dependencies: ${{ join(';',parameters.dependentApps) }}
 
         - task: PublishTestResults@2
           displayName: Publish Test Results

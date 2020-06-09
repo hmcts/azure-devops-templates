@@ -54,6 +54,10 @@ parameters:
     type: string
     default: staging
 
+  - name: dependentApps
+    type: object
+    default: []
+
   - name: variables
     type: object
     default: []
@@ -141,6 +145,7 @@ stages:
         subscription: ${{ parameters.subscription }}
         dependantJobs: Secret_Gathering
         slot: ${{ parameters.deploymentSlot }}
+        dependentApps: ${{ parameters.dependentApps }}
         appSettings:
           - ${{ each setting in parameters.appSettings }}:
             - name: ${{ setting.name }}
