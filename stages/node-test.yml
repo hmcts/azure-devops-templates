@@ -62,7 +62,6 @@ stages:
         inputs:
           workingDir: ${{ parameters.coreProjectPath }}
           verbose: false
-        condition: ne(variables.NPM_CACHE_RESTORED, 'true')
 
       - task: Npm@1
         displayName: Run Lint
