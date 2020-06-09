@@ -7,7 +7,7 @@ parameters:
 steps:
   - script: |
       dotnet tool restore
-      dotnet stryker --mutate "['!**/AssemblyInfo.cs']" --threshold-break ${{ parameters.breakThreshold }} --threshold-low ${{ parameters.lowThreshold }} --threshold-high ${{ parameters.highThreshold }} --reporters "['json','dots']"
+      dotnet stryker --threshold-break ${{ parameters.breakThreshold }} --threshold-low ${{ parameters.lowThreshold }} --threshold-high ${{ parameters.highThreshold }} --reporters "['json','dots']"
     workingDirectory: ${{ parameters.path }}
     failOnStderr: true
     displayName: Run dotnet stryker
