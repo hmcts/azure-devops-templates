@@ -385,7 +385,7 @@ stages:
                 "secrets_${{ setting.name }}": $(secrets_${{ setting.name }})
 
         - task: DotNetCoreCLI@2
-          displayName: Run tests
+          displayName: Run dotnet tests
           inputs:
             testRunTitle: dotnet Tests
             command: test
