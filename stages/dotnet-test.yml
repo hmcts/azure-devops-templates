@@ -19,6 +19,10 @@ parameters:
     type: string
     default: ''
 
+  - name: nodeProjectPath
+    type: string
+    default: ''
+
   - name: unitTestProjectPath
     type: string
     default: ''
@@ -56,6 +60,9 @@ parameters:
   - name: RunIntegrationTests
     type: boolean
     default: true
+  - name: RunNode
+    type: boolean
+    default: false
   - name: RunSonarCloud
     type: boolean
     default: true
@@ -142,7 +149,7 @@ stages:
 
         - task: gittools.gitversion.gitversion-task.GitVersion@5
           displayName: GitVersion
-          inputs: 
+          inputs:
             additionalArguments: /updateassemblyinfo ${{ parameters.coreProjectPath }}/AssemblyInfo.cs /ensureassemblyinfo
 
         - task: Cache@2
@@ -159,6 +166,19 @@ stages:
                 nuget | ${{ parameters.integTestProjectPath }}/packages.lock.json
             path: ${{ variables.NUGET_PACKAGES }}
             cacheHitVar: NUGET_CACHE_RESTORED
+
+        - ${{if parameters.RunNode }}:
+          - template: ../templates/pipelineCaching.yml
+            parameters:
+              ${{ if containsValue(parameters.packageManagers, 'npm') }}:
+                nodeProjectPath: ${{ parameters.nodeProjectPath }}
+              ${{ if containsValue(parameters.packageManagers, 'yarn') }}:
+                yarnProjectPath: ${{ parameters.nodeProjectPath }}
+              packageManagers:
+              - ${{ if containsValue(parameters.packageManagers, 'npm') }}:
+                - npm
+              - ${{ if containsValue(parameters.packageManagers, 'yarn') }}:
+                - yarn
 
         - ${{ if eq(parameters.RunUnitTests, true) }}:
           - task: DotNetCoreCLI@2
@@ -181,6 +201,13 @@ stages:
               includeNuGetOrg: true
               restoreArguments: --locked-mode --use-lock-file
             condition: ne(variables.NUGET_CACHE_RESTORED, 'true')
+
+        - ${{if parameters.RunNode }}:
+          - task: Npm@1
+            displayName: Install Node Modules
+            inputs:
+              workingDir: ${{ parameters.nodeProjectPath }}
+              verbose: false
 
         - ${{ if eq(parameters.RunSonarCloud, true) }}:
           - template: ../templates/sonarCloud/prepare.yml
