@@ -142,7 +142,7 @@ stages:
 
         - task: gittools.gitversion.gitversion-task.GitVersion@5
           displayName: GitVersion
-          inputs:
+          inputs: 
             additionalArguments: /updateassemblyinfo ${{ parameters.coreProjectPath }}/AssemblyInfo.cs /ensureassemblyinfo
 
         - task: Cache@2
@@ -186,16 +186,6 @@ stages:
           - template: ../templates/sonarCloud/prepare.yml
             parameters:
               extraProperties: ${{ parameters.sonarCloud_ExtraProperties }}
-
-        - ${{ if eq(parameters.RunUnitTests, true) }}:
-          - task: DotNetCoreCLI@2
-            displayName: Run unit tests
-            inputs:
-              testRunTitle: Unit Tests
-              command: test
-              projects: |
-                ${{ parameters.unitTestProjectPath }}/*.csproj
-              arguments: ${{ format(parameters.testParameters, join(',', parameters.coverletCoverageExclusions)) }}
 
         - ${{ if eq(parameters.RunIntegrationTests, true) }}:
           - pwsh: |
@@ -335,14 +325,22 @@ stages:
               ${{ each setting in parameters.IntegrationTestSettings }}:
                 "secrets_${{ setting.name }}": $(secrets_${{ setting.name }})
 
-          - task: DotNetCoreCLI@2
-            displayName: Run Integration tests
-            inputs:
-              testRunTitle: Integration Tests
-              command: test
+        - task: DotNetCoreCLI@2
+          displayName: Run tests
+          inputs:
+            testRunTitle: dotnet Tests
+            command: test
+            ${{ if and(eq(parameters.RunUnitTests, true), eq(parameters.RunIntegrationTests, false)) }}:
+              projects: |
+                ${{ parameters.unitTestProjectPath }}/*.csproj
+            ${{ if and(eq(parameters.RunUnitTests, false), eq(parameters.RunIntegrationTests, true)) }}:
               projects: |
                 ${{ parameters.integTestProjectPath }}/*.csproj
-              arguments: ${{ format(parameters.testParameters, join(',', parameters.coverletCoverageExclusions)) }}
+            ${{ if and(eq(parameters.RunUnitTests, true), eq(parameters.RunIntegrationTests, true)) }}:
+              projects: |
+                ${{ parameters.unitTestProjectPath }}/*.csproj
+                ${{ parameters.integTestProjectPath }}/*.csproj
+            arguments: ${{ format(parameters.testParameters, join(',', parameters.coverletCoverageExclusions)) }}
 
         - ${{ if eq(parameters.RunSonarCloud, true) }}:
           - template: ../templates/sonarCloud/runAnalysis.yml
