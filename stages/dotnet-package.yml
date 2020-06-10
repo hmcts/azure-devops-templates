@@ -79,7 +79,7 @@ stages:
         pool:
           vmImage: ${{ parameters.baseAgent }}
 
-        ${{ if parameters.userContainer }}:
+        ${{ if parameters.useContainer }}:
           container: ${{ parameters.dotnetCIToolsContainer }}
 
         dependsOn: []
@@ -135,7 +135,7 @@ stages:
         pool:
           vmImage: ${{ parameters.baseAgent }}
 
-        ${{ if parameters.userContainer }}:
+        ${{ if parameters.useContainer }}:
           container: ${{ parameters.dotnetCIToolsContainer }}
 
         dependsOn: []

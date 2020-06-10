@@ -142,7 +142,7 @@ stages:
         pool:
           vmImage: ${{ parameters.baseAgent }}
 
-        ${{ if parameters.userContainer }}:
+        ${{ if parameters.useContainer }}:
           container: ${{ parameters.dotnetCIToolsContainer }}
 
         ${{ if eq(parameters.RunIntegrationTests, true) }}:
@@ -424,7 +424,7 @@ stages:
         pool:
           vmImage: ${{ parameters.baseAgent }}
 
-        ${{ if parameters.userContainer }}:
+        ${{ if parameters.useContainer }}:
           container: ${{ parameters.dotnetCIToolsContainer }}
 
         steps:
