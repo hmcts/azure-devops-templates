@@ -11,6 +11,10 @@ parameters:
     type: string
     default: dotnetsdk-cipipeline
 
+  - name: useContainer
+    type: boolean
+    default: false
+
   - name: vstsFeedId
     type: string
     default: 3f69a23d-fbc7-4541-afc7-4cccefcad773/e48b2732-376c-4052-ba97-b28783c9bab5
@@ -138,7 +142,8 @@ stages:
         pool:
           vmImage: ${{ parameters.baseAgent }}
 
-        container: ${{ parameters.dotnetCIToolsContainer }}
+        ${{ if parameters.userContainer }}:
+          container: ${{ parameters.dotnetCIToolsContainer }}
 
         ${{ if eq(parameters.RunIntegrationTests, true) }}:
           dependsOn:
@@ -208,9 +213,6 @@ stages:
               extraProperties: ${{ parameters.sonarCloud_ExtraProperties }}
 
         - ${{if parameters.RunNode }}:
-          - bash: |
-              sudo apt-get install libxcursor1:i386
-
           - task: Npm@1
             displayName: Install Node Modules
             inputs:
@@ -422,7 +424,8 @@ stages:
         pool:
           vmImage: ${{ parameters.baseAgent }}
 
-        container: ${{ parameters.dotnetContainer }}
+        ${{ if parameters.userContainer }}:
+          container: ${{ parameters.dotnetCIToolsContainer }}
 
         steps:
         - checkout: self
