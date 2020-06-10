@@ -70,6 +70,8 @@ stages:
       - ${{ parameters.dependantStages }}
 
     variables:
+      - name: MSBUILDSINGLELOADCONTEXT
+        value: 1
       - template: ../templates/variables/packageManagers.yml
 
     jobs:
