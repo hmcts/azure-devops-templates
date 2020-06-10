@@ -178,6 +178,7 @@ stages:
   - ${{ if eq(parameters.Test, true) }}:
     - template: ./dotnet-test.yml
       parameters:
+        packageManagers: ${{ parameters.packageManagers }}
         ${{ insert }}: ${{ parameters.testParameters }}
 
   - ${{ if eq(parameters.NodeTest, true) }}:
