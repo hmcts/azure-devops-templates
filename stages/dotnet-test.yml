@@ -208,6 +208,9 @@ stages:
               extraProperties: ${{ parameters.sonarCloud_ExtraProperties }}
 
         - ${{if parameters.RunNode }}:
+          - bash: |
+              sudo apt-get install libxcursor1:i386
+
           - task: Npm@1
             displayName: Install Node Modules
             inputs:
