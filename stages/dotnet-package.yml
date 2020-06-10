@@ -181,10 +181,10 @@ stages:
         packageManagers: ${{ parameters.packageManagers }}
         ${{ insert }}: ${{ parameters.testParameters }}
 
-  - ${{ if eq(parameters.NodeTest, true) }}:
-    - template: ./node-test.yml
-      parameters:
-        ${{ insert }}: ${{ parameters.nodeTestParameters }}
+  # - ${{ if eq(parameters.NodeTest, true) }}:
+  #   - template: ./node-test.yml
+  #     parameters:
+  #       ${{ insert }}: ${{ parameters.nodeTestParameters }}
 
   - ${{ if eq(parameters.ACTest, true)}}:
     - template: ./dotnet-release.yml

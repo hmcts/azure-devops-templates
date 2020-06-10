@@ -202,6 +202,11 @@ stages:
               restoreArguments: --locked-mode --use-lock-file
             condition: ne(variables.NUGET_CACHE_RESTORED, 'true')
 
+        - ${{ if eq(parameters.RunSonarCloud, true) }}:
+          - template: ../templates/sonarCloud/prepare.yml
+            parameters:
+              extraProperties: ${{ parameters.sonarCloud_ExtraProperties }}
+
         - ${{if parameters.RunNode }}:
           - task: Npm@1
             displayName: Install Node Modules
@@ -209,10 +214,37 @@ stages:
               workingDir: ${{ parameters.nodeProjectPath }}
               verbose: false
 
-        - ${{ if eq(parameters.RunSonarCloud, true) }}:
-          - template: ../templates/sonarCloud/prepare.yml
-            parameters:
-              extraProperties: ${{ parameters.sonarCloud_ExtraProperties }}
+          - task: Npm@1
+            displayName: Run Lint
+            inputs:
+              command: custom
+              workingDir: ${{ parameters.nodeProjectPath }}
+              verbose: false
+              customCommand: run lint
+
+          - task: Npm@1
+            displayName: Run Jasmine Tests
+            inputs:
+              command: custom
+              workingDir: ${{ parameters.nodeProjectPath }}
+              verbose: false
+              customCommand: run test-once-ci
+
+          - task: PublishTestResults@2
+            displayName: Publish Jasmine Test Results
+            inputs:
+              testResultsFiles: '*TESTS.xml'
+              searchFolder: ${{ parameters.nodeProjectPath }}/jasmine-tests
+              mergeTestResults: true
+              testRunTitle: Jasmine Test Results
+
+          - task: PublishCodeCoverageResults@1
+            displayName: Publish Jasmine Code Coverage
+            inputs:
+              codeCoverageTool: Cobertura
+              failIfCoverageEmpty: true
+              summaryFileLocation: ${{ parameters.nodeProjectPath }}/coverage/cobertura-coverage.xml
+              reportDirectory: ${{ parameters.nodeProjectPath }}/coverage/
 
         - ${{ if eq(parameters.RunIntegrationTests, true) }}:
           - pwsh: |
