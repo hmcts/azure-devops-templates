@@ -282,6 +282,8 @@ jobs:
               $env:dependencies -split ';' | % {
                 az webapp config access-restriction add -g $_ -n $_ --rule-name $env:BUILD_BUILDID --action Allow --ip-address $ip/32 --priority 200
               }
+
+              sleep 20
           env:
             dependencies: ${{ join(';',parameters.dependentApps) }}
 

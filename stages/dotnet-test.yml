@@ -244,6 +244,7 @@ stages:
               searchFolder: ${{ parameters.nodeProjectPath }}/jasmine-tests
               mergeTestResults: true
               testRunTitle: Jasmine Test Results
+            condition: always()
 
           - task: PublishCodeCoverageResults@1
             displayName: Publish Jasmine Code Coverage
@@ -252,6 +253,7 @@ stages:
               failIfCoverageEmpty: true
               summaryFileLocation: ${{ parameters.nodeProjectPath }}/coverage/cobertura-coverage.xml
               reportDirectory: ${{ parameters.nodeProjectPath }}/coverage/
+            condition: always()
 
         - ${{ if eq(parameters.RunIntegrationTests, true) }}:
           - pwsh: |
