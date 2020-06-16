@@ -279,7 +279,7 @@ jobs:
                 az webapp config access-restriction add -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --rule-name $env:BUILD_BUILDID --action Allow --ip-address $ip/32 --priority 200 --slot ${{ parameters.slot }}
               }
 
-              $env:dependencies -split ';' | ? { $_ -ne $null } | % {
+              $env:dependencies -split ';' | ? { -not [string]::IsNullOrEmpty($_) } | % {
                 az webapp config access-restriction add -g $_ -n $_ --rule-name $env:BUILD_BUILDID --action Allow --ip-address $ip/32 --priority 200
               }
 
@@ -314,7 +314,7 @@ jobs:
                 az webapp config access-restriction remove -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --rule-name $env:BUILD_BUILDID --slot ${{ parameters.slot }}
               }
 
-              $env:dependencies -split ';' | ? { $_ -ne $null } | % {
+              $env:dependencies -split ';' | ? { -not [string]::IsNullOrEmpty($_) } | % {
                 az webapp config access-restriction remove -g $_ -n $_ --rule-name $env:BUILD_BUILDID
               }
           env:
