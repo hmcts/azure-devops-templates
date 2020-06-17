@@ -22,7 +22,7 @@ stages:
         - group: vh-preview
         - ${{ each variable in parameters.releaseParameters.variables }}:
           - ${{ each property in variable }}:
-            - ${{ if or(not(variable.env), and(variable.env, containsValue('Preview', variable.env))) }}:
+            - ${{ if or(not(variable.env), containsValue(variable.env, 'Preview')) }}:
               - ${{ if eq('group', property.key) }}:
                 - group: ${{ variable.group }}
               - ${{ if eq('name', property.key) }}:
@@ -105,7 +105,7 @@ stages:
         - group: vh-sandbox
         - ${{ each variable in parameters.releaseParameters.variables }}:
           - ${{ each property in variable }}:
-            - ${{ if or(not(variable.env), and(variable.env, containsValue('Sandbox', variable.env))) }}:
+            - ${{ if or(not(variable.env), containsValue(variable.env, 'Sandbox')) }}:
               - ${{ if eq('group', property.key) }}:
                 - group: ${{ variable.group }}
               - ${{ if eq('name', property.key) }}:
