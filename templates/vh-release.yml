@@ -105,11 +105,12 @@ stages:
         - group: vh-sandbox
         - ${{ each variable in parameters.releaseParameters.variables }}:
           - ${{ each property in variable }}:
-            - ${{ if eq('group', property.key) }}:
-              - group: ${{ variable.group }}
-            - ${{ if eq('name', property.key) }}:
-              - name: ${{ variable.name }}
-                value: ${{ variable.value }}
+            - ${{ if or(not(variable.env), and(variable.env, containsValue('Preview', variable.env))) }}:
+              - ${{ if eq('group', property.key) }}:
+                - group: ${{ variable.group }}
+              - ${{ if eq('name', property.key) }}:
+                - name: ${{ variable.name }}
+                  value: ${{ variable.value }}
       ${{ each setting in parameters.releaseParameters }}:
         ${{ if ne(setting.key, 'variables') }}:
           ${{ setting.key }}: ${{ setting.value }}
