@@ -44,11 +44,12 @@ stages:
         - group: vh-dev
         - ${{ each variable in parameters.releaseParameters.variables }}:
           - ${{ each property in variable }}:
-            - ${{ if eq('group', property.key) }}:
-              - group: ${{ variable.group }}
-            - ${{ if eq('name', property.key) }}:
-              - name: ${{ variable.name }}
-                value: ${{ variable.value }}
+            - ${{ if or(not(variable.env), containsValue(variable.env, 'Dev')) }}:
+              - ${{ if eq('group', property.key) }}:
+                - group: ${{ variable.group }}
+              - ${{ if eq('name', property.key) }}:
+                - name: ${{ variable.name }}
+                  value: ${{ variable.value }}
       ${{ each setting in parameters.releaseParameters }}:
         ${{ if ne(setting.key, 'variables') }}:
           ${{ setting.key }}: ${{ setting.value }}
@@ -65,11 +66,12 @@ stages:
         - group: vh-aat
         - ${{ each variable in parameters.releaseParameters.variables }}:
           - ${{ each property in variable }}:
-            - ${{ if eq('group', property.key) }}:
-              - group: ${{ variable.group }}
-            - ${{ if eq('name', property.key) }}:
-              - name: ${{ variable.name }}
-                value: ${{ variable.value }}
+            - ${{ if or(not(variable.env), containsValue(variable.env, 'AAT')) }}:
+              - ${{ if eq('group', property.key) }}:
+                - group: ${{ variable.group }}
+              - ${{ if eq('name', property.key) }}:
+                - name: ${{ variable.name }}
+                  value: ${{ variable.value }}
       ${{ each setting in parameters.releaseParameters }}:
         ${{ if ne(setting.key, 'variables') }}:
           ${{ setting.key }}: ${{ setting.value }}
@@ -86,11 +88,12 @@ stages:
         - group: vh-demo
         - ${{ each variable in parameters.releaseParameters.variables }}:
           - ${{ each property in variable }}:
-            - ${{ if eq('group', property.key) }}:
-              - group: ${{ variable.group }}
-            - ${{ if eq('name', property.key) }}:
-              - name: ${{ variable.name }}
-                value: ${{ variable.value }}
+            - ${{ if or(not(variable.env), containsValue(variable.env, 'Demo')) }}:
+              - ${{ if eq('group', property.key) }}:
+                - group: ${{ variable.group }}
+              - ${{ if eq('name', property.key) }}:
+                - name: ${{ variable.name }}
+                  value: ${{ variable.value }}
       ${{ each setting in parameters.releaseParameters }}:
         ${{ if ne(setting.key, 'variables') }}:
           ${{ setting.key }}: ${{ setting.value }}
@@ -125,11 +128,12 @@ stages:
         - group: vh-test1
         - ${{ each variable in parameters.releaseParameters.variables }}:
           - ${{ each property in variable }}:
-            - ${{ if eq('group', property.key) }}:
-              - group: ${{ variable.group }}
-            - ${{ if eq('name', property.key) }}:
-              - name: ${{ variable.name }}
-                value: ${{ variable.value }}
+            - ${{ if or(not(variable.env), containsValue(variable.env, 'Test1')) }}:
+              - ${{ if eq('group', property.key) }}:
+                - group: ${{ variable.group }}
+              - ${{ if eq('name', property.key) }}:
+                - name: ${{ variable.name }}
+                  value: ${{ variable.value }}
       ${{ each setting in parameters.releaseParameters }}:
         ${{ if ne(setting.key, 'variables') }}:
           ${{ setting.key }}: ${{ setting.value }}
@@ -144,11 +148,12 @@ stages:
         - group: vh-preprod
         - ${{ each variable in parameters.releaseParameters.variables }}:
           - ${{ each property in variable }}:
-            - ${{ if eq('group', property.key) }}:
-              - group: ${{ variable.group }}
-            - ${{ if eq('name', property.key) }}:
-              - name: ${{ variable.name }}
-                value: ${{ variable.value }}
+            - ${{ if or(not(variable.env), containsValue(variable.env, 'Preprod')) }}:
+              - ${{ if eq('group', property.key) }}:
+                - group: ${{ variable.group }}
+              - ${{ if eq('name', property.key) }}:
+                - name: ${{ variable.name }}
+                  value: ${{ variable.value }}
       ${{ each setting in parameters.releaseParameters }}:
         ${{ if ne(setting.key, 'variables') }}:
           ${{ setting.key }}: ${{ setting.value }}
@@ -167,11 +172,12 @@ stages:
         - group: vh-prod
         - ${{ each variable in parameters.releaseParameters.variables }}:
           - ${{ each property in variable }}:
-            - ${{ if eq('group', property.key) }}:
-              - group: ${{ variable.group }}
-            - ${{ if eq('name', property.key) }}:
-              - name: ${{ variable.name }}
-                value: ${{ variable.value }}
+            - ${{ if or(not(variable.env), containsValue(variable.env, 'Prod')) }}:
+              - ${{ if eq('group', property.key) }}:
+                - group: ${{ variable.group }}
+              - ${{ if eq('name', property.key) }}:
+                - name: ${{ variable.name }}
+                  value: ${{ variable.value }}
       ${{ each setting in parameters.releaseParameters }}:
         ${{ if ne(setting.key, 'variables') }}:
           ${{ setting.key }}: ${{ setting.value }}
