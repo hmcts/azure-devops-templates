@@ -70,7 +70,7 @@ jobs:
     maxParallel: 1
     matrix:
       ${{ each config in parameters.deviceConfiguration }}:
-        ${{config.OS}}_${{config.Browser}}_${{config.BrowserVersion}}_${{config.DeviceType}}_${{config.DeviceName}}: ${{ config }}
+        ${{config.OS}}_${{config.DeviceType}}_${{config.Browser}}_${{config.BrowserVersion}}_${{config.DeviceName}}: ${{ config }}
 
   variables:
     - ${{ each variable in parameters.variables }}:
@@ -118,7 +118,6 @@ jobs:
       New-Item -Path $(Pipeline.Workspace)/AcceptanceTests -Name appsettings.Production.json -ItemType File -Value $appSettings -Force | Out-Null
 
       $runtimeSettings = '<?xml version="1.0" encoding="utf-8"?><RunSettings><TestRunParameters><Parameter name="TargetEnvironment" value="Production"/><Parameter name="TargetBrowser" value="$(Browser)"/><Parameter name="TargetBrowserVersion" value="$(BrowserVersion)"/><Parameter name="TargetDevice" value="$(DeviceType)"/><Parameter name="TargetOS" value="$(OS)"/><Parameter name="TargetDeviceName" value="$(DeviceName)"/></TestRunParameters></RunSettings>'
-      $runtimeSettings
       New-Item -Path $(Pipeline.Workspace)/AcceptanceTests -Name parameters.runsettings -ItemType File -Value $runtimeSettings -Force | Out-Null
     displayName: Set Environment Variables for Config Transform
     env:
