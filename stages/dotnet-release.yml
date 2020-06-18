@@ -203,6 +203,5 @@ stages:
 
           useCurrentPipeline: ${{ parameters.useCurrentPipeline }}
           ${{ if not(parameters.useCurrentPipeline) }}:
-            releaseName: $(resources.pipeline.${{ parameters.CIPipelineResourceID }}.runName)
             CIPipelineID: $(resources.pipeline.${{ parameters.CIPipelineResourceID }}.pipelineID)
             deployBranch: ${{ parameters.deployBranch }}
