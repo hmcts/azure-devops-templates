@@ -1,0 +1,191 @@
+parameters:
+  - name: baseAgent
+    type: string
+    default: Ubuntu-16.04
+
+  - name: dotnetContainer
+    type: string
+    default: dotnetsdk
+
+  - name: dependantJobs
+    type: object
+    default: []
+
+  - name: environment
+    type: string
+
+  - name: deviceConfiguration
+    type: object
+
+  - name: useCurrentPipeline
+    type: boolean
+    default: false
+
+  - name: projectId
+    type: string
+    default: 3f69a23d-fbc7-4541-afc7-4cccefcad773
+
+  - name: CIPipelineID
+    type: string
+    default: ''
+
+  - name: deployBranch
+    type: string
+    default: refs/heads/master
+
+  - name: appName
+    type: string
+
+  - name: resourceGroup
+    type: string
+
+  - name: slot
+    type: string
+    default: staging
+
+  - name: dependentApps
+    type: object
+    default: []
+
+  - name: subscription
+    type: string
+
+  - name: acSettings
+    type: object
+    default: []
+
+  - name: variables
+    type: object
+    default: []
+
+jobs:
+- job: Device_Testing
+  displayName: Device Variance Testing
+  pool:
+      vmImage: ${{ parameters.baseAgent }}
+
+  dependsOn: ${{ parameters.dependantJobs }}
+
+  strategy:
+    maxParallel: 1
+    matrix:
+      ${{ each config in parameters.deviceConfiguration }}:
+        ${{config.OS}}_${{config.DeviceType}}_${{config.Browser}}_${{config.BrowserVersion}}_${{config.DeviceName}}: ${{ config }}
+
+  variables:
+    - ${{ each variable in parameters.variables }}:
+      - ${{ each property in variable }}:
+        - ${{ if eq('group', property.key) }}:
+          - group: ${{ variable.group }}
+        - ${{ if eq('name', property.key) }}:
+          - name: ${{ variable.name }}
+            value: ${{ variable.value }}
+    - ${{ each setting in parameters.acSettings }}:
+        - name: "acDevSettings_${{ setting.name }}"
+          value: $[ dependencies.Secret_Gathering.outputs['SetSecretVariables._${{ setting.name }}'] ]
+
+  steps:
+  - checkout: none
+
+  - pwsh: |
+      $environment = '${{ parameters.environment }}'.tolower()
+      Write-Host "##vso[task.setvariable variable=environment]$environment"
+      Write-Host "##vso[task.setvariable variable=Release.EnvironmentName]$environment"
+    displayName: Set Environment Alias ENVVARS
+
+  - task: DownloadPipelineArtifact@2
+    displayName: Download Acceptance Test Binaries
+    inputs:
+      artifact: AcceptanceTests
+      path: $(Pipeline.Workspace)/AcceptanceTests
+      preferTriggeringPipeline: true
+      ${{ if parameters.useCurrentPipeline }}:
+        source: current
+      ${{ if eq(parameters.useCurrentPipeline, false) }}:
+        buildType: specific
+        project: ${{ parameters.projectId }}
+        pipeline: ${{ parameters.CIPipelineId }}
+        runVersion: latestFromBranch
+        runBranch: ${{ parameters.deployBranch }}
+
+  - pwsh: |
+      $appsettings = @{}
+      Get-ChildItem ENV: | Where-Object -FilterScript { $_.Name -cmatch "^acDevSettings_((|azDeploymentSlotSetting)(?!azActiveSlotSetting|azDeploymentSlotSetting)_?(.+))" } | Foreach-Object -Process {
+        $appsettings[$matches[3]] = $_.value
+      }
+
+      $appSettings = $appSettings | ConvertTo-Json -Depth 99
+      New-Item -Path $(Pipeline.Workspace)/AcceptanceTests -Name appsettings.Production.json -ItemType File -Value $appSettings -Force | Out-Null
+
+      $runtimeSettings = '<?xml version="1.0" encoding="utf-8"?><RunSettings><TestRunParameters><Parameter name="TargetEnvironment" value="Production"/><Parameter name="TargetBrowser" value="$(Browser)"/><Parameter name="TargetBrowserVersion" value="$(BrowserVersion)"/><Parameter name="TargetDevice" value="$(DeviceType)"/><Parameter name="TargetOS" value="$(OS)"/><Parameter name="TargetDeviceName" value="$(DeviceName)"/></TestRunParameters></RunSettings>'
+      New-Item -Path $(Pipeline.Workspace)/AcceptanceTests -Name parameters.runsettings -ItemType File -Value $runtimeSettings -Force | Out-Null
+    displayName: Set Environment Variables for Config Transform
+    env:
+      ${{ each setting in parameters.acSettings }}:
+        ${{ if eq(setting.slot, true)}}:
+          "acDevSettings_azDeploymentSlotSetting_${{ setting.name }}": $(acDevSettings_azDeploymentSlotSetting_${{ setting.name }})
+        ${{ if ne(setting.slot, true)}}:
+          "acDevSettings_${{ setting.name }}": $(acDevSettings_${{ setting.name }})
+
+  - task: AzureCLI@2
+    displayName: Add FW Exception(s)
+    inputs:
+      azureSubscription: ${{ parameters.subscription }}
+      scriptType: pscore
+      scriptLocation: inlineScript
+      inlineScript: |
+        $ErrorActionPreference = "Continue"
+        $ip = (Invoke-WebRequest -uri "http://ifconfig.me/ip").Content
+        if('${{ parameters.slot }}' -eq 'production') {
+          az webapp config access-restriction add -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --rule-name $env:BUILD_BUILDID --action Allow --ip-address $ip/32 --priority 200
+        } else {
+          az webapp config access-restriction add -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --rule-name $env:BUILD_BUILDID --action Allow --ip-address $ip/32 --priority 200 --slot ${{ parameters.slot }}
+        }
+
+        $env:dependencies -split ';' | ? { -not [string]::IsNullOrEmpty($_) } | % {
+          az webapp config access-restriction add -g $_ -n $_ --rule-name $env:BUILD_BUILDID --action Allow --ip-address $ip/32 --priority 200
+        }
+
+        sleep 20
+    env:
+      dependencies: ${{ join(';',parameters.dependentApps) }}
+
+  - task: DotNetCoreCLI@2
+    displayName: Device Test
+    inputs:
+      testRunTitle: Acceptance Tests
+      command: custom
+      projects: $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll
+      custom: vstest
+      arguments: --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings --TestCaseFilter:$(TestCaseFilter)
+
+  - task: AzureCLI@2
+    displayName: Remove FW Exception(s)
+    condition: always()
+    inputs:
+      azureSubscription: ${{ parameters.subscription }}
+      scriptType: pscore
+      scriptLocation: inlineScript
+      inlineScript: |
+        $ErrorActionPreference = "Continue"
+        if('${{ parameters.slot }}' -eq 'production') {
+          az webapp config access-restriction remove -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --rule-name $env:BUILD_BUILDID
+        } else {
+          az webapp config access-restriction remove -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --rule-name $env:BUILD_BUILDID --slot ${{ parameters.slot }}
+        }
+
+        $env:dependencies -split ';' | ? { -not [string]::IsNullOrEmpty($_) } | % {
+          az webapp config access-restriction remove -g $_ -n $_ --rule-name $env:BUILD_BUILDID
+        }
+    env:
+      dependencies: ${{ join(';',parameters.dependentApps) }}
+
+  - task: PublishTestResults@2
+    displayName: Publish Test Results
+    condition: succeededOrFailed()
+    inputs:
+      testResultsFormat: VSTest
+      testResultsFiles: '**/*.trx'
+      searchFolder: $(Agent.TempDirectory)/TestResults
+      mergeTestResults: true
+      testRunTitle: Device Test
