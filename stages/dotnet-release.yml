@@ -186,15 +186,16 @@ stages:
       - template: ../jobs/multiDeviceTest.yml
         parameters:
           baseAgent: ${{ parameters.baseAgent }}
-          dependantJobs:
-          - Secret_Gathering
-          - ${{ parameters.devOpsResource }}
-          deviceConfiguration: ${{ parameters.deviceConfiguration }}
+          environment: ${{ parameters.environment }}
           appName: ${{ parameters.appName }}
           resourceGroup: ${{ parameters.resourceGroup }}
           subscription: ${{ parameters.subscription }}
+          dependantJobs:
+          - Secret_Gathering
+          - ${{ parameters.devOpsResource }}
           slot: ${{ parameters.deploymentSlot }}
           dependentApps: ${{ parameters.dependentApps }}
+          deviceConfiguration: ${{ parameters.deviceConfiguration }}
           acSettings:
           - ${{ each setting in parameters.acceptanceTestSettings }}:
             - name: ${{ setting.name }}
