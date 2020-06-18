@@ -193,7 +193,6 @@ stages:
           appName: ${{ parameters.appName }}
           resourceGroup: ${{ parameters.resourceGroup }}
           subscription: ${{ parameters.subscription }}
-          dependantJobs: Secret_Gathering
           slot: ${{ parameters.deploymentSlot }}
           dependentApps: ${{ parameters.dependentApps }}
           acSettings:
