@@ -38,6 +38,9 @@ parameters:
   - name: appSettings
     type: object
 
+  - name: deviceConfiguration
+    type: object
+
   - name: useCurrentPipeline
     type: boolean
     default: false
@@ -67,6 +70,10 @@ parameters:
     default: ''
 
   - name: runZapTests
+    type: boolean
+    default: false
+
+  - name: runMultiDeviceTests
     type: boolean
     default: false
 
@@ -174,3 +181,29 @@ stages:
           zapThresholdMedium: ${{ parameters.zapThresholdMedium }}
         ${{ if ne(parameters.zapThresholdLow, '99999') }}:
           zapThresholdLow: ${{ parameters.zapThresholdLow }}
+
+    - ${{ if parameters.runMultiDeviceTests }}:
+      - template: ../jobs/multiDeviceTest.yml
+        parameters:
+          baseAgent: ${{ parameters.baseAgent }}
+          dependantJobs:
+          - Secret_Gathering
+          - ${{ parameters.devOpsResource }}
+          deviceConfiguration: ${{ parameters.deviceConfiguration }}
+          appName: ${{ parameters.appName }}
+          resourceGroup: ${{ parameters.resourceGroup }}
+          subscription: ${{ parameters.subscription }}
+          dependantJobs: Secret_Gathering
+          slot: ${{ parameters.deploymentSlot }}
+          dependentApps: ${{ parameters.dependentApps }}
+          acSettings:
+          - ${{ each setting in parameters.acceptanceTestSettings }}:
+            - name: ${{ setting.name }}
+              slot: ${{ eq(setting.slot, true) }}
+          variables: ${{ parameters.variables }}
+
+          useCurrentPipeline: ${{ parameters.useCurrentPipeline }}
+          ${{ if not(parameters.useCurrentPipeline) }}:
+            releaseName: $(resources.pipeline.${{ parameters.CIPipelineResourceID }}.runName)
+            CIPipelineID: $(resources.pipeline.${{ parameters.CIPipelineResourceID }}.pipelineID)
+            deployBranch: ${{ parameters.deployBranch }}
