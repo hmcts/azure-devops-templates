@@ -188,4 +188,4 @@ jobs:
       testResultsFiles: '**/*.trx'
       searchFolder: $(Agent.TempDirectory)/TestResults
       mergeTestResults: true
-      testRunTitle: Device Test
+      testRunTitle: Device Test - $(OS)_$(DeviceType)_$(Browser)_$(BrowserVersion)_$(DeviceName)
