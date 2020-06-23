@@ -87,7 +87,10 @@ jobs:
           value: $[ dependencies.Secret_Gathering.outputs['SetSecretVariables._${{ setting.name }}'] ]
 
   steps:
-  - checkout: none
+  - checkout: self
+
+  - task: gittools.gitversion.gitversion-task.GitVersion@5
+    displayName: GitVersion
 
   - pwsh: |
       $environment = '${{ parameters.environment }}'.tolower()
