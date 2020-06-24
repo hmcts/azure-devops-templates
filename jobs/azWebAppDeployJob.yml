@@ -209,7 +209,10 @@ jobs:
 
       postRouteTraffic:
         steps:
-        - checkout: none
+        - checkout: self
+
+        - task: gittools.gitversion.gitversion-task.GitVersion@5
+          displayName: GitVersion
 
         - ${{ if parameters.runZapTests }}:
           - script: |
