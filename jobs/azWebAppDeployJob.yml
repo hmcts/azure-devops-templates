@@ -251,6 +251,11 @@ jobs:
             }
 
             $appSettings = $appSettings | ConvertTo-Json -Depth 99
+
+            if($env:SYSTEM_DEBUG) {
+              $appsettings
+            }
+
             New-Item -Path $(Pipeline.Workspace)/AcceptanceTests -Name appsettings.Production.json -ItemType File -Value $appSettings -Force | Out-Null
 
             $runtimeSettings = '<?xml version="1.0" encoding="utf-8"?><RunSettings><TestRunParameters><Parameter name="TargetEnvironment" value="Production"/></TestRunParameters></RunSettings>'
