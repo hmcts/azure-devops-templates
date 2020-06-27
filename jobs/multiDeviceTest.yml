@@ -83,8 +83,12 @@ jobs:
           - name: ${{ variable.name }}
             value: ${{ variable.value }}
     - ${{ each setting in parameters.acSettings }}:
-        - name: "acDevSettings_${{ setting.name }}"
-          value: $[ dependencies.Secret_Gathering.outputs['SetSecretVariables._${{ setting.name }}'] ]
+        - ${{ if eq(setting.slot, true)}}:
+          - name: "acDevSettings_azActiveSlotSetting_${{ setting.name }}"
+            value: $[ dependencies.Secret_Gathering.outputs['SetSecretVariables.active_${{ setting.name }}'] ]
+        - ${{ if ne(setting.slot, true)}}:
+          - name: "acDevSettings_${{ setting.name }}"
+            value: $[ dependencies.Secret_Gathering.outputs['SetSecretVariables._${{ setting.name }}'] ]
 
   steps:
   - checkout: self
@@ -115,7 +119,7 @@ jobs:
 
   - pwsh: |
       $appsettings = @{}
-      Get-ChildItem ENV: | Where-Object -FilterScript { $_.Name -cmatch "^acDevSettings_((|azDeploymentSlotSetting)(?!azActiveSlotSetting|azDeploymentSlotSetting)_?(.+))" } | Foreach-Object -Process {
+      Get-ChildItem ENV: | Where-Object -FilterScript { $_.Name -cmatch "^acDevSettings_((|azActiveSlotSetting)(?!azActiveSlotSetting|azDeploymentSlotSetting)_?(.+))" } | Foreach-Object -Process {
         $appsettings[$matches[3]] = $_.value
       }
 
@@ -128,7 +132,7 @@ jobs:
     env:
       ${{ each setting in parameters.acSettings }}:
         ${{ if eq(setting.slot, true)}}:
-          "acDevSettings_azDeploymentSlotSetting_${{ setting.name }}": $(acDevSettings_azDeploymentSlotSetting_${{ setting.name }})
+          "acDevSettings_azActiveSlotSetting_${{ setting.name }}": $(acDevSettings_azActiveSlotSetting_${{ setting.name }})
         ${{ if ne(setting.slot, true)}}:
           "acDevSettings_${{ setting.name }}": $(acDevSettings_${{ setting.name }})
 
