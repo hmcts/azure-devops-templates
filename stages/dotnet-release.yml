@@ -136,12 +136,28 @@ stages:
 
         - ${{ each setting in parameters.acceptanceTestSettings }}:
           - ${{ if eq(contains(format(',{0}', join(',', parameters.appSettings.*.name)), format(',{0}', setting.name)), false) }}:
-            - appsetting: ${{ setting.name }}
-              ${{ if ne(setting.secret, true) }}:
-                value: ${{ setting.value }}
-              ${{ if eq(setting.secret, true) }}:
-                secretref: ${{ setting.value }}
-                value: $(${{ setting.value }})
+            - ${{ if ne(format(',{0}', setting.value), ',') }}:
+              - appsetting: ${{ setting.name }}
+                ${{ if ne(setting.secret, true) }}:
+                  value: ${{ setting.value }}
+                ${{ if eq(setting.secret, true) }}:
+                  secretref: ${{ setting.value }}
+                  value: $(${{ setting.value }})
+            - ${{ if ne(format(',{0}', setting.slot.deployment.value), ',') }}:
+              - appsetting: ${{ setting.name }}
+                slot: 'deployment'
+                ${{ if ne(setting.slot.deployment.secret, true) }}:
+                  value: ${{ setting.slot.deployment.value}}
+                ${{ if eq(setting.slot.deployment.secret, true) }}:
+                  secretref: ${{ setting.slot.deployment.value}}
+                  value: $(${{ setting.slot.deployment.value}})
+              - appsetting: ${{ setting.name }}
+                slot: 'active'
+                ${{ if ne(setting.slot.active.secret, true) }}:
+                  value: ${{ setting.slot.active.value}}
+                ${{ if eq(setting.slot.active.secret, true) }}:
+                  secretref: ${{ setting.slot.active.value}}
+                  value: $(${{ setting.slot.active.value}})
 
     - template: ../jobs/azWebAppDeployJob.yml
       parameters:
@@ -164,7 +180,10 @@ stages:
         acSettings:
           - ${{ each setting in parameters.acceptanceTestSettings }}:
             - name: ${{ setting.name }}
-              slot: ${{ eq(setting.slot, true) }}
+              ${{ if or(eq(setting.slot, true) ,ne(format(',{0}', setting.slot.deployment.value), ',')) }}:
+                slot: true
+              ${{ if eq(format(',{0}', setting.slot.deployment.value), ',') }}:
+                slot: false
         variables: ${{ parameters.variables }}
 
         useCurrentPipeline: ${{ parameters.useCurrentPipeline }}
@@ -200,7 +219,10 @@ stages:
           acSettings:
           - ${{ each setting in parameters.acceptanceTestSettings }}:
             - name: ${{ setting.name }}
-              slot: ${{ eq(setting.slot, true) }}
+              ${{ if or(eq(setting.slot, true) ,ne(format(',{0}', setting.slot.deployment.value), ',')) }}:
+                slot: true
+              ${{ if eq(format(',{0}', setting.slot.deployment.value), ',') }}:
+                slot: false
           variables: ${{ parameters.variables }}
 
           useCurrentPipeline: ${{ parameters.useCurrentPipeline }}
