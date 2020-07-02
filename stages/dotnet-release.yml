@@ -182,7 +182,7 @@ stages:
             - name: ${{ setting.name }}
               ${{ if or(eq(setting.slot, true) ,ne(format(',{0}', setting.slot.deployment.value), ',')) }}:
                 slot: true
-              ${{ if eq(format(',{0}', setting.slot.deployment.value), ',') }}:
+              ${{ if and(ne(setting.slot, true), eq(format(',{0}', setting.slot.deployment.value), ',')) }}:
                 slot: false
         variables: ${{ parameters.variables }}
 
@@ -221,7 +221,7 @@ stages:
             - name: ${{ setting.name }}
               ${{ if or(eq(setting.slot, true) ,ne(format(',{0}', setting.slot.deployment.value), ',')) }}:
                 slot: true
-              ${{ if eq(format(',{0}', setting.slot.deployment.value), ',') }}:
+              ${{ if and(ne(setting.slot, true), eq(format(',{0}', setting.slot.deployment.value), ',')) }}:
                 slot: false
           variables: ${{ parameters.variables }}
 
