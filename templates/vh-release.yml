@@ -10,10 +10,7 @@ parameters:
 
 - name: environments
   type: object
-  default:
-    - Preview
-    - Dev
-    - AAT
+  default: []
 
 stages:
 - ${{ if or(eq(variables['Build.Reason'], 'ResourceTrigger'), containsValue(parameters.environments, 'Preview')) }}:
