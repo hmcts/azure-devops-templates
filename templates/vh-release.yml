@@ -18,7 +18,10 @@ stages:
     parameters:
       environment: Preview
       stageName: Preview
-      deployBranch: ${{ parameters.deploymentBranch }}
+      ${{ if ne(variables['Build.Reason'], 'ResourceTrigger') }}:
+        deployBranch: ${{ parameters.deploymentBranch }}
+      ${{ if eq(variables['Build.Reason'], 'ResourceTrigger') }}:
+        deployBranch: $(${{ parameters.deploymentBranch }})
       variables:
         - group: vh-preview
         - ${{ each variable in parameters.releaseParameters.variables }}:
@@ -40,7 +43,10 @@ stages:
     parameters:
       environment: Dev
       stageName: Dev
-      deployBranch: ${{ parameters.deploymentBranch }}
+      ${{ if ne(variables['Build.Reason'], 'ResourceTrigger') }}:
+        deployBranch: ${{ parameters.deploymentBranch }}
+      ${{ if eq(variables['Build.Reason'], 'ResourceTrigger') }}:
+        deployBranch: $(${{ parameters.deploymentBranch }})
       variables:
         - group: vh-dev
         - ${{ each variable in parameters.releaseParameters.variables }}:
@@ -62,7 +68,10 @@ stages:
     parameters:
       environment: AAT
       stageName: AAT
-      deployBranch: ${{ parameters.deploymentBranch }}
+      ${{ if ne(variables['Build.Reason'], 'ResourceTrigger') }}:
+        deployBranch: ${{ parameters.deploymentBranch }}
+      ${{ if eq(variables['Build.Reason'], 'ResourceTrigger') }}:
+        deployBranch: $(${{ parameters.deploymentBranch }})
       variables:
         - group: vh-aat
         - ${{ each variable in parameters.releaseParameters.variables }}:
@@ -84,7 +93,10 @@ stages:
     parameters:
       environment: Demo
       stageName: Demo
-      deployBranch: ${{ parameters.deploymentBranch }}
+      ${{ if ne(variables['Build.Reason'], 'ResourceTrigger') }}:
+        deployBranch: ${{ parameters.deploymentBranch }}
+      ${{ if eq(variables['Build.Reason'], 'ResourceTrigger') }}:
+        deployBranch: $(${{ parameters.deploymentBranch }})
       variables:
         - group: vh-demo
         - ${{ each variable in parameters.releaseParameters.variables }}:
@@ -104,7 +116,10 @@ stages:
     parameters:
       environment: Sandbox
       stageName: Sandbox
-      deployBranch: ${{ parameters.deploymentBranch }}
+      ${{ if ne(variables['Build.Reason'], 'ResourceTrigger') }}:
+        deployBranch: ${{ parameters.deploymentBranch }}
+      ${{ if eq(variables['Build.Reason'], 'ResourceTrigger') }}:
+        deployBranch: $(${{ parameters.deploymentBranch }})
       variables:
         - group: vh-sandbox
         - ${{ each variable in parameters.releaseParameters.variables }}:
@@ -124,7 +139,10 @@ stages:
     parameters:
       environment: Test1
       stageName: Test1
-      deployBranch: ${{ parameters.deploymentBranch }}
+      ${{ if ne(variables['Build.Reason'], 'ResourceTrigger') }}:
+        deployBranch: ${{ parameters.deploymentBranch }}
+      ${{ if eq(variables['Build.Reason'], 'ResourceTrigger') }}:
+        deployBranch: $(${{ parameters.deploymentBranch }})
       variables:
         - group: vh-test1
         - ${{ each variable in parameters.releaseParameters.variables }}:
@@ -144,7 +162,10 @@ stages:
     parameters:
       environment: Preprod
       stageName: Preprod
-      deployBranch: ${{ parameters.deploymentBranch }}
+      ${{ if ne(variables['Build.Reason'], 'ResourceTrigger') }}:
+        deployBranch: ${{ parameters.deploymentBranch }}
+      ${{ if eq(variables['Build.Reason'], 'ResourceTrigger') }}:
+        deployBranch: $(${{ parameters.deploymentBranch }})
       variables:
         - group: vh-preprod
         - ${{ each variable in parameters.releaseParameters.variables }}:
@@ -166,7 +187,10 @@ stages:
     parameters:
       environment: Prod
       stageName: Prod
-      deployBranch: ${{ parameters.deploymentBranch }}
+      ${{ if ne(variables['Build.Reason'], 'ResourceTrigger') }}:
+        deployBranch: ${{ parameters.deploymentBranch }}
+      ${{ if eq(variables['Build.Reason'], 'ResourceTrigger') }}:
+        deployBranch: $(${{ parameters.deploymentBranch }})
       ${{ if eq(variables['Build.Reason'], 'ResourceTrigger') }}:
         dependantStages:
           - Preprod
