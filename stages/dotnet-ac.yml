@@ -1,0 +1,132 @@
+parameters:
+  - name: baseAgent
+    type: string
+    default: Ubuntu-16.04
+
+  - name: stageName
+    type: string
+
+  - name: environment
+    type: string
+    default: Preview
+
+  - name: subscription
+    type: string
+
+  - name: secrets_KeyVault
+    type: string
+
+  - name: secrets_Subscription
+    type: string
+
+  - name: appName
+    type: string
+
+  - name: resourceGroup
+    type: string
+
+  - name: dependantStages
+    type: object
+    default: []
+
+  - name: acceptanceTestSettings
+    type: object
+
+  - name: deviceConfiguration
+    type: object
+    default: []
+
+  - name: useCurrentPipeline
+    type: boolean
+    default: false
+
+  - name: CIPipelineResourceID
+    type: string
+    default: CI
+
+  - name: deployBranch
+    type: string
+    default: refs/heads/master
+
+  - name: deploymentSlot
+    type: string
+    default: staging
+
+  - name: dependentApps
+    type: object
+    default: []
+
+  - name: variables
+    type: object
+    default: []
+
+  - name: condition
+    type: string
+    default: ''
+
+stages:
+  - stage: ${{ parameters.stageName }}
+    ${{ if ne(parameters.condition, '') }}:
+      condition: ${{ parameters.condition }}
+    dependsOn:
+    - ${{ if parameters.dependantStages }}:
+      - ${{ parameters.dependantStages }}
+
+    jobs:
+    - template: ../jobs/secretGathering.yml
+      parameters:
+        baseAgent: ${{ parameters.baseAgent }}
+        keyVault: ${{ parameters.secrets_KeyVault }}
+        subscription: ${{ parameters.secrets_Subscription }}
+        variables: ${{ parameters.variables }}
+        secrets:
+        - ${{ each setting in parameters.acceptanceTestSettings }}:
+          - ${{ if eq(contains(format(',{0}', join(',', parameters.appSettings.*.name)), format(',{0}', setting.name)), false) }}:
+            - ${{ if ne(format(',{0}', setting.value), ',') }}:
+              - appsetting: ${{ setting.name }}
+                ${{ if ne(setting.secret, true) }}:
+                  value: ${{ setting.value }}
+                ${{ if eq(setting.secret, true) }}:
+                  secretref: ${{ setting.value }}
+                  value: $(${{ setting.value }})
+            - ${{ if ne(format(',{0}', setting.slot.deployment.value), ',') }}:
+              - appsetting: ${{ setting.name }}
+                slot: 'deployment'
+                ${{ if ne(setting.slot.deployment.secret, true) }}:
+                  value: ${{ setting.slot.deployment.value}}
+                ${{ if eq(setting.slot.deployment.secret, true) }}:
+                  secretref: ${{ setting.slot.deployment.value}}
+                  value: $(${{ setting.slot.deployment.value}})
+              - appsetting: ${{ setting.name }}
+                slot: 'active'
+                ${{ if ne(setting.slot.active.secret, true) }}:
+                  value: ${{ setting.slot.active.value}}
+                ${{ if eq(setting.slot.active.secret, true) }}:
+                  secretref: ${{ setting.slot.active.value}}
+                  value: $(${{ setting.slot.active.value}})
+
+      - template: ../jobs/multiDeviceTest.yml
+        parameters:
+          baseAgent: ${{ parameters.baseAgent }}
+          environment: ${{ parameters.environment }}
+          appName: ${{ parameters.appName }}
+          resourceGroup: ${{ parameters.resourceGroup }}
+          subscription: ${{ parameters.subscription }}
+          dependantJobs:
+          - Secret_Gathering
+          slot: ${{ parameters.deploymentSlot }}
+          dependentApps: ${{ parameters.dependentApps }}
+          deviceConfiguration: ${{ parameters.deviceConfiguration }}
+          acSettings:
+          - ${{ each setting in parameters.acceptanceTestSettings }}:
+            - name: ${{ setting.name }}
+              ${{ if or(eq(setting.slot, true) ,ne(format(',{0}', setting.slot.deployment.value), ',')) }}:
+                slot: true
+              ${{ if and(ne(setting.slot, true), eq(format(',{0}', setting.slot.deployment.value), ',')) }}:
+                slot: false
+          variables: ${{ parameters.variables }}
+
+          useCurrentPipeline: ${{ parameters.useCurrentPipeline }}
+          ${{ if not(parameters.useCurrentPipeline) }}:
+            CIPipelineID: $(resources.pipeline.${{ parameters.CIPipelineResourceID }}.pipelineID)
+            deployBranch: ${{ parameters.deployBranch }}
