@@ -105,28 +105,28 @@ stages:
                   secretref: ${{ setting.slot.active.value}}
                   value: $(${{ setting.slot.active.value}})
 
-      - template: ../jobs/multiDeviceTest.yml
-        parameters:
-          baseAgent: ${{ parameters.baseAgent }}
-          environment: ${{ parameters.environment }}
-          appName: ${{ parameters.appName }}
-          resourceGroup: ${{ parameters.resourceGroup }}
-          subscription: ${{ parameters.subscription }}
-          dependantJobs:
-          - Secret_Gathering
-          slot: ${{ parameters.deploymentSlot }}
-          dependentApps: ${{ parameters.dependentApps }}
-          deviceConfiguration: ${{ parameters.deviceConfiguration }}
-          acSettings:
-          - ${{ each setting in parameters.acceptanceTestSettings }}:
-            - name: ${{ setting.name }}
-              ${{ if or(eq(setting.slot, true) ,ne(format(',{0}', setting.slot.deployment.value), ',')) }}:
-                slot: true
-              ${{ if and(ne(setting.slot, true), eq(format(',{0}', setting.slot.deployment.value), ',')) }}:
-                slot: false
-          variables: ${{ parameters.variables }}
+    - template: ../jobs/multiDeviceTest.yml
+      parameters:
+        baseAgent: ${{ parameters.baseAgent }}
+        environment: ${{ parameters.environment }}
+        appName: ${{ parameters.appName }}
+        resourceGroup: ${{ parameters.resourceGroup }}
+        subscription: ${{ parameters.subscription }}
+        dependantJobs:
+        - Secret_Gathering
+        slot: ${{ parameters.deploymentSlot }}
+        dependentApps: ${{ parameters.dependentApps }}
+        deviceConfiguration: ${{ parameters.deviceConfiguration }}
+        acSettings:
+        - ${{ each setting in parameters.acceptanceTestSettings }}:
+          - name: ${{ setting.name }}
+            ${{ if or(eq(setting.slot, true) ,ne(format(',{0}', setting.slot.deployment.value), ',')) }}:
+              slot: true
+            ${{ if and(ne(setting.slot, true), eq(format(',{0}', setting.slot.deployment.value), ',')) }}:
+              slot: false
+        variables: ${{ parameters.variables }}
 
-          useCurrentPipeline: ${{ parameters.useCurrentPipeline }}
-          ${{ if not(parameters.useCurrentPipeline) }}:
-            CIPipelineID: $(resources.pipeline.${{ parameters.CIPipelineResourceID }}.pipelineID)
-            deployBranch: ${{ parameters.deployBranch }}
+        useCurrentPipeline: ${{ parameters.useCurrentPipeline }}
+        ${{ if not(parameters.useCurrentPipeline) }}:
+          CIPipelineID: $(resources.pipeline.${{ parameters.CIPipelineResourceID }}.pipelineID)
+          deployBranch: ${{ parameters.deployBranch }}
