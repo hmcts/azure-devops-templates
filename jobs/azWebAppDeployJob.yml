@@ -306,11 +306,9 @@ jobs:
               dotnet vstest $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings --TestCaseFilter:${{ parameters.testCaseFilter }}
             }
 
-            ls $(Agent.TempDirectory)/TestResults
-
             $retry = 1
             do {
-              $testFiles = (gci '$(Agent.TempDirectory)/TestResults' | sort LastWriteTime | select -last 1).FullName
+              $testFiles = (Get-ChildItem '$(Agent.TempDirectory)/TestResults' | Sort-Object LastWriteTime | Select-Object -last 1).FullName
 
               $failedTests = (Select-Xml -Path $testFiles -XPath "//ns:UnitTestResult[@outcome='Failed']/@testName" -Namespace @{"ns"="http://microsoft.com/schemas/VisualStudio/TeamTest/2010"}).Node.Value
 
