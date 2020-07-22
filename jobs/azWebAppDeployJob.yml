@@ -286,6 +286,8 @@ jobs:
               $env:dependencies -split ';' | ? { -not [string]::IsNullOrEmpty($_) } | % {
                 az webapp config access-restriction add -g $_ -n $_ --rule-name $env:BUILD_BUILDID --action Allow --ip-address $ip/32 --priority 200
               }
+
+              sleep 60
           env:
             dependencies: ${{ join(';',parameters.dependentApps) }}
 
@@ -310,8 +312,8 @@ jobs:
               $failedTests = (Select-Xml -Path $testFiles -XPath "//ns:UnitTestResult[@outcome='Failed']/@testName" -Namespace @{"ns"="http://microsoft.com/schemas/VisualStudio/TeamTest/2010"}).Node.Value
 
               if($failedTests.count -gt 0) {
-                write-warning "There are currently $($failedTests.count) failing tests, retrying for $retry times in 30 seconds"
-                Start-Sleep 30
+                write-warning "There are currently $($failedTests.count) failing tests, retrying for $retry times in 10 seconds"
+                Start-Sleep 10
                 dotnet vstest $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll /Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings /Tests:"$($failedTests -join ',')"
               }
             } while ($failedTests.count -gt 0 -and $retry++ -lt 2)
