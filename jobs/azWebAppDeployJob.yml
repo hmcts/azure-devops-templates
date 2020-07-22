@@ -297,15 +297,16 @@ jobs:
           inputs:
             testRunTitle: Acceptance Tests
             command: custom
-            projects: $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll
             custom: --version
 
         - pwsh: |
             if([string]::IsNullOrEmpty($env:testCaseFilter)) {
-              dotnet vstest --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings
+              dotnet vstest $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings
             } else {
-              dotnet vstest --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings --TestCaseFilter:${{ parameters.testCaseFilter }}
+              dotnet vstest $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings --TestCaseFilter:${{ parameters.testCaseFilter }}
             }
+
+            ls $(Agent.TempDirectory)/TestResults
 
             $retry = 1
             do {
@@ -315,7 +316,7 @@ jobs:
 
               if($failedTests.count -gt 0) {
                 write-warning "There are current $($failedTest.count), retrying $retry times"
-                dotnet vstest '$(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll' /Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings /Tests:"$($failedTests -join ',')"
+                dotnet vstest $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll /Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings /Tests:"$($failedTests -join ',')"
               }
             } while ($failedTests.count -gt 0 -and $retry++ -le 2)
           displayName: Smoke Test
