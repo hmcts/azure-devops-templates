@@ -292,16 +292,37 @@ jobs:
             dependencies: ${{ join(';',parameters.dependentApps) }}
 
         - task: DotNetCoreCLI@2
-          displayName: Smoke Test
+          displayName: Verify dotnet version
           inputs:
             testRunTitle: Acceptance Tests
             command: custom
             projects: $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll
-            custom: vstest
+            custom: --version
             ${{if ne(parameters.testCaseFilter, '')}}:
               arguments: --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings --TestCaseFilter:${{ parameters.testCaseFilter }}
             ${{if eq(parameters.testCaseFilter, '')}}:
               arguments: --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings
+        
+        - pwsh: |
+            if([string]::IsNullOrEmpty($env:testCaseFilter)) {
+              dotnet vstest --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings
+            } else {
+              dotnet vstest --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings --TestCaseFilter:${{ parameters.testCaseFilter }}
+            }
+
+            $retry = 0
+            do {
+              $testFiles = (gci '$(Agent.TempDirectory)/TestResults' | sort LastWriteTime | select -last 1).FullName
+
+              $failedTests = (Select-Xml -Path $testFiles -XPath "//ns:UnitTestResult[@outcome='Failed']/@testName" -Namespace @{"ns"="http://microsoft.com/schemas/VisualStudio/TeamTest/2010"}).Node.Value
+
+              if($failedTests.count -gt 0) {
+                dotnet vstest '$(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll' /Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings /Tests:"$($failedTests -join ',')"
+              }
+            } while ($failedTests.count -gt 0 -and $retry++ -lt 2)
+          displayname: Smoke Test
+          env:
+            testCaseFilter: ${{ parameters.testCaseFilter }}
 
         - task: AzureCLI@2
           displayName: Remove FW Exception(s)
