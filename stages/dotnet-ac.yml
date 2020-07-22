@@ -5,6 +5,7 @@ parameters:
 
   - name: stageName
     type: string
+    default: AcceptanceTest
 
   - name: environment
     type: string
