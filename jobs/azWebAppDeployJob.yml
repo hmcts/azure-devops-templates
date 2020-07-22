@@ -310,16 +310,17 @@ jobs:
               dotnet vstest --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings --TestCaseFilter:${{ parameters.testCaseFilter }}
             }
 
-            $retry = 0
+            $retry = 1
             do {
               $testFiles = (gci '$(Agent.TempDirectory)/TestResults' | sort LastWriteTime | select -last 1).FullName
 
               $failedTests = (Select-Xml -Path $testFiles -XPath "//ns:UnitTestResult[@outcome='Failed']/@testName" -Namespace @{"ns"="http://microsoft.com/schemas/VisualStudio/TeamTest/2010"}).Node.Value
 
               if($failedTests.count -gt 0) {
+                write-warning "There are current $($failedTest.count), retrying $retry times"
                 dotnet vstest '$(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll' /Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings /Tests:"$($failedTests -join ',')"
               }
-            } while ($failedTests.count -gt 0 -and $retry++ -lt 2)
+            } while ($failedTests.count -gt 0 -and $retry++ -le 2)
           displayname: Smoke Test
           env:
             testCaseFilter: ${{ parameters.testCaseFilter }}
