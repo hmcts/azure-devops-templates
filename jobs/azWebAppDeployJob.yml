@@ -270,7 +270,6 @@ jobs:
 
         - task: AzureCLI@2
           displayName: Add FW Exception(s)
-          enabled: false
           inputs:
             azureSubscription: ${{ parameters.subscription }}
             scriptType: pscore
@@ -287,8 +286,6 @@ jobs:
               $env:dependencies -split ';' | ? { -not [string]::IsNullOrEmpty($_) } | % {
                 az webapp config access-restriction add -g $_ -n $_ --rule-name $env:BUILD_BUILDID --action Allow --ip-address $ip/32 --priority 200
               }
-
-              sleep 40
           env:
             dependencies: ${{ join(';',parameters.dependentApps) }}
 
@@ -313,10 +310,11 @@ jobs:
               $failedTests = (Select-Xml -Path $testFiles -XPath "//ns:UnitTestResult[@outcome='Failed']/@testName" -Namespace @{"ns"="http://microsoft.com/schemas/VisualStudio/TeamTest/2010"}).Node.Value
 
               if($failedTests.count -gt 0) {
-                write-warning "There are current $($failedTest.count), retrying $retry times"
+                write-warning "There are currently $($failedTests.count) failing tests, retrying for $retry times in 30 seconds"
+                Start-Sleep 30
                 dotnet vstest $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll /Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings /Tests:"$($failedTests -join ',')"
               }
-            } while ($failedTests.count -gt 0 -and $retry++ -le 2)
+            } while ($failedTests.count -gt 0 -and $retry++ -lt 2)
           displayName: Smoke Test
           env:
             testCaseFilter: ${{ parameters.testCaseFilter }}
