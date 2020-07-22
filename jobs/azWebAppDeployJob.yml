@@ -299,11 +299,7 @@ jobs:
             command: custom
             projects: $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll
             custom: --version
-            ${{if ne(parameters.testCaseFilter, '')}}:
-              arguments: --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings --TestCaseFilter:${{ parameters.testCaseFilter }}
-            ${{if eq(parameters.testCaseFilter, '')}}:
-              arguments: --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings
-        
+
         - pwsh: |
             if([string]::IsNullOrEmpty($env:testCaseFilter)) {
               dotnet vstest --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings
@@ -322,7 +318,7 @@ jobs:
                 dotnet vstest '$(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll' /Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings /Tests:"$($failedTests -join ',')"
               }
             } while ($failedTests.count -gt 0 -and $retry++ -le 2)
-          displayname: Smoke Test
+          displayName: Smoke Test
           env:
             testCaseFilter: ${{ parameters.testCaseFilter }}
 
