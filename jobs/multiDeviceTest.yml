@@ -167,11 +167,7 @@ jobs:
       custom: --version
 
   - pwsh: |
-      if([string]::IsNullOrEmpty($env:testCaseFilter)) {
-        dotnet vstest $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings
-      } else {
-        dotnet vstest $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings --TestCaseFilter:${{ parameters.testCaseFilter }}
-      }
+      dotnet vstest $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings --TestCaseFilter:$(TestCaseFilter)
 
       $retry = 1
       do {
@@ -186,8 +182,6 @@ jobs:
         }
       } while ($failedTests.count -gt 0 -and $retry++ -lt 2)
     displayName: Device Test
-    env:
-      testCaseFilter: ${{ parameters.testCaseFilter }}
 
   - task: AzureCLI@2
     displayName: Remove FW Exception(s)
