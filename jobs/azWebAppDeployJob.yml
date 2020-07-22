@@ -270,6 +270,7 @@ jobs:
 
         - task: AzureCLI@2
           displayName: Add FW Exception(s)
+          enabled: false
           inputs:
             azureSubscription: ${{ parameters.subscription }}
             scriptType: pscore
