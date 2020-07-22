@@ -287,21 +287,39 @@ jobs:
                 az webapp config access-restriction add -g $_ -n $_ --rule-name $env:BUILD_BUILDID --action Allow --ip-address $ip/32 --priority 200
               }
 
-              sleep 40
+              sleep 60
           env:
             dependencies: ${{ join(';',parameters.dependentApps) }}
 
         - task: DotNetCoreCLI@2
-          displayName: Smoke Test
+          displayName: Verify dotnet version
           inputs:
             testRunTitle: Acceptance Tests
             command: custom
-            projects: $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll
-            custom: vstest
-            ${{if ne(parameters.testCaseFilter, '')}}:
-              arguments: --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings --TestCaseFilter:${{ parameters.testCaseFilter }}
-            ${{if eq(parameters.testCaseFilter, '')}}:
-              arguments: --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings
+            custom: --version
+
+        - pwsh: |
+            if([string]::IsNullOrEmpty($env:testCaseFilter)) {
+              dotnet vstest $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings
+            } else {
+              dotnet vstest $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings --TestCaseFilter:${{ parameters.testCaseFilter }}
+            }
+
+            $retry = 1
+            do {
+              $testFiles = (Get-ChildItem '$(Agent.TempDirectory)/TestResults' | Sort-Object LastWriteTime | Select-Object -last 1).FullName
+
+              $failedTests = (Select-Xml -Path $testFiles -XPath "//ns:UnitTestResult[@outcome='Failed']/@testName" -Namespace @{"ns"="http://microsoft.com/schemas/VisualStudio/TeamTest/2010"}).Node.Value
+
+              if($failedTests.count -gt 0) {
+                write-warning "There are currently $($failedTests.count) failing tests, retrying for $retry times in 10 seconds"
+                Start-Sleep 10
+                dotnet vstest $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll /Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings /Tests:"$($failedTests -join ',')"
+              }
+            } while ($failedTests.count -gt 0 -and $retry++ -lt 2)
+          displayName: Smoke Test
+          env:
+            testCaseFilter: ${{ parameters.testCaseFilter }}
 
         - task: AzureCLI@2
           displayName: Remove FW Exception(s)
