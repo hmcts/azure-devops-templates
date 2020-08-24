@@ -307,6 +307,7 @@ jobs:
                     $ready = $true
                   } else {
                     try {
+                      write-host "checking health of $env:dependentHealthEndpoint"
                       $output = Invoke-RestMethod $env:dependentHealthEndpoint
                       $ready = $true
                     } catch {
