@@ -309,6 +309,7 @@ jobs:
                     try {
                       write-host "checking health of $env:dependentHealthEndpoint"
                       $output = Invoke-RestMethod $env:dependentHealthEndpoint
+                      write-host ($output | convertto-json -depth 3)
                       $ready = $true
                     } catch {
                       $ready = $false
