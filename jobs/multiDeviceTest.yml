@@ -216,7 +216,7 @@ jobs:
     displayName: Device Test
 
   - task: AzureCLI@2
-    displayName: Remove FW Exception(s)
+    displayName: Remove FW Exception
     condition: always()
     inputs:
       azureSubscription: ${{ parameters.subscription }}
@@ -230,11 +230,26 @@ jobs:
           az webapp config access-restriction remove -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --rule-name $env:BUILD_BUILDID --slot ${{ parameters.slot }}
         }
 
-        $env:dependencies -split ';' | ? { -not [string]::IsNullOrEmpty($_) } | % {
-          az webapp config access-restriction remove -g $_ -n $_ --rule-name $env:BUILD_BUILDID
-        }
-    env:
-      dependencies: ${{ join(';',parameters.dependentApps) }}
+  - ${{ each app in parameters.dependentApps }}:
+    - task: AzureCLI@2
+      ${{ if gt(length(format('{0}',app.resourcegroup)), 0) }}:
+        displayName: Remove FW Exception ${{ app.name }}
+      ${{ if ne(true, gt(length(format('{0}',app.resourcegroup)), 0)) }}:
+        displayName: Remove FW Exception ${{ app }}
+      condition: always()
+      inputs:
+        azureSubscription: ${{ parameters.subscription }}
+        scriptType: pscore
+        scriptLocation: inlineScript
+        inlineScript: |
+          az webapp config access-restriction remove -g $env:dependentResourceGroup -n $env:dependentResourceName --rule-name $env:BUILD_BUILDID
+      env:
+        ${{ if gt(length(format('{0}',app.resourcegroup)), 0) }}:
+          dependentResourceGroup: ${{ app.resourceGroup }}
+          dependentResourceName: ${{ app.name }}
+        ${{ if ne(true, gt(length(format('{0}',app.resourcegroup)), 0)) }}:
+          dependentResourceGroup: ${{ app }}
+          dependentResourceName: ${{ app }}
 
   - task: PublishTestResults@2
     displayName: Publish Test Results

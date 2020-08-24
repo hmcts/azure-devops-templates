@@ -269,7 +269,7 @@ jobs:
               acDevSettings_ZapConfiguration.ApiPort: 8080
 
         - task: AzureCLI@2
-          displayName: Add FW Exception(s)
+          displayName: Add FW Exception
           inputs:
             azureSubscription: ${{ parameters.subscription }}
             scriptType: pscore
@@ -283,13 +283,45 @@ jobs:
                 az webapp config access-restriction add -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --rule-name $env:BUILD_BUILDID --action Allow --ip-address $ip/32 --priority 200 --slot ${{ parameters.slot }}
               }
 
-              $env:dependencies -split ';' | ? { -not [string]::IsNullOrEmpty($_) } | % {
-                az webapp config access-restriction add -g $_ -n $_ --rule-name $env:BUILD_BUILDID --action Allow --ip-address $ip/32 --priority 200
-              }
+        - ${{ each app in parameters.dependentApps }}:
+          - task: AzureCLI@2
+            ${{ if gt(length(format('{0}',app.resourcegroup)), 0) }}:
+              displayName: Add FW Exception ${{ app.name }}
+            ${{ if ne(true, gt(length(format('{0}',app.resourcegroup)), 0)) }}:
+              displayName: Add FW Exception ${{ app }}
+            inputs:
+              azureSubscription: ${{ parameters.subscription }}
+              scriptType: pscore
+              scriptLocation: inlineScript
+              inlineScript: |
+                $ErrorActionPreference = "Continue"
+                $ip = (Invoke-WebRequest -uri "http://ifconfig.me/ip").Content
 
-              sleep 60
-          env:
-            dependencies: ${{ join(';',parameters.dependentApps) }}
+                az webapp config access-restriction add -g $env:dependentResourceGroup -n $env:dependentResourceName --rule-name $env:BUILD_BUILDID --action Allow --ip-address $ip/32 --priority 200
+
+                $ready = $false; $retry = 0
+                while($ready -eq $false -and $retry -lt 10) {
+                  sleep (10 * $retry++)
+
+                  if([string]::IsNullOrWhitespace($env:dependentHealthEndpoint)) {
+                    $ready = $true
+                  } else {
+                    try {
+                      $output = Invoke-RestMethod $env:dependentHealthEndpoint
+                      $ready = $true
+                    } catch {
+                      $ready = $false
+                    }
+                  }
+                }
+            env:
+              ${{ if gt(length(format('{0}',app.resourcegroup)), 0) }}:
+                dependentResourceGroup: ${{ app.resourceGroup }}
+                dependentResourceName: ${{ app.name }}
+              ${{ if ne(true, gt(length(format('{0}',app.resourcegroup)), 0)) }}:
+                dependentResourceGroup: ${{ app }}
+                dependentResourceName: ${{ app }}
+              dependentHealthEndpoint: ${{ app.healthEndpoint }}
 
         - task: DotNetCoreCLI@2
           displayName: Verify dotnet version
@@ -322,7 +354,7 @@ jobs:
             testCaseFilter: ${{ parameters.testCaseFilter }}
 
         - task: AzureCLI@2
-          displayName: Remove FW Exception(s)
+          displayName: Remove FW Exception
           condition: always()
           inputs:
             azureSubscription: ${{ parameters.subscription }}
@@ -336,11 +368,26 @@ jobs:
                 az webapp config access-restriction remove -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --rule-name $env:BUILD_BUILDID --slot ${{ parameters.slot }}
               }
 
-              $env:dependencies -split ';' | ? { -not [string]::IsNullOrEmpty($_) } | % {
-                az webapp config access-restriction remove -g $_ -n $_ --rule-name $env:BUILD_BUILDID
-              }
-          env:
-            dependencies: ${{ join(';',parameters.dependentApps) }}
+        - ${{ each app in parameters.dependentApps }}:
+          - task: AzureCLI@2
+            ${{ if gt(length(format('{0}',app.resourcegroup)), 0) }}:
+              displayName: Remove FW Exception ${{ app.name }}
+            ${{ if ne(true, gt(length(format('{0}',app.resourcegroup)), 0)) }}:
+              displayName: Remove FW Exception ${{ app }}
+            condition: always()
+            inputs:
+              azureSubscription: ${{ parameters.subscription }}
+              scriptType: pscore
+              scriptLocation: inlineScript
+              inlineScript: |
+                az webapp config access-restriction remove -g $env:dependentResourceGroup -n $env:dependentResourceName --rule-name $env:BUILD_BUILDID
+            env:
+              ${{ if gt(length(format('{0}',app.resourcegroup)), 0) }}:
+                dependentResourceGroup: ${{ app.resourceGroup }}
+                dependentResourceName: ${{ app.name }}
+              ${{ if ne(true, gt(length(format('{0}',app.resourcegroup)), 0)) }}:
+                dependentResourceGroup: ${{ app }}
+                dependentResourceName: ${{ app }}
 
         - task: PublishTestResults@2
           displayName: Publish Test Results
