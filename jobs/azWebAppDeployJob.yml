@@ -304,6 +304,7 @@ jobs:
                   sleep (10 * $retry++)
 
                   if([string]::IsNullOrWhitespace($env:dependentHealthEndpoint)) {
+                    sleep 60
                     $ready = $true
                   } else {
                     try {
