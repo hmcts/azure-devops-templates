@@ -94,6 +94,10 @@ parameters:
     type: string
     default: ''
 
+  - name: dotnetTestMaxRetries
+    type: number
+    default: 2
+
 stages:
   - stage: ${{ parameters.stageName }}
     ${{ if ne(parameters.condition, '') }}:
@@ -216,6 +220,7 @@ stages:
           slot: ${{ parameters.deploymentSlot }}
           dependentApps: ${{ parameters.dependentApps }}
           deviceConfiguration: ${{ parameters.deviceConfiguration }}
+          dotnetTestMaxRetries: ${{ parameters.dotnetTestMaxRetries }}
           acSettings:
           - ${{ each setting in parameters.acceptanceTestSettings }}:
             - name: ${{ setting.name }}

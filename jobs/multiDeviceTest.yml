@@ -58,6 +58,10 @@ parameters:
     type: object
     default: []
 
+  - name: dotnetTestMaxRetries
+    type: number
+    default: 2
+
 jobs:
 - job: Device_Testing
   displayName: Device Variance Testing
@@ -215,7 +219,7 @@ jobs:
           Start-Sleep 10
           dotnet vstest $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll /Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings /Tests:"$($failedTests -join ',')"
         }
-      } while ($failedTests.count -gt 0 -and $retry++ -lt 2)
+      } while ($failedTests.count -gt 0 -and $retry++ -lt ${{ parameters.dotnetTestMaxRetries }})
     displayName: Device Test
     timeoutInMinutes: 0
 
