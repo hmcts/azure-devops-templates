@@ -388,6 +388,11 @@ stages:
 
               $appSettings = $appSettings | ConvertTo-Json -Depth 99
               Set-Content -Path ${{parameters.integTestProjectPath}}/appsettings.json -Value $appSettings -Force | Out-Null
+              
+              Write-Host "Transformed Filed ${{parameters.integTestProjectPath}}/appsettings.json"
+              if($env:System_Debug) {
+                Get-Content -Path ${{parameters.integTestProjectPath}}/appsettings.json
+              }
             displayName: Transform Test Config
             env:
               ${{ each setting in parameters.IntegrationTestSettings }}:
