@@ -139,7 +139,7 @@ stages:
           variables:
             integrationSettings: ''
             ${{ each setting in parameters.IntegrationTestSettings }}:
-              "secrets_${{ setting.type }}_${{ setting.name }}": $[ dependencies.Secret_Gathering.outputs['SetSecretVariables._${{ setting.name }}'] ]
+              "secrets_${{ setting.name }}": $[ dependencies.Secret_Gathering.outputs['SetSecretVariables._${{ setting.name }}'] ]
 
         pool:
           vmImage: ${{ parameters.baseAgent }}
