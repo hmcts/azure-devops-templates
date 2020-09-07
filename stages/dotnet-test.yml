@@ -139,7 +139,7 @@ stages:
           variables:
             integrationSettings: ''
             ${{ each setting in parameters.IntegrationTestSettings }}:
-              "secrets_${{ setting.name }}": $[ dependencies.Secret_Gathering.outputs['SetSecretVariables._${{ setting.name }}'] ]
+              "secrets_${{ setting.type }}_${{ setting.name }}": $[ dependencies.Secret_Gathering.outputs['SetSecretVariables._${{ setting.name }}'] ]
 
         pool:
           vmImage: ${{ parameters.baseAgent }}
@@ -296,7 +296,7 @@ stages:
                               $ChildName = $Child.Name
                               $ChildValue = $Child.Value
 
-                              if ($ChildName -match '[^a-zA-Z0-9_]') {
+                              if ($ChildName -match '[^a-zA-Z0-9_:]') {
                                   $FriendlyChildName = "'$ChildName'"
                               } else {
                                   $FriendlyChildName = $ChildName
@@ -378,10 +378,13 @@ stages:
 
               $appsettings = Get-Content ${{parameters.integTestProjectPath}}/appsettings.json -raw | ConvertFrom-Json | ConvertTo-FlatObject
 
-              Get-ChildItem ENV: | Where-Object -FilterScript { $_.Name -cmatch "^secrets_(.+)" } | Foreach-Object -Process {
+              Get-ChildItem ENV: | Where-Object -FilterScript { $_.Name -cmatch "^secrets_([^_]*)_(.+)" } | Foreach-Object -Process {
                 try {
-                  $appsettings | Add-Member -MemberType NoteProperty -Name $matches[1] -value $_.value -Force
-                  $appsettings | Add-Member -MemberType NoteProperty -Name "'$($matches[1])'" -value $_.value -Force
+                  $value = $_.value
+                  if($matches[1] -ieq 'json') {
+                    $value = $_.value | ConvertFrom-Json
+                  }
+                  $appsettings | Add-Member -MemberType NoteProperty -Name $matches[2] -value $_.value -Force
                 } catch {
                   write-host $_.exception.message
                 }
@@ -389,7 +392,7 @@ stages:
 
               $appSettings = $appSettings | ConvertTo-Json -Depth 99
               Set-Content -Path ${{parameters.integTestProjectPath}}/appsettings.json -Value $appSettings -Force | Out-Null
-              
+
               Write-Host "Transformed Filed $(Resolve-Path ${{parameters.integTestProjectPath}}/appsettings.json)"
               if($env:System_Debug) {
                 Get-Content -Path ${{parameters.integTestProjectPath}}/appsettings.json
@@ -397,7 +400,7 @@ stages:
             displayName: Transform Test Config
             env:
               ${{ each setting in parameters.IntegrationTestSettings }}:
-                "secrets_${{ setting.name }}": $(secrets_${{ setting.name }})
+                "secrets_${{ setting.type }}_${{ setting.name }}": $(secrets_${{ setting.name }})
 
         - task: DotNetCoreCLI@2
           displayName: Run dotnet tests
