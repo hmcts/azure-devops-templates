@@ -384,7 +384,7 @@ stages:
                   if($matches[1] -ieq 'json') {
                     $value = $_.value | ConvertFrom-Json
                   }
-                  $appsettings | Add-Member -MemberType NoteProperty -Name $matches[2] -value $_.value -Force
+                  $appsettings | Add-Member -MemberType NoteProperty -Name $matches[2] -value $value -Force
                 } catch {
                   write-host $_.exception.message
                 }
