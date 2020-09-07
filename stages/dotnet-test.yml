@@ -163,14 +163,14 @@ stages:
           displayName: Cache NuGet packages
           inputs:
             ${{ if and(eq(parameters.RunIntegrationTests, false), eq(parameters.RunUnitTests, true))}}:
-              key: 'nuget | ${{ parameters.unitTestProjectPath }}/packages.lock.json'
+              key: 'nuget | "$(Agent.OS)" | ${{ parameters.unitTestProjectPath }}/packages.lock.json'
             ${{ if and(eq(parameters.RunIntegrationTests, true), eq(parameters.RunUnitTests, false))}}:
-              key: 'nuget | ${{ parameters.integTestProjectPath }}/packages.lock.json'
+              key: 'nuget | "$(Agent.OS)" | ${{ parameters.integTestProjectPath }}/packages.lock.json'
             ${{ if and(eq(parameters.RunIntegrationTests, true), eq(parameters.RunUnitTests, true))}}:
-              key: 'nuget | ${{ parameters.integTestProjectPath }}/packages.lock.json | ${{ parameters.unitTestProjectPath }}/packages.lock.json'
+              key: 'nuget | "$(Agent.OS)" | ${{ parameters.integTestProjectPath }}/packages.lock.json | ${{ parameters.unitTestProjectPath }}/packages.lock.json'
               restoreKeys: |
-                nuget | ${{ parameters.unitTestProjectPath }}/packages.lock.json
-                nuget | ${{ parameters.integTestProjectPath }}/packages.lock.json
+                nuget | "$(Agent.OS)" | ${{ parameters.unitTestProjectPath }}/packages.lock.json
+                nuget | "$(Agent.OS)" | ${{ parameters.integTestProjectPath }}/packages.lock.json
             path: ${{ variables.NUGET_PACKAGES }}
             cacheHitVar: NUGET_CACHE_RESTORED
 
