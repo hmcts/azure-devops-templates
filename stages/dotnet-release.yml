@@ -70,6 +70,10 @@ parameters:
     type: string
     default: ''
 
+  - name: runACTests
+    type: boolean
+    default: true
+
   - name: runZapTests
     type: boolean
     default: false
@@ -174,6 +178,7 @@ stages:
         dependantJobs: Secret_Gathering
         slot: ${{ parameters.deploymentSlot }}
         dependentApps: ${{ parameters.dependentApps }}
+        runACTests: ${{ parameters.runACTests }}
         appSettings:
           - ${{ each setting in parameters.appSettings }}:
             - name: ${{ setting.name }}
