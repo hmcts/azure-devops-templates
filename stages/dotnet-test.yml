@@ -19,6 +19,10 @@ parameters:
     type: string
     default: 3f69a23d-fbc7-4541-afc7-4cccefcad773/e48b2732-376c-4052-ba97-b28783c9bab5
 
+  - name: environment
+    type: string
+    default: Preview
+
   - name: coreProjectPath
     type: string
     default: ''
@@ -158,6 +162,12 @@ stages:
           displayName: GitVersion
           inputs:
             additionalArguments: /updateassemblyinfo ${{ parameters.coreProjectPath }}/AssemblyInfo.cs /ensureassemblyinfo
+
+        - pwsh: |
+            $environment = '${{ parameters.environment }}'.tolower()
+            Write-Host "##vso[task.setvariable variable=environment]$environment"
+            Write-Host "##vso[task.setvariable variable=Release.EnvironmentName]$environment"
+          displayName: Set Environment Alias ENVVARS
 
         - task: Cache@2
           displayName: Cache NuGet packages
