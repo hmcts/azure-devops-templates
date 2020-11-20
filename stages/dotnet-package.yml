@@ -172,6 +172,7 @@ stages:
           displayName: dotnet Restore
           inputs:
             command: restore
+            projects: '**/*AcceptanceTests.csproj'
             restoreArguments: --locked-mode --use-lock-file
             ${{ if eq(parameters.useNugetConfig, true) }}:
               feedsToUse: config
