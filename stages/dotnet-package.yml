@@ -15,7 +15,14 @@ parameters:
     type: string
     default: 3f69a23d-fbc7-4541-afc7-4cccefcad773/e48b2732-376c-4052-ba97-b28783c9bab5
 
+  - name: useNugetConfig
+    type: boolean
+    default: false
+
   - name: coreProjectPath
+    type: string
+
+  - name: nugetConfigPath
     type: string
 
   - name: nodeProjectPath
@@ -111,9 +118,13 @@ stages:
           inputs:
             command: restore
             projects: ${{ parameters.coreProjectPath }}/*.csproj
-            vstsFeed: ${{ parameters.vstsFeedId }}
-            includeNuGetOrg: true
             restoreArguments: --locked-mode --use-lock-file
+            ${{ if eq(parameters.useNugetConfig, true) }}:
+              feedsToUse: config
+              nugetConfigPath: ${{ parameters.nugetConfigPath }}/nuget.config
+            ${{ if eq(parameters.useNugetConfig, false) }}:
+              vstsFeed: ${{ parameters.vstsFeedId }}
+              includeNuGetOrg: true
           condition: ne(variables.NUGET_CACHE_RESTORED, 'true')
 
         - task: DotNetCoreCLI@2
@@ -161,10 +172,13 @@ stages:
           displayName: dotnet Restore
           inputs:
             command: restore
-            projects: '**/*AcceptanceTests.csproj'
-            vstsFeed: ${{ parameters.vstsFeedId }}
-            includeNuGetOrg: true
             restoreArguments: --locked-mode --use-lock-file
+            ${{ if eq(parameters.useNugetConfig, true) }}:
+              feedsToUse: config
+              nugetConfigPath: ${{ parameters.nugetConfigPath }}/nuget.config
+            ${{ if eq(parameters.useNugetConfig, false) }}:
+              vstsFeed: ${{ parameters.vstsFeedId }}
+              includeNuGetOrg: true
           condition: ne(variables.NUGET_CACHE_RESTORED, 'true')
 
         - task: DotNetCoreCLI@2
