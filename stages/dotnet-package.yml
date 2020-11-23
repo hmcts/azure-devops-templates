@@ -22,6 +22,9 @@ parameters:
   - name: coreProjectPath
     type: string
 
+  - name: nugetProjectPath
+    type: string
+
   - name: nugetConfigPath
     type: string
 
@@ -44,6 +47,9 @@ parameters:
   - name: PackageAcceptanceTests
     type: boolean
     default: true
+  - name: PackageNuget
+    type: boolean
+    default: false
 
   - name: Test
     type: boolean
@@ -196,6 +202,60 @@ stages:
           inputs:
             PathtoPublish: $(Build.ArtifactStagingDirectory)/AcceptanceTests
             ArtifactName: AcceptanceTests
+
+    - ${{ if(parameters.PackageNuget)}}:
+      - job: Publish_Nuget
+        
+        pool:
+          vmImage: ${{ parameters.baseAgent }}
+
+        ${{ if parameters.useContainer }}:
+          container: ${{ parameters.dotnetCIToolsContainer }}
+
+        dependsOn: []
+
+        steps:
+        - checkout: self
+
+        - template: ../templates/pipelineCaching.yml
+          parameters:
+            ${{ if containsValue(parameters.packageManagers, 'nuget') }}:
+              nugetProjectPath: ${{ parameters.coreProjectPath }}
+            ${{ if containsValue(parameters.packageManagers, 'npm') }}:
+              nodeProjectPath: ${{ parameters.nodeProjectPath }}
+            ${{ if containsValue(parameters.packageManagers, 'yarn') }}:
+              yarnProjectPath: ${{ parameters.nodeProjectPath }}
+            packageManagers:
+            - ${{ if parameters.packageManagers }}:
+              - ${{ parameters.packageManagers }}
+
+        - task: DotNetCoreCLI@2
+          displayName: dotnet Restore
+          inputs:
+            command: restore
+            projects: ${{ parameters.nugetProjectPath }}/*.csproj
+            restoreArguments: --locked-mode --use-lock-file
+            ${{ if eq(parameters.useNugetConfig, true) }}:
+              feedsToUse: config
+              nugetConfigPath: ${{ parameters.nugetConfigPath }}/nuget.config
+            ${{ if eq(parameters.useNugetConfig, false) }}:
+              vstsFeed: ${{ parameters.vstsFeedId }}
+              includeNuGetOrg: true
+          condition: ne(variables.NUGET_CACHE_RESTORED, 'true')
+
+          - task: DotNetCoreCLI@2
+          displayName: donet Build Nuget Project
+          inputs:
+            arguments: '--configuration release /p:Version="$(GitVersion.NuGetVersion)" /p:PackageOutputPath="$(Build.ArtifactStagingDirectory)"'
+            workingDirectory: ${{ parameters.nugetProjectPath }}
+
+          - task: DotNetCoreCLI@2
+            displayName: Push Package to VH NuGet Store
+            inputs:
+              command: push
+              searchPatternPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
+              publishVstsFeed: ${{ parameters.vstsFeedId }}
+              versioningScheme: byBuildNumber
 
 - ${{ if ne(variables['Build.Reason'], 'IndividualCI') }}:
   - ${{ if eq(parameters.Test, true) }}:
