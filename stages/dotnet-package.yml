@@ -76,7 +76,7 @@ parameters:
     default: {}
 
 stages:
-- ${{ if or(parameters.PackageApp, parameters.PackageAcceptanceTests, parameters.ACTest) }}:
+- ${{ if or(parameters.PackageApp, parameters.PackageAcceptanceTests, parameters.ACTest, parameters.PackageNuget) }}:
   - stage: Package
     dependsOn:
     - ${{ if parameters.dependantStages }}:
