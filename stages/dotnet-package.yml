@@ -246,7 +246,7 @@ stages:
         - task: DotNetCoreCLI@2
           displayName: donet Build Nuget Project
           inputs:
-            arguments: '--configuration release /p:Version="$(GitVersion.NuGetVersion)" /p:PackageOutputPath="$(Build.ArtifactStagingDirectory)"'
+            arguments: '--configuration release /p:Version="$(GitVersion.NuGetVersion)" /p:PackageOutputPath="$(Build.ArtifactStagingDirectory)" /p:VersionSuffix="-beta"'
             workingDirectory: ${{ parameters.nugetProjectPath }}
 
         - task: DotNetCoreCLI@2
