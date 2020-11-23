@@ -203,7 +203,7 @@ stages:
             PathtoPublish: $(Build.ArtifactStagingDirectory)/AcceptanceTests
             ArtifactName: AcceptanceTests
 
-    - ${{ if(parameters.PackageNuget)}}:
+    - ${{ if(parameters.PackageNuget) }}:
       - job: Publish_Nuget
         
         pool:
