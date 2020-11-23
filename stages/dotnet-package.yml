@@ -249,13 +249,13 @@ stages:
             arguments: '--configuration release /p:Version="$(GitVersion.NuGetVersion)" /p:PackageOutputPath="$(Build.ArtifactStagingDirectory)"'
             workingDirectory: ${{ parameters.nugetProjectPath }}
 
-          - task: DotNetCoreCLI@2
-            displayName: Push Package to VH NuGet Store
-            inputs:
-              command: push
-              searchPatternPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
-              publishVstsFeed: ${{ parameters.vstsFeedId }}
-              versioningScheme: byBuildNumber
+        - task: DotNetCoreCLI@2
+          displayName: Push Package to VH NuGet Store
+          inputs:
+            command: push
+            searchPatternPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
+            publishVstsFeed: ${{ parameters.vstsFeedId }}
+            versioningScheme: byBuildNumber
 
 - ${{ if ne(variables['Build.Reason'], 'IndividualCI') }}:
   - ${{ if eq(parameters.Test, true) }}:
