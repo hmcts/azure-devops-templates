@@ -246,7 +246,10 @@ stages:
         - task: DotNetCoreCLI@2
           displayName: donet Build Nuget Project
           inputs:
-            arguments: '--configuration release /p:Version="$(GitVersion.NuGetVersion)" /p:PackageOutputPath="$(Build.ArtifactStagingDirectory)" /p:VersionSuffix="-beta"'
+            ${{ if eq(variables['Build.SourceBranch'], 'refs/heads/master')}}:
+              arguments: '--configuration release /p:Version="$(GitVersion.NuGetVersion)" /p:PackageOutputPath="$(Build.ArtifactStagingDirectory)"
+            ${{ if ne(variables['Build.SourceBranch'], 'refs/heads/master')}}:
+              arguments: '--configuration release /p:Version="$(GitVersion.NuGetVersion)" /p:PackageOutputPath="$(Build.ArtifactStagingDirectory)" /p:VersionSuffix="-alpha"'
             workingDirectory: ${{ parameters.nugetProjectPath }}
 
         - task: DotNetCoreCLI@2
