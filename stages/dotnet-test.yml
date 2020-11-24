@@ -19,6 +19,14 @@ parameters:
     type: string
     default: 3f69a23d-fbc7-4541-afc7-4cccefcad773/e48b2732-376c-4052-ba97-b28783c9bab5
 
+  - name: useNugetConfig
+    type: boolean
+    default: false
+
+  - name: nugetConfigPath
+    type: string
+    default: ''
+
   - name: environment
     type: string
     default: Preview
@@ -203,9 +211,13 @@ stages:
             inputs:
               command: restore
               projects: ${{ parameters.unitTestProjectPath }}/*.csproj
-              vstsFeed: ${{ parameters.vstsFeedId }}
-              includeNuGetOrg: true
               restoreArguments: --locked-mode --use-lock-file
+              ${{ if eq(parameters.useNugetConfig, true) }}:
+                feedsToUse: config
+                nugetConfigPath: ${{ parameters.nugetConfigPath }}/nuget.config
+              ${{ if eq(parameters.useNugetConfig, false) }}:
+                vstsFeed: ${{ parameters.vstsFeedId }}
+                includeNuGetOrg: true
             condition: ne(variables.NUGET_CACHE_RESTORED, 'true')
 
         - ${{ if eq(parameters.RunIntegrationTests, true) }}:
@@ -214,9 +226,13 @@ stages:
             inputs:
               command: restore
               projects: ${{ parameters.integTestProjectPath }}/*.csproj
-              vstsFeed: ${{ parameters.vstsFeedId }}
-              includeNuGetOrg: true
               restoreArguments: --locked-mode --use-lock-file
+              ${{ if eq(parameters.useNugetConfig, true) }}:
+                feedsToUse: config
+                nugetConfigPath: ${{ parameters.nugetConfigPath }}/nuget.config
+              ${{ if eq(parameters.useNugetConfig, false) }}:
+                vstsFeed: ${{ parameters.vstsFeedId }}
+                includeNuGetOrg: true
             condition: ne(variables.NUGET_CACHE_RESTORED, 'true')
 
         - ${{ if eq(parameters.RunSonarCloud, true) }}:
@@ -467,9 +483,13 @@ stages:
             inputs:
               command: restore
               projects: ${{ parameters.unitTestProjectPath }}/*.csproj
-              vstsFeed: ${{ parameters.vstsFeedId }}
-              includeNuGetOrg: true
               restoreArguments: --locked-mode --use-lock-file
+              ${{ if eq(parameters.useNugetConfig, true) }}:
+                feedsToUse: config
+                nugetConfigPath: ${{ parameters.nugetConfigPath }}/nuget.config
+              ${{ if eq(parameters.useNugetConfig, false) }}:
+                vstsFeed: ${{ parameters.vstsFeedId }}
+                includeNuGetOrg: true
             condition: ne(variables.NUGET_CACHE_RESTORED, 'true')
 
         - template: ../templates/tests/stryker.yml

@@ -15,8 +15,20 @@ parameters:
     type: string
     default: 3f69a23d-fbc7-4541-afc7-4cccefcad773/e48b2732-376c-4052-ba97-b28783c9bab5
 
+  - name: useNugetConfig
+    type: boolean
+    default: false
+
   - name: coreProjectPath
     type: string
+
+  - name: nugetProjectPath
+    type: string
+    default: ''
+
+  - name: nugetConfigPath
+    type: string
+    default: ''
 
   - name: nodeProjectPath
     type: string
@@ -37,6 +49,9 @@ parameters:
   - name: PackageAcceptanceTests
     type: boolean
     default: true
+  - name: PackageNuget
+    type: boolean
+    default: false
 
   - name: Test
     type: boolean
@@ -63,7 +78,7 @@ parameters:
     default: {}
 
 stages:
-- ${{ if or(parameters.PackageApp, parameters.PackageAcceptanceTests, parameters.ACTest) }}:
+- ${{ if or(parameters.PackageApp, parameters.PackageAcceptanceTests, parameters.ACTest, parameters.PackageNuget) }}:
   - stage: Package
     dependsOn:
     - ${{ if parameters.dependantStages }}:
@@ -90,7 +105,7 @@ stages:
         - checkout: self
 
         - task: gittools.gitversion.gitversion-task.GitVersion@5
-          displayName: GitVersion
+          displayName: GitVersion App
           inputs:
             additionalArguments: /updateassemblyinfo ${{ parameters.coreProjectPath }}/AssemblyInfo.cs /ensureassemblyinfo
 
@@ -111,9 +126,13 @@ stages:
           inputs:
             command: restore
             projects: ${{ parameters.coreProjectPath }}/*.csproj
-            vstsFeed: ${{ parameters.vstsFeedId }}
-            includeNuGetOrg: true
             restoreArguments: --locked-mode --use-lock-file
+            ${{ if eq(parameters.useNugetConfig, true) }}:
+              feedsToUse: config
+              nugetConfigPath: ${{ parameters.nugetConfigPath }}/nuget.config
+            ${{ if eq(parameters.useNugetConfig, false) }}:
+              vstsFeed: ${{ parameters.vstsFeedId }}
+              includeNuGetOrg: true
           condition: ne(variables.NUGET_CACHE_RESTORED, 'true')
 
         - task: DotNetCoreCLI@2
@@ -146,7 +165,7 @@ stages:
         - checkout: self
 
         - task: gittools.gitversion.gitversion-task.GitVersion@5
-          displayName: GitVersion
+          displayName: GitVersion AcceptanceTests
           inputs:
             additionalArguments: /updateassemblyinfo ${{ parameters.coreProjectPath }}.AcceptanceTests/AssemblyInfo.cs /ensureassemblyinfo
 
@@ -162,9 +181,13 @@ stages:
           inputs:
             command: restore
             projects: '**/*AcceptanceTests.csproj'
-            vstsFeed: ${{ parameters.vstsFeedId }}
-            includeNuGetOrg: true
             restoreArguments: --locked-mode --use-lock-file
+            ${{ if eq(parameters.useNugetConfig, true) }}:
+              feedsToUse: config
+              nugetConfigPath: ${{ parameters.nugetConfigPath }}/nuget.config
+            ${{ if eq(parameters.useNugetConfig, false) }}:
+              vstsFeed: ${{ parameters.vstsFeedId }}
+              includeNuGetOrg: true
           condition: ne(variables.NUGET_CACHE_RESTORED, 'true')
 
         - task: DotNetCoreCLI@2
@@ -181,6 +204,68 @@ stages:
           inputs:
             PathtoPublish: $(Build.ArtifactStagingDirectory)/AcceptanceTests
             ArtifactName: AcceptanceTests
+
+    - ${{ if eq(parameters.PackageNuget, true) }}:
+      - job: Publish_Nuget
+        
+        pool:
+          vmImage: ${{ parameters.baseAgent }}
+
+        ${{ if parameters.useContainer }}:
+          container: ${{ parameters.dotnetCIToolsContainer }}
+
+        dependsOn: []
+
+        steps:
+        - checkout: self
+
+        - task: gittools.gitversion.gitversion-task.GitVersion@5
+          displayName: GitVersion Nuget
+          inputs:
+            additionalArguments: /updateassemblyinfo ${{ parameters.coreProjectPath }}/AssemblyInfo.cs /ensureassemblyinfo
+
+        - template: ../templates/pipelineCaching.yml
+          parameters:
+            ${{ if containsValue(parameters.packageManagers, 'nuget') }}:
+              nugetProjectPath: ${{ parameters.coreProjectPath }}
+            ${{ if containsValue(parameters.packageManagers, 'npm') }}:
+              nodeProjectPath: ${{ parameters.nodeProjectPath }}
+            ${{ if containsValue(parameters.packageManagers, 'yarn') }}:
+              yarnProjectPath: ${{ parameters.nodeProjectPath }}
+            packageManagers:
+            - ${{ if parameters.packageManagers }}:
+              - ${{ parameters.packageManagers }}
+
+        - task: DotNetCoreCLI@2
+          displayName: dotnet Restore
+          inputs:
+            command: restore
+            projects: ${{ parameters.nugetProjectPath }}/*.csproj
+            restoreArguments: --locked-mode --use-lock-file
+            ${{ if eq(parameters.useNugetConfig, true) }}:
+              feedsToUse: config
+              nugetConfigPath: ${{ parameters.nugetConfigPath }}/nuget.config
+            ${{ if eq(parameters.useNugetConfig, false) }}:
+              vstsFeed: ${{ parameters.vstsFeedId }}
+              includeNuGetOrg: true
+          condition: ne(variables.NUGET_CACHE_RESTORED, 'true')
+
+        - task: DotNetCoreCLI@2
+          displayName: donet Build Nuget Project
+          inputs:
+            ${{ if eq(variables['Build.SourceBranch'], 'refs/heads/master')}}:
+              arguments: '--configuration release /p:Version="$(GitVersion.NuGetVersion)" /p:PackageOutputPath="$(Build.ArtifactStagingDirectory)"'
+            ${{ if ne(variables['Build.SourceBranch'], 'refs/heads/master')}}:
+              arguments: '--configuration release /p:Version="$(GitVersion.NuGetVersion)" /p:PackageOutputPath="$(Build.ArtifactStagingDirectory)" /p:VersionSuffix="-alpha"'
+            workingDirectory: ${{ parameters.nugetProjectPath }}
+
+        - task: DotNetCoreCLI@2
+          displayName: Push Package to VH NuGet Store
+          inputs:
+            command: push
+            searchPatternPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
+            publishVstsFeed: ${{ parameters.vstsFeedId }}
+            versioningScheme: byBuildNumber
 
 - ${{ if ne(variables['Build.Reason'], 'IndividualCI') }}:
   - ${{ if eq(parameters.Test, true) }}:

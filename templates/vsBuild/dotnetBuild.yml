@@ -2,7 +2,8 @@ parameters:
   buildPlatform: 'Any CPU'
   buildConfiguration: ''
   vstsFeed: ''
-
+  useNugetConfig: false
+  nugetConfigPath: ''
 
 steps:
   - pwsh: Get-ChildItem bin -Depth 2 | Remove-Item -Force -Recurse
@@ -15,8 +16,12 @@ steps:
     inputs:
       command: restore
       projects: '**/*.sln'
-      vstsFeed: '${{ parameters.vstsFeedId }}'
-      includeNuGetOrg: true
+      ${{ if eq(parameters.useNugetConfig, true) }}:
+        feedsToUse: config
+        nugetConfigPath: ${{ parameters.nugetConfigPath }}/nuget.config
+      ${{ if eq(parameters.useNugetConfig, false) }}:
+        vstsFeed: ${{ parameters.vstsFeedId }}
+        includeNuGetOrg: true
 
   - task: DotNetCoreCLI@2
     displayName: Build

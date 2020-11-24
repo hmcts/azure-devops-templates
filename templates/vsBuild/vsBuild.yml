@@ -2,6 +2,8 @@ parameters:
   buildPlatform: 'Any CPU'
   buildConfiguration: ''
   vstsFeed: ''
+  useNugetConfig: false
+  nugetConfigPath: ''
 
 steps:
   - task: DotNetCoreCLI@2
@@ -9,8 +11,12 @@ steps:
     inputs:
       command: restore
       projects: '**/*.sln'
-      vstsFeed: '${{ parameters.vstsFeedId }}'
-      includeNuGetOrg: true
+      ${{ if eq(parameters.useNugetConfig, true) }}:
+        feedsToUse: config
+        nugetConfigPath: ${{ parameters.nugetConfigPath }}/nuget.config
+      ${{ if eq(parameters.useNugetConfig, false) }}:
+        vstsFeed: ${{ parameters.vstsFeedId }}
+        includeNuGetOrg: true
 
 # Builds VS Solution
   - task: VSBuild@1
