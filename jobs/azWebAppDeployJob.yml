@@ -251,11 +251,13 @@ jobs:
 
           - pwsh: |
               $appsettings = @{}
+              Write-Verbose -Message "Setting up ac test app settings." -Verbose
               Get-ChildItem ENV: | Where-Object -FilterScript { $_.Name -cmatch "^acDevSettings_((|azDeploymentSlotSetting)(?!azActiveSlotSetting|azDeploymentSlotSetting)_?(.+))" } | Foreach-Object -Process {
                 $appsettings[$matches[3]] = $_.value
               }
 
               $appSettings = $appSettings | ConvertTo-Json -Depth 99
+              Write-Verbose -Message "Transformed ac test app settings." -Verbose
               Write-Verbose $appSettings -Verbose
 
               New-Item -Path $(Pipeline.Workspace)/AcceptanceTests -Name appsettings.Production.json -ItemType File -Value $appSettings -Force | Out-Null
