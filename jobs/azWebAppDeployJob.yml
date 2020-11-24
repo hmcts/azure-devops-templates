@@ -364,6 +364,8 @@ jobs:
                   dotnet vstest $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll /Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings /Tests:"$($failedTests -join ',')" --logger:console
                 }
               } while ($failedTests.count -gt 0 -and $retry++ -lt 2)
+
+              Get-Content -Path $(Agent.TempDirectory)/TestResults -filter *.trx
             displayName: Smoke Test
             env:
               testCaseFilter: ${{ parameters.testCaseFilter }}
