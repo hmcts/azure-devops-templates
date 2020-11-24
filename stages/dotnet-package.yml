@@ -222,7 +222,7 @@ stages:
         - task: gittools.gitversion.gitversion-task.GitVersion@5
           displayName: GitVersion Nuget
           inputs:
-            additionalArguments: /updateassemblyinfo ${{ parameters.coreProjectPath }}/AssemblyInfo.cs /ensureassemblyinfo
+            configFilePath: GitVersion.yml
 
         - template: ../templates/pipelineCaching.yml
           parameters:
