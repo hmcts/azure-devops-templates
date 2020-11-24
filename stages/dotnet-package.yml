@@ -24,6 +24,7 @@ parameters:
 
   - name: nugetProjectPath
     type: string
+    default: ''
 
   - name: nugetConfigPath
     type: string
