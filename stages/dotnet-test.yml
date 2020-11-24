@@ -25,6 +25,7 @@ parameters:
 
   - name: nugetConfigPath
     type: string
+    default: ''
 
   - name: environment
     type: string
