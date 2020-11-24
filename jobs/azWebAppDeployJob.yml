@@ -251,18 +251,13 @@ jobs:
 
           - pwsh: |
               $appsettings = @{}
-              Write-Verbose -Message "Setting up ac test app settings." -Verbose
               Get-ChildItem ENV: | Where-Object -FilterScript { $_.Name -cmatch "^acDevSettings_((|azDeploymentSlotSetting)(?!azActiveSlotSetting|azDeploymentSlotSetting)_?(.+))" } | Foreach-Object -Process {
                 $appsettings[$matches[3]] = $_.value
               }
 
               $appSettings = $appSettings | ConvertTo-Json -Depth 99
-              Write-Verbose -Message "Transformed ac test app settings." -Verbose
-              Write-Verbose $appSettings -Verbose
 
               New-Item -Path $(Pipeline.Workspace)/AcceptanceTests -Name appsettings.Production.json -ItemType File -Value $appSettings -Force | Out-Null
-              Write-Verbose -Message "Getting content for $(Pipeline.Workspace)/AcceptanceTests/appsettings.Production.json" -Verbose
-              Get-Content -Path $(Pipeline.Workspace)/AcceptanceTests/appsettings.Production.json
 
               $runtimeSettings = '<?xml version="1.0" encoding="utf-8"?><RunSettings><TestRunParameters><Parameter name="TargetEnvironment" value="Production"/></TestRunParameters></RunSettings>'
               New-Item -Path $(Pipeline.Workspace)/AcceptanceTests -Name parameters.runsettings -ItemType File -Value $runtimeSettings -Force | Out-Null
@@ -364,8 +359,6 @@ jobs:
                   dotnet vstest $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll /Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings /Tests:"$($failedTests -join ',')" --logger:console
                 }
               } while ($failedTests.count -gt 0 -and $retry++ -lt 2)
-
-              Get-Content -Path $(Agent.TempDirectory)/TestResults/* -filter *.trx
             displayName: Smoke Test
             env:
               testCaseFilter: ${{ parameters.testCaseFilter }}
