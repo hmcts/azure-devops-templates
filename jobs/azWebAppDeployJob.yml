@@ -256,6 +256,7 @@ jobs:
               }
 
               $appSettings = $appSettings | ConvertTo-Json -Depth 99
+              Write-Verbose $appSettings -Verbose
 
               New-Item -Path $(Pipeline.Workspace)/AcceptanceTests -Name appsettings.Production.json -ItemType File -Value $appSettings -Force | Out-Null
               Get-Content -Path $(Pipeline.Workspace)/AcceptanceTests/appsettings.Production.json
