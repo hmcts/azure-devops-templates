@@ -261,6 +261,7 @@ jobs:
               Write-Verbose $appSettings -Verbose
 
               New-Item -Path $(Pipeline.Workspace)/AcceptanceTests -Name appsettings.Production.json -ItemType File -Value $appSettings -Force | Out-Null
+              Write-Verbose -Message "Getting content for $(Pipeline.Workspace)/AcceptanceTests/appsettings.Production.json" -Verbose
               Get-Content -Path $(Pipeline.Workspace)/AcceptanceTests/appsettings.Production.json
 
               $runtimeSettings = '<?xml version="1.0" encoding="utf-8"?><RunSettings><TestRunParameters><Parameter name="TargetEnvironment" value="Production"/></TestRunParameters></RunSettings>'
