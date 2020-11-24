@@ -345,9 +345,11 @@ jobs:
 
           - pwsh: |
               if([string]::IsNullOrEmpty($env:testCaseFilter)) {
-                dotnet vstest $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings --logger:console
+                dotnet vstest /ListLoggers
+                dotnet vstest $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings --logger:console
               } else {
-                dotnet vstest $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings --TestCaseFilter:${{ parameters.testCaseFilter }} --logger:console
+                dotnet vstest /ListLoggers
+                dotnet vstest $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings --TestCaseFilter:${{ parameters.testCaseFilter }} --logger:console
               }
 
               $retry = 1
@@ -363,7 +365,7 @@ jobs:
                 }
               } while ($failedTests.count -gt 0 -and $retry++ -lt 2)
 
-              Get-Content -Path $(Agent.TempDirectory)/TestResults/ -filter *.trx
+              Get-Content -Path $(Agent.TempDirectory)/TestResults/* -filter *.trx
             displayName: Smoke Test
             env:
               testCaseFilter: ${{ parameters.testCaseFilter }}
