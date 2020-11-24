@@ -105,9 +105,9 @@ stages:
         - checkout: self
 
         - task: gittools.gitversion.gitversion-task.GitVersion@5
-          displayName: GitVersion
+          displayName: GitVersion App
           inputs:
-            additionalArguments: /updateassemblyinfo ${{ parameters.nugetProjectPath }}/AssemblyInfo.cs /ensureassemblyinfo
+            additionalArguments: /updateassemblyinfo ${{ parameters.coreProjectPath }}/AssemblyInfo.cs /ensureassemblyinfo
 
         - template: ../templates/pipelineCaching.yml
           parameters:
@@ -165,7 +165,7 @@ stages:
         - checkout: self
 
         - task: gittools.gitversion.gitversion-task.GitVersion@5
-          displayName: GitVersion
+          displayName: GitVersion AcceptanceTests
           inputs:
             additionalArguments: /updateassemblyinfo ${{ parameters.coreProjectPath }}.AcceptanceTests/AssemblyInfo.cs /ensureassemblyinfo
 
@@ -220,7 +220,7 @@ stages:
         - checkout: self
 
         - task: gittools.gitversion.gitversion-task.GitVersion@5
-          displayName: GitVersion
+          displayName: GitVersion Nuget
           inputs:
             additionalArguments: /updateassemblyinfo ${{ parameters.coreProjectPath }}/AssemblyInfo.cs /ensureassemblyinfo
 
