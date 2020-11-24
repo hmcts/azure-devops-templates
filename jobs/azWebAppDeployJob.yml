@@ -346,10 +346,10 @@ jobs:
           - pwsh: |
               if([string]::IsNullOrEmpty($env:testCaseFilter)) {
                 dotnet vstest /ListLoggers
-                dotnet vstest $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings --logger:"console;verbosity=detailed"
+                dotnet vstest $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings --logger:console;verbosity=detailed
               } else {
                 dotnet vstest /ListLoggers
-                dotnet vstest $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings --TestCaseFilter:${{ parameters.testCaseFilter }} --logger:"console;verbosity=detailed"
+                dotnet vstest $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings --TestCaseFilter:${{ parameters.testCaseFilter }} --logger:console;verbosity=detailed
               }
 
               $retry = 1
@@ -361,7 +361,7 @@ jobs:
                 if($failedTests.count -gt 0) {
                   write-warning "There are currently $($failedTests.count) failing tests, retrying for $retry times in 10 seconds"
                   Start-Sleep 10
-                  dotnet vstest $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll /Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings /Tests:"$($failedTests -join ',')" --logger:"console;verbosity=detailed"
+                  dotnet vstest $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll /Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings /Tests:"$($failedTests -join ',')" --logger:console;verbosity=detailed
                 }
               } while ($failedTests.count -gt 0 -and $retry++ -lt 2)
             displayName: Smoke Test
