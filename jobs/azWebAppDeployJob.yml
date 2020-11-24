@@ -345,8 +345,10 @@ jobs:
 
           - pwsh: |
               if([string]::IsNullOrEmpty($env:testCaseFilter)) {
+                dotnet vstest /ListLoggers
                 dotnet vstest $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings --logger:"console;verbosity=detailed"
               } else {
+                dotnet vstest /ListLoggers
                 dotnet vstest $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings --TestCaseFilter:${{ parameters.testCaseFilter }} --logger:"console;verbosity=detailed"
               }
 
