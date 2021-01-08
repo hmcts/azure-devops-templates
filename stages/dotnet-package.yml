@@ -141,9 +141,9 @@ stages:
             command: publish
             publishWebProjects: false
             ${{ if eq(variables.NUGET_CACHE_RESTORED, 'true') }}:
-                arguments: --configuration Release --output $(build.artifactstagingdirectory)/App
+                arguments: cache: ${{variables.NUGET_CACHE_RESTORED}} --configuration Release --output $(build.artifactstagingdirectory)/App
             ${{ if ne(variables.NUGET_CACHE_RESTORED, 'true') }}:
-                arguments: --configuration Release --no-restore --output $(build.artifactstagingdirectory)/App
+                arguments: cache: ${{variables.NUGET_CACHE_RESTORED}} --configuration Release --no-restore --output $(build.artifactstagingdirectory)/App
             zipAfterPublish: True
             workingDirectory: ${{ parameters.coreProjectPath }}
 
