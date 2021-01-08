@@ -140,7 +140,10 @@ stages:
           inputs:
             command: publish
             publishWebProjects: false
-            arguments: --configuration Release --no-restore --output $(build.artifactstagingdirectory)/App
+            ${{ if eq(variables.NUGET_CACHE_RESTORED, 'true') }}:
+                arguments: --configuration Release --output $(build.artifactstagingdirectory)/App
+            ${{ if ne(variables.NUGET_CACHE_RESTORED, 'true') }}:
+                arguments: --configuration Release --no-restore --output $(build.artifactstagingdirectory)/App
             zipAfterPublish: True
             workingDirectory: ${{ parameters.coreProjectPath }}
 
@@ -195,7 +198,10 @@ stages:
           inputs:
             command: publish
             publishWebProjects: false
-            arguments: --configuration Release --no-restore --output $(build.artifactstagingdirectory)/AcceptanceTests
+            ${{ if eq(variables.NUGET_CACHE_RESTORED, 'true') }}:
+                arguments: --configuration Release --output $(build.artifactstagingdirectory)/AcceptanceTests
+            ${{ if ne(variables.NUGET_CACHE_RESTORED, 'true') }}:
+                arguments: --configuration Release --no-restore --output $(build.artifactstagingdirectory)/AcceptanceTests
             zipAfterPublish: false
             workingDirectory: ${{ parameters.coreProjectPath }}.AcceptanceTests
 
