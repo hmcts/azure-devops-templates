@@ -281,7 +281,7 @@ jobs:
               scriptLocation: inlineScript
               inlineScript: |
                 $ErrorActionPreference = "Continue"
-                $ip = (Invoke-WebRequest -uri "http://ifconfig.me/ip").Content
+                while ( !$ip ) { $ip = (Invoke-WebRequest -uri "http://ifconfig.me/ip").Content }
                 if('${{ parameters.slot }}' -eq 'production') {
                   az webapp config access-restriction add -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --rule-name $env:BUILD_BUILDID --action Allow --ip-address $ip/32 --priority 200
                 } else {
@@ -300,7 +300,7 @@ jobs:
                 scriptLocation: inlineScript
                 inlineScript: |
                   $ErrorActionPreference = "Continue"
-                  $ip = (Invoke-WebRequest -uri "http://ifconfig.me/ip").Content
+                  while ( !$ip ) { $ip = (Invoke-WebRequest -uri "http://ifconfig.me/ip").Content }
 
                   az webapp config access-restriction add -g $env:dependentResourceGroup -n $env:dependentResourceName --rule-name $env:BUILD_BUILDID --action Allow --ip-address $ip/32 --priority 200
 
