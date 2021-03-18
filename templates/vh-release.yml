@@ -111,7 +111,7 @@ stages:
         ${{ if ne(setting.key, 'variables') }}:
           ${{ setting.key }}: ${{ setting.value }}
 
-- ${{ if containsValue(parameters.environments, 'Sandbox') }}:
+- ${{ if or(eq(variables['Build.Reason'], 'ResourceTrigger'), containsValue(parameters.environments, 'Sandbox')) }}:
   - template: ..\stages\dotnet-release.yml
     parameters:
       environment: Sandbox
@@ -133,8 +133,10 @@ stages:
       ${{ each setting in parameters.releaseParameters }}:
         ${{ if ne(setting.key, 'variables') }}:
           ${{ setting.key }}: ${{ setting.value }}
+      ${{ if eq(variables['Build.Reason'], 'ResourceTrigger') }}:
+        condition: and(succeeded(), eq(variables['${{parameters.deploymentBranch}}'], 'refs/heads/master'))
 
-- ${{ if containsValue(parameters.environments, 'Test1') }}:
+- ${{ if or(eq(variables['Build.Reason'], 'ResourceTrigger'), containsValue(parameters.environments, 'Test1')) }}:
   - template: ..\stages\dotnet-release.yml
     parameters:
       environment: Test1
@@ -156,6 +158,8 @@ stages:
       ${{ each setting in parameters.releaseParameters }}:
         ${{ if ne(setting.key, 'variables') }}:
           ${{ setting.key }}: ${{ setting.value }}
+      ${{ if eq(variables['Build.Reason'], 'ResourceTrigger') }}:
+        condition: and(succeeded(), eq(variables['${{parameters.deploymentBranch}}'], 'refs/heads/master'))
 
 - ${{ if containsValue(parameters.environments, 'Test3') }}:
   - template: ..\stages\dotnet-release.yml
