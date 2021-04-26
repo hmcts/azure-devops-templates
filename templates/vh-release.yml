@@ -136,7 +136,7 @@ stages:
       ${{ if eq(variables['Build.Reason'], 'ResourceTrigger') }}:
         condition: and(succeeded(), eq(variables['${{parameters.deploymentBranch}}'], 'refs/heads/master'))
 
-- ${{ if containsValue(parameters.environments, 'Test1') }}:
+- ${{ if or(eq(variables['Build.Reason'], 'ResourceTrigger'), containsValue(parameters.environments, 'Test1')) }}:
   - template: ..\stages\dotnet-release.yml
     parameters:
       environment: Test1
