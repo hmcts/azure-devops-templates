@@ -485,7 +485,7 @@ jobs:
                     }
                   }
                   $newAppSettings = $newAppSettings | ConvertTo-Json -Depth 99 -Compress
-                  Write-Host "##vso[task.setvariable variable=newAppSettings]$newAppSettings"
+                  Write-Host "##vso[task.setvariable variable=newAppSettings;issecret=true]$newAppSettings"
                 displayName: Set Slot Specific App Config
                 env:
                   ${{ each setting in parameters.appSettings }}:
