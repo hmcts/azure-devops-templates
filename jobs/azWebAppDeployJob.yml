@@ -137,7 +137,10 @@ jobs:
         - ${{ if ne(setting.slot, true)}}:
           - name: "acDevSettings_${{ setting.name }}"
             value: $[ dependencies.Secret_Gathering.outputs['SetSecretVariables._${{ setting.name }}'] ]
-
+    - newAppSettings: 
+      - ${{ each setting in parameters.appSettings }}:
+            - name: ${{ setting.name }}
+              value: ${{ setting.value }}
   strategy:
     runOnce:
       deploy:
@@ -201,7 +204,7 @@ jobs:
             ResourceGroupName: ${{ parameters.resourceGroup }}
             SlotName: ${{ parameters.slot }}
             packageForLinux:  $(Pipeline.Workspace)/App/App.zip
-            appSettings: $(activeSettings)
+            appSettings: $(newAppSettings)
             
 
         - task: AzureAppServiceSettings@1
