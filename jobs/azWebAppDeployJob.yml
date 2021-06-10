@@ -152,7 +152,7 @@ jobs:
           - pwsh: |
               Write-Host "##vso[build.updatebuildnumber]${{ parameters.releaseName }}"
             displayName: Set Release Name
-        - bash: echo $(newAppSettings)
+        - bash: echo $(appSettings)
 
         - pwsh: |
             $environment = '${{ parameters.environment }}'.tolower()
