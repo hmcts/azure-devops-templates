@@ -166,6 +166,7 @@ jobs:
                   $newAppSettings = $newAppSettings | ConvertTo-Json -Depth 99 -Compress
                   Write-Host "##vso[task.setvariable variable=newAppSettings]$newAppSettings"
           displayName: Set Environment Variables for Config Transform
+        - bash: echo $(newAppSettings)
         - pwsh: |
             $environment = '${{ parameters.environment }}'.tolower()
             Write-Host "##vso[task.setvariable variable=environment]$environment"
