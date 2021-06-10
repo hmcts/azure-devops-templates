@@ -183,7 +183,7 @@ jobs:
               }
             }
             $stagingSettings = $stagingSettings | ConvertTo-Json -Depth 99 -Compress
-            Write-Host "##vso[task.setvariable variable=deploymentSettings]$stagingSettings"
+            Write-Host "##vso[task.setvariable variable=deploymentSettings;issecret=true]$stagingSettings"
           displayName: Set Slot Specific App Config
           env:
             ${{ each setting in parameters.appSettings }}:
