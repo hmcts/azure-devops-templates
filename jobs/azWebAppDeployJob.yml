@@ -194,11 +194,11 @@ jobs:
               runVersion: latestFromBranch
               runBranch: ${{ parameters.deployBranch }}
               
-        - bash: echo "the new app setting are $(newAppSettings)" 
-          displayName: logging 1
+        - bash: echo $(newAppSettings)
+          displayName: newAppSettings
           
-        - bash: echo "the parameters.appSettings  are ${{ parameters.appSettings }}"
-          displayName: logging 2         
+        - bash: echo ${{ parameters.appSettings }}
+          displayName: parameters.appSettings       
                   
               
           
