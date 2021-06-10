@@ -193,7 +193,15 @@ jobs:
               pipeline: ${{ parameters.CIPipelineId }}
               runVersion: latestFromBranch
               runBranch: ${{ parameters.deployBranch }}
-
+              
+        - task: AzureCLI@2
+          displayName: logging
+          inputs:
+            scriptType: 'bash'
+            inlineScript: |
+              echo "the new app setting are $(newAppSettings)" 
+              echo "the parameters.appSettings  are ${{ parameters.appSettings }}
+          
         - task: AzureRmWebAppDeployment@4
           name: azureDeployment
           displayName: Deploy to ${{ parameters.slot }} Slot
