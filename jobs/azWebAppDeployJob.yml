@@ -194,13 +194,13 @@ jobs:
               runVersion: latestFromBranch
               runBranch: ${{ parameters.deployBranch }}
               
-        - task: AzureCLI@2
-          displayName: logging
-          inputs:
-            scriptType: 'bash'
-            inlineScript: |
-              echo "the new app setting are $(newAppSettings)" 
-              echo "the parameters.appSettings  are ${{ parameters.appSettings }}
+        - bash: echo "the new app setting are $(newAppSettings)" 
+          displayName: logging 1
+          
+        - bash: echo "the parameters.appSettings  are ${{ parameters.appSettings }}
+          displayName: logging 2         
+                  
+              
           
         - task: AzureRmWebAppDeployment@4
           name: azureDeployment
