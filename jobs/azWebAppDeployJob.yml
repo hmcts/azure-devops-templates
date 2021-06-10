@@ -197,8 +197,8 @@ jobs:
         - bash: echo $(newAppSettings)
           displayName: newAppSettings
           
-        - bash: echo ${{ parameters.appSettings }}
-          displayName: parameters.appSettings       
+        #- bash: echo -y ${{ parameters.appSettings }}
+        #  displayName: parameters.appSettings       
                   
               
           
