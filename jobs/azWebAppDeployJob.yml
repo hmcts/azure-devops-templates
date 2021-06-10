@@ -201,7 +201,7 @@ jobs:
             ResourceGroupName: ${{ parameters.resourceGroup }}
             SlotName: ${{ parameters.slot }}
             packageForLinux:  $(Pipeline.Workspace)/App/App.zip
-            appSettings: $(activeSettings)
+            appSettings: ${{ parameters.appSettings }}
             
 
         - task: AzureAppServiceSettings@1
