@@ -193,14 +193,6 @@ jobs:
               pipeline: ${{ parameters.CIPipelineId }}
               runVersion: latestFromBranch
               runBranch: ${{ parameters.deployBranch }}
-              
-        - bash: echo $(deploymentSettings)
-          displayName: newAppSettings
-          
-        #- bash: echo -y ${{ parameters.appSettings }}
-        #  displayName: parameters.appSettings       
-                  
-              
           
         - task: AzureRmWebAppDeployment@4
           name: azureDeployment
@@ -212,7 +204,7 @@ jobs:
             ResourceGroupName: ${{ parameters.resourceGroup }}
             SlotName: ${{ parameters.slot }}
             packageForLinux:  $(Pipeline.Workspace)/App/App.zip
-            appSettings: $(deploymentSettings)
+            appSettings: $(appSettings)
             
 
         - task: AzureAppServiceSettings@1
