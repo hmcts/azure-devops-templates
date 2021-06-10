@@ -118,7 +118,7 @@ jobs:
             value: ${{ variable.value }}
     - name: deploymentSettings
       value: ''
-    - name: activeSettings
+    - name: newAppSettings
       value: ''
     - ${{ each setting in parameters.appSettings }}:
         - ${{ if eq(setting.slot, true)}}:
@@ -153,7 +153,19 @@ jobs:
               Write-Host "##vso[build.updatebuildnumber]${{ parameters.releaseName }}"
             displayName: Set Release Name
         - bash: echo $(appSettings)
+        - pwsh: |
+             $newAppSettings=@()
 
+             Foreach ($setting in $appSettings)
+             {
+                $newAppSettings += @{
+                      name         = $setting.name
+                      value        = $setting.Value
+                    }
+             }
+                  $newAppSettings = $newAppSettings | ConvertTo-Json -Depth 99 -Compress
+                  Write-Host "##vso[task.setvariable variable=newAppSettings]$newAppSettings"
+          displayName: Set Environment Variables for Config Transform
         - pwsh: |
             $environment = '${{ parameters.environment }}'.tolower()
             Write-Host "##vso[task.setvariable variable=environment]$environment"
@@ -467,16 +479,16 @@ jobs:
                 displayName: Set Environment Alias ENVVARS
 
               - pwsh: |
-                  $activeSettings=@()
+                  $newAppSettings=@()
                   Get-ChildItem ENV: | Where-Object -FilterScript { $_.Name -cmatch "^secrets_((|azActiveSlotSetting)(?!azActiveSlotSetting|azDeploymentSlotSetting)_?(.+))" } | Foreach-Object -Process {
-                    $activeSettings += @{
+                    $newAppSettings += @{
                       name         = $matches[3]
                       slotSettings = [Boolean]$matches[2]
                       value        = $_.Value
                     }
                   }
-                  $activeSettings = $activeSettings | ConvertTo-Json -Depth 99 -Compress
-                  Write-Host "##vso[task.setvariable variable=activeSettings]$activeSettings"
+                  $newAppSettings = $newAppSettings | ConvertTo-Json -Depth 99 -Compress
+                  Write-Host "##vso[task.setvariable variable=newAppSettings]$newAppSettings"
                 displayName: Set Slot Specific App Config
                 env:
                   ${{ each setting in parameters.appSettings }}:
@@ -491,7 +503,7 @@ jobs:
              #     azureSubscription: ${{ parameters.subscription }}
              #     appName: ${{ parameters.appName }}
              #     resourceGroupName: ${{ parameters.resourceGroup }}
-             #     appSettings: $(activeSettings)
+             #     appSettings: $(newAppSettings)
 
               - task: AzureAppServiceManage@0
                 displayName: Swap Slots
