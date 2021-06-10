@@ -219,7 +219,7 @@ jobs:
             packageForLinux:  $(Pipeline.Workspace)/App/App.zip
             appSettings: $(newAppSettings)
             
-        - task: az webapp config appsettings set -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --settings $(deploymentSettings)
+        - bash: az webapp config appsettings set -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --settings $(deploymentSettings)
           displayName: Update ${{ parameters.slot }} Slot Settings
           
         - task: AzureAppServiceSettings@1
