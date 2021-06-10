@@ -138,9 +138,9 @@ jobs:
           - name: "acDevSettings_${{ setting.name }}"
             value: $[ dependencies.Secret_Gathering.outputs['SetSecretVariables._${{ setting.name }}'] ]
     - name: newAppSettings
-       - ${{ each setting in parameters.appSettings }}:
-             - name: ${{ setting.name }}
-               value: ${{ setting.value }}
+    - ${{ each setting in parameters.appSettings }}:
+       - name: ${{ setting.name }}
+         value: ${{ setting.value }}
   strategy:
     runOnce:
       deploy:
