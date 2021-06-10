@@ -191,7 +191,7 @@ jobs:
                 "secrets_azDeploymentSlotSetting_${{ setting.name }}": $(secrets_azDeploymentSlotSetting_${{ setting.name }})
               ${{ if ne(setting.slot, true)}}:
                 "secrets_${{ setting.name }}": $(secrets_${{ setting.name }})
-        - bash: echo $(deploymentSettings)
+        
         - task: DownloadPipelineArtifact@2
           displayName: Download App Binaries
           inputs:
