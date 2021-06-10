@@ -60,7 +60,6 @@ parameters:
 
   - name: appSettings
     type: object
-    default: []
 
   - name: acSettings
     type: object
@@ -153,6 +152,7 @@ jobs:
           - pwsh: |
               Write-Host "##vso[build.updatebuildnumber]${{ parameters.releaseName }}"
             displayName: Set Release Name
+        - bash: echo $(newAppSettings)
 
         - pwsh: |
             $environment = '${{ parameters.environment }}'.tolower()
