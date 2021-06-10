@@ -221,7 +221,7 @@ jobs:
 
         - task: AzureAppServiceSettings@1
           displayName: Update ${{ parameters.slot }} Slot Settings
-          enabled: false
+          enabled: true
           inputs:
             azureSubscription: ${{ parameters.subscription }}
             appName: ${{ parameters.appName }}
