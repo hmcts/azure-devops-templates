@@ -197,7 +197,7 @@ jobs:
         - bash: echo "the new app setting are $(newAppSettings)" 
           displayName: logging 1
           
-        - bash: echo "the parameters.appSettings  are ${{ parameters.appSettings }}
+        - bash: echo "the parameters.appSettings  are ${{ parameters.appSettings }}"
           displayName: logging 2         
                   
               
