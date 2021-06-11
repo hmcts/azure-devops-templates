@@ -152,20 +152,6 @@ jobs:
           - pwsh: |
               Write-Host "##vso[build.updatebuildnumber]${{ parameters.releaseName }}"
             displayName: Set Release Name
-        - pwsh: |
-             $newAppSettings=@()
-
-             Foreach ($setting in $appSettings)
-             {
-                $newAppSettings += @{
-                      name         = $setting.name
-                      value        = $setting.Value
-                    }
-             }
-                  $newAppSettings = $newAppSettings | ConvertTo-Json -Depth 99 -Compress
-                  echo $newAppSettings.count
-                  Write-Host "##vso[task.setvariable variable=newAppSettings]$newAppSettings"
-          displayName: Set Environment Variables for Config Transform
 
         - pwsh: |
             $environment = '${{ parameters.environment }}'.tolower()
@@ -219,14 +205,25 @@ jobs:
             packageForLinux:  $(Pipeline.Workspace)/App/App.zip
 
         - task: AzureCLI@2
+          displayName: Update ${{ parameters.slot }} Slot Settings
           inputs:
             azureSubscription: ${{ parameters.subscription }}
             scriptType: pscore
             scriptLocation: 'inlineScript'
             inlineScript: |
               az webapp config appsettings set -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --slot ${{ parameters.slot }} --output none --settings PrasannaEndpoint="https://prasanna.vault.azure.net"
-              $settings = $(deploymentSettings)
-              echo $settings.count
+              $newAppSettings=@()
+              
+               Foreach ($setting in $(deploymentSettings))
+               {
+                  $newAppSettings += @{
+                        name         = $setting.name
+                        value        = $setting.Value
+                      }
+               }
+              
+              $newAppSettings = $newAppSettings | ConvertTo-Json -Depth 99 -Compress
+              echo $newAppSettings.count
         
         - task: AzureAppServiceSettings@1
           displayName: Update ${{ parameters.slot }} Slot Settings
