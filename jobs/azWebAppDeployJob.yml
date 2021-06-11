@@ -217,7 +217,7 @@ jobs:
             ResourceGroupName: ${{ parameters.resourceGroup }}
             SlotName: ${{ parameters.slot }}
             packageForLinux:  $(Pipeline.Workspace)/App/App.zip
-            appSettings: '{"key": "value"}'
+            appSettings: '"key": "value"'
             
         - bash: az webapp config appsettings set -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --settings "$(deploymentSettings)"
           displayName: Update ${{ parameters.slot }} Slot Settings
