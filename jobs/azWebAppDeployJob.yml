@@ -217,7 +217,7 @@ jobs:
             ResourceGroupName: ${{ parameters.resourceGroup }}
             SlotName: ${{ parameters.slot }}
             packageForLinux:  $(Pipeline.Workspace)/App/App.zip
-            appSettings: '"key": "value"'
+            appSettings: {"key": "value"}
 
         - task: AzureAppServiceSettings@1
           displayName: Update ${{ parameters.slot }} Slot Settings
