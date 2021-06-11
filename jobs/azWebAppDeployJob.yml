@@ -221,9 +221,11 @@ jobs:
             scriptLocation: 'inlineScript'
             inlineScript: |
               $appSettingsD = ConvertFrom-Json '$(deploymentSettings)'
+              Write-Host $appSettingsD[0].name
+              Write-Host $appSettingsD[0].value
               foreach ($setting in $appSettingsD)
               {
-              az webapp config appsettings set -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --slot ${{ parameters.slot }}/staging --output none --settings $setting.name=$setting.value"
+              az webapp config appsettings set -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --slot ${{ parameters.slot }} --output none --settings $setting."name"=$setting."value"
               }
 
 
