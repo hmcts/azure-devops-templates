@@ -216,12 +216,13 @@ jobs:
               Get-ChildItem ENV: | Where-Object -FilterScript { $_.Name -cmatch "^secrets_((|azDeploymentSlotSetting)(?!azActiveSlotSetting|azDeploymentSlotSetting)_?(.+))" } | Foreach-Object -Process {
                 $stagingSettings += @{
                   name         = $matches[3]
-                  slotSettings = [Boolean]$matches[2]
                   value        = $_.Value
                 }
               }
               $stagingSettings = $stagingSettings | ConvertTo-Json -Depth 99 -Compress
-              echo $stagingSettings | Format-Table
+              $stagingSettings.ForEach({
+                echo $_.name
+              })
         
         - task: AzureAppServiceSettings@1
           displayName: Update ${{ parameters.slot }} Slot Settings
