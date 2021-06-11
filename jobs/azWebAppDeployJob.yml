@@ -170,6 +170,8 @@ jobs:
             }
             $stagingSettings = $stagingSettings | ConvertTo-Json -Depth 99 -Compress
             Write-Host "##vso[task.setvariable variable=deploymentSettings;issecret=true]$stagingSettings"
+            $appSettingsD = ConvertFrom-Json $(stagingSettings)
+            Write-Host $appSettingsD
           displayName: Set Slot Specific App Config
           env:
             ${{ each setting in parameters.appSettings }}:
@@ -212,7 +214,7 @@ jobs:
             scriptLocation: 'inlineScript'
             inlineScript: |
               az webapp config appsettings set -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --slot ${{ parameters.slot }} --output none --settings PrasannaEndpoint="https://prasanna.vault.azure.net"
-        
+              
               $appSettingsD = ConvertFrom-Json $(stagingSettings)
               Write-Host $appSettingsD
 
