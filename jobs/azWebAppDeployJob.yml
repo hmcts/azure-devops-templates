@@ -226,8 +226,7 @@ jobs:
             inlineScript: |
               az webapp config appsettings set -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --slot ${{ parameters.slot }} --output none --settings PrasannaEndpoint="https://prasanna.vault.azure.net"
               $settings = $(deploymentSettings)
-              $settings | ForEach-Object { echo $_.Name}
-
+              echo $settings.count
         
         - task: AzureAppServiceSettings@1
           displayName: Update ${{ parameters.slot }} Slot Settings
