@@ -230,7 +230,7 @@ jobs:
             appName: ${{ parameters.appName }}
             resourceGroupName: ${{ parameters.resourceGroup }}
             slotName: ${{ parameters.slot }}
-            appSettings: $(deploymentSettings)
+            appSettings: '{"key": "value"}'
            
 
       ${{ if parameters.runACTests }}:
