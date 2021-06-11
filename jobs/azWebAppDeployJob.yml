@@ -224,7 +224,12 @@ jobs:
             scriptType: pscore
             scriptLocation: 'inlineScript'
             inlineScript: |
-              az webapp config appsettings set -g dev-env-rg -n VH-Test-App --output none --settings PrasannaEndpoint="https://prasanna.vault.azure.net"
+              $settings = $(deploymentSettings)
+              az webapp config appsettings set -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --output none --settings PrasannaEndpoint="https://prasanna.vault.azure.net"
+              foreach ($vm_id in $vm_ids) {
+                  Write-Output "Stopping $vm_id"
+                  az vm stop --ids $vm_id
+              }
         
         - task: AzureAppServiceSettings@1
           displayName: Update ${{ parameters.slot }} Slot Settings
