@@ -217,8 +217,16 @@ jobs:
             ResourceGroupName: ${{ parameters.resourceGroup }}
             SlotName: ${{ parameters.slot }}
             packageForLinux:  $(Pipeline.Workspace)/App/App.zip
-            appSettings: '-key: "value"'
 
+        - task: AzureCLI@2
+          inputs:
+            azureSubscription: ${{ parameters.subscription }}
+            scriptType: 'ps'
+            scriptLocation: 'inlineScript'
+            inlineScript: |
+              echo $(deploymentSettings)
+              az webapp config appsettings set -g dev-env-rg -n VH-Test-App --output none --settings PrasannaEndpoint="https://prasanna.vault.azure.net"
+        
         - task: AzureAppServiceSettings@1
           displayName: Update ${{ parameters.slot }} Slot Settings
           enabled: false
