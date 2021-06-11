@@ -213,8 +213,7 @@ jobs:
             inlineScript: |
               az webapp config appsettings set -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --slot ${{ parameters.slot }} --output none --settings PrasannaEndpoint="https://prasanna.vault.azure.net"
         
-
-              $appSettingsD = ConvertFrom-Json $(appSettings)
+              $appSettingsD = ConvertFrom-Json ${{ parameters.appSettings }}
               Write-Host $appSettingsD
 
         - task: AzureAppServiceSettings@1
