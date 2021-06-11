@@ -220,9 +220,7 @@ jobs:
                 }
               }
               $stagingSettings = $stagingSettings | ConvertTo-Json -Depth 99 -Compress
-              $stagingSettings.ForEach({
-                echo $_.name
-              })
+              echo $stagingSettings
         
         - task: AzureAppServiceSettings@1
           displayName: Update ${{ parameters.slot }} Slot Settings
