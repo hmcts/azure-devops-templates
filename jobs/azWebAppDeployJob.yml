@@ -170,8 +170,7 @@ jobs:
             }
             $stagingSettings = $stagingSettings | ConvertTo-Json -Depth 99 -Compress
             Write-Host "##vso[task.setvariable variable=deploymentSettings;issecret=true]$stagingSettings"
-            $appSettingsD = ConvertFrom-Json $(stagingSettings)
-            Write-Host $appSettingsD
+
           displayName: Set Slot Specific App Config
           env:
             ${{ each setting in parameters.appSettings }}:
@@ -179,6 +178,12 @@ jobs:
                 "secrets_azDeploymentSlotSetting_${{ setting.name }}": $(secrets_azDeploymentSlotSetting_${{ setting.name }})
               ${{ if ne(setting.slot, true)}}:
                 "secrets_${{ setting.name }}": $(secrets_${{ setting.name }})
+              
+        - pwsh: |
+            $appSettingsD = ConvertFrom-Json $(stagingSettings)
+            Write-Host $appSettingsD
+
+          displayName: logging staging settings
         
         - task: DownloadPipelineArtifact@2
           displayName: Download App Binaries
