@@ -218,10 +218,7 @@ jobs:
             SlotName: ${{ parameters.slot }}
             packageForLinux:  $(Pipeline.Workspace)/App/App.zip
             appSettings: '"key": "value"'
-            
-        - bash: az webapp config appsettings set -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --settings "$(deploymentSettings)"
-          displayName: Update ${{ parameters.slot }} Slot Settings
-          
+
         - task: AzureAppServiceSettings@1
           displayName: Update ${{ parameters.slot }} Slot Settings
           enabled: false
