@@ -219,8 +219,8 @@ jobs:
                   value        = $_.Value
                 }
               }
-              echo $stagingSettings
-              echo $(deploymentSettings)
+            
+              Write-Host '$(deploymentSettings)'
         
         - task: AzureAppServiceSettings@1
           displayName: Update ${{ parameters.slot }} Slot Settings
