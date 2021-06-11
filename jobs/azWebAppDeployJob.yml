@@ -180,7 +180,7 @@ jobs:
                 "secrets_${{ setting.name }}": $(secrets_${{ setting.name }})
               
         - pwsh: |
-            $appSettingsD = ConvertFrom-Json $(stagingSettings)
+            $appSettingsD = ConvertFrom-Json $(deploymentSettings)
             Write-Host $appSettingsD
 
           displayName: logging staging settings
