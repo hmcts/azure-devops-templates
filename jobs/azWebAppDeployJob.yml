@@ -220,7 +220,7 @@ jobs:
                 }
               }
             
-              Write-Host '$(deploymentSettings)'
+              Write-Host '$stagingSettings'
         
         - task: AzureAppServiceSettings@1
           displayName: Update ${{ parameters.slot }} Slot Settings
