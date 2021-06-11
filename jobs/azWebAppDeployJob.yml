@@ -212,7 +212,16 @@ jobs:
             scriptLocation: 'inlineScript'
             inlineScript: |
               az webapp config appsettings set -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --slot ${{ parameters.slot }} --output none --settings PrasannaEndpoint="https://prasanna.vault.azure.net"
-              echo $(deploymentSettings) | Format-Table
+              $stagingSettings=@()
+              Get-ChildItem ENV: | Where-Object -FilterScript { $_.Name -cmatch "^secrets_((|azDeploymentSlotSetting)(?!azActiveSlotSetting|azDeploymentSlotSetting)_?(.+))" } | Foreach-Object -Process {
+                $stagingSettings += @{
+                  name         = $matches[3]
+                  slotSettings = [Boolean]$matches[2]
+                  value        = $_.Value
+                }
+              }
+              $stagingSettings = $stagingSettings | ConvertTo-Json -Depth 99 -Compress
+              echo stagingSettings | Format-Table
         
         - task: AzureAppServiceSettings@1
           displayName: Update ${{ parameters.slot }} Slot Settings
