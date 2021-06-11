@@ -221,7 +221,7 @@ jobs:
         - task: AzureCLI@2
           inputs:
             azureSubscription: ${{ parameters.subscription }}
-            scriptType: 'ps'
+            scriptType: pscore
             scriptLocation: 'inlineScript'
             inlineScript: |
               echo $(deploymentSettings)
