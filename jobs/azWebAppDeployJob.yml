@@ -219,8 +219,8 @@ jobs:
                   value        = $_.Value
                 }
               }
-              $stagingSettings = $stagingSettings | ConvertTo-Json -Depth 99 -Compress
               echo $stagingSettings
+              echo $(deploymentSettings)
         
         - task: AzureAppServiceSettings@1
           displayName: Update ${{ parameters.slot }} Slot Settings
