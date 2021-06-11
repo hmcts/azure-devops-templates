@@ -181,8 +181,8 @@ jobs:
               
         - pwsh: |
             $appSettingsD = ConvertFrom-Json '$(deploymentSettings)'
-            Write-Host $appSettingsD.psobject.properties.name
-            Write-Host $appSettingsD.psobject.properties.value
+            Write-Host $appSettingsD[0]
+            Write-Host $appSettingsD[1]
             
 
           displayName: logging staging settings
