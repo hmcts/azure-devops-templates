@@ -224,7 +224,6 @@ jobs:
             scriptType: pscore
             scriptLocation: 'inlineScript'
             inlineScript: |
-              echo $(deploymentSettings)
               az webapp config appsettings set -g dev-env-rg -n VH-Test-App --output none --settings PrasannaEndpoint="https://prasanna.vault.azure.net"
         
         - task: AzureAppServiceSettings@1
