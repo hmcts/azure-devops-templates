@@ -226,10 +226,9 @@ jobs:
                  $key = $setting."name"
                  $keyArray = $key.Split(":")
                  $val = $setting."value"
-                 $joinedKey = [String]::Join(":", $keyArray)
-                 $formattedSetting = [String]::Join("=", $keyArray, $val)
+                 $formattedKey = [String]::Join(":", $keyArray)
+                 $formattedSetting = [String]::Join("=", $formattedKey, $val)
                  Write-Host $formattedSetting
-                 Write-Host formattedSetting
                  az webapp config appsettings set -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --slot ${{ parameters.slot }} --output none --settings $formattedSetting
               }           
 
