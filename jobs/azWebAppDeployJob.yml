@@ -226,10 +226,11 @@ jobs:
                  $key = $setting."name"
                  $keyArray = $key.Split(":")
                  $val = $setting."value"
-                 $testVal = [String]::Join(":", $keyArray)="$val"
-                 Write-Host $testVal
-                 Write-Host [String]::Join(":", $keyArray)="$val"
-                 az webapp config appsettings set -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --slot ${{ parameters.slot }} --output none --settings $testVal
+                 $joinedKey = [String]::Join(":", $keyArray)
+                 $formattedSetting = [String]::Join("=", $keyArray, $val)
+                 Write-Host $formattedSetting
+                 Write-Host formattedSetting
+                 az webapp config appsettings set -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --slot ${{ parameters.slot }} --output none --settings $formattedSetting
               }           
 
       ${{ if parameters.runACTests }}:
