@@ -223,7 +223,9 @@ jobs:
               $appSettingsD = ConvertFrom-Json '$(deploymentSettings)'
               foreach ($setting in $appSettingsD)
               {
-              az webapp config appsettings set -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --slot ${{ parameters.slot }} --output none --settings '$setting."name"'="$setting."value""
+                 $val = '$setting."name"'="$setting."value""
+                 Write-Host $val
+                 az webapp config appsettings set -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --slot ${{ parameters.slot }} --output none --settings '$setting."name"'="$setting."value""
               }           
 
       ${{ if parameters.runACTests }}:
