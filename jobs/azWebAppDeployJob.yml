@@ -224,10 +224,11 @@ jobs:
               foreach ($setting in $appSettingsD)
               {
                  $key = $setting."name"
-                 $val = $setting."value" -replace "=","$="
-                 $key = $key -replace ":","$:"
-                 Write-Host '$($key)="$($val)"'
-                 az webapp config appsettings set -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --slot ${{ parameters.slot }} --output none --settings '$($key)="$($val)"'
+                 $keyArray = $key.Split(":")
+                 $val = $setting."value"
+            
+                 Write-Host '[String]::Join(":", $keyArray)="$($val)"'
+                 az webapp config appsettings set -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --slot ${{ parameters.slot }} --output none --settings '[String]::Join(":", $keyArray)="$($val)"'
               }           
 
       ${{ if parameters.runACTests }}:
