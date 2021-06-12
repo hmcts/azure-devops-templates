@@ -224,8 +224,8 @@ jobs:
               foreach ($setting in $appSettingsD)
               {
                  $key = $setting."name"
-                 $val = $setting."value"
-                 Write-Host "$($key)="$($val)""
+                 $val = $setting."value" -replace "=","$="
+                 Write-Host '$($key)="$($val)"'
                  az webapp config appsettings set -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --slot ${{ parameters.slot }} --output none --settings "$($key)="$($val)""
               }           
 
