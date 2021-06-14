@@ -8,7 +8,7 @@
     "yaml-lint": "^1.2.4"
   },
   "scripts": {
-    "test": "yamllint -d "{extends: default, rules: {key-duplicates: disable, indentation: disable, line-length: disable}}" **/*.yml"
+    "test": "yamllint -d relaxed **/*.yml"
   },
   "repository": {
     "type": "git",
