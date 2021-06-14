@@ -118,8 +118,6 @@ jobs:
             value: ${{ variable.value }}
     - name: deploymentSettings
       value: ''
-    - name: newAppSettings
-      value: ''
     - ${{ each setting in parameters.appSettings }}:
         - ${{ if eq(setting.slot, true)}}:
           - name: "secrets_azDeploymentSlotSetting_${{ setting.name }}"
@@ -136,10 +134,6 @@ jobs:
         - ${{ if ne(setting.slot, true)}}:
           - name: "acDevSettings_${{ setting.name }}"
             value: $[ dependencies.Secret_Gathering.outputs['SetSecretVariables._${{ setting.name }}'] ]
-    - name: newAppSettings
-    - ${{ each setting in parameters.appSettings }}:
-       - name: ${{ setting.name }}
-         value: ${{ setting.value }}
   strategy:
     runOnce:
       deploy:
@@ -178,15 +172,7 @@ jobs:
                 "secrets_azDeploymentSlotSetting_${{ setting.name }}": $(secrets_azDeploymentSlotSetting_${{ setting.name }})
               ${{ if ne(setting.slot, true)}}:
                 "secrets_${{ setting.name }}": $(secrets_${{ setting.name }})
-              
-        - pwsh: |
-            $appSettingsD = ConvertFrom-Json '$(deploymentSettings)'
-            Write-Host $appSettingsD[0].name
-            Write-Host $appSettingsD[0].value
-            
-
-          displayName: logging staging settings
-        
+                    
         - task: DownloadPipelineArtifact@2
           displayName: Download App Binaries
           inputs:
