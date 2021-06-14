@@ -490,6 +490,24 @@ jobs:
                   resourceGroupName: ${{ parameters.resourceGroup }}
                   appSettings: $(activeSettings)
 
+              - task: AzureCLI@2
+                displayName: Update ${{ parameters.slot }} Slot Settings
+                inputs:
+                  azureSubscription: ${{ parameters.subscription }}
+                  scriptType: pscore
+                  scriptLocation: 'inlineScript'
+                  inlineScript: |
+                    $appSettingsD = ConvertFrom-Json '$(activeSettings)'
+                    foreach ($setting in $appSettingsD)
+                    {
+                       $key = $setting."name"
+                       $keyArray = $key.Split(":")
+                       $val = $setting."value"
+                       $formattedKey = [String]::Join(":", $keyArray)
+                       $formattedSetting = [String]::Join("=", $formattedKey, $val)
+                       az webapp config appsettings set -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --slot ${{ parameters.slot }} --output none --settings $formattedSetting
+                    }    
+
               - task: AzureAppServiceManage@0
                 displayName: Swap Slots
                 inputs:
