@@ -61,7 +61,7 @@ parameters:
   - name: appSettings
     type: object
     default: []
-    
+
   - name: acSettings
     type: object
     default: []
@@ -464,16 +464,16 @@ jobs:
                 displayName: Set Environment Alias ENVVARS
 
               - pwsh: |
-                  $newAppSettings=@()
+                  $activeSettings=@()
                   Get-ChildItem ENV: | Where-Object -FilterScript { $_.Name -cmatch "^secrets_((|azActiveSlotSetting)(?!azActiveSlotSetting|azDeploymentSlotSetting)_?(.+))" } | Foreach-Object -Process {
-                    $newAppSettings += @{
+                    $activeSettings += @{
                       name         = $matches[3]
                       slotSettings = [Boolean]$matches[2]
                       value        = $_.Value
                     }
                   }
-                  $newAppSettings = $newAppSettings | ConvertTo-Json -Depth 99 -Compress
-                  Write-Host "##vso[task.setvariable variable=newAppSettings;issecret=true]$newAppSettings"
+                  $activeSettings = $activeSettings | ConvertTo-Json -Depth 99 -Compress
+                  Write-Host "##vso[task.setvariable variable=activeSettings;issecret=true]$activeSettings"
                 displayName: Set Slot Specific App Config
                 env:
                   ${{ each setting in parameters.appSettings }}:
@@ -488,7 +488,7 @@ jobs:
                   azureSubscription: ${{ parameters.subscription }}
                   appName: ${{ parameters.appName }}
                   resourceGroupName: ${{ parameters.resourceGroup }}
-                  appSettings: $(newAppSettings)
+                  appSettings: $(activeSettings)
 
               - task: AzureAppServiceManage@0
                 displayName: Swap Slots
