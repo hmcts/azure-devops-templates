@@ -482,16 +482,8 @@ jobs:
                     ${{ if ne(setting.slot, true)}}:
                       "secrets_${{ setting.name }}": $(secrets_${{ setting.name }})
 
-              - task: AzureAppServiceSettings@1
-                displayName: Update Production Slot Settings
-                inputs:
-                  azureSubscription: ${{ parameters.subscription }}
-                  appName: ${{ parameters.appName }}
-                  resourceGroupName: ${{ parameters.resourceGroup }}
-                  appSettings: $(activeSettings)
-
               - task: AzureCLI@2
-                displayName: Update ${{ parameters.slot }} Slot Settings
+                displayName: Update Production Slot Settings
                 inputs:
                   azureSubscription: ${{ parameters.subscription }}
                   scriptType: pscore
