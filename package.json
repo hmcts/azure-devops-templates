@@ -8,7 +8,7 @@
     "yaml-lint": "^1.2.4"
   },
   "scripts": {
-    "test": "cat ./lint_config_file && yamllint -c ./lint_config_file **/*.yml"
+    "test": "cat ./lint_config_file.yamllint && yamllint -c ./lint_config_file.yamllint **/*.yml"
   },
   "repository": {
     "type": "git",
