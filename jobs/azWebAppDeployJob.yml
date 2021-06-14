@@ -473,7 +473,7 @@ jobs:
                     }
                   }
                   $activeSettings = $activeSettings | ConvertTo-Json -Depth 99 -Compress
-                  Write-Host "##vso[task.setvariable variable=activeSettings;issecret=true]$activeSettings"
+                  Write-Host "##vso[task.setvariable variable=activeSettings]$activeSettings"
                 displayName: Set Slot Specific App Config
                 env:
                   ${{ each setting in parameters.appSettings }}:
