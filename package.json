@@ -4,9 +4,7 @@
   "description": "templates to for Azure Devops build pipelines used by the hearings reforms team",
   "main": "index.js",
   "dependencies": {},
-  "devDependencies": {
-    "yaml-lint": "^1.2.4"
-  },
+  "devDependencies": {},
   "scripts": {
     "test": "yamllint -c ./.config/yamllint/lint_config_file **/*.yml"
   },
