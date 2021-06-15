@@ -6,7 +6,7 @@
   "dependencies": {},
   "devDependencies": {},
   "scripts": {
-    "test": "yamllint -c ./.config/yamllint/lint_config_file **/*.yml"
+    "test": "yamllint -c ./lint_config_file **/*.yml"
   },
   "repository": {
     "type": "git",
