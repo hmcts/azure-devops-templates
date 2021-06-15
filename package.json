@@ -8,7 +8,7 @@
     "yaml-lint": "^1.2.4"
   },
   "scripts": {
-    "test": "cat ./lint_config_file.yamllint && yamllint -d "{extends: default, rules: {key-duplicates: disable}" **/*.yml"
+    "test": "cat ./lint_config_file.yamllint && yamllint -d "{extends: default, rules: {key-duplicates: disable}}" **/*.yml"
   },
   "repository": {
     "type": "git",
