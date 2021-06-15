@@ -5,10 +5,14 @@
   "main": "index.js",
   "dependencies": {},
   "devDependencies": {
-    "yaml-lint": "^1.2.4"
+    "yamllint": "^1.10.0"
   },
   "scripts": {
+<<<<<<< HEAD
     "test": "yamllint -h"
+=======
+    "test": "yamllint -c ./.yamllint **/*.yml"
+>>>>>>> b0d9b6bd040bb4cd0086734c3a2de02bdb1fae1f
   },
   "repository": {
     "type": "git",
