@@ -8,7 +8,7 @@
     "yaml-lint": "^1.2.4"
   },
   "scripts": {
-    "test": "yamllint -d lint_config_file **/*.yml"
+    "test": "yamllint -h"
   },
   "repository": {
     "type": "git",
