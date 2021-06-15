@@ -148,6 +148,8 @@ stages:
       - job: Build_and_Test
 
         ${{ if eq(parameters.RunIntegrationTests, true) }}:
+          dependsOn:
+          - Secret_Gathering
           variables:
             integrationSettings: ''
             ${{ each setting in parameters.IntegrationTestSettings }}:
@@ -158,10 +160,6 @@ stages:
 
         ${{ if parameters.useContainer }}:
           container: ${{ parameters.dotnetCIToolsContainer }}
-
-        ${{ if eq(parameters.RunIntegrationTests, true) }}:
-          dependsOn:
-          - Secret_Gathering
 
         steps:
         - checkout: self
