@@ -1,0 +1,13 @@
+extends: default
+
+rules:
+    key-duplicates: disable
+    indentation: disable
+    line-length: disable
+    document-start: disable
+    colons: disable
+    comments-indentation: disable
+    trailing-spaces: disable
+    comments: disable
+    new-line-at-end-of-file: disable
+    empty-lines: disable
