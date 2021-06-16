@@ -216,11 +216,11 @@ jobs:
                  $formattedKey = [String]::Join(":", $keyArray)
                  $formattedSetting = [String]::Join("=", $formattedKey, $val)
                  
-                if('${{ parameters.slot }}' -eq 'production') {
-                    az webapp config appsettings set -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --output none --settings $formattedSetting
-                 }else{
-                    az webapp config appsettings set -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }}  --slot ${{ parameters.slot }} --output none --settings $formattedSetting
-                 }
+                 if('${{ parameters.slot }}' -eq 'production') {
+                     az webapp config appsettings set -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --output none --settings $formattedSetting
+                  }else{
+                     az webapp config appsettings set -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }}  --slot ${{ parameters.slot }} --output none --settings $formattedSetting
+                  }
               }
 
       ${{ if parameters.runACTests }}:
