@@ -207,18 +207,22 @@ jobs:
             scriptType: pscore
             scriptLocation: 'inlineScript'
             inlineScript: |
-              if ( "${{ parameters.slot }}" -ne "production" ){
-                $appSettingsD = ConvertFrom-Json '$(deploymentSettings)'
-                foreach ($setting in $appSettingsD)
-                {
-                   $key = $setting."name"
-                   $keyArray = $key.Split(":")
-                   $val = $setting."value"
-                   $formattedKey = [String]::Join(":", $keyArray)
-                   $formattedSetting = [String]::Join("=", $formattedKey, $val)
-                   az webapp config appsettings set -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --slot ${{ parameters.slot }} --output none --settings $formattedSetting
-                }
-              }           
+              $appSettingsD = ConvertFrom-Json '$(deploymentSettings)'
+              foreach ($setting in $appSettingsD)
+              {
+                 $key = $setting."name"
+                 $keyArray = $key.Split(":")
+                 $val = $setting."value"
+                 $formattedKey = [String]::Join(":", $keyArray)
+                 $formattedSetting = [String]::Join("=", $formattedKey, $val)
+                 
+                 $slotName = ${{ parameters.slot }}
+                 if('$slotName' -eq 'production') {
+                    az webapp config appsettings set -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --output none --settings $formattedSetting
+                 }else{
+                    az webapp config appsettings set -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }}  --slot $slotName --output none --settings $formattedSetting
+                 }
+              }
 
       ${{ if parameters.runACTests }}:
         postRouteTraffic:
