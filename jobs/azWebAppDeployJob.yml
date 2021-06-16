@@ -497,7 +497,7 @@ jobs:
                        $val = $setting."value"
                        $formattedKey = [String]::Join(":", $keyArray)
                        $formattedSetting = [String]::Join("=", $formattedKey, $val)
-                       az webapp config appsettings set -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --slot ${{ parameters.slot }} --output none --settings $formattedSetting
+                       az webapp config appsettings set -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --output none --settings $formattedSetting
                     }    
 
               - task: AzureAppServiceManage@0
