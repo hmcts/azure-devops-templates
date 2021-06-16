@@ -207,7 +207,7 @@ jobs:
             scriptType: pscore
             scriptLocation: 'inlineScript'
             inlineScript: |
-              if ( ${{ parameters.slot } -ne "production" ){
+              if ( ${{ parameters.slot }} -ne "production" ){
                 $appSettingsD = ConvertFrom-Json '$(deploymentSettings)'
                 foreach ($setting in $appSettingsD)
                 {
