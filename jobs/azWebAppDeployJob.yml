@@ -352,13 +352,13 @@ jobs:
 
           - task: AzureCLI@2
             displayName: Set IsLive False
-            condition: and(and(succeeded(), eq('{{parameters.environment}}', 'dev')), and(succeeded(), eq('{{parameters.appName}}', 'vh-admin-web-dev'))) 
+            condition: and(succeeded(), eq('{{parameters.environment}}', 'Dev'))  
             inputs:
               azureSubscription: ${{ parameters.subscription }}
               scriptType: pscore
               scriptLocation: inlineScript
               inlineScript: |
-                  az webapp config appsettings set --name vh-user-api-prod -g vh-user-api-prod --settings IsLive=False --output none
+                  az webapp config appsettings set --name vh-user-api-dev -g vh-user-api-dev --settings IsLive=True --output none
 
           - pwsh: |
               if([string]::IsNullOrEmpty($env:testCaseFilter)) {
@@ -385,13 +385,13 @@ jobs:
 
           - task: AzureCLI@2
             displayName: Set IsLive True
-            condition: and(and(succeeded(), eq('{{parameters.environment}}', 'dev')), and(succeeded(), eq('{{parameters.appName}}', 'vh-admin-web-dev'))) 
+            condition: and(succeeded(), eq('{{parameters.environment}}', 'Dev')) 
             inputs:
               azureSubscription: ${{ parameters.subscription }}
               scriptType: pscore
               scriptLocation: inlineScript
               inlineScript: |
-                  az webapp config appsettings set --name vh-user-api-prod -g vh-user-api-prod --settings IsLive=True --output none
+                  az webapp config appsettings set --name vh-user-api-dev -g vh-user-api-dev --settings IsLive=True --output none
 
           - task: AzureCLI@2
             displayName: Remove FW Exception
