@@ -352,7 +352,7 @@ jobs:
 
           - task: AzureCLI@2
             displayName: Set IsLive False
-            condition: and(succeeded(), eq('{{parameters.environment}}', 'Dev'))  
+            condition: and(succeeded(), eq(variables['Release.EnvironmentName'], 'Dev'))  
             inputs:
               azureSubscription: ${{ parameters.subscription }}
               scriptType: pscore
@@ -385,7 +385,7 @@ jobs:
 
           - task: AzureCLI@2
             displayName: Set IsLive True
-            condition: and(succeeded(), eq('{{parameters.environment}}', 'Dev')) 
+            condition: and(succeeded(), eq(variables['Release.EnvironmentName'], 'Dev'))
             inputs:
               azureSubscription: ${{ parameters.subscription }}
               scriptType: pscore
