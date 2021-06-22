@@ -350,6 +350,16 @@ jobs:
               command: custom
               custom: --version
 
+          - task: AzureCLI@2
+            displayName: Set IsLive for ${{ parameters.appName }}
+            condition: and(and(succeeded(), eq('{{parameters.environment}}', 'production')), and(succeeded(), eq('{{parameters.appName}}', 'vh-admin-web-prod'))) 
+            inputs:
+              azureSubscription: ${{ parameters.subscription }}
+              scriptType: pscore
+              scriptLocation: inlineScript
+              inlineScript: |
+                  az webapp config appsettings set --name vh-user-api-prod -g vh-user-api-prod --settings IsLive=False --output none
+
           - pwsh: |
               if([string]::IsNullOrEmpty($env:testCaseFilter)) {
                 dotnet vstest $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings --logger:console
@@ -372,6 +382,16 @@ jobs:
             displayName: Smoke Test
             env:
               testCaseFilter: ${{ parameters.testCaseFilter }}
+
+          - task: AzureCLI@2
+            displayName: Set IsLive for ${{ parameters.appName }}
+            condition: and(and(succeeded(), eq('{{parameters.environment}}', 'production')), and(succeeded(), eq('{{parameters.appName}}', 'vh-admin-web-prod'))) 
+            inputs:
+              azureSubscription: ${{ parameters.subscription }}
+              scriptType: pscore
+              scriptLocation: inlineScript
+              inlineScript: |
+                  az webapp config appsettings set --name vh-user-api-prod -g vh-user-api-prod --settings IsLive=True --output none
 
           - task: AzureCLI@2
             displayName: Remove FW Exception
