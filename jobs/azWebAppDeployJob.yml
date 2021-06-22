@@ -352,7 +352,7 @@ jobs:
 
           - task: AzureCLI@2
             displayName: Set IsLive False
-            condition: and(and(succeeded(), eq(variables['Release.EnvironmentName'], 'Dev')), and(succeeded(), eq('${{parameters.appName}}', 'vh-admin-web-dev'))) 
+            condition: and(and(succeeded(), eq(variables['Release.EnvironmentName'], 'Dev')), and(succeeded(), startsWith('${{parameters.appName}}', 'vh-admin-web-'))) 
             inputs:
               azureSubscription: ${{ parameters.subscription }}
               scriptType: pscore
@@ -385,7 +385,7 @@ jobs:
 
           - task: AzureCLI@2
             displayName: Set IsLive True
-            condition: and(and(succeeded(), eq(variables['Release.EnvironmentName'], 'Dev')), and(succeeded(), eq('${{parameters.appName}}', 'vh-admin-web-dev')))
+            condition: and(and(succeeded(), eq(variables['Release.EnvironmentName'], 'Dev')), and(succeeded(), startsWith('${{parameters.appName}}', 'vh-admin-web-')))
             inputs:
               azureSubscription: ${{ parameters.subscription }}
               scriptType: pscore
