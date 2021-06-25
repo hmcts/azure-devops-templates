@@ -391,7 +391,7 @@ jobs:
               scriptType: pscore
               scriptLocation: inlineScript
               inlineScript: |
-                  if('${{parameters.appName}}' -eq 'Prod' -and '${{parameters.appName}}'.StartsWith('vh-admin-web-'))
+                  if('${{parameters.environment}}' -eq 'Prod' -and '${{parameters.appName}}'.StartsWith('vh-admin-web-'))
                   {
                     az webapp config appsettings set --name vh-user-api-prod -g vh-user-api-prod --settings IsLive=True --output none
                   }
