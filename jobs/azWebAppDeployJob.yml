@@ -89,6 +89,9 @@ parameters:
   - name: zapThresholdLow
     type: number
     default: 99999
+  
+  - name: UpperEnvUri
+    type: string
 
 jobs:
 - deployment: ${{ parameters.devOpsResource }}
@@ -383,18 +386,18 @@ jobs:
             env:
               testCaseFilter: ${{ parameters.testCaseFilter }}
 
-          - task: AzureCLI@2
-            displayName: Set IsLive True
-            condition:  always()
-            inputs:
-              azureSubscription: ${{ parameters.subscription }}
-              scriptType: pscore
-              scriptLocation: inlineScript
-              inlineScript: |
-                  if('${{parameters.environment}}' -eq 'Prod' -and '${{parameters.appName}}'.StartsWith('vh-admin-web-'))
-                  {
-                    az webapp config appsettings set --name vh-user-api-prod -g vh-user-api-prod --settings IsLive=True --output none
-                  }
+            - task: AzureCLI@2
+              displayName: Set IsLive True
+              condition:  always()
+              inputs:
+                azureSubscription: ${{ parameters.subscription }}
+                scriptType: pscore
+                scriptLocation: inlineScript
+                inlineScript: |
+                    if('${{parameters.environment}}' -eq 'Prod' -and '${{parameters.appName}}'.StartsWith('vh-admin-web-'))
+                    {
+                      az webapp config appsettings set --name vh-user-api-prod -g vh-user-api-prod --settings IsLive=True --output none
+                    }
 
           - task: AzureCLI@2
             displayName: Remove FW Exception
@@ -528,6 +531,25 @@ jobs:
                        az webapp config appsettings set -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --output none --settings $formattedSetting
                     }    
 
+              - task: AzureCLI@2
+                displayName: Assign Vanity Urls
+                condition:  always()
+                inputs:
+                  azureSubscription: ${{ parameters.subscription }}
+                  scriptType: pscore
+                  scriptLocation: inlineScript
+                  inlineScript: |
+                      if('${{parameters.environment}}' -eq 'Prod' -and '${{parameters.appName}}'.StartsWith('vh-admin-web-'))
+                      {
+                        az webapp config appsettings set --name ${{parameters.appName}} -g ${{parameters.appName}} --settings AzureAd:PostLogoutRedirectUri=https://${{ variables.UpperEnvUri }}/logout
+                        az webapp config appsettings set -g vh-admin-web-prod -n vh-admin-web-prod --settings AzureAd:RedirectUri=https://${{ variables.UpperEnvUri }}/home 
+                      }
+                      if('${{parameters.environment}}' -eq 'Preprod' --and '${{parameters.appName}}'.StartsWith('vh-admin-web-'))
+                      {
+                        az webapp config appsettings set --name ${{parameters.appName}} -g ${{parameters.appName}} --settings AzureAd:PostLogoutRedirectUri=https://pre-${{ variables.UpperEnvUri }}/logout
+                        az webapp config appsettings set -g vh-admin-web-prod -n vh-admin-web-prod --settings AzureAd:RedirectUri=https://pre-${{ variables.UpperEnvUri }}/home 
+                      }
+ 
               - task: AzureAppServiceManage@0
                 displayName: Swap Slots
                 inputs:
