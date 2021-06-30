@@ -544,7 +544,7 @@ jobs:
                         az webapp config appsettings set --name ${{parameters.appName}} -g ${{parameters.appName}} --settings AzureAd:PostLogoutRedirectUri=https://${{ variables.UpperEnvUri }}/logout
                         az webapp config appsettings set -g vh-admin-web-prod -n vh-admin-web-prod --settings AzureAd:RedirectUri=https://${{ variables.UpperEnvUri }}/home 
                       }
-                      if('${{parameters.environment}}' -eq 'Preprod' --and '${{parameters.appName}}'.StartsWith('vh-admin-web-'))
+                      if('${{parameters.environment}}' -eq 'sandbox' --and '${{parameters.appName}}'.StartsWith('vh-admin-web-'))
                       {
                         az webapp config appsettings set --name ${{parameters.appName}} -g ${{parameters.appName}} --settings AzureAd:PostLogoutRedirectUri=https://pre-${{ variables.UpperEnvUri }}/logout
                         az webapp config appsettings set -g vh-admin-web-prod -n vh-admin-web-prod --settings AzureAd:RedirectUri=https://pre-${{ variables.UpperEnvUri }}/home 
