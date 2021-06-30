@@ -92,6 +92,7 @@ parameters:
   
   - name: UpperEnvUri
     type: string
+    default: ""
 
 jobs:
 - deployment: ${{ parameters.devOpsResource }}
