@@ -541,6 +541,10 @@ jobs:
                   scriptLocation: inlineScript
                   inlineScript: |
                       $webApps = @('vh-admin-web-${{parameters.environment}}', 'vh-video-web-${{parameters.environment}}', 'vh-service-web-${{parameters.environment}}')
+                      Write-Host "Our webApps: $webApps" 
+                      Write-Host "Our env: ${{parameters.environment}}"
+                      Write-Host "Our app being deployed ${{parameters.appName}}"
+                      
                       if('${{parameters.environment}}' -eq 'Prod' -and '${{parameters.appName}}'.StartsWith('vh-admin-web-'))
                       {
                         az webapp config appsettings set --name ${{parameters.appName}} -g ${{parameters.appName}} --output none --settings AzureAd:PostLogoutRedirectUri=https://${{ variables.VanityUrl }}logout
