@@ -232,11 +232,9 @@ jobs:
           steps:
           - checkout: self
 
-          - task: Bash@3
+          - bash: echo "this is the value of parameters.runACTests ${{ parameters.runACTests }}"
             displayName: Logging for ST
-            targetType: inline
-            script: echo "this is the value of parameters.runACTests ${{ parameters.runACTests }}"
-
+            
           - task: gittools.gitversion.gitversion-task.GitVersion@5
             displayName: GitVersion
 
