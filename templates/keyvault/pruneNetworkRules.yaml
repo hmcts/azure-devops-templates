@@ -1,0 +1,27 @@
+parameters:
+    - name: subscriptionName
+      type: string
+    - name: resourceGroupName
+      type: string
+    - name: keyVaultName
+      type: string
+
+steps:
+  - task: AzureCLI@2
+    displayName: Prune ${{ parameters.keyVaultName }} Network Rules
+    inputs:
+      azureSubscription: '${{ parameters.subscriptionName }}'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        
+        kvName="${{ parameter.keyVaultName }}"
+        rgName="${{ parameter.resourceGroupName }}"
+
+        rules=$(az keyvault network-rule list --name $kvName --resource-group $rgName --query "ipRules[*].value" -o tsv)
+
+        for rule in $rules
+        {
+            echo "Removing $rule"
+            az keyvault network-rule remove --name $kvName --resource-group $rgName --ip-address $rule --no-wait
+        }
