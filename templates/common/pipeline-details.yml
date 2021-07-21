@@ -14,16 +14,25 @@ parameters:
       type: string
     - name: variableName
       type: string
+    - name: taskName
+      type: string
+      default: 'buildDetails'
 
 
 steps:
     - bash: |
-        propertyValue=$(curl -u :${patToken} "${organizationUrl}/${projectName}/_apis/build/builds/${buildId}?api-version=6.0" | jq -r ${propertyName})
+        projectName="${projectName// /%20}"
+        
+        apiUrl="${organizationUrl}${projectName}/_apis/build/builds/${buildId}?api-version=6.0"
+        echo "Request: ${apiUrl}"
+
+        propertyValue=$(curl -u :${patToken} ${apiUrl} | jq -r ${propertyName})
 
         echo "${variableName} is ${propertyValue}"
         echo "##vso[task.setvariable variable=$variableName;isOutput=true]$propertyValue"
 
       displayName: "Get ${{ parameters.propertyName }} from Build ${{ parameters.buildId }}"
+      name: ${{ parameters.taskName }}
       env:
         organizationUrl: "${{ parameters.organizationUrl }}"
         projectName: "${{ parameters.projectName }}"
