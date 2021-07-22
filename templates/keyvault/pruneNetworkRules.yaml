@@ -15,8 +15,8 @@ steps:
       scriptLocation: 'inlineScript'
       inlineScript: |
         
-        kvName="${{ parameter.keyVaultName }}"
-        rgName="${{ parameter.resourceGroupName }}"
+        kvName="${{ parameters.keyVaultName }}"
+        rgName="${{ parameters.resourceGroupName }}"
 
         rules=$(az keyvault network-rule list --name $kvName --resource-group $rgName --query "ipRules[*].value" -o tsv)
 
