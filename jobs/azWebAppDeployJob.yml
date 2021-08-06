@@ -89,6 +89,10 @@ parameters:
   - name: VanityUrl
     type: string
     default: ""
+    
+  - name: runACTests
+    type: boolean
+    default: true
 
 jobs:
 - deployment: ${{ parameters.devOpsResource }}
