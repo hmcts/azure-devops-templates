@@ -99,6 +99,7 @@ stages:
         deployBranch: $(${{ parameters.deploymentBranch }})
       variables:
         - group: vh-demo
+        - runACTests: ${{ parameters.runACtests }}
         - ${{ each variable in parameters.releaseParameters.variables }}:
           - ${{ each property in variable }}:
             - ${{ if or(not(variable.env), containsValue(variable.env, 'Demo')) }}:
