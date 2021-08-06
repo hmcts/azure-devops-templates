@@ -92,6 +92,7 @@ parameters:
 
   - name: runACTests
     type: boolean
+    default: true
 
 jobs:
 - deployment: ${{ parameters.devOpsResource }}
