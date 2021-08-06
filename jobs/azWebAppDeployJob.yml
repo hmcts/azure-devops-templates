@@ -195,7 +195,7 @@ jobs:
           
         - task: AzureRmWebAppDeployment@4
           name: azureDeployment
-          displayName: Deploy to ${{ parameters.slot }} Slot. Our Test run flag is set to - ${{ parameters.runACTests }}
+          displayName: Deploy to ${{ parameters.slot }} Slot
           inputs:
             azureSubscription: ${{ parameters.subscription }}
             WebAppName: ${{ parameters.appName }}
@@ -206,7 +206,7 @@ jobs:
         - task: Bash@3
           inputs:
             targetType: 'inline'
-            script: echo "Our Test run flag is set to - ${{ parameters.runACTests }}"
+            script: echo "Your Smoke Test run flag is set to - ${{ parameters.runACTests }}"
         - task: AzureCLI@2
           displayName: Update ${{ parameters.slot }} Slot Settings
           inputs:
@@ -234,12 +234,6 @@ jobs:
         postRouteTraffic:
           steps:
           - checkout: self
-
-          - task: Bash@3
-            inputs:
-              targetType: inline
-              script: echo "this is the value of parameters.runACTests ${{ parameters.runACTests }}"
-            displayName: Logging for ST
             
           - task: gittools.gitversion.gitversion-task.GitVersion@5
             displayName: GitVersion
