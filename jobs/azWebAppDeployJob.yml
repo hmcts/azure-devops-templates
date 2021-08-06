@@ -54,10 +54,6 @@ parameters:
   - name: subscription
     type: string
 
-  - name: runACTests
-    type: boolean
-    default: true
-
   - name: appSettings
     type: object
     default: []
