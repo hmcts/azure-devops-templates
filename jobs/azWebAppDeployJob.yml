@@ -205,7 +205,7 @@ jobs:
             deployToSlotOrASE: true
             ResourceGroupName: ${{ parameters.resourceGroup }}
             SlotName: ${{ parameters.slot }}
-            packageForLinux:  ${{ parameters.appPackagePath }}
+            packageForLinux:  ${{ variables.appPackagePath }}
 
         - task: Bash@3
           displayName: Use Smoke Tests
@@ -245,7 +245,7 @@ jobs:
             deployToSlotOrASE: true
             ResourceGroupName: ${{ parameters.resourceGroup }}
             SlotName: ${{ parameters.slot }}
-            packageForLinux:  ${{ parameters.appPackagePath }}
+            packageForLinux:  ${{ variables.appPackagePath }}
 
       ${{ if parameters.runACTests }}:
         postRouteTraffic:
