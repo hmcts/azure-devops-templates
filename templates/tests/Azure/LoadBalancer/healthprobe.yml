@@ -1,0 +1,43 @@
+parameters:
+    - name: subscriptionName
+      type: string
+    - name: resourceGroupName
+      type: string
+    - name: loadBalancerName
+      type: string
+
+steps:
+    - task: AzureCLI@2
+      name: 'healthprodcheck'
+      displayName: Check Health Probe on ${{ parameters.loadBalancerName }}
+      inputs:
+        azureSubscription: '${{parameters.subscriptionName}}'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          rgName="${{ parameters.resourceGroupName }}"
+          lbName="${{ parameters.loadBalancerName }}"
+
+          metricName="DipAvailability"
+          resourceType="Microsoft.Network/loadBalancers"
+
+          #wait for 2 rounds of the metrics to run before checking the probe
+          sleep 2m
+          healthResults=$(az monitor metrics list --resource $lbName --resource-group $rgName --resource-type $resourceType --metric $metricName --query "(value[0].timeseries[0].data)[0:5].average" -o tsv)
+          echo $healthResults
+
+          healthSuccess=true
+          for i in $healthResults
+          do
+              val=`echo $i | sed 's/\\r//g'`
+              if [ "$val" != "100.0" ] 
+              then
+                  healthSuccess=false
+              fi
+          done
+
+          if [ "$healthSuccess" = "false" ]
+          then
+              echo "##vso[task.LogIssue type=error;]$lbName health probe is showing issues in the last $m runs."
+              exit 1
+          fi

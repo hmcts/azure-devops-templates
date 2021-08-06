@@ -230,6 +230,17 @@ jobs:
                   }
               }
 
+        - task: AzureRmWebAppDeployment@4
+          name: azureDeployment
+          displayName: Deploy to ${{ parameters.slot }} Slot
+          inputs:
+            azureSubscription: ${{ parameters.subscription }}
+            WebAppName: ${{ parameters.appName }}
+            deployToSlotOrASE: true
+            ResourceGroupName: ${{ parameters.resourceGroup }}
+            SlotName: ${{ parameters.slot }}
+            packageForLinux:  $(Pipeline.Workspace)/App/App.zip
+
       ${{ if parameters.runACTests }}:
         postRouteTraffic:
           steps:
@@ -357,16 +368,6 @@ jobs:
               command: custom
               custom: --version
 
-          - task: AzureCLI@2
-            displayName: Set IsLive False
-            condition: and(and(succeeded(), eq(variables['Release.EnvironmentName'], 'Prod')), and(succeeded(), startsWith('${{parameters.appName}}', 'vh-admin-web-'))) 
-            inputs:
-              azureSubscription: ${{ parameters.subscription }}
-              scriptType: pscore
-              scriptLocation: inlineScript
-              inlineScript: |
-                  az webapp config appsettings set --name vh-user-api-prod -g vh-user-api-prod --settings IsLive=False --output none
-
           - pwsh: |
               if([string]::IsNullOrEmpty($env:testCaseFilter)) {
                 dotnet vstest $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings --logger:console
@@ -387,21 +388,9 @@ jobs:
                 }
               } while ($failedTests.count -gt 0 -and $retry++ -lt 2)
             displayName: Smoke Test
+            condition: and(succeeded(), ne(variables['Release.EnvironmentName'], 'Prod')) 
             env:
               testCaseFilter: ${{ parameters.testCaseFilter }}
-
-          - task: AzureCLI@2
-            displayName: Set IsLive True
-            condition:  always()
-            inputs:
-              azureSubscription: ${{ parameters.subscription }}
-              scriptType: pscore
-              scriptLocation: inlineScript
-              inlineScript: |
-                  if('${{parameters.environment}}' -eq 'Prod' -and '${{parameters.appName}}'.StartsWith('vh-admin-web-'))
-                  {
-                    az webapp config appsettings set --name vh-user-api-prod -g vh-user-api-prod --settings IsLive=True --output none
-                  }
 
           - task: AzureCLI@2
             displayName: Remove FW Exception
