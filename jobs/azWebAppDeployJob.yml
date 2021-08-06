@@ -191,7 +191,7 @@ jobs:
           
         - task: AzureRmWebAppDeployment@4
           name: azureDeployment
-          displayName: Deploy to ${{ parameters.slot }} Slot
+          displayName: Deploy to ${{ parameters.slot }} Slot our ${{ parameters.runACTests }}
           inputs:
             azureSubscription: ${{ parameters.subscription }}
             WebAppName: ${{ parameters.appName }}
