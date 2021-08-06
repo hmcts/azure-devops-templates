@@ -191,7 +191,7 @@ jobs:
           
         - task: AzureRmWebAppDeployment@4
           name: azureDeployment
-          displayName: Deploy to ${{ parameters.slot }} Slot our ${{ parameters.runACTests }}
+          displayName: Deploy to ${{ parameters.slot }} Slot. Our Test run flag is set to - ${{ parameters.runACTests }}
           inputs:
             azureSubscription: ${{ parameters.subscription }}
             WebAppName: ${{ parameters.appName }}
@@ -202,7 +202,7 @@ jobs:
         - task: Bash@3
           inputs:
             targetType: 'inline'
-            script: echo "Our Test run flag is set to : ${{ parameters.runACTests }}"
+            script: echo "Our Test run flag is set to - ${{ parameters.runACTests }}"
         - task: AzureCLI@2
           displayName: Update ${{ parameters.slot }} Slot Settings
           inputs:
