@@ -94,6 +94,7 @@ parameters:
     type: boolean
     default: true
 
+
 jobs:
 - deployment: ${{ parameters.devOpsResource }}
   pool:
@@ -139,6 +140,8 @@ jobs:
         - ${{ if ne(setting.slot, true)}}:
           - name: "acDevSettings_${{ setting.name }}"
             value: $[ dependencies.Secret_Gathering.outputs['SetSecretVariables._${{ setting.name }}'] ]
+    - name: appPackagePath
+      value: $(Pipeline.Workspace)/App/App.zip
   strategy:
     runOnce:
       deploy:
@@ -202,11 +205,14 @@ jobs:
             deployToSlotOrASE: true
             ResourceGroupName: ${{ parameters.resourceGroup }}
             SlotName: ${{ parameters.slot }}
-            packageForLinux:  $(Pipeline.Workspace)/App/App.zip
+            packageForLinux:  ${{ parameters.appPackagePath }}
+
         - task: Bash@3
+          displayName: Use Smoke Tests
           inputs:
             targetType: 'inline'
             script: echo "Your Smoke Test run flag is set to - ${{ parameters.runACTests }}"
+
         - task: AzureCLI@2
           displayName: Update ${{ parameters.slot }} Slot Settings
           inputs:
@@ -239,7 +245,7 @@ jobs:
             deployToSlotOrASE: true
             ResourceGroupName: ${{ parameters.resourceGroup }}
             SlotName: ${{ parameters.slot }}
-            packageForLinux:  $(Pipeline.Workspace)/App/App.zip
+            packageForLinux:  ${{ parameters.appPackagePath }}
 
       ${{ if parameters.runACTests }}:
         postRouteTraffic:
