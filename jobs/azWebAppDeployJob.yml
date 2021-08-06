@@ -54,10 +54,6 @@ parameters:
   - name: subscription
     type: string
 
-  - name: runACTests
-    type: boolean
-    default: true
-
   - name: appSettings
     type: object
     default: []
@@ -93,6 +89,11 @@ parameters:
   - name: VanityUrl
     type: string
     default: ""
+
+  - name: runACTests
+    type: boolean
+    default: true
+
 
 jobs:
 - deployment: ${{ parameters.devOpsResource }}
@@ -139,6 +140,8 @@ jobs:
         - ${{ if ne(setting.slot, true)}}:
           - name: "acDevSettings_${{ setting.name }}"
             value: $[ dependencies.Secret_Gathering.outputs['SetSecretVariables._${{ setting.name }}'] ]
+    - name: appPackagePath
+      value: $(Pipeline.Workspace)/App/App.zip
   strategy:
     runOnce:
       deploy:
@@ -192,6 +195,17 @@ jobs:
               pipeline: ${{ parameters.CIPipelineId }}
               runVersion: latestFromBranch
               runBranch: ${{ parameters.deployBranch }}
+          
+        - task: AzureRmWebAppDeployment@4
+          name: azureDeployment2
+          displayName: Deploy to ${{ parameters.slot }} Slot
+          inputs:
+            azureSubscription: ${{ parameters.subscription }}
+            WebAppName: ${{ parameters.appName }}
+            deployToSlotOrASE: true
+            ResourceGroupName: ${{ parameters.resourceGroup }}
+            SlotName: ${{ parameters.slot }}
+            packageForLinux:  ${{ variables.appPackagePath }}
 
         - task: AzureCLI@2
           displayName: Update ${{ parameters.slot }} Slot Settings
@@ -217,7 +231,7 @@ jobs:
               }
 
         - task: AzureRmWebAppDeployment@4
-          name: azureDeployment
+          name: azureDeployment1
           displayName: Deploy to ${{ parameters.slot }} Slot
           inputs:
             azureSubscription: ${{ parameters.subscription }}
@@ -225,13 +239,13 @@ jobs:
             deployToSlotOrASE: true
             ResourceGroupName: ${{ parameters.resourceGroup }}
             SlotName: ${{ parameters.slot }}
-            packageForLinux:  $(Pipeline.Workspace)/App/App.zip
+            packageForLinux:  ${{ variables.appPackagePath }}
 
       ${{ if parameters.runACTests }}:
         postRouteTraffic:
           steps:
           - checkout: self
-
+            
           - task: gittools.gitversion.gitversion-task.GitVersion@5
             displayName: GitVersion
 
