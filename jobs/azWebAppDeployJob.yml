@@ -207,12 +207,6 @@ jobs:
             SlotName: ${{ parameters.slot }}
             packageForLinux:  ${{ variables.appPackagePath }}
 
-        - task: Bash@3
-          displayName: Use Smoke Tests
-          inputs:
-            targetType: 'inline'
-            script: echo "Your Smoke Test run flag is set to - ${{ parameters.runACTests }}"
-
         - task: AzureCLI@2
           displayName: Update ${{ parameters.slot }} Slot Settings
           inputs:
