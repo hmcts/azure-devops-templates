@@ -199,7 +199,7 @@ jobs:
             ResourceGroupName: ${{ parameters.resourceGroup }}
             SlotName: ${{ parameters.slot }}
             packageForLinux:  $(Pipeline.Workspace)/App/App.zip
-
+        - bash: echo "Our Test run flag is set to : ${{ parameters.runACTests }}"
         - task: AzureCLI@2
           displayName: Update ${{ parameters.slot }} Slot Settings
           inputs:
