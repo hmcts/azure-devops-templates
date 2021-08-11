@@ -24,6 +24,7 @@ stages:
         deployBranch: $(${{ parameters.deploymentBranch }})
       variables:
         - group: vh-preview
+        - runACTests: ${{ variables.runACTests }}
         - ${{ each variable in parameters.releaseParameters.variables }}:
           - ${{ each property in variable }}:
             - ${{ if or(not(variable.env), containsValue(variable.env, 'Preview')) }}:
@@ -49,6 +50,7 @@ stages:
         deployBranch: $(${{ parameters.deploymentBranch }})
       variables:
         - group: vh-dev
+        - runACTests: ${{ variables.runACTests }}
         - ${{ each variable in parameters.releaseParameters.variables }}:
           - ${{ each property in variable }}:
             - ${{ if or(not(variable.env), containsValue(variable.env, 'Dev')) }}:
@@ -74,6 +76,7 @@ stages:
         deployBranch: $(${{ parameters.deploymentBranch }})
       variables:
         - group: vh-aat
+        - runACTests: ${{ variables.runACTests }}
         - ${{ each variable in parameters.releaseParameters.variables }}:
           - ${{ each property in variable }}:
             - ${{ if or(not(variable.env), containsValue(variable.env, 'AAT')) }}:
@@ -99,6 +102,7 @@ stages:
         deployBranch: $(${{ parameters.deploymentBranch }})
       variables:
         - group: vh-demo
+        - runACTests: ${{ variables.runACTests }}
         - ${{ each variable in parameters.releaseParameters.variables }}:
           - ${{ each property in variable }}:
             - ${{ if or(not(variable.env), containsValue(variable.env, 'Demo')) }}:
@@ -122,6 +126,7 @@ stages:
         deployBranch: $(${{ parameters.deploymentBranch }})
       variables:
         - group: vh-sandbox
+        - runACTests: ${{ variables.runACTests }}
         - ${{ each variable in parameters.releaseParameters.variables }}:
           - ${{ each property in variable }}:
             - ${{ if or(not(variable.env), containsValue(variable.env, 'Sandbox')) }}:
@@ -147,6 +152,7 @@ stages:
         deployBranch: $(${{ parameters.deploymentBranch }})
       variables:
         - group: vh-test1
+        - runACTests: ${{ variables.runACTests }}
         - ${{ each variable in parameters.releaseParameters.variables }}:
           - ${{ each property in variable }}:
             - ${{ if or(not(variable.env), containsValue(variable.env, 'Test1')) }}:
@@ -170,6 +176,7 @@ stages:
         deployBranch: $(${{ parameters.deploymentBranch }})
       variables:
         - group: vh-test3
+        - runACTests: ${{ variables.runACTests }}
         - ${{ each variable in parameters.releaseParameters.variables }}:
           - ${{ each property in variable }}:
             - ${{ if or(not(variable.env), containsValue(variable.env, 'Test3')) }}:
@@ -193,6 +200,7 @@ stages:
         deployBranch: $(${{ parameters.deploymentBranch }})
       variables:
         - group: vh-preprod
+        - runACTests: ${{ variables.runACTests }}
         - ${{ each variable in parameters.releaseParameters.variables }}:
           - ${{ each property in variable }}:
             - ${{ if or(not(variable.env), containsValue(variable.env, 'Preprod')) }}:
@@ -221,6 +229,7 @@ stages:
           - Preprod
       variables:
         - group: vh-prod
+        - runACTests: ${{ variables.runACTests }}
         - ${{ each variable in parameters.releaseParameters.variables }}:
           - ${{ each property in variable }}:
             - ${{ if or(not(variable.env), containsValue(variable.env, 'Prod')) }}:
