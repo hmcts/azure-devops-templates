@@ -23,7 +23,7 @@ parameters:
 
 steps:
     - task: AzureCLI@2
-      displayName: 'Export ${{ parameters.sourceKvName }}:${{ parameters.sourceCertName }} to ${{ parameters.targetKvName }}:${{ parameters.targetCertName }}'
+      displayName: 'Download ${{ parameters.variableGroupName }}:${{ parameters.variableGroupId }} from ${{ parameters.projectName }}'
       name: ${{ parameters.taskName }}
       inputs:
         azureSubscription: '${{ parameters.subscriptionName }}'
