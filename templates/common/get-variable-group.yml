@@ -1,0 +1,51 @@
+parameters:
+  - name: subscriptionName
+    type: string
+  - name: organizationUrl
+    type: string
+     default: $(System.CollectionUri)
+     #example: https://dev.azure.com/fabrikamfiber/
+  - name: projectName
+    type: string
+    default: $(System.TeamProject)
+  - name: variableGroupName
+    type: string
+    default: ""
+  - name: variableGroupId
+    type: string
+    default: ""
+  - name: variableName
+    type: string
+  - name: taskName
+    type: string
+    default: 'variableGroupDownload'
+
+
+steps:
+    - task: AzureCLI@2
+      displayName: 'Export ${{ parameters.sourceKvName }}:${{ parameters.sourceCertName }} to ${{ parameters.targetKvName }}:${{ parameters.targetCertName }}'
+      name: ${{ parameters.taskName }}
+      inputs:
+        azureSubscription: '${{ parameters.subscriptionName }}'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          organisaton="${{ parameters.organizationUrl }}"
+          project="${{ parameters.projectName }}"
+          groupName="${{ parameters.variableGroupName }}"
+          groupId="${{ parameters.variableGroupId }}"
+
+          if [ "$groupId" = "" ]
+          then
+              groupId=$(az pipelines variable-group list --org ${organisation} --project "${project}" --query "[?name=='${groupName}'].{id:id}[0]" -o tsv --only-show-errors)
+          fi
+          if [ "$groupId" = "" ]
+          then
+              echo "##vso[task.LogIssue type=error;]ERROR: either Variable Group ID is not provided or not found. ID: ${groupId} Name: ${groupName}"
+              exit 1
+          fi
+          az pipelines variable-group show --org ${organisation} --project "${project}" --group-id ${groupId} --only-show-errors -o json > "${groupName}.json"
+          varGroupJson=$(jq -c . ${groupName}.json)
+
+          echo "${variableName} is ${varGroupJson}"
+          echo "##vso[task.setvariable variable=$variableName;isOutput=true]$varGroupJson"
