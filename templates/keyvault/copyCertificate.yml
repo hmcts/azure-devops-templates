@@ -1,0 +1,70 @@
+parameters:
+  - name: subscriptionName
+    type: string
+  - name: sourceKvName
+    type: string
+  - name: sourceCertName
+    type: string
+  - name: environment
+    type: string
+  - name: targetKvName
+    type: string
+  - name: targetCertName
+    type: string
+  
+
+
+steps:
+    - task: AzureCLI@2
+      displayName: 'Export ${{ parameters.sourceKvName }}:${{ parameters.sourceCertName }} to ${{ parameters.targetKvName }}:${{ parameters.targetCertName }}'
+      inputs:
+        azureSubscription: '${{ parameters.subscriptionName }}'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+            env="${{ parameters.environment }}"
+            kvName="${{ parameters.targetKvName }}"
+            certName="${{ parameters.targetCertName }}"
+            sourceCertName="${{ parameters.sourceCertName }}"
+            sourceKvName="${{ parameters.sourceKvName }}"
+
+            echo "Copy wildcard cert from $sourceKvName"
+            az keyvault secret download --id https://$sourceKvName.vault.azure.net/secrets/$sourceCertName -f cert-source.pfx
+            sourceVersionUrl=$(az keyvault secret show --id https://$sourceKvName.vault.azure.net/secrets/$sourceCertName --query "id" -o tsv)
+            sourceVersionId=${sourceVersionUrl##*/}
+            echo "Source Cert Version $sourceVersionId"
+
+            base64 -d cert-source.pfx > cert-up.pfx
+
+            import(){
+                echo "Import the cert to our new KV $kvName"
+                az keyvault certificate import --file cert-up.pfx --vault-name $kvName --name $certName --tags parentVersion=$sourceVersionId --verbose
+            }
+
+            echo "Check if cert exists"
+            kvSecret=$(az keyvault secret show --id https://$kvName.vault.azure.net/secrets/$certName --query "id")
+            if [ "$kvSecret" = "" ]; then
+                echo "Cert doesn't exist"
+                import
+            else
+                echo "Cert exists"
+                kvSecretVersion=$(az keyvault secret show --id https://$kvName.vault.azure.net/secrets/$certName  --query "tags.parentVersion" -o tsv)
+                echo "Current Target Version $kvSecretVersion"
+
+                if [ "$kvSecretVersion" != "$sourceVersionId" ]; then
+                    echo "Change Required in Cert"
+                    import
+                else
+                    echo "No Change in Cert"
+                fi
+            fi
+
+            echo "Download the cert as a pem file"
+            az keyvault certificate download --id https://$kvName.vault.azure.net/certificates/$certName -f cert.pem
+            certPath=`pwd`/cert.pem
+
+            echo "Capture cert thumbprint and secret resource id"
+            cert=$(az keyvault certificate show --id https://$kvName.vault.azure.net/certificates/$certName)
+            secretId=$(echo $cert | jq .sid)
+
+            echo "##vso[task.setvariable variable=secretId]$secretId"
