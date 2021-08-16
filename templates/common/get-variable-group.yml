@@ -35,6 +35,7 @@ steps:
         groupName="${{ parameters.variableGroupName }}"
         groupId="${{ parameters.variableGroupId }}"
 
+        az extension add --name azure-devops
         if [ "$groupId" = "" ]
         then
             groupId=$(az pipelines variable-group list --org ${organisation} --project "${project}" --query "[?name=='${groupName}'].{id:id}[0]" -o tsv --only-show-errors)
