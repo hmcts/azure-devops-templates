@@ -35,10 +35,7 @@ steps:
         groupName="${{ parameters.variableGroupName }}"
         groupId="${{ parameters.variableGroupId }}"
         
-        servicePrincipalId=$(printenv servicePrincipalId)
-        servicePrincipalKey=$(printenv servicePrincipalKey)
-        tenantId=$(printenv tenantId)
-        az login --service-principal -u $servicePrincipalId -p $servicePrincipalKey --tenant $tenantId
+        echo $(System.AccessToken) | az devops login --organization $organisation
 
         az extension add --name azure-devops
         if [ "$groupId" = "" ]
