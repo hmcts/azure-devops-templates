@@ -30,7 +30,7 @@ steps:
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: |
-        organisaton="${{ parameters.organizationUrl }}"
+        organisation="${{ parameters.organizationUrl }}"
         project="${{ parameters.projectName }}"
         groupName="${{ parameters.variableGroupName }}"
         groupId="${{ parameters.variableGroupId }}"
