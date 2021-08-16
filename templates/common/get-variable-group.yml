@@ -34,6 +34,11 @@ steps:
         project="${{ parameters.projectName }}"
         groupName="${{ parameters.variableGroupName }}"
         groupId="${{ parameters.variableGroupId }}"
+        
+        servicePrincipalId=$(printenv servicePrincipalId)
+        servicePrincipalKey=$(printenv servicePrincipalKey)
+        tenantId=$(printenv tenantId)
+        az login --service-principal -u $servicePrincipalId -p $servicePrincipalKey --tenant $tenantId
 
         az extension add --name azure-devops
         if [ "$groupId" = "" ]
