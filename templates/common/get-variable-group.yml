@@ -48,10 +48,11 @@ steps:
             echo "##vso[task.LogIssue type=error;]ERROR: either Variable Group ID is not provided or not found. ID: ${groupId} Name: ${groupName}"
             exit 1
         fi
-        az pipelines variable-group show --org ${organisation} --project "${project}" --group-id ${groupId} --only-show-errors -o json > "${groupName}.json"
-        varGroupJson=$(jq -c . ${groupName}.json)
+        jsonPath="$(Build.SourcesDirectory)/${groupName}.json"
+        az pipelines variable-group show --org ${organisation} --project "${project}" --group-id ${groupId} --only-show-errors -o json > $jsonPath
+        varGroupJson=$(jq -c . ${jsonPath})
 
         echo "${variableName} is ${varGroupJson}"
         echo "##vso[task.setvariable variable=$variableName;isOutput=true]$varGroupJson"
-        echo "##vso[task.setvariable variable=${variableName}_path;isOutput=true]${groupName}.json"
+        echo "##vso[task.setvariable variable=${variableName}_path;isOutput=true]${jsonPath}"
         
