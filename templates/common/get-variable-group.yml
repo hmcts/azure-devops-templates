@@ -53,3 +53,5 @@ steps:
 
         echo "${variableName} is ${varGroupJson}"
         echo "##vso[task.setvariable variable=$variableName;isOutput=true]$varGroupJson"
+        echo "##vso[task.setvariable variable=${variableName}_path;isOutput=true]${groupName}.json"
+        
