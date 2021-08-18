@@ -115,7 +115,7 @@ stages:
         ${{ if ne(setting.key, 'variables') }}:
           ${{ setting.key }}: ${{ setting.value }}
 
-- ${{ if or(eq(variables['Build.Reason'], 'ResourceTrigger'), containsValue(parameters.environments, 'Sandbox')) }}:
+- ${{ if containsValue(parameters.environments, 'Sandbox') }}:
   - template: ..\stages\dotnet-release.yml
     parameters:
       environment: Sandbox
