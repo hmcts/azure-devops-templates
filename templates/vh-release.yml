@@ -141,45 +141,32 @@ stages:
       ${{ if eq(variables['Build.Reason'], 'ResourceTrigger') }}:
         condition: and(succeeded(), eq(variables['${{parameters.deploymentBranch}}'], 'refs/heads/master'))
 
-- ${{ if containsValue(parameters.environments, 'Test1') }}:
+- ${{ if contains(join(';',parameters.environments), 'Test') }}:
   - template: ..\stages\dotnet-release.yml
     parameters:
-      environment: Test1
-      stageName: Test1
+    # add below if block for new test* envs
+      ${{ if contains(join(';',parameters.environments), 'Test1') }}:
+        environment: Test1
+        stageName: Test1
+      ${{ if contains(join(';',parameters.environments), 'Test2') }}:
+        environment: Test2
+        stageName: Test2
+    # end
       ${{ if ne(variables['Build.Reason'], 'ResourceTrigger') }}:
         deployBranch: ${{ parameters.deploymentBranch }}
       ${{ if eq(variables['Build.Reason'], 'ResourceTrigger') }}:
         deployBranch: $(${{ parameters.deploymentBranch }})
       variables:
-        - group: vh-test1
+      # add below if block for new test* envs
+        - ${{ if contains(join(';',parameters.environments), 'Test1') }}:
+          - group: vh-test1
+        - ${{ if contains(join(';',parameters.environments), 'Test2') }}:
+          - group: vh-test2
+      # end
         - runACTests: ${{ variables.runACTests }}
         - ${{ each variable in parameters.releaseParameters.variables }}:
           - ${{ each property in variable }}:
-            - ${{ if or(not(variable.env), containsValue(variable.env, 'Test1')) }}:
-              - ${{ if eq('group', property.key) }}:
-                - group: ${{ variable.group }}
-              - ${{ if eq('name', property.key) }}:
-                - name: ${{ variable.name }}
-                  value: ${{ variable.value }}
-      ${{ each setting in parameters.releaseParameters }}:
-        ${{ if ne(setting.key, 'variables') }}:
-          ${{ setting.key }}: ${{ setting.value }}
-
-- ${{ if containsValue(parameters.environments, 'Test3') }}:
-  - template: ..\stages\dotnet-release.yml
-    parameters:
-      environment: Test3
-      stageName: Test3
-      ${{ if ne(variables['Build.Reason'], 'ResourceTrigger') }}:
-        deployBranch: ${{ parameters.deploymentBranch }}
-      ${{ if eq(variables['Build.Reason'], 'ResourceTrigger') }}:
-        deployBranch: $(${{ parameters.deploymentBranch }})
-      variables:
-        - group: vh-test3
-        - runACTests: ${{ variables.runACTests }}
-        - ${{ each variable in parameters.releaseParameters.variables }}:
-          - ${{ each property in variable }}:
-            - ${{ if or(not(variable.env), containsValue(variable.env, 'Test3')) }}:
+            - ${{ if or(not(variable.env), contains(join(';',variable.env), 'Test')) }}:
               - ${{ if eq('group', property.key) }}:
                 - group: ${{ variable.group }}
               - ${{ if eq('name', property.key) }}:
