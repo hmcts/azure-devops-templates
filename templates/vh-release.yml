@@ -141,7 +141,7 @@ stages:
       ${{ if eq(variables['Build.Reason'], 'ResourceTrigger') }}:
         condition: and(succeeded(), eq(variables['${{parameters.deploymentBranch}}'], 'refs/heads/master'))
 
-- ${{ if contains('${{ join(';',parameters.environments) }}', 'Test') }}:
+- ${{ if contains(join(';',parameters.environments), 'Test') }}:
   - template: ..\stages\dotnet-release.yml
     parameters:
       environment: ${{ parameters.environments }}
@@ -155,7 +155,7 @@ stages:
         - runACTests: ${{ variables.runACTests }}
         - ${{ each variable in parameters.releaseParameters.variables }}:
           - ${{ each property in variable }}:
-            - ${{ if or(not(variable.env), contains('${{ join(';',variable.env) }}', 'Test')) }}:
+            - ${{ if or(not(variable.env), contains(join(';',variable.env), 'Test')) }}:
               - ${{ if eq('group', property.key) }}:
                 - group: ${{ variable.group }}
               - ${{ if eq('name', property.key) }}:
