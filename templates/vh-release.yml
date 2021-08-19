@@ -156,9 +156,9 @@ stages:
       ${{ if eq(variables['Build.Reason'], 'ResourceTrigger') }}:
         deployBranch: $(${{ parameters.deploymentBranch }})
       variables:
-        ${{ if contains(join(';',parameters.environments), 'Test1') }}:
+        - ${{ if contains(join(';',parameters.environments), 'Test1') }}:
           - group: vh-test1
-        ${{ if contains(join(';',parameters.environments), 'Test2') }}:
+        - ${{ if contains(join(';',parameters.environments), 'Test2') }}:
           - group: vh-test2
         - runACTests: ${{ variables.runACTests }}
         - ${{ each variable in parameters.releaseParameters.variables }}:
