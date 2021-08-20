@@ -1,0 +1,47 @@
+parameters:
+  - name: subscriptionName
+    type: string
+  - name: apimName
+    type: string
+    default: ""
+
+  - name: variableName
+    type: string
+  - name: taskName
+    type: string
+    default: 'getSoftDeleteServices'
+
+
+steps:
+  - task: AzureCLI@2
+    ${{ if eq(parameters.apimName, '') }}:
+      displayName: 'Check for any Soft Deleted APIMs'
+    ${{ if ne(parameters.apimName, '') }}:
+      displayName: 'Check for ${{ parameters.apimName }} Soft Deleted APIM'
+    name: ${{ parameters.taskName }}
+    inputs:
+      azureSubscription: '${{ parameters.subscriptionName }}'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+
+        subId=$(az account show --query "id" -o tsv)
+        echo "Subscription ID: ${subId}"
+
+        restUrl="https://management.azure.com/subscriptions/${subId//[$'\t\r\n']}/providers/Microsoft.ApiManagement/deletedservices?api-version=2020-06-01-preview"
+        echo "Calling: ${restUrl}"
+
+        response=$(az rest --method GET --uri ${restUrl} -o json #--debug)
+        echo "Response: ${response}"
+
+        $found=false
+        if [ ${#response[@]} -eq 0 ]; then
+          echo "No Soft Delete Items"
+        else
+          echo "Soft Delete Items Found"
+          $found=true
+        fi
+
+        echo "##vso[task.setvariable variable=$variableName;isOutput=true]$found"
+      env:
+        variableName: "${{ parameters.variableName }}"
