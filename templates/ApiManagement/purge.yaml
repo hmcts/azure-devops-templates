@@ -32,6 +32,6 @@ steps:
 
         az rest --method DELETE -u $restUrl
 
-      env:
-        resourceGroupName: ${{ parameters.resourceGroupName }}
-        apimName: ${{ parameters.apimName }}
+    env:
+      resourceGroupName: ${{ parameters.resourceGroupName }}
+      apimName: ${{ parameters.apimName }}
