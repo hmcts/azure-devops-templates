@@ -36,8 +36,9 @@ steps:
         if [[ $response == "" ]]; then
           available=true
         fi
+        echo "${resourceName} availablity is ${available}"
         echo "##vso[task.setvariable variable=${variableName};isOutput=true]${available}"
-      
+
     env:
       variableName: "${{ parameters.variableName }}"
       resourceLocation: "${{ parameters.resourceLocation }}"

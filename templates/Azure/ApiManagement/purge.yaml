@@ -5,6 +5,9 @@ parameters:
     type: string
   - name: apimLocation
     type: string
+  - name: shouldPurge
+    type: boolean
+    default: true
 
   - name: taskName
     type: string
@@ -21,14 +24,24 @@ steps:
       scriptLocation: 'inlineScript'
       inlineScript: |
 
-        subId=$(az account show --query "id" -o tsv)
+        echo "Should we purge item ${shouldPurge}"
+        if [[ "$shouldPurge" == "true" ]]; then
 
-        restUrl="https://management.azure.com/subscriptions/${subId//[$'\t\r\n']}/providers/Microsoft.ApiManagement/locations/${apimLocation//[$'\t\r\n']}/deletedservices/${apimName//[$'\t\r\n']}?api-version=2020-06-01-preview"
+          subId=$(az account show --query "id" -o tsv)
 
-        echo "Calling: $restUrl"
+          restUrl="https://management.azure.com/subscriptions/${subId//[$'\t\r\n']}/providers/Microsoft.ApiManagement/locations/${apimLocation//[$'\t\r\n']}/deletedservices/${apimName//[$'\t\r\n']}?api-version=2020-06-01-preview"
 
-        az rest --method DELETE -u $restUrl
+          echo "Calling: $restUrl"
+
+          az rest --method DELETE -u $restUrl
+
+        else
+
+          echo "Skipping Purge"
+
+        fi
 
     env:
       apimName: ${{ parameters.apimName }}
       apimLocation: ${{ parameters.apimLocation }}
+      shouldPurge: "${{ parameters.shouldPurge }}"
