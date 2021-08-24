@@ -6,8 +6,8 @@ parameters:
   - name: apimLocation
     type: string
   - name: shouldPurge
-    type: boolean
-    default: true
+    type: string
+    default: "true"
 
   - name: taskName
     type: string
