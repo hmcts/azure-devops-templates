@@ -23,13 +23,13 @@ steps:
       scriptLocation: 'inlineScript'
       inlineScript: |
 
-        apims=$(az apim list --resource-group $resourceGroupName --query "[?name=='$apimName'].{Name:name, State:targetProvisioningState}" -o json)
+        apims=$(az apim list --resource-group $resourceGroupName --query "[?name=='$apimName'].{Name:name, State:targetProvisioningState}" -o json --only-show-errors)
         echo "APIM Response ${#apims[@]}"
         
         response=false
         if [ ${#apims[@]} -lt 2 ]; then
         
-          available=$(az apim check-name --name $apimName --query "nameAvailable" -o tsv)
+          available=$(az apim check-name --name $apimName --query "nameAvailable" -o tsv --only-show-errors)
         
           if [ "${available}" == "true" ]; then
             echo "API Management Service $apimName is available"
