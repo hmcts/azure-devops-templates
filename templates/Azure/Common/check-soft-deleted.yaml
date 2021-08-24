@@ -32,9 +32,9 @@ steps:
         response=$(az rest --method GET --uri ${restUrl} --query "id" -o tsv)
         echo "Response: $response"
         
-        available=true
+        available=false
         if [[ $response == "" ]]; then
-          available=false
+          available=true
         fi
         echo "##vso[task.setvariable variable=${variableName};isOutput=true]${available}"
       
