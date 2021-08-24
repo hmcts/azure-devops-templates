@@ -27,7 +27,7 @@ steps:
         echo "APIM Response ${#apims[@]}"
         
         response=false
-        if [ ${#apims[@]} -lt 2 ]; then
+        if [ ${#apims[@]} -ne 1 ]; then
         
           available=$(az apim check-name --name $apimName --query "nameAvailable" -o tsv --only-show-errors)
         
