@@ -1,8 +1,6 @@
 parameters:
   - name: subscriptionName
     type: string
-  - name: resourceGroupName
-    type: string
   - name: apimName
     type: string
   - name: apimLocation
@@ -15,7 +13,7 @@ parameters:
 
 steps:
   - task: AzureCLI@2
-    displayName: 'Purge ${{ parameters.apimName }} in ${{ parameters.resourceGroupName }}'
+    displayName: 'Purge ${{ parameters.apimName }}'
     name: ${{ parameters.taskName }}
     inputs:
       azureSubscription: '${{ parameters.subscriptionName }}'
@@ -32,6 +30,5 @@ steps:
         az rest --method DELETE -u $restUrl
 
     env:
-      resourceGroupName: ${{ parameters.resourceGroupName }}
       apimName: ${{ parameters.apimName }}
       apimLocation: ${{ parameters.apimLocation }}
