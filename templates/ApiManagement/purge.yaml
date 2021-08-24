@@ -5,6 +5,8 @@ parameters:
     type: string
   - name: apimName
     type: string
+  - name: apimLocation
+    type: string
 
   - name: taskName
     type: string
@@ -22,9 +24,6 @@ steps:
       inlineScript: |
 
         subId=$(az account show --query "id" -o tsv)
-        apimLocation=$(az apim show --name $apimName --resource-group $resourceGroupName --query "location" -o tsv)
-        apimLocation=${apimLocation,,}
-        apimLocation=${apimLocation/ /}
 
         restUrl="https://management.azure.com/subscriptions/${subId//[$'\t\r\n']}/providers/Microsoft.ApiManagement/locations/${apimLocation//[$'\t\r\n']}/deletedservices/${apimName//[$'\t\r\n']}?api-version=2020-06-01-preview"
 
@@ -35,3 +34,4 @@ steps:
     env:
       resourceGroupName: ${{ parameters.resourceGroupName }}
       apimName: ${{ parameters.apimName }}
+      apimLocation: ${{ parameters.apimLocation }}
