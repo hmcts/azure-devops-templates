@@ -20,25 +20,8 @@ steps:
     inputs:
       azureSubscription: '${{ parameters.subscriptionName }}'
       scriptType: 'bash'
-      scriptLocation: 'inlineScript'
-      inlineScript: |
-
-        subId=$(az account show --query "id" -o tsv)
-        echo "Subscription ID: ${subId}"
-        
-        restUrl="https://management.azure.com/subscriptions/${subId//[$'\t\r\n']}/providers/Microsoft.ApiManagement/locations/${resourceLocation//[$'\t\r\n']}/deletedservices/${resourceName//[$'\t\r\n']}?api-version=2020-06-01-preview"
-        echo "Calling: ${restUrl}"
-        
-        response=$(az rest --method GET --uri ${restUrl} --query "id" -o tsv)
-        echo "Response: $response"
-        
-        available=false
-        if [[ $response == "" ]]; then
-          available=true
-        fi
-        echo "${resourceName} availablity is ${available}"
-        echo "##vso[task.setvariable variable=${variableName};isOutput=true]${available}"
-
+      scriptLocation: 'scriptPath'
+      scriptPath: check-soft-deleted.sh
     env:
       variableName: "${{ parameters.variableName }}"
       resourceLocation: "${{ parameters.resourceLocation }}"

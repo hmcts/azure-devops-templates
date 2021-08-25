@@ -1,0 +1,59 @@
+parameters:
+  - name: subscriptionName
+    type: string
+  - name: resourceName
+    type: string
+  - name: resourceLocation
+    type: string
+  - name: resourceGroupName
+    type: string
+
+  - name: variableName
+    type: string
+  - name: taskName
+    type: string
+    default: 'getSoftDeleteServices'
+
+
+steps:
+  - task: AzureCLI@2
+    displayName: 'Check if ${{ parameters.resourceName }} is available'
+    name: ${{ parameters.taskName }}
+    inputs:
+      azureSubscription: '${{ parameters.subscriptionName }}'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+
+        available=true
+
+        apims=$(az apim list --resource-group $resourceGroupName --query "[?name=='$apimName'].{Name:name, State:targetProvisioningState}")
+        echo "APIMs: ${apims}"
+        if [[ "${apims//[$'\t\r\n']/}" == "[]" ]]; then
+
+          source $checkSoftDeleteScriptPath $apimName $apimLocation
+
+          if [ "${available}" == "true" ]; then
+            nameAvailable=$(az apim check-name --name $apimName --query "nameAvailable" -o tsv)
+
+            if [ "${nameAvailable}" == "true" ]; then
+              echo "API Management Service $apimName name is available"
+              response=true
+            else
+              echo "API Management Service $apimName name is not available"
+              response=false
+            fi
+          fi
+        else
+          echo "API Management Service $apimName is live"
+          available=true
+        fi
+
+        echo "##vso[task.setvariable variable=${variableName};isOutput=true]${available}"
+
+    env:
+      variableName: "${{ parameters.variableName }}"
+      resourceLocation: "${{ parameters.resourceLocation }}"
+      resourceGroupName: "${{ parameters.resourceGroupName }}"
+      resourceName: "${{ parameters.resourceName }}"
+      checkSoftDeleteScriptPath: "../Common/check-soft-deleted.sh"
