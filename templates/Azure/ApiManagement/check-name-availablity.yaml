@@ -50,7 +50,7 @@ steps:
       subscriptionName: "${{ parameters.subscriptionName }}"
       resourceLocation: "${{ parameters.resourceLocation }}"
       resourceName: "${{ parameters.resourceName }}"
-      condition: "eq('$(resourceCheck.avaliable)', 'false')"
+      condition: "eq(variables['resourceCheck.avaliable'], 'false')"
       taskName: 'softDeleteCheck'
       variableName: 'avaliable'
 
@@ -58,7 +58,7 @@ steps:
   - task: AzureCLI@2
     displayName: 'Name Check for ${{ parameters.resourceName }}'
     name: 'nameCheck'
-    condition: and(eq('$(resourceCheck.avaliable)', 'false'), eq('$(softDeleteCheck.avaliable)', 'false'))
+    condition: and(eq(variables['resourceCheck.avaliable'], 'false'), eq(variables['softDeleteCheck.avaliable'], 'false'))
     inputs:
       azureSubscription: '${{ parameters.subscriptionName }}'
       scriptType: 'bash'
@@ -83,6 +83,9 @@ steps:
       apimName: "${{ parameters.resourceName }}"
 
   - bash: |
+      echo "Live Check ${liveCheck}"
+      echo "Soft Deleted Check ${softDeleteCheck}"
+      echo "Name Check ${nameCheck}"
 
       available=true
       if [[ "${liveCheck}" == 'false' && "${softDeleteCheck}" == 'false' && "${nameCheck}" == 'false' ]]; then
