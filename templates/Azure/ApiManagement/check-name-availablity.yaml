@@ -45,7 +45,7 @@ steps:
       apimName: "${{ parameters.resourceName }}"
       checkSoftDeleteScriptPath: "../Common/check-soft-deleted.sh"
 
-  - tempalte: ../Common/check-soft-deleted.yaml
+  - template: ../Common/check-soft-deleted.yaml
     parameters:
       resourceLocation: "${{ parameters.resourceLocation }}"
       resourceName: "${{ parameters.resourceName }}"
