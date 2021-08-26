@@ -84,7 +84,13 @@ steps:
 
   - bash: |
       echo "Live Check ${liveCheck}"
+      if [[ "${softDeleteCheck}" != 'true' ]]; then
+        softDeleteCheck=false
+      fi
       echo "Soft Deleted Check ${softDeleteCheck}"
+      if [[ "${nameCheck}" != 'true' ]]; then
+        nameCheck=false
+      fi
       echo "Name Check ${nameCheck}"
 
       available=true
