@@ -40,7 +40,7 @@ steps:
         echo "##vso[task.setvariable variable=${variableName};isOutput=true]${available}"
 
     env:
-      variableName: "${{ parameters.variableName }}"
+      variableName: "avaliable"
       resourceGroupName: "${{ parameters.resourceGroupName }}"
       apimName: "${{ parameters.resourceName }}"
       checkSoftDeleteScriptPath: "../Common/check-soft-deleted.sh"
@@ -50,15 +50,15 @@ steps:
       subscriptionName: "${{ parameters.subscriptionName }}"
       resourceLocation: "${{ parameters.resourceLocation }}"
       resourceName: "${{ parameters.resourceName }}"
-      condition: "eq('$(resourceCheck.${{ parameters.variableName }})', 'false')"
+      condition: "eq('$(resourceCheck.avaliable)', 'false')"
       taskName: 'softDeleteCheck'
-      variableName: '${{ parameters.variableName }}'
+      variableName: 'avaliable'
 
 
   - task: AzureCLI@2
     displayName: 'Name Check for ${{ parameters.resourceName }}'
     name: 'nameCheck'
-    condition: and(eq('$(resourceCheck.${{ parameters.variableName }})', 'false'), eq('$(softDeleteCheck.${{ parameters.variableName }})', 'false'))
+    condition: and(eq('$(resourceCheck.avaliable)', 'false'), eq('$(softDeleteCheck.avaliable)', 'false'))
     inputs:
       azureSubscription: '${{ parameters.subscriptionName }}'
       scriptType: 'bash'
@@ -79,7 +79,7 @@ steps:
         echo "##vso[task.setvariable variable=${variableName};isOutput=true]${available}"
 
     env:
-      variableName: "${{ parameters.variableName }}"
+      variableName: "avaliable"
       apimName: "${{ parameters.resourceName }}"
 
   - bash: |
@@ -95,7 +95,7 @@ steps:
     name: ${{ parameters.taskName }}
     env:
       variableName: "${{ parameters.variableName }}"
-      liveCheck: "$(resourceCheck.${{ parameters.variableName }})"
-      softDeleteCheck: "$(softDeleteCheck.${{ parameters.variableName }})"
-      nameCheck: "$(nameCheck.${{ parameters.variableName }})"
+      liveCheck: "$(resourceCheck.avaliable)"
+      softDeleteCheck: "$(softDeleteCheck.avaliable)"
+      nameCheck: "$(nameCheck.avaliable)"
 
