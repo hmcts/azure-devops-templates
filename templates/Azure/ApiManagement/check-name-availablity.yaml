@@ -58,7 +58,7 @@ steps:
   - task: AzureCLI@2
     displayName: 'Name Check for ${{ parameters.resourceName }}'
     name: 'nameCheck'
-    condition: and(eq(variables['resourceCheck.avaliable'], 'false'), eq(variables['softDeleteCheck.avaliable'], 'false'))
+    condition: eq(variables['resourceCheck.avaliable'], 'false')
     inputs:
       azureSubscription: '${{ parameters.subscriptionName }}'
       scriptType: 'bash'
