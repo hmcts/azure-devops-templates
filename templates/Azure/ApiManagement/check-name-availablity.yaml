@@ -47,6 +47,7 @@ steps:
 
   - template: ../Common/check-soft-deleted.yaml
     parameters:
+      subscriptionName: "${{ parameters.subscriptionName }}"
       resourceLocation: "${{ parameters.resourceLocation }}"
       resourceName: "${{ parameters.resourceName }}"
       condition: "eq($(resourceCheck.${{ parameters.variableName }}), 'false')"
