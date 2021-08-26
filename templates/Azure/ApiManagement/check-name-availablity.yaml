@@ -50,7 +50,7 @@ steps:
       subscriptionName: "${{ parameters.subscriptionName }}"
       resourceLocation: "${{ parameters.resourceLocation }}"
       resourceName: "${{ parameters.resourceName }}"
-      condition: "eq($(resourceCheck.${{ parameters.variableName }}), 'false')"
+      condition: 'eq("$(resourceCheck.${{ parameters.variableName }})", "false")'
       taskName: 'softDeleteCheck'
       variableName: '${{ parameters.variableName }}'
 
@@ -58,7 +58,7 @@ steps:
   - task: AzureCLI@2
     displayName: 'Name Check for ${{ parameters.resourceName }}'
     name: 'nameCheck'
-    condition: and(eq($(resourceCheck.${{ parameters.variableName }}), 'false'), eq($(softDeleteCheck.${{ parameters.variableName }}), 'false'))
+    condition: and(eq("$(resourceCheck.${{ parameters.variableName }})", 'false'), eq("$(softDeleteCheck.${{ parameters.variableName }})", 'false'))
     inputs:
       azureSubscription: '${{ parameters.subscriptionName }}'
       scriptType: 'bash'
