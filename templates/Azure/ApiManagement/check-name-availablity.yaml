@@ -93,6 +93,7 @@ steps:
     displayName: 'Determine Availability of ${{ parameters.resourceName }}'
     name: ${{ parameters.taskName }}
     env:
+      variableName: "${{ parameters.variableName }}"
       liveCheck: "$(resourceCheck.${{ parameters.variableName }})"
       softDeleteCheck: "$(softDeleteCheck.${{ parameters.variableName }})"
       nameCheck: "$(nameCheck.${{ parameters.variableName }})"

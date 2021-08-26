@@ -18,7 +18,7 @@ parameters:
 
 steps:
   - task: AzureCLI@2
-    displayName: 'Check if ${{ parameters.resourceName }} is available'
+    displayName: 'Soft-Delete Check for ${{ parameters.resourceName }}'
     name: ${{ parameters.taskName }}
     condition: ${{ parameters.condition }}
     inputs:
