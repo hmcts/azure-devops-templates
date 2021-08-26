@@ -89,6 +89,7 @@ steps:
         available=false
       fi
       
+      echo "APIM Availability ${available}"
       echo "##vso[task.setvariable variable=${variableName};isOutput=true]${available}"
     displayName: 'Determine Availability of ${{ parameters.resourceName }}'
     name: ${{ parameters.taskName }}
