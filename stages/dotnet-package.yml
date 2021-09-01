@@ -294,16 +294,13 @@ stages:
             ${{ if ne(variables['Build.SourceBranch'], 'refs/heads/master')}}:
               arguments: '--configuration release /p:Version="$(GitVersion.NuGetVersion)" /p:PackageOutputPath="$(Build.ArtifactStagingDirectory)" /p:VersionSuffix="-alpha"'
             workingDirectory: ${{ parameters.nugetProjectPath }}
-
-        - task: bash@3
-          displayName: checking vars
-          inputs: 
-            targetType: 'inline'
-            script: | 
-            for e in ${{ parameters.environment[@] }}
-            do
-              echo 'Environment - $e \n' 
-            done
+        
+        - ${{ each e in parameters.environment }}:
+          - task: bash@3
+            displayName: checking vars
+            inputs: 
+              targetType: 'inline'
+              script: echo $e
 
         - task: NuGetAuthenticate@0
           displayName: Connect to VH NuGet store
