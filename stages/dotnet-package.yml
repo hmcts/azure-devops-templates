@@ -84,7 +84,7 @@ parameters:
   - name: lowerEnvs
     type: object
     values: []
-    default: ['sandbox','dev','demo','test1','aat', 'preview', 'test2']
+    default: ['sandbox', 'dev', 'demo', 'test1', 'aat', 'preview', 'test2']
 
   - name: upperEnvs
     type: object
