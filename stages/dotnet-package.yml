@@ -299,7 +299,11 @@ stages:
           displayName: checking vars
           inputs: 
             targetType: 'inline'
-            script: echo 'Environment - ${{ parameters.environment }}.' 
+            script: | 
+            for e in ${{ parameters.environment[@] }}
+            do
+              echo 'Environment - $e \n' 
+            done
 
         - task: NuGetAuthenticate@0
           displayName: Connect to VH NuGet store
