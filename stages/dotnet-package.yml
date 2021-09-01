@@ -77,6 +77,20 @@ parameters:
     type: object
     default: {}
 
+  - name: environment
+    type: object
+    default: []
+
+  - name: lowerEnvs
+    type: object
+    values: []
+    default: ['sandbox','dev','demo','test1','aat', 'preview', 'test2']
+
+  - name: upperEnvs
+    type: object
+    values: []
+    default: ['prod', 'preprod']
+
 stages:
 - ${{ if or(parameters.PackageApp, parameters.PackageAcceptanceTests, parameters.ACTest, parameters.PackageNuget) }}:
   - stage: Package
@@ -280,17 +294,27 @@ stages:
             ${{ if ne(variables['Build.SourceBranch'], 'refs/heads/master')}}:
               arguments: '--configuration release /p:Version="$(GitVersion.NuGetVersion)" /p:PackageOutputPath="$(Build.ArtifactStagingDirectory)" /p:VersionSuffix="-alpha"'
             workingDirectory: ${{ parameters.nugetProjectPath }}
-        
-        - task: NuGetAuthenticate@0
 
-        - task: NuGetCommand@2
-          inputs:
-            command: 'push'
-            packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
-            publishVstsFeed: ${{ parameters.vstsFeedId }}
-            versioningScheme: byBuildNumber
-            allowPackageConflicts: true
-            nuGetFeedType: internal
+        - ${{ if contains(parameters.lowerEnvs, parameters.environment) }}:
+          - task: NuGetAuthenticate@0
+
+          - task: NuGetCommand@2
+            inputs:
+              command: 'push'
+              packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
+              publishVstsFeed: ${{ parameters.vstsFeedId }}
+              versioningScheme: byBuildNumber
+              allowPackageConflicts: true
+              nuGetFeedType: internal
+
+        - ${{ if contains(parameters.upperEnvs, parameters.environment) }}:
+          - task: DotNetCoreCLI@2
+            displayName: Push Package to VH NuGet Store
+            inputs:
+              command: push
+              searchPatternPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
+              publishVstsFeed: ${{ parameters.vstsFeedId }}
+              versioningScheme: byBuildNumber
 
 - ${{ if ne(variables['Build.Reason'], 'IndividualCI') }}:
   - ${{ if eq(parameters.Test, true) }}:
