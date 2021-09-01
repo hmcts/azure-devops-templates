@@ -305,10 +305,9 @@ stages:
             packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
             publishVstsFeed: ${{ parameters.vstsFeedId }}
             versioningScheme: byBuildNumber
-            condition: 
-              ${{ if contains(parameters.lowerEnvs, parameters.environment)  }})
+            ${{ if contains(parameters.lowerEnvs, parameters.environment)  }})
               allowPackageConflicts: true
-              ${{ if contains(parameters.upperEnvs, parameters.environment)  }})
+            ${{ if contains(parameters.upperEnvs, parameters.environment)  }})
               allowPackageConflicts: false
             nuGetFeedType: internal
       
