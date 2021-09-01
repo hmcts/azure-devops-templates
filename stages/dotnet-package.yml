@@ -297,10 +297,10 @@ stages:
 
         
         - task: NuGetAuthenticate@0
-          condition: and(succeeded(), ${{ containsValue(parameters.lowerEnvs, parameters.environemnt) }})
-          
+          condition: and(succeeded(), ${{ containsValue(parameters.lowerEnvs, parameters.environment) }})
+
         - task: NuGetCommand@2
-          condition: and(succeeded(), ${{ containsValue(parameters.lowerEnvs, parameters.environemnt) }})
+          condition: and(succeeded(), ${{ containsValue(parameters.lowerEnvs, parameters.environment) }})
           inputs:
             command: 'push'
             packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
@@ -310,7 +310,7 @@ stages:
             nuGetFeedType: internal
       
         - task: DotNetCoreCLI@2
-          condition: and(succeeded(), ${{ containsValue(parameters.upperEnvs, parameters.environemnt) }})
+          condition: and(succeeded(), ${{ containsValue(parameters.upperEnvs, parameters.environment) }})
           displayName: Push Package to VH NuGet Store
           inputs:
             command: push
