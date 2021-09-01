@@ -315,8 +315,8 @@ stages:
             versioningScheme: byBuildNumber
             ${{ if containsValue(parameters.lowerEnvs, parameters.environment)  }}:
               allowPackageConflicts: true
-            ${{ if containsValue(parameters.upperEnvs, parameters.environment)  }}:
-              allowPackageConflicts: false
+            #${{ if containsValue(parameters.upperEnvs, parameters.environment)  }}:
+            #  allowPackageConflicts: false
             nuGetFeedType: internal
       
         #- task: DotNetCoreCLI@2
