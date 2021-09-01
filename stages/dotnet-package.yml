@@ -280,14 +280,25 @@ stages:
             ${{ if ne(variables['Build.SourceBranch'], 'refs/heads/master')}}:
               arguments: '--configuration release /p:Version="$(GitVersion.NuGetVersion)" /p:PackageOutputPath="$(Build.ArtifactStagingDirectory)" /p:VersionSuffix="-alpha"'
             workingDirectory: ${{ parameters.nugetProjectPath }}
+        
+        - task: NuGetAuthenticate@0
 
-        - task: DotNetCoreCLI@2
-          displayName: Push Package to VH NuGet Store
+        - task: NuGetCommand@2
           inputs:
-            command: push
-            searchPatternPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
+            command: 'push'
+            packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
             publishVstsFeed: ${{ parameters.vstsFeedId }}
             versioningScheme: byBuildNumber
+            allowPackageConflicts: true
+            nuGetFeedType: internal
+
+        #- task: DotNetCoreCLI@2
+        #  displayName: Push Package to VH NuGet Store
+        #  inputs:
+        #    command: push --skip-duplicate
+        #    searchPatternPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
+        #    publishVstsFeed: ${{ parameters.vstsFeedId }}
+        #    versioningScheme: byBuildNumber
 
 - ${{ if ne(variables['Build.Reason'], 'IndividualCI') }}:
   - ${{ if eq(parameters.Test, true) }}:
