@@ -292,14 +292,6 @@ stages:
             allowPackageConflicts: true
             nuGetFeedType: internal
 
-        #- task: DotNetCoreCLI@2
-        #  displayName: Push Package to VH NuGet Store
-        #  inputs:
-        #    command: push --skip-duplicate
-        #    searchPatternPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
-        #    publishVstsFeed: ${{ parameters.vstsFeedId }}
-        #    versioningScheme: byBuildNumber
-
 - ${{ if ne(variables['Build.Reason'], 'IndividualCI') }}:
   - ${{ if eq(parameters.Test, true) }}:
     - template: ./dotnet-test.yml
