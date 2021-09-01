@@ -295,19 +295,11 @@ stages:
               arguments: '--configuration release /p:Version="$(GitVersion.NuGetVersion)" /p:PackageOutputPath="$(Build.ArtifactStagingDirectory)" /p:VersionSuffix="-alpha"'
             workingDirectory: ${{ parameters.nugetProjectPath }}
         
-        - ${{ each e in parameters.environment }}:
-          - task: bash@3
-            displayName: checking vars
-            inputs: 
-              targetType: 'inline'
-              script: echo $e
-
         - task: NuGetAuthenticate@0
           displayName: Connect to VH NuGet store
 
         - task: NuGetCommand@2
           displayName: Push Package to VH NuGet Store
-          #condition: and(succeeded(), ${{ containsValue(parameters.lowerEnvs, parameters.environment) }})
           inputs:
             command: 'push'
             packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
@@ -315,19 +307,10 @@ stages:
             versioningScheme: byBuildNumber
             ${{ if containsValue(parameters.lowerEnvs, parameters.environment)  }}:
               allowPackageConflicts: true
-            #${{ if containsValue(parameters.upperEnvs, parameters.environment)  }}:
-            #  allowPackageConflicts: false
+            ${{ if containsValue(parameters.upperEnvs, parameters.environment)  }}:
+              allowPackageConflicts: false
             nuGetFeedType: internal
       
-        #- task: DotNetCoreCLI@2
-        #  condition: and(succeeded(), ${{ containsValue(parameters.upperEnvs, parameters.environment) }})
-        #  displayName: Push Package to VH NuGet Store
-        #  inputs:
-        #    command: push
-        #    searchPatternPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
-        #    publishVstsFeed: ${{ parameters.vstsFeedId }}
-        #    versioningScheme: byBuildNumber
-
 - ${{ if ne(variables['Build.Reason'], 'IndividualCI') }}:
   - ${{ if eq(parameters.Test, true) }}:
     - template: ./dotnet-test.yml
