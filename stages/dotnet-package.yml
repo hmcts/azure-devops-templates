@@ -299,7 +299,7 @@ stages:
           displayName: checking vars
           inputs: 
             targetType: 'inline'
-            script: echo 'Environment - ${{ parameters.environment }}. Uppers - ${{ parameters.upperEnvs }}. Lowers - ${{ parameters.lowerEnvs }} "
+            script: echo 'Environment - ${{ parameters.environment }}.' 
 
         - task: NuGetAuthenticate@0
           displayName: Connect to VH NuGet store
