@@ -295,10 +295,17 @@ stages:
               arguments: '--configuration release /p:Version="$(GitVersion.NuGetVersion)" /p:PackageOutputPath="$(Build.ArtifactStagingDirectory)" /p:VersionSuffix="-alpha"'
             workingDirectory: ${{ parameters.nugetProjectPath }}
 
-        
+        - task: bash@3
+          displayName: checking vars
+          inputs: 
+            targetType: 'inline'
+            script: echo 'Environment - ${{ parameters.environment }}. Uppers - ${{ parameters.upperEnvs }}. Lowers - ${{ parameters.lowerEnvs }} "
+
         - task: NuGetAuthenticate@0
+          displayName: Connect to VH NuGet store
 
         - task: NuGetCommand@2
+          displayName: Push Package to VH NuGet Store
           #condition: and(succeeded(), ${{ containsValue(parameters.lowerEnvs, parameters.environment) }})
           inputs:
             command: 'push'
