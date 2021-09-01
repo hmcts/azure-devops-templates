@@ -295,26 +295,28 @@ stages:
               arguments: '--configuration release /p:Version="$(GitVersion.NuGetVersion)" /p:PackageOutputPath="$(Build.ArtifactStagingDirectory)" /p:VersionSuffix="-alpha"'
             workingDirectory: ${{ parameters.nugetProjectPath }}
 
-        - ${{ if contains(parameters.lowerEnvs, parameters.environment) }}:
-          - task: NuGetAuthenticate@0
-
-          - task: NuGetCommand@2
-            inputs:
-              command: 'push'
-              packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
-              publishVstsFeed: ${{ parameters.vstsFeedId }}
-              versioningScheme: byBuildNumber
-              allowPackageConflicts: true
-              nuGetFeedType: internal
-
-        - ${{ if contains(parameters.upperEnvs, parameters.environment) }}:
-          - task: DotNetCoreCLI@2
-            displayName: Push Package to VH NuGet Store
-            inputs:
-              command: push
-              searchPatternPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
-              publishVstsFeed: ${{ parameters.vstsFeedId }}
-              versioningScheme: byBuildNumber
+        
+        - task: NuGetAuthenticate@0
+          condition: and(succeeded(), ${{ containsValue(parameters.lowerEnvs, parameters.environemnt) }})
+          
+        - task: NuGetCommand@2
+          condition: and(succeeded(), ${{ containsValue(parameters.lowerEnvs, parameters.environemnt) }})
+          inputs:
+            command: 'push'
+            packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
+            publishVstsFeed: ${{ parameters.vstsFeedId }}
+            versioningScheme: byBuildNumber
+            allowPackageConflicts: true
+            nuGetFeedType: internal
+      
+        - task: DotNetCoreCLI@2
+          condition: and(succeeded(), ${{ containsValue(parameters.upperEnvs, parameters.environemnt) }})
+          displayName: Push Package to VH NuGet Store
+          inputs:
+            command: push
+            searchPatternPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
+            publishVstsFeed: ${{ parameters.vstsFeedId }}
+            versioningScheme: byBuildNumber
 
 - ${{ if ne(variables['Build.Reason'], 'IndividualCI') }}:
   - ${{ if eq(parameters.Test, true) }}:
