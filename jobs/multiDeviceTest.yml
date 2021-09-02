@@ -232,10 +232,34 @@ jobs:
       scriptLocation: inlineScript
       inlineScript: |
         $ErrorActionPreference = "Continue"
-        if('${{ parameters.slot }}' -eq 'production') {
-          az webapp config access-restriction remove -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --rule-name $env:BUILD_BUILDID
-        } else {
-          az webapp config access-restriction remove -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --rule-name $env:BUILD_BUILDID --slot ${{ parameters.slot }}
+        $appName = "${{ parameters.appName }}"
+        $rgName = "${{ parameters.resourceGroup }} "
+        $ruleName = "$env:BUILD_BUILDID"
+        $slotName = ""
+        if('${{ parameters.slot }}' -ne 'production') {
+          $slotName = "${{ parameters.slot }}"
+        }
+
+        $query = "ipSecurityRestrictions[?contains(name, '$ruleName')].{Name:name}"
+        if ($slotName -eq "") {
+          $ruleResponse=az webapp config access-restriction show -g $rgName -n $appName --query $query -o json | ConvertFrom-Json
+        }
+        else {
+          $ruleResponse=az webapp config access-restriction show -g $rgName -n $appName --slot $slotName --query $query -o json | ConvertFrom-Json
+        }
+
+        if ($ruleResponse.length -gt 0) {
+          Write-Host "$ruleName found in $appName`:$slotName"
+          Write-Host "$ruleName being removed"
+          if ($slotName -eq "" ) {
+            az webapp config access-restriction remove -g $rgName -n $appName --rule-name $ruleName
+          }
+          else {
+            az webapp config access-restriction remove -g $rgName -n $appName --rule-name $ruleName --slot $slotName
+          }
+        }
+        else {
+          Write-Host "$ruleName NOT found in $appName`:$slotName"
         }
 
   - ${{ each app in parameters.dependentApps }}:
@@ -250,7 +274,32 @@ jobs:
         scriptType: pscore
         scriptLocation: inlineScript
         inlineScript: |
-          az webapp config access-restriction remove -g $env:dependentResourceGroup -n $env:dependentResourceName --rule-name $env:BUILD_BUILDID
+          $appName = "$env:dependentResourceName"
+          $rgName = "$env:dependentResourceGroup"
+          $ruleName = "$env:BUILD_BUILDID"
+          $slotName = ""
+
+          $query = "ipSecurityRestrictions[?contains(name, '$ruleName')].{Name:name}"
+          if ($slotName -eq "") {
+            $ruleResponse=az webapp config access-restriction show -g $rgName -n $appName --query $query -o json | ConvertFrom-Json
+          }
+          else {
+            $ruleResponse=az webapp config access-restriction show -g $rgName -n $appName --slot $slotName --query $query -o json | ConvertFrom-Json
+          }
+
+          if ($ruleResponse.length -gt 0) {
+            Write-Host "$ruleName found in $appName`:$slotName"
+            Write-Host "$ruleName being removed"
+            if ($slotName -eq "" ) {
+              az webapp config access-restriction remove -g $rgName -n $appName --rule-name $ruleName
+            }
+            else {
+              az webapp config access-restriction remove -g $rgName -n $appName --rule-name $ruleName --slot $slotName
+            }
+          }
+          else {
+            Write-Host "$ruleName NOT found in $appName`:$slotName"
+          }
       env:
         ${{ if gt(length(format('{0}',app.resourcegroup)), 0) }}:
           dependentResourceGroup: ${{ app.resourceGroup }}
