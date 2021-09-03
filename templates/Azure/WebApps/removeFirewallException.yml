@@ -1,0 +1,49 @@
+parameters:
+  - name: subscription
+    type: string
+  - name: appName
+    type: string
+  - name: resourceGroupName
+    type: string
+  - name: appSlotName
+    type: string
+    default: ""
+  - name: ruleName
+    type: string
+
+steps:
+  - task: AzureCLI@2
+    displayName: Remove FW Exception ${{ parameters.ruleName }} from ${{ parameters.appName }}
+    condition: always()
+    inputs:
+      azureSubscription: ${{ parameters.subscription }}
+      scriptType: pscore
+      scriptLocation: inlineScript
+      inlineScript: |
+        $ErrorActionPreference = "Continue"
+        $appName = "${{ parameters.appName }}"
+        $rgName = "${{ parameters.resourceGroupName }} "
+        $ruleName = "${{ parameters.ruleName }}"
+        $slotName = "${{ parameters.appSlotName }}"
+
+        $query = "ipSecurityRestrictions[?contains(name, '$ruleName')].{Name:name}"
+        if ($slotName -eq "") {
+          $ruleResponse=az webapp config access-restriction show -g $rgName -n $appName --query $query -o json | ConvertFrom-Json
+        }
+        else {
+          $ruleResponse=az webapp config access-restriction show -g $rgName -n $appName --slot $slotName --query $query -o json | ConvertFrom-Json
+        }
+
+        if ($ruleResponse.length -gt 0) {
+          Write-Host "$ruleName found in $appName`:$slotName"
+          Write-Host "$ruleName being removed"
+          if ($slotName -eq "" ) {
+            az webapp config access-restriction remove -g $rgName -n $appName --rule-name $ruleName
+          }
+          else {
+            az webapp config access-restriction remove -g $rgName -n $appName --rule-name $ruleName --slot $slotName
+          }
+        }
+        else {
+          Write-Host "$ruleName NOT found in $appName`:$slotName"
+        }

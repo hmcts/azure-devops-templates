@@ -392,90 +392,27 @@ jobs:
             env:
               testCaseFilter: ${{ parameters.testCaseFilter }}
 
-          - task: AzureCLI@2
-            displayName: Remove FW Exception
-            condition: always()
-            inputs:
-              azureSubscription: ${{ parameters.subscription }}
-              scriptType: pscore
-              scriptLocation: inlineScript
-              inlineScript: |
-                $ErrorActionPreference = "Continue"
-                $appName = "${{ parameters.appName }}"
-                $rgName = "${{ parameters.resourceGroup }} "
-                $ruleName = "$env:BUILD_BUILDID"
-                $slotName = ""
-                if('${{ parameters.slot }}' -ne 'production') {
-                  $slotName = "${{ parameters.slot }}"
-                }
-
-                $query = "ipSecurityRestrictions[?contains(name, '$ruleName')].{Name:name}"
-                if ($slotName -eq "") {
-                  $ruleResponse=az webapp config access-restriction show -g $rgName -n $appName --query $query -o json | ConvertFrom-Json
-                }
-                else {
-                  $ruleResponse=az webapp config access-restriction show -g $rgName -n $appName --slot $slotName --query $query -o json | ConvertFrom-Json
-                }
-
-                if ($ruleResponse.length -gt 0) {
-                  Write-Host "$ruleName found in $appName`:$slotName"
-                  Write-Host "$ruleName being removed"
-                  if ($slotName -eq "" ) {
-                    az webapp config access-restriction remove -g $rgName -n $appName --rule-name $ruleName
-                  }
-                  else {
-                    az webapp config access-restriction remove -g $rgName -n $appName --rule-name $ruleName --slot $slotName
-                  }
-                }
-                else {
-                  Write-Host "$ruleName NOT found in $appName`:$slotName"
-                }
-
+          - template: ../templates/Azure/WebApps/removeFirewallException.yml
+            parameters:
+              subscription: ${{ parameters.subscription }}
+              appName: ${{ parameters.appName }}
+              resourceGroupName: ${{ parameters.resourceGroup }}
+              ${{ if ne('${{parameters.slot}}', 'production') }}:
+                appSlotName: ${{ parameters.slot }}
+              ruleName: $(Build.BuildId)
+         
           - ${{ each app in parameters.dependentApps }}:
-            - task: AzureCLI@2
-              ${{ if gt(length(format('{0}',app.resourcegroup)), 0) }}:
-                displayName: Remove FW Exception ${{ app.name }}
-              ${{ if ne(true, gt(length(format('{0}',app.resourcegroup)), 0)) }}:
-                displayName: Remove FW Exception ${{ app }}
-              condition: always()
-              inputs:
-                azureSubscription: ${{ parameters.subscription }}
-                scriptType: pscore
-                scriptLocation: inlineScript
-                inlineScript: |
-                  $appName = "$env:dependentResourceName"
-                  $rgName = "$env:dependentResourceGroup"
-                  $ruleName = "$env:BUILD_BUILDID"
-                  $slotName = ""
 
-                  $query = "ipSecurityRestrictions[?contains(name, '$ruleName')].{Name:name}"
-                  if ($slotName -eq "") {
-                    $ruleResponse=az webapp config access-restriction show -g $rgName -n $appName --query $query -o json | ConvertFrom-Json
-                  }
-                  else {
-                    $ruleResponse=az webapp config access-restriction show -g $rgName -n $appName --slot $slotName --query $query -o json | ConvertFrom-Json
-                  }
-
-                  if ($ruleResponse.length -gt 0) {
-                    Write-Host "$ruleName found in $appName`:$slotName"
-                    Write-Host "$ruleName being removed"
-                    if ($slotName -eq "" ) {
-                      az webapp config access-restriction remove -g $rgName -n $appName --rule-name $ruleName
-                    }
-                    else {
-                      az webapp config access-restriction remove -g $rgName -n $appName --rule-name $ruleName --slot $slotName
-                    }
-                  }
-                  else {
-                    Write-Host "$ruleName NOT found in $appName`:$slotName"
-                  }
-              env:
+            - template: ../templates/Azure/WebApps/removeFirewallException.yml
+              parameters:
+                subscription: ${{ parameters.subscription }}
+                ruleName: $(Build.BuildId)
                 ${{ if gt(length(format('{0}',app.resourcegroup)), 0) }}:
-                  dependentResourceGroup: ${{ app.resourceGroup }}
-                  dependentResourceName: ${{ app.name }}
+                  resourceGroupName: ${{ app.resourceGroup }}
+                  appName: ${{ app.name }}
                 ${{ if ne(true, gt(length(format('{0}',app.resourcegroup)), 0)) }}:
-                  dependentResourceGroup: ${{ app }}
-                  dependentResourceName: ${{ app }}
+                  resourceGroupName: ${{ app }}
+                  appName: ${{ app }}
 
           - task: PublishTestResults@2
             displayName: Publish Test Results
