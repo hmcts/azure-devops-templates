@@ -22,7 +22,7 @@ steps:
       inlineScript: |
         $ErrorActionPreference = "Continue"
         $appName = "${{ parameters.appName }}"
-        $rgName = "${{ parameters.resourceGroupName }} "
+        $rgName = "${{ parameters.resourceGroupName }}"
         $ruleName = "${{ parameters.ruleName }}"
         $slotName = "${{ parameters.appSlotName }}"
 
