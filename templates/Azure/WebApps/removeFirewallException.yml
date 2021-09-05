@@ -38,7 +38,7 @@ steps:
         if ($ruleResponse.Name -contains "$ruleName") {
           Write-Host "$ruleName found in $appName`:$slotName"
           Write-Host "$ruleName being removed"
-          if ($slotName -eq "" ) {
+          if ($slotName -eq "" -Or $slotName -eq "production") {
             az webapp config access-restriction remove -g $rgName -n $appName --rule-name $ruleName
           }
           else {
