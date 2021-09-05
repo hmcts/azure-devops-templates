@@ -386,8 +386,8 @@ jobs:
               subscription: ${{ parameters.subscription }}
               appName: ${{ parameters.appName }}
               resourceGroupName: ${{ parameters.resourceGroup }}
-              #${{ if ne('${{parameters.slot}}', 'production') }}:
-              appSlotName: ${{ parameters.slot }}
+              ${{ if ne('${{parameters.slot}}', 'production') }}:
+                appSlotName: ${{ parameters.slot }}
               ruleName: $(Build.BuildId)
          
           - ${{ each app in parameters.dependentApps }}:
