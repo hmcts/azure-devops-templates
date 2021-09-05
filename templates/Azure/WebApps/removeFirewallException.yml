@@ -27,17 +27,18 @@ steps:
         $slotName = "${{ parameters.appSlotName }}"
 
         $query = "ipSecurityRestrictions[*].{Name:name}"
-        if ($slotName -eq "") {
+        
+        if ($slotName -eq "" -Or $slotName -eq "production") {
           $ruleResponse=az webapp config access-restriction show -g $rgName -n $appName --query $query -o json | ConvertFrom-Json
         }
         else {
           $ruleResponse=az webapp config access-restriction show -g $rgName -n $appName --slot $slotName --query $query -o json | ConvertFrom-Json
         }
-
+        
         if ($ruleResponse.Name -contains "$ruleName") {
           Write-Host "$ruleName found in $appName`:$slotName"
           Write-Host "$ruleName being removed"
-          if ($slotName -eq "" ) {
+          if ($slotName -eq "" -Or $slotName -eq "production") {
             az webapp config access-restriction remove -g $rgName -n $appName --rule-name $ruleName
           }
           else {
