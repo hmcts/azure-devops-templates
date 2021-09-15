@@ -235,7 +235,7 @@ jobs:
           steps:
           - checkout: self
         
-          - task: gitversion/install@0
+          - task: gitversion/setup@0
             displayName: Install GitVersion
             inputs:
               versionSpec: '5.6.0'
