@@ -1,7 +1,7 @@
 parameters:
   - name: baseAgent
     type: string
-    default: Ubuntu-18.04
+    default: Ubuntu-latest
 
   - name: dotnetContainer
     type: string
@@ -234,10 +234,15 @@ jobs:
         postRouteTraffic:
           steps:
           - checkout: self
-            
-          - task: gittools.gitversion.gitversion-task.GitVersion@5
-            displayName: GitVersion
-
+        
+          - task: gitversion/setup@0
+            displayName: Install GitVersion
+            inputs:
+              versionSpec: '5.6.0'
+  
+          - task: gitversion/execute@0
+            displayName: Determine Version
+          
           - ${{ if parameters.runZapTests }}:
             - script: |
                 sudo curl 'http://localhost:8080/OTHER/core/other/rootcert?apikey=ryUH6nrB1i!M' -o /usr/local/share/ca-certificates/zap.crt
