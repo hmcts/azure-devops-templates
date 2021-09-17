@@ -112,8 +112,6 @@ stages:
         - task: gitversion/execute@0
           displayName: Determine Version
           inputs:
-            useConfigFile: true
-            configFilePath: 'VersionConfig.yml'
             additionalArguments: /updateassemblyinfo ${{ parameters.coreProjectPath }}/AssemblyInfo.cs /ensureassemblyinfo
 
         - template: ../templates/pipelineCaching.yml
@@ -190,8 +188,6 @@ stages:
         - task: gitversion/execute@0
           displayName: Determine Version for AcceptanceTests
           inputs:
-            useConfigFile: true
-            configFilePath: 'VersionConfig.yml'
             additionalArguments: /updateassemblyinfo ${{ parameters.coreProjectPath }}.AcceptanceTests/AssemblyInfo.cs /ensureassemblyinfo
 
         - template: ../templates/pipelineCaching.yml
@@ -262,9 +258,6 @@ stages:
 
         - task: gitversion/execute@0
           displayName: Determine Version for AcceptanceTests
-          inputs:
-            useConfigFile: true
-            configFilePath: 'GitVersion.yml'
             
         - template: ../templates/pipelineCaching.yml
           parameters:

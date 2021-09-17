@@ -172,8 +172,6 @@ stages:
         - task: gitversion/execute@0
           displayName: Determine Version
           inputs:
-            useConfigFile: true
-            configFilePath: 'VersionConfig.yml'
             additionalArguments: /updateassemblyinfo ${{ parameters.coreProjectPath }}/AssemblyInfo.cs /ensureassemblyinfo
 
         - pwsh: |
