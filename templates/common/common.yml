@@ -3,10 +3,13 @@ parameters:
   dotNetCoreVersion: 3.1.x
 
 steps:
-  - task: GitVersion@4
-    displayName: GitVersion
+  - task: gitversion/setup@0
+    displayName: Install GitVersion
     inputs:
-      preferBundledVersion: false
+      versionSpec: '5.6.0'
+
+  - task: gitversion/execute@0
+    displayName: Determine Version
 
   - task: NuGetToolInstaller@0
     displayName: 'Use NuGet ${{ parameters.nugetVersion }}'
