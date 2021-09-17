@@ -24,10 +24,13 @@ jobs:
   - checkout: self  # Self represents the repo where the initial Pipelines YAML file was found
     clean: true  # Whether to fetch clean each time
 
-  - task: GitVersion@4
-    displayName: GitVersion
+  - task: gitversion/setup@0
+    displayName: Install GitVersion
     inputs:
-      preferBundledVersion: false
+      versionSpec: '5.6.0'
+
+  - task: gitversion/execute@0
+    displayName: Determine Version
 
 # Validates if deployment branch is allowed to target a environmet
   - powershell: | 
