@@ -104,6 +104,9 @@ jobs:
   
   - task: gitversion/execute@0
     displayName: Determine Version
+    inputs:
+      useConfigFile: true
+      configFilePath: 'VersionConfig.yml'
 
   - pwsh: |
       $environment = '${{ parameters.environment }}'.tolower()

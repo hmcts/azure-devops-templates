@@ -242,6 +242,9 @@ jobs:
   
           - task: gitversion/execute@0
             displayName: Determine Version
+            inputs:
+              useConfigFile: true
+              configFilePath: 'VersionConfig.yml'
           
           - ${{ if parameters.runZapTests }}:
             - script: |

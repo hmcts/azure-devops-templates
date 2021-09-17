@@ -172,7 +172,9 @@ stages:
         - task: gitversion/execute@0
           displayName: Determine Version
           inputs:
-             additionalArguments: /updateassemblyinfo ${{ parameters.coreProjectPath }}/AssemblyInfo.cs /ensureassemblyinfo
+            useConfigFile: true
+            configFilePath: 'VersionConfig.yml'
+            additionalArguments: /updateassemblyinfo ${{ parameters.coreProjectPath }}/AssemblyInfo.cs /ensureassemblyinfo
 
         - pwsh: |
             $environment = '${{ parameters.environment }}'.tolower()
