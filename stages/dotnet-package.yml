@@ -145,7 +145,7 @@ stages:
           inputs:
             command: publish
             publishWebProjects: false
-            arguments: --configuration Release --no-restore --output $(build.artifactstagingdirectory)/App
+            arguments: --configuration ${{ parameters.buildConfiguration }} --no-restore --output $(build.artifactstagingdirectory)/App
             zipAfterPublish: True
             workingDirectory: ${{ parameters.coreProjectPath }}
           condition: ne(variables.NUGET_CACHE_RESTORED, 'true')
@@ -155,7 +155,7 @@ stages:
           inputs:
             command: publish
             publishWebProjects: false
-            arguments: --configuration Release --output $(build.artifactstagingdirectory)/App
+            arguments: --configuration ${{ parameters.buildConfiguration }} --output $(build.artifactstagingdirectory)/App
             zipAfterPublish: True
             workingDirectory: ${{ parameters.coreProjectPath }}
           condition: eq(variables.NUGET_CACHE_RESTORED, 'true')
@@ -216,7 +216,7 @@ stages:
           inputs:
             command: publish
             publishWebProjects: false
-            arguments: --configuration Release --no-restore --output $(build.artifactstagingdirectory)/AcceptanceTests
+            arguments: --configuration ${{ parameters.buildConfiguration }} --no-restore --output $(build.artifactstagingdirectory)/AcceptanceTests
             zipAfterPublish: false
             workingDirectory: ${{ parameters.coreProjectPath }}.AcceptanceTests
           condition: ne(variables.NUGET_CACHE_RESTORED, 'true')
@@ -226,7 +226,7 @@ stages:
           inputs:
             command: publish
             publishWebProjects: false
-            arguments: --configuration Release --output $(build.artifactstagingdirectory)/AcceptanceTests
+            arguments: --configuration ${{ parameters.buildConfiguration }} --output $(build.artifactstagingdirectory)/AcceptanceTests
             zipAfterPublish: false
             workingDirectory: ${{ parameters.coreProjectPath }}.AcceptanceTests
           condition: eq(variables.NUGET_CACHE_RESTORED, 'true')
@@ -289,9 +289,9 @@ stages:
           displayName: donet Build Nuget Project
           inputs:
             ${{ if eq(variables['Build.SourceBranch'], 'refs/heads/master')}}:
-              arguments: '--configuration release /p:Version="$(GitVersion.NuGetVersion)" /p:PackageOutputPath="$(Build.ArtifactStagingDirectory)"'
+              arguments: '--configuration ${{ parameters.buildConfiguration }} /p:Version="$(GitVersion.NuGetVersion)" /p:PackageOutputPath="$(Build.ArtifactStagingDirectory)"'
             ${{ if ne(variables['Build.SourceBranch'], 'refs/heads/master')}}:
-              arguments: '--configuration release /p:Version="$(GitVersion.NuGetVersion)" /p:PackageOutputPath="$(Build.ArtifactStagingDirectory)" /p:VersionSuffix="-alpha"'
+              arguments: '--configuration ${{ parameters.buildConfiguration }} /p:Version="$(GitVersion.NuGetVersion)" /p:PackageOutputPath="$(Build.ArtifactStagingDirectory)" /p:VersionSuffix="-alpha"'
             workingDirectory: ${{ parameters.nugetProjectPath }}
 
         - task: DotNetCoreCLI@2
