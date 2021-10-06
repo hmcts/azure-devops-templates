@@ -5,7 +5,8 @@ parameters:
 
 # Debug
   - name: buildConfiguration
-    value: Debug
+    type: string
+    default: Debug
 
   - name: dotnetContainer
     type: string
