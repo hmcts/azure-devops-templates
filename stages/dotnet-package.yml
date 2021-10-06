@@ -3,6 +3,10 @@ parameters:
     type: string
     default: Ubuntu-latest
 
+# Debug
+  - name: buildConfiguration
+    value: Debug
+
   - name: dotnetContainer
     type: string
     default: dotnetsdk
