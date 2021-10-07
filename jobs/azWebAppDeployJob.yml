@@ -503,27 +503,6 @@ jobs:
                        $formattedSetting = [String]::Join("=", $formattedKey, $val)
                        az webapp config appsettings set -g ${{ parameters.resourceGroup }} -n ${{ parameters.appName }} --output none --settings $formattedSetting
                     }    
-
-              - task: AzureCLI@2
-                displayName: Assign Vanity Urls
-                condition:  always()
-                inputs:
-                  azureSubscription: ${{ parameters.subscription }}
-                  scriptType: pscore
-                  scriptLocation: inlineScript
-                  inlineScript: |
-                      $webApps = @('vh-admin-web-${{parameters.environment}}', 'vh-video-web-${{parameters.environment}}', 'vh-service-web-${{parameters.environment}}')
-                      if('${{parameters.environment}}' -eq 'Prod' -and $webApps -contains ('${{parameters.appName}}'))
-                      {
-                        az webapp config appsettings set --name ${{parameters.appName}} -g ${{parameters.appName}} --output none --settings AzureAd:PostLogoutRedirectUri="https://${{ variables.VanityUrl }}/logout"
-                        az webapp config appsettings set -g ${{parameters.appName}} -n ${{parameters.appName}} --output none --settings AzureAd:RedirectUri="https://${{ variables.VanityUrl }}/home" 
-                      }
-
-                      if('${{parameters.environment}}' -eq 'Preprod' -and $webApps -contains ('${{parameters.appName}}'))
-                      {
-                        az webapp config appsettings set --name ${{parameters.appName}} -g ${{parameters.appName}} --output none --settings AzureAd:PostLogoutRedirectUri="https://pre-${{ variables.VanityUrl }}/logout"
-                        az webapp config appsettings set -g ${{parameters.appName}} -n ${{parameters.appName}} --output none --settings AzureAd:RedirectUri="https://pre-${{ variables.VanityUrl }}/home" 
-                      }
  
               - task: AzureAppServiceManage@0
                 displayName: Swap Slots
@@ -532,3 +511,22 @@ jobs:
                   WebAppName: ${{ parameters.appName }}
                   ResourceGroupName: ${{ parameters.resourceGroup }}
                   SourceSlot: ${{ parameters.slot }}
+            
+            - task: AzureCLI@2
+              displayName: Assign Vanity Urls
+              inputs:
+                azureSubscription: ${{ parameters.subscription }}
+                scriptType: pscore
+                scriptLocation: inlineScript
+                inlineScript: |
+                    $webApps = @('vh-admin-web-${{parameters.environment}}', 'vh-video-web-${{parameters.environment}}', 'vh-service-web-${{parameters.environment}}')
+                    if('${{parameters.environment}}' -eq 'Prod' -and $webApps -contains ('${{parameters.appName}}'))
+                    {
+                      az webapp config appsettings set --name ${{parameters.appName}} -g ${{parameters.appName}} --output none --settings AzureAd:PostLogoutRedirectUri="https://${{ variables.VanityUrl }}/logout"
+                      az webapp config appsettings set -g ${{parameters.appName}} -n ${{parameters.appName}} --output none --settings AzureAd:RedirectUri="https://${{ variables.VanityUrl }}/home" 
+                    }
+                    if('${{parameters.environment}}' -eq 'Preprod' -and $webApps -contains ('${{parameters.appName}}'))
+                    {
+                      az webapp config appsettings set --name ${{parameters.appName}} -g ${{parameters.appName}} --output none --settings AzureAd:PostLogoutRedirectUri="https://pre-${{ variables.VanityUrl }}/logout"
+                      az webapp config appsettings set -g ${{parameters.appName}} -n ${{parameters.appName}} --output none --settings AzureAd:RedirectUri="https://pre-${{ variables.VanityUrl }}/home" 
+                    }
