@@ -10,3 +10,5 @@ steps:
   - templates: fileSize.yaml
 
   - templates: secrets.yaml
+
+  - templates: security.yaml

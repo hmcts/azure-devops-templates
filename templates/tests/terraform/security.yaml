@@ -1,0 +1,18 @@
+
+steps:
+  - bash: |
+      mkdir TFSecReport
+      docker pull liamg/tfsec:latest
+      docker run –rm -t -v $(System.DefaultWorkingDirectory):/src liamg/tfsec ./src –format JUnit > $(System.DefaultWorkingDirectory)/TFSecReport/junit.xml
+    displayName: TFSec Static Code Analysis
+
+  - task: PublishTestResults@2
+    displayName: Publish TFSec Report
+    condition: succeededOrFailed()
+    inputs:
+      testResultsFormat: 'JUnit'
+      testResultsFiles: '**/junit.xml'
+      searchFolder: '$(System.DefaultWorkingDirectory)/TFSecReport'
+      mergeTestResults: false
+      failTaskOnFailedTests: false
+      publishRunAttachatments: true
