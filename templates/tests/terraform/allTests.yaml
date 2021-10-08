@@ -12,3 +12,5 @@ steps:
   - template: secrets.yaml
 
   - template: security.yaml
+    parameters:
+      terraformPath: ${{ parameters.terraformPath }}
