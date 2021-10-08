@@ -3,6 +3,10 @@ parameters:
     type: string
 
 steps:
+  - template: validate.yaml
+    parameters:
+      terraformPath: ${{ parameters.terraformPath }}
+      
   - template: format.yaml
     parameters:
       terraformPath: ${{ parameters.terraformPath }}

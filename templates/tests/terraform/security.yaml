@@ -8,7 +8,8 @@ steps:
       mkdir TFSecReport
       echo "Run Report"
       workDir="$(System.DefaultWorkingDirectory)"
-      docker run --rm -t -v "${{ parameters.terraformPath }}:/src tfsec/tfsec ./src --format JUnit > ${workDir}/TFSecReport/junit.xml
+      tfDir="${{ parameters.terraformPath }}"
+      docker run --rm -t -v ${tfDir}:/src tfsec/tfsec ./src --format JUnit > ${workDir}/TFSecReport/junit.xml
     displayName: TFSec Static Code Analysis
 
   - task: PublishTestResults@2
