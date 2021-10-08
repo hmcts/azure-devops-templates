@@ -15,19 +15,6 @@ parameters:
     type: string
 
 steps:
-  - task: TerraformCLI@0
-    displayName: Terraform init
-    inputs:
-      command: init
-      workingDirectory: ${{ parameters.terraformPath }}
-      backendType: azurerm
-      backendServiceArm: ${{ parameters.subscription }}
-      backendAzureRmResourceGroupName: ${{ parameters.resourceGroupName }}
-      backendAzureRmResourceGroupLocation: ${{ parameters.resourceGroupLocation }}
-      backendAzureRmStorageAccountName: ${{ parameters.storageAccount }}
-      backendAzureRmContainerName: ${{ parameters.contianerName }}
-      backendAzureRmKey: ${{ parameters.stateFile }}
-
   - templates: format.yaml
     parameters:
       terraformPath: ${{ parameters.terraformPath }}
