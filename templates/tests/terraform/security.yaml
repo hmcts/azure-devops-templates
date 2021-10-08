@@ -1,13 +1,14 @@
+parameters:
+  - name: terraformPath
+    type: string
 
 steps:
   - bash: |
       echo "Make Directory"
       mkdir TFSecReport
-      echo "Pull Image"
-      docker pull liamg/tfsec:latest
       echo "Run Report"
       workDir="$(System.DefaultWorkingDirectory)"
-      docker run --rm -t -v ${workDir}:/src liamg/tfsec ./src -format JUnit > ${workDir}/TFSecReport/junit.xml
+      docker run --rm -t -v "${{ parameters.terraformPath }}:/src tfsec/tfsec ./src --format JUnit > ${workDir}/TFSecReport/junit.xml
     displayName: TFSec Static Code Analysis
 
   - task: PublishTestResults@2

@@ -7,7 +7,9 @@ steps:
 
       $allOk=$true
       foreach ($file in $TfFiles){
-        $content=Get-Content -Path $file.FullName
+        $filePath=$file.FullName
+        Write-Host "Checling $filePath"
+        $content=Get-Content -Path $filePath
         $fileLength=$content.Length
         if ($fileLength -lt 1){
           $allOk=$false
