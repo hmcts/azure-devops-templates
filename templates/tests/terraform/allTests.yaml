@@ -3,12 +3,12 @@ parameters:
     type: string
 
 steps:
-  - templates: format.yaml
+  - template: format.yaml
     parameters:
       terraformPath: ${{ parameters.terraformPath }}
 
-  - templates: fileSize.yaml
+  - template: fileSize.yaml
 
-  - templates: secrets.yaml
+  - template: secrets.yaml
 
-  - templates: security.yaml
+  - template: security.yaml
