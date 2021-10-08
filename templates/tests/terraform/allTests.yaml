@@ -1,18 +1,6 @@
 parameters:
   - name: terraformPath
     type: string
-  - name: subscription
-    type: string
-  - name: resourceGroupName
-    type: string
-  - name: resourceGroupLocation
-    type: string
-  - name: storageAccount
-    type: string
-  - name: contianerName
-    type: string
-  - name: stateFile
-    type: string
 
 steps:
   - templates: format.yaml
