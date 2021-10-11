@@ -1,0 +1,20 @@
+parameters:
+  - name: terraformPath
+    type: string
+
+steps:
+  - template: validate.yaml
+    parameters:
+      terraformPath: ${{ parameters.terraformPath }}
+      
+  - template: format.yaml
+    parameters:
+      terraformPath: ${{ parameters.terraformPath }}
+
+  - template: fileSize.yaml
+
+  - template: secrets.yaml
+
+  - template: security.yaml
+    parameters:
+      terraformPath: ${{ parameters.terraformPath }}

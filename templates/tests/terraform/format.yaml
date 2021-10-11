@@ -1,0 +1,13 @@
+parameters:
+  - name: terraformPath
+    type: string
+
+steps:
+
+  - powershell: |
+      $path="${{ parameters.terraformPath }}"
+
+      cd $path
+
+      terraform fmt -check=true
+    displayName: Check Format

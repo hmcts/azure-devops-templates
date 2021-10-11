@@ -1,0 +1,24 @@
+parameters:
+  - name: terraformPath
+    type: string
+
+steps:
+  - bash: |
+      echo "Make Directory"
+      mkdir TFSecReport
+      echo "Run Report"
+      workDir="$(System.DefaultWorkingDirectory)"
+      tfDir="${{ parameters.terraformPath }}"
+      docker run --rm -t -v ${tfDir}:/src tfsec/tfsec ./src --format JUnit > ${workDir}/TFSecReport/junit.xml
+    displayName: TFSec Static Code Analysis
+
+  - task: PublishTestResults@2
+    displayName: Publish TFSec Report
+    condition: succeededOrFailed()
+    inputs:
+      testResultsFormat: 'JUnit'
+      testResultsFiles: '**/junit.xml'
+      searchFolder: '$(System.DefaultWorkingDirectory)/TFSecReport'
+      mergeTestResults: false
+      failTaskOnFailedTests: false
+      publishRunAttachatments: true

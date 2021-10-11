@@ -1,0 +1,40 @@
+parameters:
+  - name: logicAppUrl
+    type: string
+    default: ''
+  - name: schemaId
+    type: string
+    default: 'Cvp-Pipeline-Alert'
+  - name: title
+    type: string
+  - name: message
+    type: string
+  - name: conditionAction
+    type: string
+    default: 'true'
+
+steps:
+  - task: PowerShell@2
+    displayName: 'Trigger Logic App Message'
+    inputs:
+      targetType: 'inline'
+      script: |
+        $conditionAction = "${{ parameters.conditionAction }}"
+        Write-Host "Should send message $conditionAction"
+        $logicAppUrl = "${{parameters.logicAppUrl}}"
+        if ($conditionAction -eq 'true' -and $logicAppUrl -ne '') {
+          $title = "${{parameters.title}}"
+          $message = "${{parameters.message}}"
+          $schemaId = "${{parameters.schemaId}}"
+
+          $body = @{
+              schemaId = "$schemaId"
+              data     = @{
+                  title = "$title"
+                  message  = "$message"
+              }
+          }
+
+          $response = Invoke-RestMethod -Method Post -Uri $logicAppUrl -Body ($body | ConvertTo-Json) -ContentType 'application/json'
+          Write-Host "Message has been sent: $response"
+        }
