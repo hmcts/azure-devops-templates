@@ -2,13 +2,16 @@ parameters:
   - name: logicAppUrl
     type: string
     default: ''
-  - name: schemaId
-    type: string
-    default: 'Cvp-Pipeline-Alert'
   - name: title
     type: string
   - name: message
     type: string
+  - name: projectName
+    type: string
+    default: $(Build.DefinitionName)
+  - name: pipelineUrl
+    type: string
+    default: "https://dev.azure.com/hmcts/Shared%20Services/_build?definitionId=$(System.DefinitionId)&_a=summary"
   - name: conditionAction
     type: string
     default: 'true'
@@ -22,16 +25,22 @@ steps:
         $conditionAction = "${{ parameters.conditionAction }}"
         Write-Host "Should send message $conditionAction"
         $logicAppUrl = "${{parameters.logicAppUrl}}"
+
         if ($conditionAction -eq 'true' -and $logicAppUrl -ne '') {
+          $schemaId = "Pipeline-Alert"
+
           $title = "${{parameters.title}}"
           $message = "${{parameters.message}}"
-          $schemaId = "${{parameters.schemaId}}"
+          $pipelineUrl = "${{parameters.pipelineUrl}}"
+          $project = "${{parameters.projectName}}"
 
           $body = @{
               schemaId = "$schemaId"
               data     = @{
                   title = "$title"
                   message  = "$message"
+                  project  = "$project"
+                  pipeline-url  = "$pipelineUrl"
               }
           }
 
