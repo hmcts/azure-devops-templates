@@ -1,0 +1,58 @@
+parameters:
+  - name: subscription
+    type: string
+  - name: rgName
+    type: string
+  - name: vmName
+    type: string
+  - name: extName
+    type: string
+  - name: extPublisher
+    type: string
+  - name: settingsJson
+    type: string
+    default: ""
+  - name: protectedSettingsJson
+    type: string
+    default: ""
+
+steps:
+  - task: AzureCLI@2
+    displayName: Install ${{ parameters.extName }} to ${{ parameters.vmName }}
+    condition: always()
+    inputs:
+      azureSubscription: ${{ parameters.subscription }}
+      scriptType: pscore
+      scriptLocation: inlineScript
+      inlineScript: |
+        $rgName="${{ parameters.rgName }}"
+        $vmName="${{ parameters.vmName }}"
+        $extName="${{ parameters.extName }}"
+        $extPublisher="${{ parameters.extPublisher }}"
+        $settingsJson="${{ parameters.settingsJson }}"
+        $protectedSettingsJson="${{ parameters.protectedSettingsJson }}"
+
+        if ($null -eq $settingsJson -or $settingsJson -eq ""){
+          $settingsJson="{}"
+        }
+        if ($null -eq $protectedSettingsJson -or $protectedSettingsJson -eq ""){
+          $protectedSettingsJson="{}"
+        }
+
+        Try {
+          Write-Host "Try get $extName"
+          $extension = az vm extension show -g $rgName --vm-name $vmName -n $extName -o json | ConvertFrom-Json
+
+          if ($null -eq $extension -or $extension -eq "") {
+            Write-Host "Found "+$extension.id
+            Write-Host "Deleting Extension"
+            #az vm extension delete -g $rgName --vm-name $vmName -n $extName
+          }
+
+          Write-Host "Installing $extName from $extPublisher"
+          $subscriptionName = az account show --query "name" -o tsv
+          az vm extension set --publisher $extPublisher --name $extName --subscription $subscriptionName --resource-group $rgName --vm-name $vmName --settings "$settingsJson" --protected-settings "$protectedSettingsJson"
+
+        } Catch {
+          Write-Host "Failed"
+        }
