@@ -51,7 +51,7 @@ steps:
 
           Write-Host "Installing $extName from $extPublisher"
           $subscriptionName = az account show --query "name" -o tsv
-          az vm extension set --publisher $extPublisher --name $extName --subscription $subscriptionName --resource-group $rgName --vm-name $vmName --settings "$settingsJson" --protected-settings "$protectedSettingsJson"
+          az vm extension set --publisher $extPublisher --name $extName --subscription $subscriptionName --resource-group $rgName --vm-name $vmName --settings $settingsJson --protected-settings $protectedSettingsJson
 
         } Catch {
           Write-Host "Failed"
