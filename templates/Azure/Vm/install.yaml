@@ -41,19 +41,9 @@ steps:
         }
 
         Try {
-          Write-Host "Try get $extName"
-          $extension = az vm extension show -g $rgName --vm-name $vmName -n $extName -o json | ConvertFrom-Json
-
-          if ($null -eq $extension -or $extension -eq "") {
-            Write-Host "Found "+$extension.id
-            Write-Host "Deleting Extension"
-            #az vm extension delete -g $rgName --vm-name $vmName -n $extName
-          }
-
           Write-Host "Installing $extName from $extPublisher"
           $subscriptionName = az account show --query "name" -o tsv
           az vm extension set --publisher $extPublisher --name $extName --subscription $subscriptionName --resource-group $rgName --vm-name $vmName --settings $settingsJson --protected-settings $protectedSettingsJson
-
         } Catch {
           Write-Host "Failed"
         }
