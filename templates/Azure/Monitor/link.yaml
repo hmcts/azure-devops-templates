@@ -1,0 +1,26 @@
+parameters:
+  - name: subscription
+    default: string
+  - name: appName
+    default: string
+  - name: appPrefix
+    default: string
+  - name: businessArea
+    default: string
+  - name: builtFrom
+    default: string
+  - name: environment
+    default: string
+  - name: logAnalyticsResourceGroup
+    default: string
+  - name: logAnalyticsSubscriptionId
+    default: string
+
+steps:
+  - task: AzurePowerShell@5
+    inputs:
+      azureSubscription: ${{ parameters.subscription }}
+      ScriptType: 'FilePath'
+      ScriptPath: '$(build.sourcesdirectory)/templates/Azure/Monitor/link.ps1'
+      ScriptArguments: '-businessArea ${{ parameters.businessArea }} -builtFrom ${{ parameters.builtFrom }} -environment ${{ parameters.environment }} -logAnalyticsResourceGroup ${{ parameters.logAnalyticsResourceGroup }} -logAnalyticsSubscriptionId ${{ parameters.logAnalyticsSubscriptionId }}  -appName ${{ parameters.appName }}  -appPrefix ${{ parameters.appPrefix }}  -resourceGroupName ${{ parameters.resourceGroupName }}  -subscriptionName ${{ parameters.subscription }}'
+      azurePowerShellVersion: 'LatestVersion'
