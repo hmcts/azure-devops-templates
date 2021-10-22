@@ -48,7 +48,7 @@ else {
 }
 
 $workspaceId = "/subscriptions/$logAnalyticsSubscriptionId/resourcegroups/$logAnalyticsResourceGroup/providers/microsoft.operationalinsights/workspaces/$workspaceName"
-$tags = @{"application" = "$appName"; "businessArea" = $businessArea; "builtFrom" = $builtFrom; "environment" = $env; "Critical" = "low" }
+$tags = @{"application" = "$appName"; "businessArea" = $businessArea; "builtFrom" = $builtFrom; "environment" = $env; "criticality " = "low" }
 $dnsZones = @('privatelink.oms.opinsights.azure.com', 'privatelink.ods.opinsights.azure.com', 'privatelink.agentsvc.azure-automation.net', 'privatelink.monitor.azure.com')
 
 if (!(Get-Module -Name Az.MonitoringSolutions)) {
