@@ -1,20 +1,22 @@
 parameters:
   - name: subscription
-    default: string
+    type: string
+  - name: resourceGroupName
+    type: string
   - name: appName
-    default: string
+    type: string
   - name: appPrefix
-    default: string
+    type: string
   - name: businessArea
-    default: string
+    type: string
   - name: builtFrom
-    default: string
+    type: string
   - name: environment
-    default: string
+    type: string
   - name: logAnalyticsResourceGroup
-    default: string
+    type: string
   - name: logAnalyticsSubscriptionId
-    default: string
+    type: string
 
 steps:
   - task: AzurePowerShell@5
