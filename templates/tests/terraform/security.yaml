@@ -23,9 +23,9 @@ steps:
         if ($line -like "<?xml*"){
           break;
         } elseif ($line -like "ERROR:*") {
-          Write-Host "##vso[task.LogIssue type=error;]$line"
+          Write-Host "task.LogIssue type=error;]$line"
         } elseif ($line -like "WARNING:*") {
-          Write-Host "##vso[##vso[task.LogIssue type=warning;]$line"
+          Write-Host "##vso[task.LogIssue type=warning;]$line"
         } else {
           Write-Host $line
         }
