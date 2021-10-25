@@ -136,17 +136,18 @@ steps:
           Write-Host "Azure Private Link Scope already exists. Exiting."
           Write-Host "Updateing Tags"
 
-          Write-Host "Updateing PrivateLinkScope Tags"
-          Update-AzTag -ResourceId $privateLinkScope.Id -Tag $tags
+          $privateLinkScopeId=$privateLinkScope.Id
+          Write-Host "Updateing PrivateLinkScope Tags $privateLinkScopeId"
+          Update-AzTag -ResourceId $privateLinkScopeId -Tag $tags -Operation Replace
 
           Write-Host "Updateing PrivateEndpoint Tags"
           $privateEndpoint = Get-AzPrivateEndpoint -ResourceGroupName $resourceGroupName -Name $privateEndpointName
-          Update-AzTag -ResourceId $privateEndpoint.Id -Tag $tags
-          Update-AzTag -ResourceId $privateEndpoint.NetworkInterfaces.Id -Tag $tags
+          Update-AzTag -ResourceId $privateEndpoint.Id -Tag $tags -Operation Replace
+          Update-AzTag -ResourceId $privateEndpoint.NetworkInterfaces.Id -Tag $tags -Operation Replace
 
           foreach ($_ in $dnsZones) {
             Write-Host "Updateing $_ DNS Zone Tags"
             $zone = Get-AzPrivateDnsZone -ResourceGroupName $resourceGroupName -Name $_
-            Update-AzTag -ResourceId $zone.ResourceId -Tag $tags
+            Update-AzTag -ResourceId $zone.ResourceId -Tag $tags -Operation Replace
           }
         }
