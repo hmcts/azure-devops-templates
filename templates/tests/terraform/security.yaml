@@ -11,6 +11,7 @@ steps:
       mkdir ${workDir}/TFSecReport
       docker run --rm -t -v ${tfDir}:/src tfsec/tfsec ./src --format JUnit > ${workDir}/TFSecReport/junit.xml
     displayName: TFSec Static Code Analysis
+    continueOnError: true
 
   - powershell: |
       $reportFile="$(System.DefaultWorkingDirectory)/TFSecReport/junit.xml"
