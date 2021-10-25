@@ -11,7 +11,6 @@ steps:
       mkdir ${workDir}/TFSecReport
       docker run --rm -t -v ${tfDir}:/src tfsec/tfsec ./src --format JUnit > ${workDir}/TFSecReport/junit.xml
     displayName: TFSec Static Code Analysis
-    continueOnError: true
 
   - powershell: |
       $reportFile="$(System.DefaultWorkingDirectory)/TFSecReport/junit.xml"
@@ -33,6 +32,7 @@ steps:
 
       Get-Content -Path $reportFile | Where-Object {$_ -notlike "WARNING:*" -and $_ -notlike "ERROR:*"} | Set-Content $outputFile
     displayName: TFSec Process Report
+    condition: succeededOrFailed()
 
 
   - task: PublishTestResults@2
