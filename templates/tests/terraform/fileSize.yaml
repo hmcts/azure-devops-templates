@@ -8,10 +8,11 @@ steps:
       $allOk=$true
       foreach ($file in $TfFiles){
         $filePath=$file.FullName
-        Write-Host "Checling $filePath"
+        Write-Host "Checking $filePath"
         $content=Get-Content -Path $filePath
         $fileLength=$content.Length
         if ($fileLength -lt 1){
+          Write-Host "FAILED $filePath"
           $allOk=$false
         }
       }
