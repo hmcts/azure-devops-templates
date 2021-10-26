@@ -13,7 +13,7 @@ steps:
 
   - template: fileSize.yaml
 
-  - template: secrets.yaml
+  #- template: secrets.yaml
 
   - template: security.yaml
     parameters:
