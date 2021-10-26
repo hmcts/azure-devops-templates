@@ -12,7 +12,7 @@ steps:
         $content=Get-Content -Path $filePath
         $fileLength=$content.Length
         if ($fileLength -lt 1){
-          Write-Host "FAILED $filePath"
+          Write-Host "task.LogIssue type=error;]FAILED $filePath"
           $allOk=$false
         }
       }
