@@ -1,0 +1,16 @@
+parameters:
+  - name: terraformPath
+    type: string
+
+steps:
+
+  - powershell: |
+      $path="${{ parameters.terraformPath }}"
+
+      cd $path
+
+      terraform init -backend=false
+      terraform validate
+    displayName: Validate Files
+
+ 
