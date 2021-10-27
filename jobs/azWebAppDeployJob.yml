@@ -383,7 +383,7 @@ jobs:
                 }
               } while ($failedTests.count -gt 0 -and $retry++ -lt 2)
             displayName: Smoke Test
-            condition: and(succeeded(), ne(variables['Release.EnvironmentName'], 'Prod')) 
+            condition: and(succeeded(), ne(variables['Release.EnvironmentName'], 'sandbox')) 
             env:
               testCaseFilter: ${{ parameters.testCaseFilter }}
 
