@@ -314,7 +314,7 @@ jobs:
 
           - ${{ each app in parameters.dependentApps }}:
             - task: AzureCLI@2
-              condition: and(succeeded(), ne(variables['Release.EnvironmentName'], 'sandbox')) 
+              condition: and(succeeded(), ne(variables['Release.EnvironmentName'], 'production')) 
               ${{ if gt(length(format('{0}',app.resourcegroup)), 0) }}:
                 displayName: Add FW Exception ${{ app.name }}
               ${{ if ne(true, gt(length(format('{0}',app.resourcegroup)), 0)) }}:
@@ -383,7 +383,7 @@ jobs:
                 }
               } while ($failedTests.count -gt 0 -and $retry++ -lt 2)
             displayName: Smoke Test
-            condition: and(succeeded(), ne(variables['Release.EnvironmentName'], 'sandbox')) 
+            condition: and(succeeded(), ne(variables['Release.EnvironmentName'], 'production')) 
             env:
               testCaseFilter: ${{ parameters.testCaseFilter }}
 
@@ -400,7 +400,7 @@ jobs:
 
             - template: ../templates/Azure/WebApps/removeFirewallException.yml
               parameters:
-                condition: and(succeeded(), ne(variables['Release.EnvironmentName'], 'sandbox')) 
+                condition: and(succeeded(), ne(variables['Release.EnvironmentName'], 'production')) 
                 subscription: ${{ parameters.subscription }}
                 ruleName: $(Build.BuildId)
                 ${{ if gt(length(format('{0}',app.resourcegroup)), 0) }}:
