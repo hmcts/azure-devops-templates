@@ -10,11 +10,14 @@ parameters:
     default: ""
   - name: ruleName
     type: string
+  - name: condition
+    type: string
+    default: always() 
 
 steps:
   - task: AzureCLI@2
     displayName: Remove FW Exception ${{ parameters.ruleName }} from ${{ parameters.appName }}
-    condition: always()
+    condition: ${{ parameters.condition }}
     inputs:
       azureSubscription: ${{ parameters.subscription }}
       scriptType: pscore
