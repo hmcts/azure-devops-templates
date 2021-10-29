@@ -33,33 +33,40 @@ steps:
         $s="${{ parameters.startIpAddress }}" # Rule Start IP Manual (if C is false then use this IP)
         $e="${{ parameters.endIpAddress }}" # Rule End IP (if C is false then use this IP else if empty use $s)
 
-        Write-Host("Get existing Firewall Rules for $n in $g with name $r")
-        $firewallRules = az postgres server firewall-rule list --resource-group $g --server-name $n --output json --query "[?name=='$r']" | ConvertFrom-Json
+        try {
 
-        if ($c -eq $true) {
+          Write-Host("Get existing Firewall Rules for $n in $g with name $r")
+          $firewallRules = az postgres server firewall-rule list --resource-group $g --server-name $n --output json --query "[?name=='$r']" | ConvertFrom-Json
+        
+          if ($c -eq $true) {
             $currentIP = (Invoke-WebRequest -uri "http://ifconfig.me/ip").Content
             $s = $currentIP
             $e = $currentIP
-        }
-
-        Write-Host($firewallRules)
-        if ($firewallRules.length -gt 0) {
+          }
+        
+          Write-Host($firewallRules)
+          if ($firewallRules.length -gt 0) {
             $rule = $firewallRules[0];
             Write-Host("Existing Rule Found")
             Write-Host("$rule")
             Write-Host("Update Rule")
             az postgres server firewall-rule update -g $g -s $n -n $r --start-ip-address $s --end-ip-address $e
-        }
-        else {
+          }
+          else {
             Write-Host("Rule Not Found")
             if ($s -eq "" -or $null -eq $s) {
-                Write-Error("please enter a Starting IP Address")
-                exit
+              Write-Error("please enter a Starting IP Address")
+              exit
             }
             if ($e -eq "" -or $null -eq $e) {
-                $e = $s
+              $e = $s
             }
             Write-Host("Creating Rule")
             az postgres server firewall-rule create -g $g -s $n -n $r --start-ip-address $s --end-ip-address $e
+          }
         }
-
+        catch {
+          Write-Error "Failed to update Firewall $_"
+        }
+        
+        
