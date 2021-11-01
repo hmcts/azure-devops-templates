@@ -16,11 +16,15 @@ parameters:
   - name: endIpAddress
     type: string
     default: ""
+  - name: continueOnError
+    type: boolean
+    default: true
 
 
 steps:
   - task: AzureCLI@2
     displayName: Add FW Exception ${{ parameters.ruleName }} from ${{ parameters.postgresName }}
+    continueOnError: ${{ parameters.continueOnError }}
     inputs:
       azureSubscription: ${{ parameters.subscription }}
       scriptType: pscore
