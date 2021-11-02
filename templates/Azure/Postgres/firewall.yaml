@@ -36,7 +36,7 @@ steps:
         if ("${{ parameters.addCurrentUsersIp }}".ToLower() -eq "true") { # Get current users Public IP
           $c = $true 
         } else {
-          $c = $falsetrue 
+          $c = $false
         }
         $s="${{ parameters.startIpAddress }}" # Rule Start IP Manual (if C is false then use this IP)
         $e="${{ parameters.endIpAddress }}" # Rule End IP (if C is false then use this IP else if empty use $s)
