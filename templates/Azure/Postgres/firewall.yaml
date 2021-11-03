@@ -1,0 +1,80 @@
+parameters:
+  - name: subscription
+    type: string
+  - name: postgresName
+    type: string
+  - name: resourceGroupName
+    type: string
+  - name: ruleName
+    type: string
+  - name: addCurrentUsersIp
+    type: boolean
+    default: false
+  - name: startIpAddress
+    type: string
+    default: ""
+  - name: endIpAddress
+    type: string
+    default: ""
+  - name: continueOnError
+    type: boolean
+    default: true
+
+
+steps:
+  - task: AzureCLI@2
+    displayName: Add FW Exception ${{ parameters.ruleName }} from ${{ parameters.postgresName }}
+    continueOnError: ${{ parameters.continueOnError }}
+    inputs:
+      azureSubscription: ${{ parameters.subscription }}
+      scriptType: pscore
+      scriptLocation: inlineScript
+      inlineScript: |
+        $n="${{ parameters.postgresName }}" # postgres Server Name
+        $g="${{ parameters.resourceGroupName }}" # Resource Group Name
+        $r="${{ parameters.ruleName }}" # Rule Name
+        if ("${{ parameters.addCurrentUsersIp }}".ToLower() -eq "true") { # Get current users Public IP
+          $c = $true 
+        } else {
+          $c = $false
+        }
+        $s="${{ parameters.startIpAddress }}" # Rule Start IP Manual (if C is false then use this IP)
+        $e="${{ parameters.endIpAddress }}" # Rule End IP (if C is false then use this IP else if empty use $s)
+
+        try {
+
+          Write-Host("Get existing Firewall Rules for $n in $g with name $r")
+          $firewallRules = az postgres server firewall-rule list --resource-group $g --server-name $n --output json --query "[?name=='$r']" | ConvertFrom-Json
+        
+          if ($c -eq $true) {
+            $currentIP = (Invoke-WebRequest -uri "http://ifconfig.me/ip").Content
+            $s = $currentIP
+            $e = $currentIP
+          }
+        
+          Write-Host($firewallRules)
+          if ($firewallRules.length -gt 0) {
+            $rule = $firewallRules[0];
+            Write-Host("Existing Rule Found")
+            Write-Host("$rule")
+            Write-Host("Update Rule")
+            az postgres server firewall-rule update -g $g -s $n -n $r --start-ip-address $s --end-ip-address $e
+          }
+          else {
+            Write-Host("Rule Not Found")
+            if ($s -eq "" -or $null -eq $s) {
+              Write-Error("please enter a Starting IP Address")
+              exit
+            }
+            if ($e -eq "" -or $null -eq $e) {
+              $e = $s
+            }
+            Write-Host("Creating Rule")
+            az postgres server firewall-rule create -g $g -s $n -n $r --start-ip-address $s --end-ip-address $e
+          }
+        }
+        catch {
+          Write-Error "Failed to update Firewall $_"
+        }
+        
+        
