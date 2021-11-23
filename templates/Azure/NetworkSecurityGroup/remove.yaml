@@ -11,7 +11,6 @@ parameters:
 
 steps:
     - task: AzureCLI@2
-      name: 'healthprodcheck'
       displayName: Remove rule ${{ parameters.ruleName }} from ${{ parameters.networkSecurityGroupName }}
       inputs:
         azureSubscription: '${{parameters.subscriptionName}}'

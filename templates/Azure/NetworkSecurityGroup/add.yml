@@ -30,7 +30,6 @@ parameters:
 
 steps:
     - task: AzureCLI@2
-      name: 'healthprodcheck'
       displayName: Create rule ${{ parameters.ruleName }} in ${{ parameters.networkSecurityGroupName }}
       inputs:
         azureSubscription: '${{parameters.subscriptionName}}'
