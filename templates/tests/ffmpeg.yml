@@ -1,0 +1,118 @@
+parameters:
+  - name: application
+    type: string
+  - name: source
+    type: string
+  - name: streamName
+    type: string
+  - name: subscriptionName
+    type: string
+  - name: storageAccount
+    type: string
+  - name: storageContainer
+    type: string
+
+steps:
+  - powershell: |
+      $source="https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip"
+
+      $currentPath=Get-Location
+      $downloadPath="$currentPath\download"
+      if ((Test-Path -Path $downloadPath) -eq $false) {
+        mkdir $downloadPath 
+      }
+      $zipFile = "$downloadPath\$(Split-Path -Path $source -Leaf)" 
+
+      ## DOWNLOAD FFMPEG
+      if ((Test-Path -Path $zipFile) -eq $false) {
+        Invoke-WebRequest -Uri $source -OutFile $zipFile 
+      }
+
+      ## EXTRACT PROGRAM
+      $children=Get-ChildItem -Path $downloadPath
+      if ($children.length -lt 1){
+        $ExtractShell = New-Object -ComObject Shell.Application 
+        $Files = $ExtractShell.Namespace($zipFile).Items() 
+        $ExtractShell.NameSpace($downloadPath).CopyHere($Files) 
+      }
+
+      ##PATH
+      $ffmpegPath="$downloadPath/$($children[0].name)/bin"
+      Write-Host "##vso[task.setvariable variable=ffmpegPath;isOutput=true]$ffmpegPath"
+    displayName: Download FFMPEG
+
+  - powershell: |
+      $source="https://filesamples.com/samples/video/mp4/sample_640x360.mp4"
+      
+      $currentPath=Get-Location
+      $downloadPath="$currentPath\audio"
+      if ((Test-Path -Path $downloadPath) -eq $false) {
+        mkdir $downloadPath 
+      }
+      $output="$downloadPath\audio-example.mp4"
+
+      ## DOWNLOAD AUDI
+      if ((Test-Path -Path $output) -eq $false) {
+        Invoke-WebRequest -Uri $source -OutFile $output 
+      }
+
+      Write-Host "##vso[task.setvariable variable=audioPath;isOutput=true]$output"
+    displayName: Download Audio Sample
+  
+  - powershell: |
+      $ffmpegPath="$($env:ffmpegPath)"
+      $application="$($env:application)"
+      $audioFilePath="$($env:audioPath)"
+      $fileName="$($env:streamName)"
+      $source="$($env:source)"
+ 
+      $ffmpeg_url="rtmps://$source`:443/$application/$fileName"
+
+      Set-Location -Path $ffmpegPath
+
+      ffmpeg.exe -re -i $audioFilePath -c copy -f flv "$ffmpeg_url flashver=FMLE/3.0\20(compatible;\20FMSc/1.0) live=true pubUser=wowza title=$fileName" -loglevel verbose
+    env:
+      ffmpegPath: $(ffmpegPath)
+      audioPath: $(audioPath)
+      application: ${{ parameters.application }}
+      source: ${{ parameters.source }}
+      streamName: ${{ parameters.streamName }}
+    displayName: Run FFMPEG
+  - task: AzureCLI@2
+    displayName: Validate Stream ${{ parameters.streamName }}
+    inputs:
+      azureSubscription: '${{parameters.subscriptionName}}'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        $containerName = "${{ parameters.storageContainer }}"
+        $folderLocation = "${{ parameters.application }}"
+        $streamName = "${{ parameters.streamName }}"
+        $accountName = "${{ parameters.storageAccount }}"
+
+        $blobSearch = "$folderLocation/$streamName"
+        Write-Host "Searching for $blobSearch in Container:$containerName in Storage Account:$accountName"
+
+        $blobs = az storage blob list -c $containerName --prefix $blobSearch --account-name $accountName --only-show-errors -o json | ConvertFrom-Json
+
+        $completed = $true
+        if ($blobs.Length -lt 1) {
+          Write-Host "task.LogIssue type=error;]FAILED - No recordings found"
+          $completed = $false
+        }
+        else {
+
+          $recording = $blobs[0];
+
+          if ($recording.properties.contentLength -lt 1) {
+            Write-Host "task.LogIssue type=error;]FAILED - Recording size is 0"
+            $completed = $false
+          }
+        }
+
+        if ($completed -eq $true) {
+          Write-Host '##vso[task.complete result=Succeeded;]DONE'
+        }
+        else {
+          Write-Host '##vso[task.complete result=Failed;]FAILED'
+        }
