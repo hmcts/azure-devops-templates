@@ -13,58 +13,12 @@ parameters:
     type: string
 
 steps:
-  - powershell: |
-      $source="https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip"
-
-      $currentPath=Get-Location
-      $downloadPath="$currentPath/download"
-      if ((Test-Path -Path $downloadPath) -eq $false) {
-        Write-Host "Creating $downloadPath"
-        mkdir $downloadPath 
-      }
-      $zipFile = "$downloadPath/$(Split-Path -Path $source -Leaf)" 
-
-      ## DOWNLOAD FFMPEG
-      if ((Test-Path -Path $zipFile) -eq $false) {
-        Write-Host "Downloading $source"
-        Write-Host "To $zipFile"
-        Invoke-WebRequest -Uri $source -OutFile $zipFile 
-      }
-
-      ## EXTRACT PROGRAM
-      $children=Get-ChildItem -Path $downloadPath -Directory
-      if ($children.length -lt 1) {
-        Expand-Archive -LiteralPath $zipFile -DestinationPath $downloadPath
-      }
-
-      ##PATH
-      $tries=0
-      $max=5
-      while ($children.length -lt 1){
-        if ($tries -eq $max){
-          break;
-        }
-        if ($children.length -lt 1) {
-          $tries++
-          Write-Host "Not found folder yet"
-          Start-Sleep -Seconds 5
-          $children = Get-ChildItem -Path $downloadPath -Directory
-          continue;
-        } else {
-          break;
-        }
-      }
-
-      $ffmpegPath = "$downloadPath/$($children[0].name)/bin"
-      Write-Host "##vso[task.setvariable variable=path;isOutput=true]$ffmpegPath"
+  - bash: |
+      sudo apt update
+      sudo apt install ffmpeg
+      ffmpeg -version
     displayName: Download FFMPEG
     name: ffmpeg
-
-  - bash: |
-      chmod -R 744 "${ffmpegpath}"
-    displayName: Change bin permissions
-    env:
-      ffmpegpath: $(ffmpeg.path)
 
   - powershell: |
       $source="https://filesamples.com/samples/video/mp4/sample_640x360.mp4"
@@ -85,29 +39,19 @@ steps:
     displayName: Download Audio Sample
     name: audio
   
-  - powershell: |
-      $ffmpegPath="$($env:ffmpegPath)"
-      $application="$($env:application)"
-      $audioFilePath="$($env:audioPath)"
-      $fileName="$($env:streamName)"
-      $source="$($env:source)"
+  - bash: |
+      application="${application}"
+      audioFilePath="${audioPath}"
+      fileName="${streamName}"
+      source="${source}"
  
-      $ffmpeg_url="rtmps://$source`:443/$application/$fileName"
+      ffmpeg_url="rtmps://$source:443/$application/$fileName"
 
-      Write-Host "FFMPEG Path: $ffmpegPath"
-      Write-Host "URL: $ffmpeg_url"
-      Write-Host "Audio Path: $audioFilePath"
-      Set-Location -Path $ffmpegPath
+      echo "URL: $ffmpeg_url"
+      echo "Audio Path: $audioFilePath"
 
-      $current=Get-Location
-      Get-ChildItem -Path $current
-
-      ./ffmpeg.exe -re -i $audioFilePath -c copy -f flv "$ffmpeg_url flashver=FMLE/3.0\20(compatible;\20FMSc/1.0) live=true pubUser=wowza title=$fileName" -loglevel verbose 2> "$ffmpegPath/output.txt"
-
-      Write-Host "FFMPEG Output"
-      Write-Host $(Get-Content -Path "$ffmpegPath/output.txt")
+      ffmpeg -re -i $audioFilePath -c copy -f flv "$ffmpeg_url flashver=FMLE/3.0\20(compatible;\20FMSc/1.0) live=true pubUser=wowza title=$fileName" -loglevel verbose
     env:
-      ffmpegPath: $(ffmpeg.path)
       audioPath: $(audio.path)
       application: ${{ parameters.application }}
       source: ${{ parameters.source }}
