@@ -90,7 +90,7 @@ steps:
 
       Set-Location -Path $ffmpegPath
 
-      ffmpeg.exe -re -i $audioFilePath -c copy -f flv "$ffmpeg_url flashver=FMLE/3.0\20(compatible;\20FMSc/1.0) live=true pubUser=wowza title=$fileName" -loglevel verbose
+      ./ffmpeg.exe -re -i $audioFilePath -c copy -f flv "$ffmpeg_url flashver=FMLE/3.0\20(compatible;\20FMSc/1.0) live=true pubUser=wowza title=$fileName" -loglevel verbose
     env:
       ffmpegPath: $(ffmpeg.path)
       audioPath: $(audio.path)
@@ -98,7 +98,7 @@ steps:
       source: ${{ parameters.source }}
       streamName: ${{ parameters.streamName }}
     displayName: Run FFMPEG
-    
+
   - task: AzureCLI@2
     displayName: Validate Stream ${{ parameters.streamName }}
     inputs:
