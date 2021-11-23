@@ -17,12 +17,12 @@ steps:
       $source="https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip"
 
       $currentPath=Get-Location
-      $downloadPath="$currentPath\download"
+      $downloadPath="$currentPath/download"
       if ((Test-Path -Path $downloadPath) -eq $false) {
         Write-Host "Creating $downloadPath"
         mkdir $downloadPath 
       }
-      $zipFile = "$downloadPath\$(Split-Path -Path $source -Leaf)" 
+      $zipFile = "$downloadPath/$(Split-Path -Path $source -Leaf)" 
 
       ## DOWNLOAD FFMPEG
       if ((Test-Path -Path $zipFile) -eq $false) {
@@ -48,11 +48,11 @@ steps:
       $source="https://filesamples.com/samples/video/mp4/sample_640x360.mp4"
       
       $currentPath=Get-Location
-      $downloadPath="$currentPath\audio"
+      $downloadPath="$currentPath/audio"
       if ((Test-Path -Path $downloadPath) -eq $false) {
         mkdir $downloadPath 
       }
-      $output="$downloadPath\audio-example.mp4"
+      $output="$downloadPath/audio-example.mp4"
 
       ## DOWNLOAD AUDI
       if ((Test-Path -Path $output) -eq $false) {
