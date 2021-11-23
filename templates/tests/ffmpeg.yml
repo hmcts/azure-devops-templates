@@ -60,6 +60,12 @@ steps:
     displayName: Download FFMPEG
     name: ffmpeg
 
+  - bash: |
+      chmod -R 744 "${ffmpegpath}/*"
+    displayName: Change bin permissions
+    env:
+      ffmpegpath: $(ffmpeg.path)
+
   - powershell: |
       $source="https://filesamples.com/samples/video/mp4/sample_640x360.mp4"
       
