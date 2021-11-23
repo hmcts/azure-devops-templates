@@ -88,7 +88,13 @@ steps:
  
       $ffmpeg_url="rtmps://$source`:443/$application/$fileName"
 
+      Write-Host "FFMPEG Path: $ffmpegPath"
+      Write-Host "URL: $ffmpeg_url"
+      Write-Host "Audio Path: $audioFilePath"
       Set-Location -Path $ffmpegPath
+
+      Get-Location
+      Get-ChildItem -Path Get-Location
 
       ./ffmpeg.exe -re -i $audioFilePath -c copy -f flv "$ffmpeg_url flashver=FMLE/3.0\20(compatible;\20FMSc/1.0) live=true pubUser=wowza title=$fileName" -loglevel verbose
     env:
@@ -103,7 +109,7 @@ steps:
     displayName: Validate Stream ${{ parameters.streamName }}
     inputs:
       azureSubscription: '${{parameters.subscriptionName}}'
-      scriptType: 'bash'
+      scriptType: 'pscore'
       scriptLocation: 'inlineScript'
       inlineScript: |
         $containerName = "${{ parameters.storageContainer }}"
