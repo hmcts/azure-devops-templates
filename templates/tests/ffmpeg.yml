@@ -19,12 +19,15 @@ steps:
       $currentPath=Get-Location
       $downloadPath="$currentPath\download"
       if ((Test-Path -Path $downloadPath) -eq $false) {
+        Write-Host "Creating $downloadPath"
         mkdir $downloadPath 
       }
       $zipFile = "$downloadPath\$(Split-Path -Path $source -Leaf)" 
 
       ## DOWNLOAD FFMPEG
       if ((Test-Path -Path $zipFile) -eq $false) {
+        Write-Host "Downloading $source"
+        Write-Host "To $zipFile"
         Invoke-WebRequest -Uri $source -OutFile $zipFile 
       }
 
