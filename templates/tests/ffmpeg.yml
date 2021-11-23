@@ -61,7 +61,7 @@ steps:
     name: ffmpeg
 
   - bash: |
-      chmod -R 744 "${ffmpegpath}/*"
+      chmod -R 744 "${ffmpegpath}"
     displayName: Change bin permissions
     env:
       ffmpegpath: $(ffmpeg.path)
