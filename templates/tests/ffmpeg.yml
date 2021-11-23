@@ -56,8 +56,9 @@ steps:
       }
 
       $ffmpegPath = "$downloadPath/$($children[0].name)/bin"
-      Write-Host "##vso[task.setvariable variable=ffmpegPath;isOutput=true]$ffmpegPath"
+      Write-Host "##vso[task.setvariable variable=path;isOutput=true]$ffmpegPath"
     displayName: Download FFMPEG
+    name: ffmpeg
 
   - powershell: |
       $source="https://filesamples.com/samples/video/mp4/sample_640x360.mp4"
@@ -74,8 +75,9 @@ steps:
         Invoke-WebRequest -Uri $source -OutFile $output 
       }
 
-      Write-Host "##vso[task.setvariable variable=audioPath;isOutput=true]$output"
+      Write-Host "##vso[task.setvariable variable=path;isOutput=true]$output"
     displayName: Download Audio Sample
+    name: audio
   
   - powershell: |
       $ffmpegPath="$($env:ffmpegPath)"
@@ -90,12 +92,13 @@ steps:
 
       ffmpeg.exe -re -i $audioFilePath -c copy -f flv "$ffmpeg_url flashver=FMLE/3.0\20(compatible;\20FMSc/1.0) live=true pubUser=wowza title=$fileName" -loglevel verbose
     env:
-      ffmpegPath: $(ffmpegPath)
-      audioPath: $(audioPath)
+      ffmpegPath: $(ffmpeg.path)
+      audioPath: $(audio.path)
       application: ${{ parameters.application }}
       source: ${{ parameters.source }}
       streamName: ${{ parameters.streamName }}
     displayName: Run FFMPEG
+    
   - task: AzureCLI@2
     displayName: Validate Stream ${{ parameters.streamName }}
     inputs:
