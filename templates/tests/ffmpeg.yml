@@ -38,7 +38,24 @@ steps:
       }
 
       ##PATH
-      $ffmpegPath="$downloadPath/$($children[0].name)/bin"
+      $tries=0
+      $max=5
+      while ($children.length -lt 1){
+        if ($tries -eq $max){
+          break;
+        }
+        if ($children.length -lt 1) {
+          $tries++
+          Write-Host "Not found folder yet"
+          Start-Sleep -Seconds 5
+          $children = Get-ChildItem -Path $downloadPath -Directory
+          continue;
+        } else {
+          break;
+        }
+      }
+
+      $ffmpegPath = "$downloadPath/$($children[0].name)/bin"
       Write-Host "##vso[task.setvariable variable=ffmpegPath;isOutput=true]$ffmpegPath"
     displayName: Download FFMPEG
 
