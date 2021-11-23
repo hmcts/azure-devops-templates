@@ -29,7 +29,7 @@ steps:
       }
 
       ## EXTRACT PROGRAM
-      $children=Get-ChildItem -Path $downloadPath
+      $children=Get-ChildItem -Path $downloadPath -Directory
       if ($children.length -lt 1){
         $ExtractShell = New-Object -ComObject Shell.Application 
         $Files = $ExtractShell.Namespace($zipFile).Items() 
