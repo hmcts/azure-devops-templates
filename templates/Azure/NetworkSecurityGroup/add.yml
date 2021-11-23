@@ -1,0 +1,55 @@
+parameters:
+    - name: subscriptionName
+      type: string
+    - name: resourceGroupName
+      type: string
+    - name: networkSecurityGroupName
+      type: string
+    - name: ruleName
+      type: string
+      default: "AzDORule"
+      
+    - name: protocal
+      type: string
+      default: "TCP"
+    - name: description
+      type: string
+      default: "Allow Rule for Azure DevOps "
+    - name: access
+      type: string
+      default: "Allow"
+    - name: sourceAddress
+      type: string
+      default: ""
+    - name: sourcePortRange
+      type: string
+      default: "*"
+    - name: destinationPortRange
+      type: string
+      default: "443"
+
+steps:
+    - task: AzureCLI@2
+      name: 'healthprodcheck'
+      displayName: Create rule ${{ parameters.ruleName }} in ${{ parameters.networkSecurityGroupName }}
+      inputs:
+        azureSubscription: '${{parameters.subscriptionName}}'
+        scriptType: 'pscore'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          $rgName="${{ parameters.resourceGroupName }}"
+          $nsgName="${{ parameters.networkSecurityGroupName }}"
+
+          $ruleName="${{ parameters.ruleName }}"
+
+          $protocal="${{ parameters.protocal }}"
+          $access="${{ parameters.access }}"
+          $description="${{ parameters.description }}"
+          $sourceAddress="${{ parameters.sourceAddress }}"
+          if ($sourceAddress -eq "") {
+            $sourceAddress= (Invoke-WebRequest -uri "http://ifconfig.me/ip").Content
+          }
+          $sourcePortRange="${{ parameters.sourcePortRange }}"
+          $destinationPortRange="${{ parameters.destinationPortRange }}"
+
+          az network nsg rule create -g $rgName --nsg-name $nsgName -n $ruleName --priority 1000 --source-address-prefixes $sourceAddress --source-port-ranges $sourcePortRange --access $access --protocol $protocal --description $description --destination-port-ranges $destinationPortRange

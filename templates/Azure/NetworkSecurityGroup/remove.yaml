@@ -1,0 +1,34 @@
+parameters:
+    - name: subscriptionName
+      type: string
+    - name: resourceGroupName
+      type: string
+    - name: networkSecurityGroupName
+      type: string
+    - name: ruleName
+      type: string
+      default: "AzDORule"
+
+steps:
+    - task: AzureCLI@2
+      name: 'healthprodcheck'
+      displayName: Remove rule ${{ parameters.ruleName }} from ${{ parameters.networkSecurityGroupName }}
+      inputs:
+        azureSubscription: '${{parameters.subscriptionName}}'
+        scriptType: 'pscore'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          $rgName="${{ parameters.resourceGroupName }}"
+          $nsgName="${{ parameters.networkSecurityGroupName }}"
+
+          $ruleName="${{ parameters.ruleName }}"
+
+          $result=az network nsg rule list -g $rgName --nsg-name $nsgName --query "[? name=='$ruleName'].{name:name,id:id}" -o json | ConvertFrom-Json
+
+          if ($result.length -eq 1){
+            Write-Host "Found rule $ruleName in $nsgName"
+            Write-Host "Deleting rule $ruleName in $nsgName"
+            az network nsg rule delete -g $rgName --nsg-name $nsgName -n $ruleName
+          } else {
+            Write-Host "Rule $ruleName not found in $nsgName"
+          }
