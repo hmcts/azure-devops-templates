@@ -25,8 +25,8 @@ parameters:
       type: string
       default: "*"
     - name: destinationPortRange
-      type: integer
-      default: "443"
+      type: number
+      default: 443
 
 steps:
     - task: AzureCLI@2
