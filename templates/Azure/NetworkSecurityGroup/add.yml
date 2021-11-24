@@ -25,7 +25,7 @@ parameters:
       type: string
       default: "*"
     - name: destinationPortRange
-      type: string
+      type: integer
       default: "443"
 
 steps:
@@ -49,7 +49,7 @@ steps:
             $sourceAddress= (Invoke-WebRequest -uri "http://ifconfig.me/ip").Content
           }
           $sourcePortRange="${{ parameters.sourcePortRange }}"
-          $destinationPortRange="${{ parameters.destinationPortRange }}"
+          $destinationPortRange=${{ parameters.destinationPortRange }}
 
           Write-Host "protocal: $protocal"
           Write-Host "access: $access"
