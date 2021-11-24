@@ -60,4 +60,4 @@ steps:
 
           Write-Host "az network nsg rule create -g $rgName --nsg-name $nsgName -n $ruleName --priority 1000 --source-address-prefixes $sourceAddress --source-port-ranges $sourcePortRange --access $access --protocol $protocal --description $description --destination-port-ranges $destinationPortRange --debug"
 
-          az network nsg rule create -g $rgName --nsg-name $nsgName -n $ruleName --priority 1000 --source-address-prefixes $sourceAddress --source-port-ranges $sourcePortRange --access $access --protocol $protocal --description $description --destination-port-ranges $destinationPortRange --debug
+          az network nsg rule create -g $rgName --nsg-name $nsgName -n $ruleName --priority 1000 --source-address-prefixes "$sourceAddress" --source-port-ranges "$sourcePortRange" --access $access --protocol "$protocal" --description "$description" --destination-port-ranges $destinationPortRange --debug
