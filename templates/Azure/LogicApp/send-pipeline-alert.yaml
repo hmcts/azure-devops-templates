@@ -40,7 +40,7 @@ steps:
                   title = "$title"
                   message  = "$message"
                   project  = "$project"
-                  pipeline-url  = "$pipelineUrl"
+                  "pipeline-url"  = "$pipelineUrl"
               }
           }
 
