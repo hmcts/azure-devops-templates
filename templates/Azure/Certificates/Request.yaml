@@ -7,17 +7,60 @@ parameters:
     type: string
   - name: domain
     type: string
+  - name: keyVaultName
+    type: string
 
 steps:
+
   - task: AzureCLI@2
-    displayName: 'Request LE Cert for ${{ parameters.domain }}'
+    displayName: 'Check if Cert expired in ${{ parameters.keyVaultName }}'
+    name: cert
     inputs:
       azureSubscription: '${{ parameters.subscriptionName }}'
       scriptType: 'pscore'
       scriptLocation: 'inlineScript'
       inlineScript: |
-        mkdir "$(Build.SourcesDirectory)\certs"
-        $workingDirectory="$(Build.SourcesDirectory)\certs"
+
+        $env="${{ parameters.environment }}"
+        $product="${{ parameters.product }}"
+        $keyVaultName="${{ parameters.keyVaultName }}"
+        $certName="$product-$env-le-cert"
+
+        $exportedCert = az keyvault certificate show --vault-name $keyVaultName -n $certName -o json | ConvertFrom-Json
+
+        $expired=$false
+        if ($null -ne $exportedCert -and $exportedCert -ne ""){
+          Write-Host "Certificate Found"
+
+          Write-Host "Certificate Expires $($exportedCert.attributes.expires)"
+          $expiryDate=(get-date $exportedCert.attributes.expires).AddDays(-14)
+          Write-Host "Certificate Forced Expiry is $expiryDate"
+          
+          if ($expiryDate -lt (get-date)){
+            Write-Host "Certificate has expired"
+            $expired=$true
+          } else {
+            Write-Host "Certificate has NOT expired"
+          }
+
+        } else {
+          Write-Host "Certificate NOT Found"
+          $expired=$true
+        }
+
+
+        Write-Host "##vso[task.setvariable variable=expired;isOutput=true]$expired"
+
+  - task: AzureCLI@2
+    name: acmecert
+    displayName: 'Request LE Cert for ${{ parameters.domain }}'
+    condition: eq($(cert.expired), 'True')
+    inputs:
+      azureSubscription: '${{ parameters.subscriptionName }}'
+      scriptType: 'pscore'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        $workingDirectory="$(Build.SourcesDirectory)"
 
         $product="${{ parameters.product }}"
         $env="${{ parameters.environment }}"
@@ -68,6 +111,25 @@ steps:
         }
         New-PACertificate $domain -Plugin Azure -PluginArgs $pArgs -Verbose
 
-        Get-PACertificate | Format-List
+        $generatedCert=$(Get-PACertificate)
 
+        Write-Host "##vso[task.setvariable variable=pfxPath;isOutput=true]$($generatedCert.PfxFile)"
+        Write-Host "##vso[task.setvariable variable=pfxPass;isOutput=true;issecret=true]$pfxPassword"
 
+  - task: AzureCLI@2
+    displayName: 'Import Certificate into ${{ parameters.keyVaultName }}'
+    condition: eq($(cert.expired), 'True')
+    inputs:
+      azureSubscription: '${{ parameters.subscriptionName }}'
+      scriptType: 'pscore'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+
+        $env="${{ parameters.environment }}"
+        $product="${{ parameters.product }}"
+        $keyVaultName="${{ parameters.keyVaultName }}"
+        $certName="$product-$env-le-cert"
+        $password="$(acmecert.pfxPass)"
+        $pfxPath="$(acmecert.pfxPath)"
+
+        az keyvault certificate import --vault-name $keyVaultName -n $certName -f $pfxPath --password $password
