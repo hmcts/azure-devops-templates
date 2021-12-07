@@ -329,7 +329,7 @@ jobs:
                   
                   az webapp config access-restriction add -g $env:dependentResourceGroup -n $env:dependentResourceName --rule-name $env:BUILD_BUILDID --action Allow --ip-address $ip/32 --priority 200
 
-                  write-host "We have address [string]$ip"
+                  write-host "We have address $ip for $env:dependentHealthEndpoint"
 
                   $ready = $false; $retry = 0
                   while($ready -eq $false -and $retry -lt 10) {
