@@ -51,10 +51,10 @@ steps:
         $keyVaultName="${{ parameters.keyVaultName }}"
         $certName="$product-$env-le-cert"
 
-        $exportedCert = az keyvault certificate show --vault-name $keyVaultName -n $certName -o json | ConvertFrom-Json
+        $exportedCert = az keyvault certificate list --vault-name $keyVaultName --query "[? name=='$certName']" -o json | ConvertFrom-Json
 
         $expired=$false
-        if ($null -ne $exportedCert -and $exportedCert -ne ""){
+        if ($null -ne $exportedCert -and $exportedCert.length -gt 0){
           Write-Host "Certificate Found"
 
           Write-Host "Certificate Expires $($exportedCert.attributes.expires)"
