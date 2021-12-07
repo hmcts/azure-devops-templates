@@ -48,13 +48,12 @@ steps:
           $expired=$true
         }
 
-
         Write-Host "##vso[task.setvariable variable=expired;isOutput=true]$expired"
 
   - task: AzureCLI@2
     name: acmecert
     displayName: 'Request LE Cert for ${{ parameters.domain }}'
-    condition: eq(cert.expired, 'True')
+    condition: and(succeeded(), eq(variables["cert.expired"], 'True'))
     inputs:
       azureSubscription: '${{ parameters.subscriptionName }}'
       scriptType: 'pscore'
@@ -118,7 +117,7 @@ steps:
 
   - task: AzureCLI@2
     displayName: 'Import Certificate into ${{ parameters.keyVaultName }}'
-    condition: eq(cert.expired, 'True')
+    condition: and(succeeded(), eq(variables["cert.expired"], 'True'))
     inputs:
       azureSubscription: '${{ parameters.subscriptionName }}'
       scriptType: 'pscore'
