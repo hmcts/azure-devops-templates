@@ -41,7 +41,7 @@ steps:
     parameters:
       subscriptionName: ${{ parameters.subscriptionName }}
       keyVaultName: ${{ parameters.keyVaultName }}
-      cert: "${{ parameters.product }}-${{ parameters.environment }}-le-cert"
+      certificateName: "${{ parameters.product }}-${{ parameters.environment }}-le-cert"
 
   - task: AzureCLI@2
     displayName: 'Check if Cert expired in ${{ parameters.keyVaultName }}'
