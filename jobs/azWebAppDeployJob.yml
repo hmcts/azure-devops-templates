@@ -331,9 +331,10 @@ jobs:
 
                   $ready = $false; $retry = 0
                   while($ready -eq $false -and $retry -lt 10) {
-
+                    
                     if([string]::IsNullOrWhitespace($env:dependentHealthEndpoint)) {
-                      sleep (10 * $retry++)
+                      $retry++
+                      
                     } else {
                       try {
                         write-host "checking health of $env:dependentHealthEndpoint"
@@ -344,6 +345,7 @@ jobs:
                         $ready = $false
                       }
                     }
+                    sleep (10 * $retry++)
                   }
               env:
                 ${{ if gt(length(format('{0}',app.resourcegroup)), 0) }}:
