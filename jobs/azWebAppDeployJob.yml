@@ -324,18 +324,15 @@ jobs:
                 scriptType: pscore
                 scriptLocation: inlineScript
                 inlineScript: |
-                  $ErrorActionPreference = "Continue"
+                  $ErrorActionPreference = "Stop"
                   while ( !$ip ) { $ip = (Invoke-WebRequest -uri "http://ifconfig.me/ip").Content }
-
-                  az webapp config access-restriction add -g $env:dependentResourceGroup -n $env:dependentResourceName --rule-name $env:BUILD_BUILDID --action Allow --ip-address $ip/32 --priority 200
 
                   $ready = $false; $retry = 0
                   while($ready -eq $false -and $retry -lt 10) {
-                    sleep (10 * $retry++)
+                    az webapp config access-restriction add -g $env:dependentResourceGroup -n $env:dependentResourceName --rule-name $env:BUILD_BUILDID --action Allow --ip-address $ip/32 --priority 200
 
                     if([string]::IsNullOrWhitespace($env:dependentHealthEndpoint)) {
-                      sleep 60
-                      $ready = $true
+                      sleep (10 * $retry++)
                     } else {
                       try {
                         write-host "checking health of $env:dependentHealthEndpoint"
