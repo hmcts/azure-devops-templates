@@ -334,7 +334,7 @@ jobs:
                     
                     if([string]::IsNullOrWhitespace($env:dependentHealthEndpoint)) {
                       sleep (10 * $retry)
-
+                      $ready = $true
                     } else {
                       try {
                         write-host "checking health of $env:dependentHealthEndpoint"
