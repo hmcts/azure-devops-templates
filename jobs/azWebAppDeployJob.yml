@@ -328,12 +328,14 @@ jobs:
                   while ( !$ip ) { $ip = (Invoke-WebRequest -uri "http://ifconfig.me/ip").Content }
                   
                   az webapp config access-restriction add -g $env:dependentResourceGroup -n $env:dependentResourceName --rule-name $env:BUILD_BUILDID --action Allow --ip-address $ip/32 --priority 200
+                  
+                  write-host "We have address $ip for ${{ app }}"
 
                   $ready = $false; $retry = 0
                   while($ready -eq $false -and $retry -lt 10) {
-                    
+                    sleep (10 * $retry++)
                     if([string]::IsNullOrWhitespace($env:dependentHealthEndpoint)) {
-                      sleep (10 * $retry)
+                      sleep 60
                       $ready = $true
                     } else {
                       try {
@@ -345,7 +347,7 @@ jobs:
                         $ready = $false
                       }
                     }
-                    $retry++
+                    
                   }
               env:
                 ${{ if gt(length(format('{0}',app.resourcegroup)), 0) }}:
