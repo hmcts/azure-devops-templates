@@ -328,8 +328,8 @@ jobs:
                   while ( !$ip ) { $ip = (Invoke-WebRequest -uri "http://ifconfig.me/ip").Content }
                   
                   az webapp config access-restriction add -g $env:dependentResourceGroup -n $env:dependentResourceName --rule-name $env:BUILD_BUILDID --action Allow --ip-address $ip/32 --priority 200
-                  
-                  write-host "We have address $ip for ${{ app }}"
+
+                  write-host "We have address [string]$ip"
 
                   $ready = $false; $retry = 0
                   while($ready -eq $false -and $retry -lt 10) {
