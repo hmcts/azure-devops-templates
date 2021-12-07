@@ -37,7 +37,7 @@ steps:
     env:
       keyVaultName: ${{ parameters.keyVaultName }}
 
-  - temaplate: purge.yaml
+  - template: purge.yaml
     parameters:
       subscriptionName: ${{ parameters.subscriptionName }}
       keyVaultName: ${{ parameters.keyVaultName }}
