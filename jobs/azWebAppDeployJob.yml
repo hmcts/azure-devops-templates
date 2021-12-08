@@ -331,9 +331,9 @@ jobs:
 
                   $ready = $false; $retry = 0
                   while($ready -eq $false -and $retry -lt 10) {
-                    sleep (10 * $retry++)
+                    sleep (5 * $retry++)
                     if([string]::IsNullOrWhitespace($env:dependentHealthEndpoint)) {
-                      sleep 60
+                      sleep 10
                       $ready = $true
                     } else {
                       try {
