@@ -326,9 +326,16 @@ jobs:
                 inlineScript: |
                   $ErrorActionPreference = "Stop"
                   while ( !$ip ) { $ip = (Invoke-WebRequest -uri "http://ifconfig.me/ip").Content }
-                  
-                  az webapp config access-restriction add -g $env:dependentResourceGroup -n $env:dependentResourceName --rule-name $env:BUILD_BUILDID --action Allow --ip-address $ip/32 --priority 200
-
+                  try {
+                    write-host "Adding firewall rule"
+                    az webapp config access-restriction add -g $env:dependentResourceGroup -n $env:dependentResourceName --rule-name $env:BUILD_BUILDID --action Allow --ip-address $ip/32 --priority 200
+                    write-host "Rule added"
+                    az webapp config access-restriction show -g $env:dependentResourceGroup -n $env:dependentResourceName --rule-name $env:BUILD_BUILDID
+                  } catch {
+                    write-host "firewall rule not added"
+                    # Output the current error
+                    write-host $_
+                  }
                   $ready = $false; $retry = 0
                   while($ready -eq $false -and $retry -lt 10) {
                     sleep (5 * $retry++)
