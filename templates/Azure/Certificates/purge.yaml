@@ -1,0 +1,29 @@
+parameters:
+  - name: subscriptionName
+    type: string
+  - name: certificateName
+    type: string
+  - name: keyVaultName
+    type: string
+
+steps:
+
+  - task: AzureCLI@2
+    displayName: Purge ${{ parameters.certificateName }} from ${{ parameters.keyVaultName }}
+    inputs:
+      azureSubscription: ${{ parameters.subscriptionName }}
+      scriptType: pscore
+      scriptLocation: inlineScript
+      inlineScript: |
+        $kvName="${{ parameters.keyVaultName }}"
+        $certName="${{ parameters.certificateName }}"
+
+        $certs=az keyvault certificate list-deleted --vault-name $kvName --query "[? name=='$certName']" -o json | ConvertFrom-Json
+
+        if ($null -ne $certs -and $certs.length -gt 0){
+          $cert=$certs[0]
+          Write-Host "Certificate Found"
+          az keyvault certificate purge --id $cert.recoveryId
+        } else {
+          Write-Host "Certificate NOT Found"
+        }
