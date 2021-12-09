@@ -351,11 +351,9 @@ jobs:
                       
                       if ($false -eq $?)
                       {
-                        Write-Error "Msbuild exit code indicate Endpoint Health Check failure failure."
-                        Write-Host "##vso[task.logissue type=error]Msbuild exit code indicate build failure."
-                        Write-Host "($_ | convertto-json -depth 3)"
+                        Write-Host ($_ | convertto-json -depth 3)
                         $ready = $false
-                        exit(1)
+                        # exit(1)
                         
                       } else {
                         write-host ($output | convertto-json -depth 3)
