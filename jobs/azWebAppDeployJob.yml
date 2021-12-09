@@ -353,9 +353,9 @@ jobs:
                       if ($false -eq $?)
                       {
                         Write-Host "Health Check failed."
-                        Write-Host $_
-                        $start = $_.IndexOf('{'); $end = $_.LastIndexOf('}')
-                        $output = $_.Substring($start, ($end - 20))
+                        $myError = $
+                        $start = $myError.IndexOf('{'); $end = $myError.LastIndexOf('}')
+                        $output = $myError.Substring($start, ($end-20))
                         write-host ($output | convertto-json -depth 3)
                         $ready = $false
                         # exit(1)
