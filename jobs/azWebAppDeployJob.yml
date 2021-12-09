@@ -337,7 +337,7 @@ jobs:
                     write-host $_
                   }
 
-                  $ready = $false; $retry = 0; $added = $false
+                  $ready = $false; $retry = 0
                   while($ready -eq $false -and $retry -lt 10) {
 
                     sleep (5 * $retry++)
@@ -358,6 +358,7 @@ jobs:
                       }
                     }
                   }
+                  
               env:
                 ${{ if gt(length(format('{0}',app.resourcegroup)), 0) }}:
                   dependentResourceGroup: ${{ app.resourceGroup }}
