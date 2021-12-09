@@ -346,15 +346,20 @@ jobs:
                      sleep 10
                       $ready = $true
                     } else {
-                      
                       write-host "checking health of $env:dependentHealthEndpoint"
                       $output = Invoke-RestMethod $env:dependentHealthEndpoint
                       
-                      if (!$_){
+                      if ($false -eq $?)
+                      {
+                        Write-Error "Msbuild exit code indicate Endpoint Health Check failure failure."
+                        Write-Host "##vso[task.logissue type=error]Msbuild exit code indicate build failure."
+                        Write-Host "($_ | convertto-json -depth 3)"
+                        $ready = $false
+                        exit(1)
+                        
+                      } else {
                         write-host ($output | convertto-json -depth 3)
                         $ready = $true
-                      } else {
-                        write-host ($_ | convertto-json -depth 3)
                       }
                     }
                   }
