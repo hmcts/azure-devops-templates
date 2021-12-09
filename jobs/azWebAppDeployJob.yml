@@ -346,19 +346,16 @@ jobs:
                      sleep 10
                       $ready = $true
                     } else {
-                      try {
-                        write-host "checking health of $env:dependentHealthEndpoint"
-                        $output = Invoke-RestMethod $env:dependentHealthEndpoint
-                        write-host ($output | convertto-json -depth 3)
+                      
+                      write-host "checking health of $env:dependentHealthEndpoint"
+                      $output = Invoke-RestMethod $env:dependentHealthEndpoint
+                      write-host ($output | convertto-json -depth 3)
+                      if (!$_){
                         $ready = $true
-                      } catch {
-                        $ready = $false
-                        # Output the current error
-                        write-host $_
                       }
                     }
                   }
-                  
+
               env:
                 ${{ if gt(length(format('{0}',app.resourcegroup)), 0) }}:
                   dependentResourceGroup: ${{ app.resourceGroup }}
