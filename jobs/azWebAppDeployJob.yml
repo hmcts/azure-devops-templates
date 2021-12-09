@@ -348,18 +348,21 @@ jobs:
                       $ready = $true
                     } else {
                       write-host "checking health of $env:dependentHealthEndpoint"
-                      $output = Invoke-RestMethod $env:dependentHealthEndpoint
-                      
-                      if ($false -eq $?)
-                      {
-                        Write-Host "Health Check failed."
-                        write-host $_
-                        $ready = $false
-                        # exit(1)
+                      try {
+                        $output = Invoke-RestMethod $env:dependentHealthEndpoint
+                      } catch {
+
+                        if ($false -eq $?)
+                        {
+                          Write-Host "Health Check failed."
+                          write-host $
+                          $ready = $false
+                          # exit(1)
                         
-                      } else {
-                        write-host ($output | convertto-json -depth 3)
-                        $ready = $true
+                        } else {
+                          write-host ($output | convertto-json -depth 3)
+                          $ready = $true
+                        }
                       }
                     }
                   }
