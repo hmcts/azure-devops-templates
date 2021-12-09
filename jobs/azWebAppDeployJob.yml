@@ -327,22 +327,24 @@ jobs:
                   $ErrorActionPreference = "Stop"
                   while ( !$ip ) { $ip = (Invoke-WebRequest -uri "http://ifconfig.me/ip").Content }
 
-                  $ready = $false; $retry = 0
+                  $ready = $false; $retry = 0; $added = $false
                   while($ready -eq $false -and $retry -lt 10) {
 
-                    try {
-                      write-host "Adding firewall rule"
-                     az webapp config access-restriction add -g $env:dependentResourceGroup -n $env:dependentResourceName --rule-name $env:BUILD_BUILDID --action Allow --ip-address $ip/32 --priority 200
-                      write-host "Rule added"
-                      $ready = $true
-                      $retry = 11
-                    } catch {
-                      write-host "firewall rule not added"
-                      # Output the current error
-                      write-host $_
-                    }
-                  
                     sleep (5 * $retry++)
+                    if ($added -eq $false){
+                      try {
+                        write-host "Adding firewall rule"
+                        az webapp config access-restriction add -g $env:dependentResourceGroup -n $env:dependentResourceName --rule-name $env:BUILD_BUILDID --action Allow --ip-address $ip/32 --priority 200
+                        write-host "Rule added"
+                        $added = $true
+                        $ready = $true
+                        $retry = 11
+                      } catch {
+                        write-host "firewall rule not added"
+                        # Output the current error
+                        write-host $_
+                      }
+                    }
                     if([string]::IsNullOrWhitespace($env:dependentHealthEndpoint)) {
                       sleep 10
                       $ready = $true
