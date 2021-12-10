@@ -356,9 +356,9 @@ jobs:
                       } catch {
                         $detailedError = $_
                         Write-Host "##vso[task.logissue type=error]$detailedError"
-                        Write-Host "##vso[task.complete result=Failed;]Script execution failed: $detailedError"
-                        Write-Host "Health Check failed."
-                        write-host $detailedError
+                        Write-Host "##vso[task.complete result=Warn;] Health Check failed: $detailedError"
+                        #Write-Host "Health Check failed."
+                        #write-host $detailedError
                         $ready = $false
                         # exit(1)
                          
