@@ -344,7 +344,7 @@ jobs:
                     sleep (5 * $retry++)
 
                     if([string]::IsNullOrWhitespace($env:dependentHealthEndpoint)) {
-                     sleep 10
+                      sleep 10
                       $ready = $true
                     } else {
                       write-host "checking health of $env:dependentHealthEndpoint"
@@ -356,7 +356,7 @@ jobs:
                       } catch {
                         if ($retry -gt 8){
                           $detailedError = $_
-                          Write-Host "##vso[task.logissue type=error]$detailedError"
+                          #Write-Host "##vso[task.logissue type=error]$detailedError"
                           Write-Host "##vso[task.complete result=SucceededWithIssues;] Health Check failed: $detailedError"
                           Write-Host "Health Check failed."
                           write-host $detailedError
