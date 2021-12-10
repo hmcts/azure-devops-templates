@@ -354,14 +354,14 @@ jobs:
                         write-host ($output | convertto-json -depth 3)
                         $ready = $true  
                       } catch {
-                        $detailedError = $_
-                        Write-Host "##vso[task.logissue type=error]$detailedError"
-                        Write-Host "##vso[task.complete result=SucceededWithIssues;] Health Check failed: $detailedError"
-                        #Write-Host "Health Check failed."
-                        #write-host $detailedError
+                        if ($retry -gt 8){
+                          $detailedError = $_
+                          Write-Host "##vso[task.logissue type=error]$detailedError"
+                          Write-Host "##vso[task.complete result=SucceededWithIssues;] Health Check failed: $detailedError"
+                          #Write-Host "Health Check failed."
+                          #write-host $detailedError
+                        }
                         $ready = $false
-                        # exit(1)
-                         
                       }
                       
                     }
