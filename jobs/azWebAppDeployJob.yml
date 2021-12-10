@@ -348,14 +348,17 @@ jobs:
                       $ready = $true
                     } else {
                       write-host "checking health of $env:dependentHealthEndpoint"
-                      
-                      #$output = Invoke-RestMethod $env:dependentHealthEndpoint
-                      if (($output = Invoke-RestMethod $env:dependentHealthEndpoint)){
+
+                      try{
+                        $output = Invoke-RestMethod $env:dependentHealthEndpoint
                         write-host ($output | convertto-json -depth 3)
                         $ready = $true  
-                      } else {
+                      } catch {
+                        $detailedError = $_
+                        Write-Host "##vso[task.logissue type=error]$detailedError"
+                        Write-Host "##vso[task.complete result=Failed;]Script execution failed: $detailedError"
                         Write-Host "Health Check failed."
-                        write-host $
+                        write-host $detailedError
                         $ready = $false
                         # exit(1)
                          
