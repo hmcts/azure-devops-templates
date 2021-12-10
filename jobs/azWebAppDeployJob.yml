@@ -354,7 +354,7 @@ jobs:
                         write-host ($output | convertto-json -depth 3)
                         $ready = $true  
                       } catch {
-                        if ($retry -gt 8){
+                        if ($retry -gt 9){
                           $detailedError = $_
                           #Write-Host "##vso[task.logissue type=error]$detailedError"
                           Write-Host "##vso[task.complete result=SucceededWithIssues;] Health Check failed: $detailedError"
