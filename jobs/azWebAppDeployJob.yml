@@ -327,26 +327,45 @@ jobs:
                   $ErrorActionPreference = "Continue"
                   while ( !$ip ) { $ip = (Invoke-WebRequest -uri "http://ifconfig.me/ip").Content }
 
-                  az webapp config access-restriction add -g $env:dependentResourceGroup -n $env:dependentResourceName --rule-name $env:BUILD_BUILDID --action Allow --ip-address $ip/32 --priority 200
+                  try {
+                    write-host "Adding firewall rule"
+                    az webapp config access-restriction add -g $env:dependentResourceGroup -n $env:dependentResourceName --rule-name $env:BUILD_BUILDID --action Allow --ip-address $ip/32 --priority 200
+                    write-host "Rule added"
+                  } catch {
+                    write-host "firewall rule not added"
+                    # Output the current error
+                    write-host $_
+                  }
 
+                  Write-Host "Starting Health Checks"
                   $ready = $false; $retry = 0
                   while($ready -eq $false -and $retry -lt 10) {
-                    sleep (10 * $retry++)
+
+                    sleep (5 * $retry++)
 
                     if([string]::IsNullOrWhitespace($env:dependentHealthEndpoint)) {
-                      sleep 60
+                      sleep 10
                       $ready = $true
                     } else {
-                      try {
-                        write-host "checking health of $env:dependentHealthEndpoint"
+                      write-host "checking health of $env:dependentHealthEndpoint"
+
+                      try{
                         $output = Invoke-RestMethod $env:dependentHealthEndpoint
                         write-host ($output | convertto-json -depth 3)
-                        $ready = $true
+                        $ready = $true  
                       } catch {
+                        if ($retry -gt 9){
+                          $detailedError = $_
+                          Write-Host "##vso[task.complete result=SucceededWithIssues;] Health Check failed: $detailedError"
+                          Write-Host "Health Check failed."
+                          write-host $detailedError
+                        }
                         $ready = $false
                       }
+                      
                     }
                   }
+
               env:
                 ${{ if gt(length(format('{0}',app.resourcegroup)), 0) }}:
                   dependentResourceGroup: ${{ app.resourceGroup }}
