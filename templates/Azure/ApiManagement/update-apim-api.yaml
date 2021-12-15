@@ -15,7 +15,7 @@ parameters:
 
 steps:
   - task: AzureCLI@2
-    displayName: 'Purge ${{ parameters.apimName }}'
+    displayName: 'Update ${{ parameters.apiName }}'
     condition: ${{ parameters.condition }}
     inputs:
       azureSubscription: '${{ parameters.subscriptionName }}'
