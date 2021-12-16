@@ -16,7 +16,6 @@ parameters:
 steps:
   - task: AzureCLI@2
     displayName: 'Update ${{ parameters.apiName }}'
-    condition: ${{ parameters.condition }}
     inputs:
       azureSubscription: '${{ parameters.subscriptionName }}'
       scriptType: 'pscore'
