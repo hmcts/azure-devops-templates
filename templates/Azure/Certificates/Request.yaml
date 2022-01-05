@@ -98,7 +98,7 @@ steps:
         $domain="${{ parameters.domain }}"
         $acmeContact="$product@$env.com"
 
-        if ($env -eq "prod") {
+        if ($env -eq "prod" -or $env -eq "stg" ) {
           $leServer="LE_PROD"
         }else {
           $leServer="LE_STAGE"
