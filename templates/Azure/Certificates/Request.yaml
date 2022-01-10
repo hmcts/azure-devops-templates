@@ -144,7 +144,7 @@ steps:
 
         $generatedCert=$(Get-PACertificate)
 
-        Write-Host "##vso[task.setvariable variable=pfxPath;isOutput=true]$($generatedCert.PfxFile)"
+        Write-Host "##vso[task.setvariable variable=pfxPath;isOutput=true]$($generatedCert.PfxFullChain)"
         Write-Host "##vso[task.setvariable variable=pfxPass;isOutput=true;issecret=true]$pfxPassword"
 
   - task: AzureCLI@2
