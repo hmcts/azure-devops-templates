@@ -165,6 +165,7 @@ steps:
       echo "##vso[task.setvariable variable=pfxPass;isOutput=true;issecret=true]$password"
 
     displayName: "Repackage Cert"
+    condition: and(succeeded(), eq(variables['cert.expired'], 'True'))
     name: "packaged"
     env:
       certFile: $(acmecert.certPath)
