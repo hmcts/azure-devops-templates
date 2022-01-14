@@ -1,0 +1,28 @@
+parameters:
+  - name: subscriptionName
+    type: string
+  - name: resourceGroupName
+    type: string
+  - name: lockName
+    type: string
+
+steps:     
+  - task: AzureCLI@2
+    displayName: 'Delete Lock ${{ parameters.lockName }}'
+    inputs:
+      azureSubscription: '${{ parameters.subscriptionName }}'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        rgName="${{ parameters.resourceGroupName }}"
+        lockName="${{ parameters.lockName }}"
+
+        echo "Get ${lockName} lock from ${resourceName}"
+        lock=$(az lock show --name ${lockName} --resource-group ${rgName})
+
+        if [[ $lock != "" ]]; then
+          echo "Delete Lock ${lockName} on ${resourceName}"
+          az lock delete --name ${lockName} --resource-group ${rgName}}
+        else
+          echo "${lockName} on ${resourceName} not found"
+        fi
