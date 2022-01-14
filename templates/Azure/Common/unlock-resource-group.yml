@@ -8,7 +8,7 @@ parameters:
 
 steps:     
   - task: AzureCLI@2
-    displayName: 'Delete Lock ${{ parameters.lockName }}'
+    displayName: 'Delete Lock ${{ parameters.lockName }} on ${{ parameters.resourceGroupName }}'
     inputs:
       azureSubscription: '${{ parameters.subscriptionName }}'
       scriptType: 'bash'
