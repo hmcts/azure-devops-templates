@@ -17,12 +17,12 @@ steps:
         rgName="${{ parameters.resourceGroupName }}"
         lockName="${{ parameters.lockName }}"
 
-        echo "Get ${lockName} lock from ${resourceName}"
+        echo "Get ${lockName} lock from ${rgName}"
         lock=$(az lock show --name ${lockName} --resource-group ${rgName})
 
         if [[ $lock != "" ]]; then
-          echo "Delete Lock ${lockName} on ${resourceName}"
+          echo "Delete Lock ${lockName} on ${rgName}"
           az lock delete --name ${lockName} --resource-group ${rgName}}
         else
-          echo "${lockName} on ${resourceName} not found"
+          echo "${lockName} on ${rgName} not found"
         fi
