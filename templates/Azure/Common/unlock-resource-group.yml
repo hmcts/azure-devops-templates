@@ -22,7 +22,7 @@ steps:
 
         if [[ $lock != "" ]]; then
           echo "Delete Lock ${lockName} on ${rgName}"
-          az lock delete --name ${lockName} --resource-group ${rgName}}
+          az lock delete --name ${lockName} --resource-group ${rgName}
         else
           echo "${lockName} on ${rgName} not found"
         fi
