@@ -45,4 +45,4 @@ steps:
       searchFolder: '$(System.DefaultWorkingDirectory)/TFSecReport'
       mergeTestResults: false
       failTaskOnFailedTests: false
-      publishRunAttachatments: true
+      publishRunAttachments: true
