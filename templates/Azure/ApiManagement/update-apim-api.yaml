@@ -1,0 +1,52 @@
+parameters:
+  - name: subscriptionName
+    type: string
+  - name: apimRgName
+    type: string
+  - name: apimName
+    type: string
+  - name: apiName
+    type: string
+  - name: format
+    type: string
+  - name: specUrl
+    type: string
+
+
+steps:
+  - task: AzureCLI@2
+    displayName: 'Update ${{ parameters.apiName }}'
+    inputs:
+      azureSubscription: '${{ parameters.subscriptionName }}'
+      scriptType: 'pscore'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        $rg_name="$env:apimRgName"
+        $apim_name="$env:apimName"
+
+        $api_name="$env:apiName"
+        $api_format="$env:format"
+        $api_spec_url="$env:specUrl"
+
+        $apis=az apim api list -g $rg_name -n $apim_name --query "[? name=='$api_name'].{name:name,id:id,serviceUrl:serviceUrl,path:path}" -o json | ConvertFrom-Json
+
+        if ($null -ne $apis -and $apis.length -gt 0 ){
+          $api = $apis[0]
+          $api_name= $api.name
+          Write-Host "$api_name found"
+          $api_service_url= $api.serviceUrl
+          $api_path= $api.path
+
+          if ($api_service_url -ne ""){
+            az apim api import -g $rg_name -n $apim_name --path $api_path --specification-format $api_format --specification-url $api_spec_url --api-id $api_name --service-url $api_service_url
+          } else {
+            az apim api import -g $rg_name -n $apim_name --specification-format $api_format --specification-url $api_spec_url --path $api_path --api-id $api_name
+          }
+        }
+
+    env:
+      apimName: ${{ parameters.apimName }}
+      apimRgName: ${{ parameters.apimRgName }}
+      apiName: ${{ parameters.apiName }}
+      format: ${{ parameters.format }}
+      specUrl: ${{ parameters.specUrl }}

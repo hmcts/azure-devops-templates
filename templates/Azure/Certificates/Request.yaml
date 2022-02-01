@@ -1,0 +1,215 @@
+parameters:
+  - name: subscriptionName
+    type: string
+  - name: product
+    type: string
+  - name: environment
+    type: string
+  - name: domain
+    type: string
+  - name: keyVaultName
+    type: string
+
+steps:
+
+  - task: AzureCLI@2
+    displayName: Add KeyVault FW Exception
+    inputs:
+      azureSubscription: ${{ parameters.subscriptionName }}
+      scriptType: pscore
+      scriptLocation: inlineScript
+      inlineScript: |
+        while ( !$ip ) { $ip = (Invoke-WebRequest -uri "http://ifconfig.me/ip").Content }
+        write-host "Our IP address is: $ip"
+        az keyvault network-rule add --name $env:keyVaultName --ip-address "$IP/32"
+
+        $ready = 1; $retry = 0
+        while($ready -ne 0 -and $retry -lt 10) {
+          sleep (15 * $retry++)  
+          try{          
+            write-host "checking keyvault access"
+            az keyvault secret list --vault-name $env:keyVaultName | out-null
+            $ready = $LASTEXITCODE    
+          } catch {
+            $ready = 1
+          }        
+        }
+    env:
+      keyVaultName: ${{ parameters.keyVaultName }}
+
+  - template: purge.yaml
+    parameters:
+      subscriptionName: ${{ parameters.subscriptionName }}
+      keyVaultName: ${{ parameters.keyVaultName }}
+      certificateName: "${{ parameters.product }}-${{ parameters.environment }}-le-cert"
+
+  - task: AzureCLI@2
+    displayName: 'Check if Cert expired in ${{ parameters.keyVaultName }}'
+    name: cert
+    inputs:
+      azureSubscription: '${{ parameters.subscriptionName }}'
+      scriptType: 'pscore'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+
+        $env="${{ parameters.environment }}"
+        $product="${{ parameters.product }}"
+        $keyVaultName="${{ parameters.keyVaultName }}"
+        $certName="$product-$env-le-cert"
+
+        $exportedCerts = az keyvault certificate list --vault-name $keyVaultName --query "[? name=='$certName']" -o json | ConvertFrom-Json
+
+        $expired=$false
+        if ($null -ne $exportedCerts -and $exportedCerts.length -gt 0){
+          Write-Host "Certificate Found"
+          $exportedCert = $exportedCerts[0]
+
+          Write-Host "Certificate Expires $($exportedCert.attributes.expires)"
+          $expiryDate=(get-date $exportedCert.attributes.expires).AddDays(-14)
+          Write-Host "Certificate Forced Expiry is $expiryDate"
+          
+          if ($expiryDate -lt (get-date)){
+            Write-Host "Certificate has expired"
+            $expired=$true
+          } else {
+            Write-Host "Certificate has NOT expired"
+          }
+
+        } else {
+          Write-Host "Certificate NOT Found"
+          $expired=$true
+        }
+
+        Write-Host "##vso[task.setvariable variable=expired;isOutput=true]$expired"
+
+  - task: AzureCLI@2
+    name: acmecert
+    displayName: 'Request LE Cert for ${{ parameters.domain }}'
+    condition: and(succeeded(), eq(variables['cert.expired'], 'True'))
+    inputs:
+      azureSubscription: '${{ parameters.subscriptionName }}'
+      scriptType: 'pscore'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        $workingDirectory="$(Build.SourcesDirectory)"
+
+        $product="${{ parameters.product }}"
+        $env="${{ parameters.environment }}"
+        $domain="${{ parameters.domain }}"
+        $acmeContact="$product@$env.com"
+
+        if ($env -eq "prod" -or $env -eq "stg" ) {
+          $leServer="LE_PROD"
+        }else {
+          $leServer="LE_STAGE"
+        }
+        $pfxPassword="poshacme" # This is fixed by the module. Do not change
+
+        # Set Posh-ACME working directory
+        Write-Host "Install Module"
+        $env:POSHACME_HOME = $workingDirectory
+        Install-Module -Name Posh-ACME -Scope CurrentUser -Force
+
+        # Configure Posh-ACME server
+        Write-Host "Configure LE Server $leServer"
+        Set-PAServer $leServer
+        Get-PAPlugin Azure # -Guide
+
+        # Configure Posh-ACME account
+        Write-Host "Setup Account"
+        $account = Get-PAAccount
+        if (-not $account) {
+            # New account
+            Write-Host "Create New Account"
+            $account = New-PAAccount -Contact $acmeContact -AcceptTOS
+        }
+        elseif ($account.contact -ne "mailto:$acmeContact") {
+            # Update account contact
+            Write-Host "Set Existing Account $($account.id)"
+            Set-PAAccount -ID $account.id -Contact $acmeContact
+        }
+
+        # Acquire access token for Azure (as we want to leverage the existing connection)
+        Write-Host "Get Azure Details"
+        $azAccount = az account show -s "Reform-CFT-Mgmt" -o json | ConvertFrom-Json
+        Write-Host "Azure DNS Sub $($azAccount.name)"
+        $token = (az account get-access-token --resource 'https://management.core.windows.net/' | ConvertFrom-Json).accessToken
+
+        # Request certificate
+        $pArgs = @{
+          AZSubscriptionId = $azAccount.id
+          AZAccessToken = $token
+        }
+        New-PACertificate $domain -Plugin Azure -PluginArgs $pArgs -Verbose
+
+        $generatedCert=$(Get-PACertificate)
+        # chain.cer, chain0.cer and chain1.cer are outputted files, which chain1.cer contains only the intermediate
+        $intermediatePath=$($generatedCert.ChainFile -replace 'chain.cer','chain1.cer')
+
+        Write-Host "##vso[task.setvariable variable=certPath;isOutput=true]$($generatedCert.CertFile)"
+        Write-Host "##vso[task.setvariable variable=intermediatePath;isOutput=true]$intermediatePath"
+        Write-Host "##vso[task.setvariable variable=privateKeyPath;isOutput=true]$($generatedCert.KeyFile)"
+        Write-Host "##vso[task.setvariable variable=pfxPath;isOutput=true]$($generatedCert.PfxFullChain)"
+        Write-Host "##vso[task.setvariable variable=pfxPass;isOutput=true;issecret=true]$pfxPassword"
+
+  - bash: |
+      outputPfx="$(Build.SourcesDirectory)/output.pfx"
+      outputPem="$(Build.SourcesDirectory)/chainCert.pem"
+
+      echo "" > ${outputPem}
+      cat ${certFile} ${intermediateFile} ${privateKeyFile} > ${outputPem}
+
+      openssl pkcs12 -export -out ${outputPfx} -in ${outputPem} -passin pass:${password} -passout pass:${password}
+
+      echo "##vso[task.setvariable variable=pfxPath;isOutput=true]${outputPfx}"
+      echo "##vso[task.setvariable variable=pfxPass;isOutput=true;issecret=true]$password"
+
+    displayName: "Repackage Cert"
+    condition: and(succeeded(), eq(variables['cert.expired'], 'True'))
+    name: "packaged"
+    env:
+      certFile: $(acmecert.certPath)
+      intermediateFile: $(acmecert.intermediatePath)
+      privateKeyFile: $(acmecert.privateKeyPath)
+      password: $(acmecert.pfxPass)
+
+  - task: AzureCLI@2
+    displayName: 'Import Certificate into ${{ parameters.keyVaultName }}'
+    condition: and(succeeded(), eq(variables['cert.expired'], 'True'))
+    inputs:
+      azureSubscription: '${{ parameters.subscriptionName }}'
+      scriptType: 'pscore'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+
+        $env="${{ parameters.environment }}"
+        $product="${{ parameters.product }}"
+        $keyVaultName="${{ parameters.keyVaultName }}"
+        $certName="$product-$env-le-cert"
+        $password="$(packaged.pfxPass)"
+        $pfxPath="$(packaged.pfxPath)"
+
+        az keyvault certificate import --vault-name $keyVaultName -n $certName -f $pfxPath --password $password
+
+  - task: AzureCLI@2
+    displayName: Remove KeyVault FW Exception
+    condition: always()
+    inputs:
+      azureSubscription: ${{ parameters.subscriptionName }}
+      scriptType: pscore
+      scriptLocation: inlineScript
+      inlineScript: |
+        while ( !$ip ) { $ip = (Invoke-WebRequest -uri "http://ifconfig.me/ip").Content }
+        write-host "Our IP address is: $ip"          
+
+        while($ready -ne 0 -and $retry -lt 10) {
+          sleep (10 * $retry++)  
+          try{          
+            az keyvault network-rule remove --name $env:keyVaultName --ip-address "$IP/32"
+            $ready = $LASTEXITCODE    
+          } catch {
+            $ready = 1
+          } 
+        }
+    env:
+      keyVaultName: ${{ parameters.keyVaultName }}

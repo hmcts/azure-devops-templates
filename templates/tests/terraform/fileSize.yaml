@@ -1,0 +1,25 @@
+
+steps:
+  - powershell: |
+      $path="$(Build.SourcesDirectory)"
+
+      $TfFiles=Get-ChildItem $path -filter '*.tf' -Recurse
+
+      $allOk=$true
+      foreach ($file in $TfFiles){
+        $filePath=$file.FullName
+        Write-Host "Checking $filePath"
+        $content=Get-Content -Path $filePath
+        $fileLength=$content.Length
+        if ($fileLength -lt 1){
+          Write-Host "task.LogIssue type=error;]FAILED $filePath"
+          $allOk=$false
+        }
+      }
+
+      if ($allOk -eq $true){
+        Write-Host '##vso[task.complete result=Succeeded;]DONE'
+      } else {
+        Write-Host '##vso[task.complete result=Failed;]FAILED'
+      }
+    displayName: Validate File Size
