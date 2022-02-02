@@ -7,8 +7,6 @@ parameters:
     type: string
   - name: repositoryName
     type: string
-  - name: chartName
-    type: string
   - name: imageTags
     type: object
 
