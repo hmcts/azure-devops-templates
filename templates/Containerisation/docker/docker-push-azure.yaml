@@ -20,12 +20,15 @@ steps:
         scriptLocation: 'inlineScript'
         inlineScript: |
           
-          acrName="${{ parameters.acrName }}"
-          repositoryName="${{ parameters.repositoryName }}"
-          imageName="${{ parameters.imageName }}"
+          
 
-          docker tag $imageName:latest $acrName.azurecr.io/$repositoryName:${{ tag }}
+          docker tag $imageName:latest $acrName.azurecr.io/$repositoryName:${tag}
     
           docker images
           az acr login --name sdshmctspublic
-          docker push $acrName.azurecr.io/$repositoryName:${{ tag }}
+          docker push $acrName.azurecr.io/$repositoryName:${tag}
+      env:
+        acrName: "${{ parameters.acrName }}"
+        repositoryName: "${{ parameters.repositoryName }}"
+        imageName: "${{ parameters.imageName }}"
+        tag: "${{ tag }}"
