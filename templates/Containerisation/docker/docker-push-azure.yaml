@@ -14,7 +14,6 @@ steps:
   - ${{ each tag in parameters.imageTags }}:
     - task: AzureCLI@2
       displayName: 'Push ${{ parameters.imageName }}:${{ tag }} to ${{ parameters.acrName }}'
-      name: acr
       inputs:
         azureSubscription: '${{ parameters.azureSubscription }}'
         scriptType: 'bash'

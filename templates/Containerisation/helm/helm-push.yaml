@@ -22,7 +22,6 @@ steps:
 
   - task: AzureCLI@2
     displayName: 'Push ${{ parameters.chartName }} to ${{ parameters.acrName }}'
-    name: acr
     inputs:
       azureSubscription: '${{ parameters.azureSubscription }}'
       scriptType: 'bash'
