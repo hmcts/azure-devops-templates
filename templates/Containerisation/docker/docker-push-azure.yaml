@@ -1,0 +1,34 @@
+parameters:
+  - name: acrName
+    type: string
+  - name: azureSubscription
+    type: string
+  - name: imageName
+    type: string
+  - name: repositoryName
+    type: string
+  - name: chartName
+    type: string
+  - name: imageTags
+    type: object
+
+steps:
+  - ${{ each tag in parameters.imageTags }}:
+    - task: AzureCLI@2
+      displayName: 'Push ${{ parameters.imageName }}:${{ tag }} to ${{ parameters.acrName }}'
+      name: acr
+      inputs:
+        azureSubscription: '${{ parameters.azureSubscription }}'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          
+          acrName="${{ parameters.acrName }}"
+          repositoryName="${{ parameters.repositoryName }}"
+          imageName="${{ parameters.imageName }}"
+
+          docker tag $imageName:latest $acrName.azurecr.io/$repositoryName:${{ tag }}
+    
+          docker images
+          az acr login --name sdshmctspublic
+          docker push $acrName.azurecr.io/$repositoryName:${{ tag }}
