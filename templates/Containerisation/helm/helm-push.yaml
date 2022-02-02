@@ -1,0 +1,45 @@
+parameters:
+  - name: helmVersion
+    type: string
+    default: 'latest'
+  - name: acrName
+    type: string
+  - name: azureSubscription
+    type: string
+  - name: repositoryName
+    type: string
+  - name: chartName
+    type: string
+  - name: imageTag
+    type: string
+    default: "$(Build.BuildNumber)"
+
+steps:
+
+  - task: HelmInstaller@1
+    inputs:
+      helmVersionToInstall: 'latest'
+
+  - task: AzureCLI@2
+    displayName: 'Push ${{ parameters.chartName }} to ${{ parameters.acrName }}'
+    name: acr
+    inputs:
+      azureSubscription: '${{ parameters.azureSubscription }}'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        
+        acrName="${{ parameters.acrName }}"
+        repositoryName="${{ parameters.repositoryName }}"
+        chartName="${{ parameters.chartName }}"
+        imageTag="${{ parameters.imageTag }}"
+
+        az acr login --name $acrName
+        
+        export HELM_EXPERIMENTAL_OCI=1
+        REPOTRIM="$(echo ${{ parameters.chartName }} | sed 's/-//g')"
+
+        helm repo add $acrName https://$acrName.azurecr.io/helm/v1/repo
+        helm chart save ${{ parameters.chartName }}/charts/${{ parameters.chartName }} $acrName.azurecr.io/${{ parameters.repositoryName }}:$imageTag
+        
+        az acr helm push -n $acrName $acrName.azurecr.io/${{ parameters.repositoryName }}:$imageTag

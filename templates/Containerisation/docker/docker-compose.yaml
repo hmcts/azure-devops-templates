@@ -1,0 +1,30 @@
+parameters:
+  - name: azureSubscription
+    type: string
+  - name: acrName
+    type: string
+  - name: repositoryName
+    type: string
+
+steps:
+  - task: AzureCLI@2
+    displayName: 'Get ID for ${{ parameters.acrName }}'
+    name: acr
+    inputs:
+      azureSubscription: '${{ parameters.azureSubscription }}'
+      scriptType: 'pscore'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        
+        $acrId=az acr show -n '${{ parameters.acrName }}' --query "id" -o tsv
+
+        echo "##vso[task.setvariable variable=id;isOutput=true]$acrId"
+
+  - task: DockerCompose@0
+    displayName: 'Run a Docker Compose Build'
+    inputs:
+      azureSubscription: '${{ parameters.azureSubscription }}'
+      azureContainerRegistry: '{"loginServer":"${{ parameters.acrName }}.azurecr.io", "id" : "$(acr.id)"}'
+      projectName: '${{ parameters.acrName }}/${{ parameters.repositoryName }}'
+      qualifyImageNames: false
+      dockerComposeCommand: build
