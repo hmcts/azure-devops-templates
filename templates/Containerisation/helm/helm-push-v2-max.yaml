@@ -42,7 +42,7 @@ steps:
         
         echo "Push to ACR with tag $imageTag"
         helm push -n $acrName $acrName.azurecr.io/${repositoryName}:$imageTag 
-
+        
     env:
       acrName: "${{ parameters.acrName }}"
       repositoryName: "${{ parameters.repositoryName }}"
