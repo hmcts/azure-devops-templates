@@ -316,7 +316,7 @@ stages:
     - template: ./dotnet-test.yml
       parameters:
         packageManagers: ${{ parameters.packageManagers }}
-        nodeVersion:  ${{ parameters.nodeVersion }}
+        nodeVersion: '14.x'
         ${{ insert }}: ${{ parameters.testParameters }}
 
   # - ${{ if eq(parameters.NodeTest, true) }}:
