@@ -38,7 +38,7 @@ steps:
         helm repo add $acrName https://$acrName.azurecr.io/helm/v1/repo
 
         echo "Package Chart ${chartName}"
-        helm package $chartName/charts/$chartName $acrName.azurecr.io/${repositoryName}:$imageTag
+        helm chart save $chartName/charts/$chartName $acrName.azurecr.io/${repositoryName}:$imageTag
         
         echo "Push to ACR with tag $imageTag"
         az acr helm push -n $acrName $acrName.azurecr.io/${repositoryName}:$imageTag 
