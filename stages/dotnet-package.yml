@@ -117,11 +117,13 @@ stages:
           displayName: Determine Version
           inputs:
             additionalArguments: /updateassemblyinfo ${{ parameters.coreProjectPath }}/AssemblyInfo.cs /ensureassemblyinfo
+
+        - script: echo "package stage name is ${{ parameters.nodeVersion}}"
         
         - task: NodeTool@0
           displayName: Install Node Version
           inputs:
-            versionSpec:  ${{ parameters.nodeVersion }}
+            versionSpec: ${{ parameters.nodeVersion }}
 
         - template: ../templates/pipelineCaching.yml
           parameters:
@@ -302,7 +304,7 @@ stages:
             ${{ if ne(variables['Build.SourceBranch'], 'refs/heads/master')}}:
               arguments: '--configuration release /p:Version="$(GitVersion.NuGetVersion)" /p:PackageOutputPath="$(Build.ArtifactStagingDirectory)" /p:VersionSuffix="-alpha"'
             workingDirectory: ${{ parameters.nugetProjectPath }}
-
+        - script: echo "test stage name is ${{ parameters.nodeVersion}}"
         - task: DotNetCoreCLI@2
           displayName: Push Package to VH NuGet Store
           inputs:
