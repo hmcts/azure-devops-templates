@@ -46,10 +46,10 @@ steps:
         helm dependency update
 
         echo "Package Chart in ${chartPath}"
-        helm package .
+        helm package . --version $imageTag
 
-        echo "Push $chartName-0.0.1.tgz to ACR with tag $imageTag"
-        helm push $chartName-0.0.1.tgz oci://$acrName.azurecr.io/${repositoryName}:$imageTag
+        echo "Push $chartName-$imageTag.tgz to ACR"
+        helm push $chartName-$imageTag.tgz oci://$acrName.azurecr.io/${repositoryName}
     env:
       acrName: "${{ parameters.acrName }}"
       repositoryName: "${{ parameters.repositoryName }}"
