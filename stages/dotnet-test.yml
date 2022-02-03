@@ -199,7 +199,7 @@ stages:
           - template: ../templates/pipelineCaching.yml
             parameters:
               ${{ if containsValue(parameters.packageManagers, 'npm') }}:
-                nodeProjectPath: ${{ parameters.ProjectPath }}
+                nodeProjectPath: ${{ parameters.nodeProjectPath }}
               ${{ if containsValue(parameters.packageManagers, 'yarn') }}:
                 yarnProjectPath: ${{ parameters.nodeProjectPath }}
               packageManagers:
@@ -243,7 +243,7 @@ stages:
             parameters:
               extraProperties: ${{ parameters.sonarCloud_ExtraProperties }}
 
-        - ${{if parameters.Run }}:
+        - ${{if parameters.RunNode }}:
           - task: Npm@1
             displayName: Install Node Modules
             inputs:
