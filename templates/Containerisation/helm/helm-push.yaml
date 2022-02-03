@@ -54,5 +54,5 @@ steps:
       acrName: "${{ parameters.acrName }}"
       repositoryName: "${{ parameters.repositoryName }}"
       chartName: "${{ parameters.chartName }}"
-      chartPath: "${{ parameters.chartName }}"
+      chartPath: "${{ parameters.chartPath }}"
       imageTag: "${{ parameters.imageTag }}"
