@@ -184,6 +184,11 @@ stages:
             Write-Host "##vso[task.setvariable variable=Release.EnvironmentName]$environment"
           displayName: Set Environment Alias ENVVARS
 
+        - task: NodeTool@0
+          displayName: Install Node Version
+          inputs:
+            versionSpec:  ${{ parameters.nodeVersion }}
+
         - task: Cache@2
           displayName: Cache NuGet packages
           inputs:
@@ -488,6 +493,10 @@ stages:
             restoreKeys: 'nuget | ${{ parameters.integTestProjectPath }}/packages.lock.json | ${{ parameters.unitTestProjectPath }}/packages.lock.json'
             path: ${{ variables.NUGET_PACKAGES }}
             cacheHitVar: NUGET_CACHE_RESTORED
+        - task: NodeTool@0
+          displayName: Install Node Version
+          inputs:
+            versionSpec:  ${{ parameters.nodeVersion }}
 
         - ${{ if eq(parameters.RunUnitTests, true) }}:
           - task: DotNetCoreCLI@2

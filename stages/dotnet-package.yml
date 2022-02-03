@@ -117,11 +117,11 @@ stages:
           displayName: Determine Version
           inputs:
             additionalArguments: /updateassemblyinfo ${{ parameters.coreProjectPath }}/AssemblyInfo.cs /ensureassemblyinfo
-        
+
         - task: NodeTool@0
           displayName: Install Node Version
           inputs:
-            versionSpec:  ${{ parameters.nodeVersion }}
+            versionSpec: ${{ parameters.nodeVersion }}
 
         - template: ../templates/pipelineCaching.yml
           parameters:
