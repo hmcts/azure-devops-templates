@@ -10,6 +10,8 @@ parameters:
     type: string
   - name: chartName
     type: string
+  - name: chartPath
+    type: string
   - name: imageTag
     type: string
     default: "$(Build.BuildNumber)"
@@ -28,22 +30,29 @@ steps:
       scriptLocation: 'inlineScript'
       inlineScript: |
 
+
         echo "Sign into ${acrName}"
         az acr login --name $acrName
-        
+
         export HELM_EXPERIMENTAL_OCI=1
         REPOTRIM="$(echo $chartName | sed 's/-//g')"
 
         echo "Add Helm Repo to ACR"
         helm repo add $acrName https://$acrName.azurecr.io/helm/v1/repo
 
-        echo "Package Chart ${chartName}"
-        helm package $chartName/charts/$chartName $acrName.azurecr.io/${repositoryName}:$imageTag
-        
-        echo "Push to ACR with tag $imageTag"
-        helm push $acrName.azurecr.io/${repositoryName}:$imageTag 
+        cd $chartPath
+
+        echo "Update Dependencys"
+        helm dependency update
+
+        echo "Package Chart in ${chartPath}"
+        helm package . --version $imageTag
+
+        echo "Push $chartName-$imageTag.tgz to ACR"
+        helm push $chartName-$imageTag.tgz oci://$acrName.azurecr.io/${repositoryName}
     env:
       acrName: "${{ parameters.acrName }}"
       repositoryName: "${{ parameters.repositoryName }}"
       chartName: "${{ parameters.chartName }}"
+      chartPath: "${{ parameters.chartPath }}"
       imageTag: "${{ parameters.imageTag }}"
