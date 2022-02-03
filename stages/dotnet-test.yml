@@ -41,7 +41,6 @@ parameters:
     
   - name: nodeVersion
     type: string
-    default: '16.x'
 
   - name: unitTestProjectPath
     type: string
