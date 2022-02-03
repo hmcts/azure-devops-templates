@@ -38,6 +38,10 @@ parameters:
   - name: nodeProjectPath
     type: string
     default: ''
+    
+  - name: nodeVersion
+    type: string
+    default: '16.x'
 
   - name: unitTestProjectPath
     type: string
@@ -244,6 +248,11 @@ stages:
               extraProperties: ${{ parameters.sonarCloud_ExtraProperties }}
 
         - ${{if parameters.RunNode }}:
+          - task: NodeTool@0
+            displayName: Install Node Version
+            inputs:
+              versionSpec:  ${{ parameters.nodeVersion }}
+
           - task: Npm@1
             displayName: Install Node Modules
             inputs:
