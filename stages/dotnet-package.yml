@@ -83,7 +83,7 @@ parameters:
 
   - name: netVersion
     type: string
-    default: '5.1'
+    default: '5.1.x'
 
 stages:
 - ${{ if or(parameters.PackageApp, parameters.PackageAcceptanceTests, parameters.ACTest, parameters.PackageNuget) }}:
@@ -140,7 +140,7 @@ stages:
               - ${{ parameters.packageManagers }}
         
         - task: UseDotNet@2
-          displayName: 'Use .NET Core sdk'
+          displayName: 'Install .NET Core sdk'
           inputs:
             packageType: sdk
             version: ${{ parameters.netVersion}}
