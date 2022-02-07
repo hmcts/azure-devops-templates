@@ -216,6 +216,13 @@ stages:
               nugetProjectPath: ${{ parameters.coreProjectPath }}.AcceptanceTests
             packageManagers:
             - nuget
+        
+        - task: UseDotNet@2
+          displayName: 'Install .NET Core sdk'
+          inputs:
+            packageType: sdk
+            version: ${{ parameters.netVersion}}
+            installationPath: $(Agent.ToolsDirectory)/dotnet
 
         - task: DotNetCoreCLI@2
           displayName: dotnet Restore
