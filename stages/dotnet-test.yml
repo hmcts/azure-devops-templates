@@ -188,12 +188,12 @@ stages:
             Write-Host "##vso[task.setvariable variable=Release.EnvironmentName]$environment"
           displayName: Set Environment Alias ENVVARS
 
-        - task: UseDotNet@2
-          displayName: 'Install .NET Core sdk'
-          inputs:
-            packageType: sdk
-            version: ${{ parameters.netVersion}}
-            installationPath: $(Agent.ToolsDirectory)/dotnet
+        #- task: UseDotNet@2
+        #  displayName: 'Install .NET Core sdk'
+        #  inputs:
+        #    packageType: sdk
+        #    version: ${{ parameters.netVersion}}
+        #    installationPath: $(Agent.ToolsDirectory)/dotnet
 
         - task: NodeTool@0
           displayName: Install Node Version
@@ -269,11 +269,11 @@ stages:
             inputs:
               versionSpec:  ${{ parameters.nodeVersion }}
 
-          #- task: Npm@1
-          #  displayName: Install Node Modules
-          #  inputs:
-          #    workingDir: ${{ parameters.nodeProjectPath }}
-          #    verbose: false
+          - task: Npm@1
+            displayName: Install Node Modules
+            inputs:
+              workingDir: ${{ parameters.nodeProjectPath }}
+              verbose: false
 
           - task: Npm@1
             displayName: Run Lint
