@@ -102,6 +102,10 @@ parameters:
     type: number
     default: 2
 
+  - name: netVersion
+    type: string
+    default: '5.x'
+
 stages:
   - stage: ${{ parameters.stageName }}
     ${{ if ne(parameters.condition, '') }}:
