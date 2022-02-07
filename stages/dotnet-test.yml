@@ -114,6 +114,10 @@ parameters:
     type: number
     default: -1
 
+  - name: netVersion
+    type: string
+    default: '3.1.x'
+
 stages:
   - stage: Test
     dependsOn:
@@ -183,6 +187,13 @@ stages:
             Write-Host "##vso[task.setvariable variable=environment]$environment"
             Write-Host "##vso[task.setvariable variable=Release.EnvironmentName]$environment"
           displayName: Set Environment Alias ENVVARS
+
+        - task: UseDotNet@2
+          displayName: 'Install .NET Core sdk'
+          inputs:
+            packageType: sdk
+            version: ${{ parameters.netVersion}}
+            installationPath: $(Agent.ToolsDirectory)/dotnet
 
         - task: NodeTool@0
           displayName: Install Node Version

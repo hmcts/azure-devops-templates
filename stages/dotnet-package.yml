@@ -81,6 +81,10 @@ parameters:
     type: object
     default: {}
 
+  - name: netVersion
+    type: string
+    default: '5.x'
+
 stages:
 - ${{ if or(parameters.PackageApp, parameters.PackageAcceptanceTests, parameters.ACTest, parameters.PackageNuget) }}:
   - stage: Package
@@ -134,6 +138,13 @@ stages:
             packageManagers:
             - ${{ if parameters.packageManagers }}:
               - ${{ parameters.packageManagers }}
+        
+        - task: UseDotNet@2
+          displayName: 'Install .NET Core sdk'
+          inputs:
+            packageType: sdk
+            version: ${{ parameters.netVersion}}
+            installationPath: $(Agent.ToolsDirectory)/dotnet
 
         - task: DotNetCoreCLI@2
           displayName: dotnet Restore
@@ -205,6 +216,13 @@ stages:
               nugetProjectPath: ${{ parameters.coreProjectPath }}.AcceptanceTests
             packageManagers:
             - nuget
+        
+        - task: UseDotNet@2
+          displayName: 'Install .NET Core sdk'
+          inputs:
+            packageType: sdk
+            version: ${{ parameters.netVersion}}
+            installationPath: $(Agent.ToolsDirectory)/dotnet
 
         - task: DotNetCoreCLI@2
           displayName: dotnet Restore
