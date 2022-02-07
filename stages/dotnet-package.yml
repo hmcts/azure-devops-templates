@@ -83,7 +83,7 @@ parameters:
 
   - name: netVersion
     type: string
-    default: '5.1.x'
+    default: '5.x'
 
 stages:
 - ${{ if or(parameters.PackageApp, parameters.PackageAcceptanceTests, parameters.ACTest, parameters.PackageNuget) }}:
