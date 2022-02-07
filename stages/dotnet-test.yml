@@ -269,11 +269,11 @@ stages:
             inputs:
               versionSpec:  ${{ parameters.nodeVersion }}
 
-          - task: Npm@1
-            displayName: Install Node Modules
-            inputs:
-              workingDir: ${{ parameters.nodeProjectPath }}
-              verbose: false
+          #- task: Npm@1
+          #  displayName: Install Node Modules
+          #  inputs:
+          #    workingDir: ${{ parameters.nodeProjectPath }}
+          #    verbose: false
 
           - task: Npm@1
             displayName: Run Lint
