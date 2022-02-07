@@ -265,7 +265,7 @@ stages:
             ArtifactName: AcceptanceTests
 
     - ${{ if eq(parameters.PackageNuget, true) }}:
-      - job: Publish Nuget
+      - job: Publish_Nuget
         
         pool:
           vmImage: ${{ parameters.baseAgent }}
