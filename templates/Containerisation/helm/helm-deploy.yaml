@@ -1,21 +1,23 @@
-- name: azureSubscription
-  type: string
-  default: ""
-- name: kubernetesCluster
-  type: string
-  default: "ss-dev-01-aks"
-- name: acrName
-  type: string
-  default: "sdshmctspublic"
-- name: namespace
-  type: string
-  default: "VH"
-- name: chartName
-  type: string
-- name: chartPath
-  type: string
+parameters:
+  - name: azureSubscription
+    type: string
+    default: ""
+  - name: kubernetesCluster
+    type: string
+    default: "ss-dev-01-aks"
+  - name: acrName
+    type: string
+    default: "sdshmctspublic"
+  - name: namespace
+    type: string
+    default: "VH"
+  - name: chartName
+    type: string
+  - name: chartPath
+    type: string
 
 steps:
+
   - task: HelmInstaller@1
     inputs:
       helmVersionToInstall: 'latest'
