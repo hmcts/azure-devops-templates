@@ -17,6 +17,9 @@ parameters:
     type: string
   - name: repositoryName
     type: string
+  - name: imageTag
+    type: string
+    default: "$(Build.BuildNumber)"
 
 steps:
 
