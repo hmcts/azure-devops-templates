@@ -52,7 +52,7 @@ steps:
     displayName: Helm upgrade
     inputs:
       azureSubscriptionEndpoint: ${{ parameters.azureSubscription }}
-      azureResourceGroup: "ss-dev-01-rg"
+      azureResourceGroup: "ss-dev-aks-rg"
       kubernetesCluster: ${{ parameters.kubernetesCluster }}
       command: upgrade
       chartType: filepath
