@@ -23,9 +23,9 @@ parameters:
 
 steps:
   - bash: |
-    az aks get-credentials --resource-group ss-stg-01-rg --name ss-stg-01-aks --subscription DTS-SHAREDSERVICES-STG
-  displayName: 'AKS credential merge'
-  
+      az aks get-credentials --resource-group ss-stg-01-rg --name ss-stg-01-aks --subscription DTS-SHAREDSERVICES-STG
+    displayName: 'AKS credential merge'
+
  #- task: AzureCLI@2
  #displayName: 'Deploy ${{ parameters.chartName }} to ${{ parameters.kubernetesCluster }}'
  #inputs:
