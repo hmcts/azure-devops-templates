@@ -51,8 +51,8 @@ steps:
   - task: HelmDeploy@0
     displayName: Helm upgrade
     inputs:
-      azureSubscriptionEndpoint: ${{ parameters.azureSubscription }}
-      azureResourceGroup: "ss-dev-aks-rg"
+      azureSubscriptionEndpoint: 'DTS-SHAREDSERVICES-DEV'
+      azureResourceGroup: "ss-dev-01-rg"
       kubernetesCluster: ${{ parameters.kubernetesCluster }}
       command: upgrade
       chartType: filepath
