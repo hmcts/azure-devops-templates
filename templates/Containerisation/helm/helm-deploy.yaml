@@ -61,7 +61,7 @@ steps:
       command: upgrade
       chartType: filepath
       chartPath: ${{ parameters.chartPath }}/${{ parameters.chartName }}-${{ parameters.imageTag }}.tgz
-      releaseName: ${{ paramters.chartName }}
+      releaseName: ${{ parameters.chartName }}
       namespace: ${{ parameters.namespace }}
       install: true
       waitForExecution: false
