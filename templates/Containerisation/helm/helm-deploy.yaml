@@ -23,10 +23,6 @@ parameters:
 
 steps:
 
-  - task: HelmInstaller@1
-    inputs:
-      helmVersionToInstall: 'latest'
-
  #- task: AzureCLI@2
  #displayName: 'Deploy ${{ parameters.chartName }} to ${{ parameters.kubernetesCluster }}'
  #inputs:
