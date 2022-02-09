@@ -4,7 +4,7 @@ parameters:
     default: ""
   - name: kubernetesCluster
     type: string
-    default: "ss-dev-01-aks"
+    default: "ss-stg-01-aks"
   - name: acrName
     type: string
     default: "sdshmctspublic"
@@ -51,8 +51,8 @@ steps:
   - task: HelmDeploy@0
     displayName: Helm upgrade
     inputs:
-      azureSubscriptionEndpoint: 'DTS-SHAREDSERVICES-DEV'
-      azureResourceGroup: "ss-dev-01-rg"
+      azureSubscriptionEndpoint: 'DTS-SHAREDSERVICES-STG'
+      azureResourceGroup: "ss-stg-01-rg"
       kubernetesCluster: ${{ parameters.kubernetesCluster }}
       command: upgrade
       chartType: filepath
