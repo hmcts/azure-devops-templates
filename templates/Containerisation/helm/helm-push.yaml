@@ -1,3 +1,4 @@
+## This version of the script is only usable for Helm API version 3 and above
 parameters:
   - name: helmVersion
     type: string
@@ -20,7 +21,7 @@ steps:
 
   - task: HelmInstaller@1
     inputs:
-      helmVersionToInstall: 'latest'
+      helmVersionToInstall: ${{ parameters.helmVersion }}
 
   - task: AzureCLI@2
     displayName: 'Push ${{ parameters.chartName }} to ${{ parameters.acrName }}'
