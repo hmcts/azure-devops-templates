@@ -1,0 +1,60 @@
+- name: azureSubscription
+  type: string
+  default: ""
+- name: kubernetesCluster
+  type: string
+  default: "ss-dev-01-aks"
+- name: acrName
+  type: string
+  default: "sdshmctspublic"
+- name: namespace
+  type: string
+  default: "VH"
+- name: chartName
+  type: string
+- name: chartPath
+  type: string
+
+steps:
+  - task: HelmInstaller@1
+    inputs:
+      helmVersionToInstall: 'latest'
+
+ #- task: AzureCLI@2
+ #displayName: 'Deploy ${{ parameters.chartName }} to ${{ parameters.kubernetesCluster }}'
+ #inputs:
+ #  azureSubscription: '${{ parameters.azureSubscription }}'
+ #  scriptType: 'bash'
+ #  scriptLocation: 'inlineScript'
+ #  inlineScript: |
+
+ #  #connect to aks
+ #  az aks get-credentials -g ss-dev-00-rg -n ss-dev-00-aks -s DTS-SHAREDSERVCIES-DEV -a
+ #  #configure acr
+ #  
+ #  az acr login --name $acrName
+
+ #  helm repo add $acrName https://${{ paramters.acrName }}.azurecr.io/helm/v1/repo
+
+ #  helm chart pull ${{ paramters.acrName }}.azurecr.io/
+
+ #  helm upgrade --namespace {{ parameters.namespace }} --create-namespace --install \
+ #  --set image.repository=sdshmctspublic/${{ parameters.chartName }} \
+ #  --set image.tag=latest \
+ #  ${{ parameters.chartName }}  sdshmctspublic/${{ parameters.chartName }} 
+
+
+
+  - task: HelmDeploy@0
+    displayName: Helm upgrade
+    inputs:
+      azureSubscriptionEndpoint: ${{ parameters.azureSubscription }}
+      azureResourceGroup: "ss-dev-01-rg"
+      kubernetesCluster: ${{ parameters.kubernetesCluster }}
+      command: upgrade
+      chartType: filepath
+      chartPath: ${{ parameters.chartPath }}/${{ parameters.chartName }}-${{ parameters.imageTag }}.tgz
+      releaseName: ${{ paramters.chartName }}
+      namespace: ${{ parameters.namespace }}
+      install: true
+      waitForExecution: false
