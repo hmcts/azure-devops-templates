@@ -22,9 +22,9 @@ parameters:
     default: "$(Build.BuildNumber)"
 
 steps:
-  - bash: |
-      az aks get-credentials --resource-group ss-stg-01-rg --name ss-stg-01-aks --subscription ${{ parameters.azureSubscription }}
-    displayName: 'AKS credential merge'
+  #- bash: |
+  #    az aks get-credentials --resource-group ss-stg-01-rg --name ss-stg-01-aks --subscription ${{ parameters.azureSubscription }}
+  #  displayName: 'AKS credential merge'
 
  #- task: AzureCLI@2
  #displayName: 'Deploy ${{ parameters.chartName }} to ${{ parameters.kubernetesCluster }}'
