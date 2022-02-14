@@ -54,7 +54,7 @@ steps:
   - task: HelmDeploy@0
     displayName: Helm upgrade
     inputs:
-      azureSubscriptionEndpoint: 'DTS-SHAREDSERVICES-STG'
+      azureSubscriptionEndpoint: 'DTS-SHAREDSERVICES-STG-Video Hearings'
       azureResourceGroup: "ss-stg-01-rg"
       kubernetesCluster: ${{ parameters.kubernetesCluster }}
       command: upgrade
