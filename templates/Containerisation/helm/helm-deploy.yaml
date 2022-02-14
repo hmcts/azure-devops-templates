@@ -23,7 +23,7 @@ parameters:
 
 steps:
   - bash: |
-      az aks get-credentials --resource-group ss-stg-01-rg --name ss-stg-01-aks --subscription DTS-SHAREDSERVICES-STG
+      az aks get-credentials --resource-group ss-stg-01-rg --name ss-stg-01-aks --subscription ${{ parameters.azureSubscription }}
     displayName: 'AKS credential merge'
 
  #- task: AzureCLI@2
