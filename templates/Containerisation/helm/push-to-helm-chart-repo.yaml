@@ -14,6 +14,7 @@ steps:
       CHART_DIRECTORY="${chartPath}"
       CHART_NAME="${chartName}"
       VERSION="${chartVersion}"
+      B64_PAT=$(printf ":${patToken}" | base64) 
 
       RETRIES=3
       DELAY=5
@@ -24,7 +25,7 @@ steps:
       fi
 
       while [ $COUNT -lt $RETRIES ]; do
-        if git clone https://github.com/hmcts/hmcts-charts.git; then
+        if git -c http.extraHeader="Authorization: Basic ${B64_PAT}" clone https://github.com/hmcts/hmcts-charts.git; then
           COUNT=0
           break
         fi
@@ -68,13 +69,12 @@ steps:
               echo "Unable to delete stable/${CHART_NAME}/requirements.lock " 1>&2
             fi
           fi
-
-          B64_PAT=$(printf ":${patToken}" | base64)  
-          git add "stable/${CHART_NAME}/"
-          git commit -m "Auto-release ${CHART_NAME} ${VERSION}"
+ 
+          git -c http.extraHeader="Authorization: Basic ${B64_PAT}" add "stable/${CHART_NAME}/"
+          git -c http.extraHeader="Authorization: Basic ${B64_PAT}" commit -m "Auto-release ${CHART_NAME} ${VERSION}"
 
           while [ $COUNT -lt $RETRIES ]; do
-            git pull origin master
+            git -c http.extraHeader="Authorization: Basic ${B64_PAT}" pull origin master
             if git -c http.extraHeader="Authorization: Basic ${B64_PAT}" push origin HEAD:master; then
               echo "Chart published successfully with ${GIT_CHART_VERSION}"
               COUNT=0
