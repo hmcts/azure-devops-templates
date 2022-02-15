@@ -5,13 +5,12 @@ parameters:
     type: string
 
 
-
 steps:
   - task: DownloadSecureFile@1
     name: secureFileDownload
     displayName: 'Download ${{ parameters.privateKeyFileName }}'
     inputs:
-        secureFile: '${{ parameters.privateKeyFileName }}'
+      secureFile: '${{ parameters.privateKeyFileName }}'
   
   - bash: |
       private_key_file_path="${private_key_file_path}"
