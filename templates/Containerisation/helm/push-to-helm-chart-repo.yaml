@@ -99,8 +99,8 @@ steps:
       fi
 
     env:
-      - chartPath: ${{ parameters.chartPath }}
-      - chartName: ${{ parameters.chartName }}
-      - chartVersion: ${{ parameters.chartVersion }}
-      - patToken: ${{ parameters.patToken }}
+      chartPath: ${{ parameters.chartPath }}
+      chartName: ${{ parameters.chartName }}
+      chartVersion: ${{ parameters.chartVersion }}
+      patToken: ${{ parameters.patToken }}
     displayName: Push chart to heml-chart repo
