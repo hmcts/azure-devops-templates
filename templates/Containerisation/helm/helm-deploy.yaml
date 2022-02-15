@@ -42,23 +42,23 @@ steps:
 #
   #      az aks get-credentials --resource-group ${{ parameters.kubernetesCluster }}-rg  --name ${{ parameters.kubernetesCluster }}-aks --admin
 
-  - task: AzureCLI@1
-    displayName: "AKS Authenticate"
-    inputs:
-      azureSubscription: '${{ parameters.azureSubscription }}-Video Hearings'
-      scriptLocation: "inlineScript"
-      inlineScript: az aks get-credentials --admin --resource-group ${{ parameters.kubernetesCluster }}-rg --name ${{ parameters.kubernetesCluster }}-aks
-  
-  - task: HelmDeploy@0
-    displayName: login
-    inputs:
-      connectionType: 'Azure Resource Manager'
-      azureSubscription: '${{ parameters.azureSubscription }}-Video Hearings'
-      azureResourceGroup: '${{ parameters.kubernetesCluster }}-rg'
-      kubernetesCluster: '${{ parameters.kubernetesCluster }}-aks'
-      namespace: '${{ parameters.namespace }}'
-      command: 'login'
-
+ # - task: AzureCLI@1
+ #   displayName: "AKS Authenticate"
+ #   inputs:
+ #     azureSubscription: '${{ parameters.azureSubscription }}-Video Hearings'
+ #     scriptLocation: "inlineScript"
+ #     inlineScript: az aks get-credentials --admin --resource-group ${{ parameters.kubernetesCluster }}-rg --name ${{ parameters.kubernetesCluster }}-aks
+ # 
+ # - task: HelmDeploy@0
+ #   displayName: login
+ #   inputs:
+ #     connectionType: 'Azure Resource Manager'
+ #     azureSubscription: '${{ parameters.azureSubscription }}-Video Hearings'
+ #     azureResourceGroup: '${{ parameters.kubernetesCluster }}-rg'
+ #     kubernetesCluster: '${{ parameters.kubernetesCluster }}-aks'
+ #     namespace: '${{ parameters.namespace }}'
+ #     command: 'login'
+#
   #- task: AzureCLI@2
   #  displayName: test kubectl and helm from bash
   #  continueOnError: true 
@@ -100,7 +100,7 @@ steps:
   - task: HelmDeploy@0
     displayName: Helm upgrade
     inputs:
-      connectionType: Azure Resource Manager
+      connectionType: 'Azure Resource Manager'
       azureSubscriptionEndpoint: '${{ parameters.azureSubscription }}-Video Hearings'
       azureResourceGroup: ${{ parameters.kubernetesCluster }}-rg 
       kubernetesCluster: ${{ parameters.kubernetesCluster }}-aks
@@ -111,5 +111,4 @@ steps:
       namespace: ${{ parameters.namespace }}
       install: true
       waitForExecution: false
-      #the below is undocumented but it's an option in the HelmDeploy Task so perhaps it will work here?
       useClusterAdmin: true
