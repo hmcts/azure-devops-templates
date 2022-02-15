@@ -58,4 +58,4 @@ steps:
     name: githubapp
     env:
       private_key_file_path: $(secureFileDownload.secureFilePath)
-      app_id: ${{ paramters.appId }}
+      app_id: ${{ parameters.appId }}
