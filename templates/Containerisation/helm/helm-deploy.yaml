@@ -21,7 +21,7 @@ parameters:
 
 steps:
   - bash: |
-      az aks get-credentials --resource-group ${{ parameters.kubernetersCluster }}-rg --name ${{ parameters.kubernetesCluster }}-aks --subscription ${{ parameters.azureSubscription }}
+      az aks get-credentials --resource-group ${{ parameters.kubernetesCluster }}-rg --name ${{ parameters.kubernetesCluster }}-aks --subscription ${{ parameters.azureSubscription }}
     displayName: 'AKS credential merge'
 
   - task: AzureCLI@2
