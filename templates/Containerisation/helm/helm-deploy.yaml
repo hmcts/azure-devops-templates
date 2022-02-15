@@ -45,7 +45,7 @@ steps:
   - task: AzureCLI@1
     displayName: "AKS Authenticate"
     inputs:
-      azureSubscription: ${{ parameters.serviceConnection }}
+      azureSubscription: '${{ parameters.azureSubscription }}-Video Hearings'
       scriptLocation: "inlineScript"
       inlineScript: az aks get-credentials --admin --resource-group ${{ parameters.kubernetesCluster }}-rg --name ${{ parameters.kubernetesCluster }}-aks
   
