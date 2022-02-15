@@ -20,15 +20,16 @@ parameters:
     default: "$(Build.BuildNumber)"
 
 steps:
-
-  - bash: |
-      az --version
-      az account show
-    displayName: 'check creds'
-    
-  - bash: |
-      az aks get-credentials --resource-group ${{ parameters.kubernetesCluster }}-rg --name ${{ parameters.kubernetesCluster }}-aks --subscription ${{ parameters.azureSubscription }}
-    displayName: 'AKS credential merge'
+  - task: AzureCLI@2
+    displayName: 'check creds and AKS merge'
+    inputs:
+      azureSubscription: "${{ parameters.azureSubscription }}-Video Hearings"
+      scriptType: bash
+      scriptLocation: inlineScript
+      inlineScript: |
+        az --version
+        az account show
+        az aks get-credentials --resource-group ${{ parameters.kubernetesCluster }}-rg --name ${{ parameters.kubernetesCluster }}-aks --subscription ${{ parameters.azureSubscription }}
 
   - task: AzureCLI@2
     displayName: test kubectl and helm from bash
