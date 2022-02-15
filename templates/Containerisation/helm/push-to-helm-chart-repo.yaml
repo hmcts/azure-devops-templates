@@ -46,7 +46,7 @@ steps:
           echo "Chart version ${GIT_CHART_VERSION} not published to git yet" 1>&2
         fi
         
-        if rsync -a --delete-after "../${CHART_DIRECTORY}/" "./stable/${CHART_NAME}"; then
+        if rsync -a --delete-after "${CHART_DIRECTORY}/" "./stable/${CHART_NAME}"; then
 
           if [ -d ./stable/${CHART_NAME}/charts ]; then 
             rm -rf ./stable/${CHART_NAME}/charts
