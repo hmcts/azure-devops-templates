@@ -5,27 +5,35 @@ parameters:
     type: string
   - name: chartVersion
     type: string
-  - name: patToken
+
+  - name: githubToken
     type: string
-    default: $(System.AccessToken)
+  - name: githubUsername
+    type: string
+  - name: githubEmail
+    type: string
 
 steps:
   - bash: |
       CHART_DIRECTORY="${chartPath}"
       CHART_NAME="${chartName}"
       VERSION="${chartVersion}"
-      B64_PAT=$(printf ":${patToken}" | base64) 
 
       RETRIES=3
       DELAY=5
       COUNT=0
+
+
+      git remote set-url origin $(git config remote.origin.url | sed "s/github.com/${githubUsername}:${githubToken}@github.com/g")
+      git config --global user.name "${githubUsername}"
+      git config --global user.email "${githubEmail}"
 
       if [ -d "hmcts-charts" ]; then
         rm -rf hmcts-charts
       fi
 
       while [ $COUNT -lt $RETRIES ]; do
-        if git -c http.extraHeader="Authorization: Basic ${B64_PAT}" clone https://github.com/hmcts/hmcts-charts.git; then
+        if git clone https://github.com/hmcts/hmcts-charts.git; then
           COUNT=0
           break
         fi
@@ -69,13 +77,13 @@ steps:
               echo "Unable to delete stable/${CHART_NAME}/requirements.lock " 1>&2
             fi
           fi
- 
-          git -c http.extraHeader="Authorization: Basic ${B64_PAT}" add "stable/${CHART_NAME}/"
-          git -c http.extraHeader="Authorization: Basic ${B64_PAT}" commit -m "Auto-release ${CHART_NAME} ${VERSION}"
+  
+          git add "stable/${CHART_NAME}/"
+          git commit -m "Auto-release ${CHART_NAME} ${VERSION}"
 
           while [ $COUNT -lt $RETRIES ]; do
-            git -c http.extraHeader="Authorization: Basic ${B64_PAT}" pull origin master
-            if git -c http.extraHeader="Authorization: Basic ${B64_PAT}" push origin HEAD:master; then
+            git pull origin master
+            if git push origin HEAD:master; then
               echo "Chart published successfully with ${GIT_CHART_VERSION}"
               COUNT=0
               break
@@ -102,5 +110,7 @@ steps:
       chartPath: ${{ parameters.chartPath }}
       chartName: ${{ parameters.chartName }}
       chartVersion: ${{ parameters.chartVersion }}
-      patToken: ${{ parameters.patToken }}
+      githubToken: ${{ parameters.githubToken }}
+      githubUsername: ${{ parameters.githubUsername }}
+      githubEmail: ${{ parameters.githubEmail }}
     displayName: Push chart to heml-chart repo
