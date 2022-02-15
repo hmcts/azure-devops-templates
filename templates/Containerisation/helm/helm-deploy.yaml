@@ -15,15 +15,13 @@ parameters:
     type: string
   - name: chartPath
     type: string
-  - name: repositoryName
-    type: string
   - name: imageTag
     type: string
     default: "$(Build.BuildNumber)"
 
 steps:
   - bash: |
-      az aks get-credentials --resource-group ss-stg-01-rg --name ${{ parameters.kubernetesCluster }} --subscription ${{ parameters.azureSubscription }}
+      az aks get-credentials --resource-group ${{ parameters.kubernetersCluster }}-rg --name ${{ parameters.kubernetesCluster }}-aks --subscription ${{ parameters.azureSubscription }}
     displayName: 'AKS credential merge'
 
   - task: AzureCLI@2
