@@ -103,3 +103,4 @@ steps:
       - chartName: ${{ parameters.chartName }}
       - chartVersion: ${{ parameters.chartVersion }}
       - patToken: ${{ parameters.patToken }}
+    displayName: Push chart to heml-chart repo
