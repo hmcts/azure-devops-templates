@@ -59,18 +59,18 @@ steps:
       namespace: '${{ parameters.namespace }}'
       command: 'login'
 
-  - task: AzureCLI@2
-    displayName: test kubectl and helm from bash
-    continueOnError: true 
-    inputs:
-      azureSubscription: '${{ parameters.azureSubscription }}-Video Hearings'
-      scriptType: bash
-      scriptLocation: inlineScript
-      inlineScript: |
-        az --version
-        az account show
-        kubectl get pods -n vh
-        helm list --namespace vh
+  #- task: AzureCLI@2
+  #  displayName: test kubectl and helm from bash
+  #  continueOnError: true 
+  #  inputs:
+  #    azureSubscription: '${{ parameters.azureSubscription }}-Video Hearings'
+  #    scriptType: bash
+  #    scriptLocation: inlineScript
+  #    inlineScript: |
+  #      az --version
+  #      az account show
+  #      kubectl get pods -n vh
+  #      helm list --namespace vh
 
  #- task: AzureCLI@2
  #displayName: 'Deploy ${{ parameters.chartName }} to ${{ parameters.kubernetesCluster }}'
@@ -111,3 +111,5 @@ steps:
       namespace: ${{ parameters.namespace }}
       install: true
       waitForExecution: false
+      #the below is undocumented but it's an option in the HelmDeploy Task so perhaps it will work here?
+      useClusterAdmin: true
