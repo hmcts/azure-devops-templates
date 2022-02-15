@@ -73,8 +73,8 @@ steps:
     displayName: Helm upgrade
     inputs:
       azureSubscriptionEndpoint: 'DTS-SHAREDSERVICES-STG-Video Hearings'
-      azureResourceGroup: "ss-stg-01-rg"
-      kubernetesCluster: ${{ parameters.kubernetesCluster }}
+      azureResourceGroup: ${{ parameters.kubernetesCluster }}-rg 
+      kubernetesCluster: ${{ parameters.kubernetesCluster }}-aks
       command: upgrade
       chartType: filepath
       chartPath: ${{ parameters.chartPath }}/${{ parameters.chartName }}-${{ parameters.imageTag }}.tgz
