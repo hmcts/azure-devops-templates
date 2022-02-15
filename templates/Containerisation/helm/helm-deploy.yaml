@@ -20,6 +20,12 @@ parameters:
     default: "$(Build.BuildNumber)"
 
 steps:
+
+  - bash: |
+      az --version
+      az account show
+    displayName: 'check creds'
+    
   - bash: |
       az aks get-credentials --resource-group ${{ parameters.kubernetesCluster }}-rg --name ${{ parameters.kubernetesCluster }}-aks --subscription ${{ parameters.azureSubscription }}
     displayName: 'AKS credential merge'
@@ -32,6 +38,8 @@ steps:
       scriptType: bash
       scriptLocation: inlineScript
       inlineScript: |
+        az --version
+        az account show
         kubectl get pods -n vh
         helm list --namespace vh
 
