@@ -29,7 +29,16 @@ steps:
       inlineScript: |
         az --version
         az account show
-        az aks get-credentials --resource-group ${{ parameters.kubernetesCluster }}-rg --name ${{ parameters.kubernetesCluster }}-aks --subscription ${{ parameters.azureSubscription }}
+        AKS_CLUSTER=$(az aks show --resource-group ${{ parameters.kubernetesCluster }}-rg --name ${{ parameters.kubernetesCluster }}-aks --query id -o tsv)
+        echo $AKS_CLUSTER
+        ACCOUNT_UPN=$(az account show --query user.name -o tsv)
+        ACCOUNT_ID=$(az ad user show --id $ACCOUNT_UPN --query objectId -o tsv)
+        echo $ACCOUNT_UPN
+        echo $ACCOUNT_ID
+        az role assignment create \
+            --assignee $ACCOUNT_ID \
+            --scope $AKS_CLUSTER \
+            --role "Azure Kubernetes Service Cluster Admin Role"
 
   - task: AzureCLI@2
     displayName: test kubectl and helm from bash
@@ -72,6 +81,7 @@ steps:
   - task: HelmDeploy@0
     displayName: Helm upgrade
     inputs:
+      connectionType: Azure Resource Manager
       azureSubscriptionEndpoint: 'DTS-SHAREDSERVICES-STG-Video Hearings'
       azureResourceGroup: ${{ parameters.kubernetesCluster }}-rg 
       kubernetesCluster: ${{ parameters.kubernetesCluster }}-aks
