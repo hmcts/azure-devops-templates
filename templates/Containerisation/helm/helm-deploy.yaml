@@ -28,7 +28,7 @@ steps:
     displayName: test kubectl and helm from bash
     continueOnError: true 
     inputs:
-      azureSubscription: ${{ parameters.azureSubscription }}
+      azureSubscription: "${{ parameters.azureSubscription }}-Video Hearings"
       scriptType: bash
       scriptLocation: inlineScript
       inlineScript: |
