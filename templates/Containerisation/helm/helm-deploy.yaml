@@ -40,6 +40,8 @@ steps:
             --scope $AKS_CLUSTER \
             --role "Azure Kubernetes Service Cluster Admin Role"
 
+        az aks get-credentials --resource-group ${{ parameters.kubernetesCluster }}-rg  --name ${{ parameters.kubernetesCluster }}-aks --admin
+
   - task: AzureCLI@2
     displayName: test kubectl and helm from bash
     continueOnError: true 
