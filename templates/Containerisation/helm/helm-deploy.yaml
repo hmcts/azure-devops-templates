@@ -113,15 +113,9 @@ steps:
       command: 'repo'
       arguments: 'add ${{ parameters.acrName }} https://sdshmctspublic.azurecr.io/helm/v1/repo'
 
-  - task: HelmDeploy@0
-    displayName: Add ${{ parameters.acrName }}
-    inputs:
-      useClusterAdmin: true
-      connectionType: 'Azure Resource Manager'
-      azureSubscription: '${{ parameters.azureSubscription }}-Video Hearings'
-      azureResourceGroup: ${{ parameters.kubernetesCluster }}-rg 
-      kubernetesCluster:  ${{ parameters.kubernetesCluster }}-aks
-      command: 'search repo'
+  - bash: |
+      helm search repo
+    displayName: repo search
 
   - task: HelmDeploy@0
     displayName: Helm upgrade
