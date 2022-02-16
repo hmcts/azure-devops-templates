@@ -18,8 +18,8 @@ steps:
       CHART_DIRECTORY="${chartPath}"
       CHART_NAME="${chartName}"
       VERSION="${chartVersion}"
-      repo_name="vh-testing"
-      branch_name="chart-test"
+      repo_name="vh-test-chart"
+      branch_name="master"
 
       RETRIES=3
       DELAY=5
