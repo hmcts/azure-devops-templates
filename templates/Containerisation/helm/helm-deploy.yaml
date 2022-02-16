@@ -126,7 +126,7 @@ steps:
       kubernetesCluster: ${{ parameters.kubernetesCluster }}-aks
       command: upgrade
       chartType: Name
-      chartNameath: ${{ parameters.chartName }}-${{ parameters.imageTag }}
+      chartName: ${{ parameters.chartName }}
       releaseName: ${{ parameters.chartName }}
       namespace: ${{ parameters.namespace }}
       install: true
