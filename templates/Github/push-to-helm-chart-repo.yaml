@@ -3,8 +3,6 @@ parameters:
     type: string
   - name: chartName
     type: string
-  - name: chartVersion
-    type: string
 
   - name: githubToken
     type: string
@@ -17,7 +15,6 @@ steps:
   - bash: |
       CHART_DIRECTORY="${chartPath}"
       CHART_NAME="${chartName}"
-      VERSION="${chartVersion}"
       repo_name="vh-test-chart"
       branch_name="master"
 
@@ -34,6 +31,11 @@ steps:
       echo "github Token: ${githubToken}"
 
       echo "Repo Name: ${repo_name}"
+
+      echo "-------------------"
+
+      VERSION=$(cat "$CHART_DIRECTORY/Chart.yaml" | grep ^version | cut -d  ':' -f 2 | tr -d '[:space:]')
+      echo "chart version ${VERSION}"
 
       echo "-------------------"
 
