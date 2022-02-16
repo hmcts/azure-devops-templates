@@ -121,7 +121,7 @@ steps:
       azureSubscription: '${{ parameters.azureSubscription }}-Video Hearings'
       azureResourceGroup: ${{ parameters.kubernetesCluster }}-rg 
       kubernetesCluster:  ${{ parameters.kubernetesCluster }}-aks
-      command: 'list'
+      command: 'search repo'
 
   - task: HelmDeploy@0
     displayName: Helm upgrade
