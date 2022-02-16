@@ -139,7 +139,6 @@ steps:
     env:
       chartPath: ${{ parameters.chartPath }}
       chartName: ${{ parameters.chartName }}
-      chartVersion: ${{ parameters.chartVersion }}
       githubToken: ${{ parameters.githubToken }}
       githubUsername: ${{ parameters.githubUsername }}
       githubEmail: ${{ parameters.githubEmail }}
