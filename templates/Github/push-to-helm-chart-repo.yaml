@@ -18,7 +18,8 @@ steps:
       CHART_DIRECTORY="${chartPath}"
       CHART_NAME="${chartName}"
       VERSION="${chartVersion}"
-      repo_name="vh-devops-utils"
+      repo_name="vh-testing"
+      branch_name="chart-test"
 
       RETRIES=3
       DELAY=5
@@ -104,8 +105,8 @@ steps:
 
           echo "-------------------"
           while [ $COUNT -lt $RETRIES ]; do
-            git pull origin master
-            if git push origin HEAD:master; then
+            git pull origin ${branch_name}
+            if git push origin HEAD:${branch_name}; then
               echo "Chart published successfully with ${GIT_CHART_VERSION}"
               COUNT=0
               break
