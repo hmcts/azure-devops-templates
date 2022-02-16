@@ -127,7 +127,7 @@ steps:
       command: upgrade
       chartType: Name
       chartName: sdshmctspublic/vh-bookings-api #_blobs/${{ parameters.chartName }}-${{ parameters.imageTag }}.tgz
-      releaseName: ${{ parameters.chartName }}
+      releaseName: ${{ parameters.chartName }}-${{ parameters.imageTag }}
       namespace: ${{ parameters.namespace }}
       install: true
       waitForExecution: false
