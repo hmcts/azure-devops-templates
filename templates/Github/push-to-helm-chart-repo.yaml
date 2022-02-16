@@ -23,6 +23,12 @@ steps:
       DELAY=5
       COUNT=0
 
+      echo "Chart Directory: $CHART_DIRECTORY"
+      echo "Chart Name: $CHART_NAME"
+      echo "Chart Version: $VERSION"
+
+      echo "github User: ${githubUsername}"
+      echo "github Email: ${githubEmail}"
 
       git remote set-url origin $(git config remote.origin.url | sed "s/github.com/${githubUsername}:${githubToken}@github.com/g")
       git config --global user.name "${githubUsername}"
