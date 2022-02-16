@@ -18,6 +18,7 @@ steps:
       CHART_DIRECTORY="${chartPath}"
       CHART_NAME="${chartName}"
       VERSION="${chartVersion}"
+      repo_name="vh-devops-utils"
 
       RETRIES=3
       DELAY=5
@@ -30,16 +31,18 @@ steps:
       echo "github User: ${githubUsername}"
       echo "github Email: ${githubEmail}"
 
+      echo "Repo Name: ${repo_name}"
+
       echo "-------------------"
 
-      if [ -d "hmcts-charts" ]; then
+      if [ -d "${repo_name}" ]; then
         echo "Remove Chart Directory"
-        rm -rf hmcts-charts
+        rm -rf ${repo_name}
       fi
       echo "-------------------"
 
       while [ $COUNT -lt $RETRIES ]; do
-        if git clone https://github.com/hmcts/vh-devops-utils.git; then
+        if git clone https://github.com/hmcts/${repo_name}.git; then
           echo "Cloned"
           COUNT=0
           break
@@ -53,7 +56,7 @@ steps:
       done
       echo "-------------------"
 
-      if cd hmcts-charts; then
+      if cd ${repo_name}; then
         if [ -d "${CHART_NAME}" ]; then
           GIT_CHART_VERSION=$(helm inspect chart "${CHART_NAME}" | grep ^version | cut -d ':' -f 2 | tr -d '[:space:]')
           if [ "${GIT_CHART_VERSION}" = "${VERSION}" ]; then
