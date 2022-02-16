@@ -13,7 +13,7 @@ parameters:
     default: "sdshmctspublic"
   - name: namespace
     type: string
-    default: "VH"
+    default: "vh"
   - name: chartName
     type: string
   - name: chartPath
