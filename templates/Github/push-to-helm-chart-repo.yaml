@@ -97,13 +97,14 @@ steps:
           echo "-------------------"
 
           git remote set-url origin $(git config remote.origin.url | sed "s/github.com/${githubUsername}:${githubToken}@github.com/g")
-          git config user.name "${githubUsername}"
-          git config user.email "${githubEmail}"
+          git config --global user.name "${githubUsername}"
+          git config --global user.email "${githubEmail}"
           echo "-------------------"
 
           git add "stable/${CHART_NAME}/"
           git commit -m "Auto-release ${CHART_NAME} ${VERSION} from ADO"
-
+          GIT_TRACE=1 
+          GIT_CURL_VERBOSE=1
           echo "-------------------"
           while [ $COUNT -lt $RETRIES ]; do
             git pull origin ${branch_name}
