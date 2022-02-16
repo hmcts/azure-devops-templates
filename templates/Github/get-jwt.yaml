@@ -14,7 +14,7 @@ steps:
   
   - bash: |
       private_key_file_path="${private_key_file_path}"
-      app_id="${appId}"
+      app_id="${app_id}"
 
       private_key=$(cat $private_key_file_path)
 
