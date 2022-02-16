@@ -121,8 +121,8 @@ steps:
       azureResourceGroup: ${{ parameters.kubernetesCluster }}-rg 
       kubernetesCluster: ${{ parameters.kubernetesCluster }}-aks
       command: upgrade
-      chartType: filepath
-      chartPath: ${{ parameters.chartPath }}/${{ parameters.chartName }}-${{ parameters.imageTag }}.tgz
+      chartType: Name
+      chartNameath: ${{ parameters.chartName }}-${{ parameters.imageTag }}
       releaseName: ${{ parameters.chartName }}
       namespace: ${{ parameters.namespace }}
       install: true
