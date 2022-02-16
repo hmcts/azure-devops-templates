@@ -1,4 +1,7 @@
 parameters:
+  - name: helmVersion
+    type: string
+    default: 'latest'
   - name: azureSubscription
     type: string
     default: ""
@@ -94,6 +97,10 @@ steps:
  #  --set image.repository=sdshmctspublic/${{ parameters.chartName }} \
  #  --set image.tag=latest \
  #  ${{ parameters.chartName }}  sdshmctspublic/${{ parameters.chartName }} 
+
+  - task: HelmInstaller@1
+    inputs:
+      helmVersionToInstall: ${{ parameters.helmVersion }}
 
   - task: HelmDeploy@0
     displayName: Add ${{ parameters.acrName }}
