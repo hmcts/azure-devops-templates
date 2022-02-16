@@ -3,6 +3,12 @@ parameters:
     type: string
   - name: chartName
     type: string
+  - name: chartRepoName
+    type: string
+    default: helm-chart
+  - name: chartRepoBranch
+    type: string
+    default: master
 
   - name: githubToken
     type: string
@@ -15,8 +21,8 @@ steps:
   - bash: |
       CHART_DIRECTORY="${chartPath}"
       CHART_NAME="${chartName}"
-      repo_name="vh-test-chart"
-      branch_name="master"
+      repo_name="${chartRepoName}"
+      branch_name="${chartRepoBranch}"
 
       RETRIES=3
       DELAY=5
@@ -138,6 +144,8 @@ steps:
     env:
       chartPath: ${{ parameters.chartPath }}
       chartName: ${{ parameters.chartName }}
+      chartRepoName: ${{ parameters.chartRepoName }}
+      chartRepoBranch: ${{ parameters.chartRepoBranch }}
       githubToken: ${{ parameters.githubToken }}
       githubUsername: ${{ parameters.githubUsername }}
       githubEmail: ${{ parameters.githubEmail }}
