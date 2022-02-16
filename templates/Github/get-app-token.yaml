@@ -50,7 +50,7 @@ steps:
           printf '%s.%s\n' "${signed_content}" "${sig}"
       }
 
-      token=sign
+      token=$(sign)
       echo "##vso[task.setvariable variable=token;isOutput=true]$token"
 
     displayName: Get Github App Token
