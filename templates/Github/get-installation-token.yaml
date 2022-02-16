@@ -42,7 +42,7 @@ steps:
       echo "##vso[task.setvariable variable=token;isOutput=true]$INSTALLATION_TOKEN"
       
     env:
-      githubUsername: ${{ parameters.githubUsername }}
+      githubToken: ${{ parameters.githubToken }}
       githubOrganisationName: ${{ parameters.githubOrganisationName }}
     displayName: Push chart to heml-chart repo
     name: githubappinstall
