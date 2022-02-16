@@ -24,7 +24,6 @@ steps:
 
       echo "Chart Directory: $CHART_DIRECTORY"
       echo "Chart Name: $CHART_NAME"
-      echo "Chart Version: $VERSION"
 
       echo "github User: ${githubUsername}"
       echo "github Email: ${githubEmail}"
@@ -35,7 +34,7 @@ steps:
       echo "-------------------"
 
       VERSION=$(cat "$CHART_DIRECTORY/Chart.yaml" | grep ^version | cut -d  ':' -f 2 | tr -d '[:space:]')
-      echo "chart version ${VERSION}"
+      echo "Chart Version: $VERSION"
 
       echo "-------------------"
 
