@@ -39,7 +39,7 @@ steps:
       echo "-------------------"
 
       while [ $COUNT -lt $RETRIES ]; do
-        if git clone https://github.com/hmcts/hmcts-charts.git; then
+        if git clone https://github.com/hmcts/vh-devops-utils.git; then
           echo "Cloned"
           COUNT=0
           break
