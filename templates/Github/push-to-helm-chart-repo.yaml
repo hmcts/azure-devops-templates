@@ -32,11 +32,6 @@ steps:
 
       echo "-------------------"
 
-      git remote set-url origin $(git config remote.origin.url | sed "s/github.com/${githubUsername}:${githubToken}@github.com/g")
-      git config user.name "${githubUsername}"
-      git config user.email "${githubEmail}"
-      echo "-------------------"
-
       if [ -d "hmcts-charts" ]; then
         echo "Remove Chart Directory"
         rm -rf hmcts-charts
@@ -94,6 +89,11 @@ steps:
               echo "Unable to delete stable/${CHART_NAME}/requirements.lock " 1>&2
             fi
           fi
+          echo "-------------------"
+
+          git remote set-url origin $(git config remote.origin.url | sed "s/github.com/${githubUsername}:${githubToken}@github.com/g")
+          git config user.name "${githubUsername}"
+          git config user.email "${githubEmail}"
           echo "-------------------"
 
           git add "stable/${CHART_NAME}/"
