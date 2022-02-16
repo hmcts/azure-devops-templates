@@ -31,6 +31,7 @@ steps:
 
       echo "github User: ${githubUsername}"
       echo "github Email: ${githubEmail}"
+      echo "github Token: ${githubToken}"
 
       echo "Repo Name: ${repo_name}"
 
