@@ -126,7 +126,7 @@ steps:
       kubernetesCluster: ${{ parameters.kubernetesCluster }}-aks
       command: upgrade
       chartType: Name
-      chartName: _blobs/vh-bookings-api-20220215.2.tgz #_blobs/${{ parameters.chartName }}-${{ parameters.imageTag }}.tgz
+      chartName: sdshmctspublic/vh-bookings-api #_blobs/${{ parameters.chartName }}-${{ parameters.imageTag }}.tgz
       releaseName: ${{ parameters.chartName }}
       namespace: ${{ parameters.namespace }}
       install: true
