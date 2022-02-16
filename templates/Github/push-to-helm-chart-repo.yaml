@@ -85,7 +85,7 @@ steps:
           fi
   
           git add "stable/${CHART_NAME}/"
-          git commit -m "Auto-release ${CHART_NAME} ${VERSION}"
+          git commit -m "Auto-release ${CHART_NAME} ${VERSION} from ADO"
 
           while [ $COUNT -lt $RETRIES ]; do
             git pull origin master
