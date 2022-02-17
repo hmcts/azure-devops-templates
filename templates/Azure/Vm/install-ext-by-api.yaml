@@ -1,0 +1,58 @@
+parameters:
+  - name: subscription
+    type: string
+  - name: rgName
+    type: string
+  - name: vmName
+    type: string
+  - name: extName
+    type: string
+  - name: extPublisher
+    type: string
+  - name: restApiPutBodyJson
+    type: string
+    default: ""
+
+steps:
+  - task: AzureCLI@2
+    displayName: Install ${{ parameters.extName }} to ${{ parameters.vmName }}
+    condition: always()
+    continueOnError: true
+    inputs:
+      azureSubscription: ${{ parameters.subscription }}
+      scriptType: pscore
+      scriptLocation: inlineScript
+      inlineScript: |
+        $rgName="${{ parameters.rgName }}"
+        $vmName="${{ parameters.vmName }}"
+        $extName="${{ parameters.extName }}"
+        $extPublisher="${{ parameters.extPublisher }}"
+        $restBody = '${{ parameters.restApiPutBodyJson }}'
+
+        if ($null -eq $restBody -or $restBody -eq ""){
+          Write-Host "restbody is either null or empty"
+          $restBody="{}"
+        }
+                      
+        Try {
+          
+          $subscriptionId = az account show --query "id" -o tsv
+          $restUri = -join("https://management.azure.com/subscriptions/$subscriptionId/resourceGroups/$rgName/providers/Microsoft.Compute/virtualMachines/$vmName/extensions/", "$extName", "?api-version=2021-11-01")
+          
+          Write-Host "Installing $extName from $extPublisher using REST API"
+          Write-Host "restUri: $restUri"
+          Write-Host "restBody:"
+          Write-Host "$restBody"
+
+          az rest --method put --uri $restUri --body $restBody
+
+          $subscriptionName = az account show --query "name" -o tsv
+          az vm extension wait --created --name $extName --subscription $subscriptionName --resource-group $rgName --vm-name $vmName
+
+        } Catch {
+          Write-Host "Failed"
+          Write-Host "restUri: $restUri"
+          Write-Host "rgName: $rgName   vmName: $vmName"
+        }
+
+        

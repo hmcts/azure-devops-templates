@@ -1,0 +1,152 @@
+parameters:
+  - name: chartPath
+    type: string
+  - name: chartName
+    type: string
+  - name: chartRepoName
+    type: string
+    default: helm-chart
+  - name: chartRepoBranch
+    type: string
+    default: master
+
+  - name: githubToken
+    type: string
+  - name: githubUsername
+    type: string
+  - name: githubEmail
+    type: string
+
+steps:
+  - bash: |
+      CHART_DIRECTORY="${chartPath}"
+      CHART_NAME="${chartName}"
+      repo_name="${chartRepoName}"
+      branch_name="${chartRepoBranch}"
+
+      RETRIES=3
+      DELAY=5
+      COUNT=0
+
+      echo "Chart Directory: $CHART_DIRECTORY"
+      echo "Chart Name: $CHART_NAME"
+
+      echo "github User: ${githubUsername}"
+      echo "github Email: ${githubEmail}"
+      echo "github Token: ${githubToken}"
+
+      echo "Repo Name: ${repo_name}"
+
+      echo "-------------------"
+
+      VERSION=$(cat "$CHART_DIRECTORY/Chart.yaml" | grep ^version | cut -d  ':' -f 2 | tr -d '[:space:]')
+      echo "Chart Version: $VERSION"
+
+      echo "-------------------"
+
+      if [ -d "${repo_name}" ]; then
+        echo "Remove Chart Directory"
+        rm -rf ${repo_name}
+      fi
+      echo "-------------------"
+
+      while [ $COUNT -lt $RETRIES ]; do
+        if git clone https://github.com/hmcts/${repo_name}.git; then
+          echo "Cloned"
+          COUNT=0
+          break
+        fi
+        COUNT=$(($COUNT + 1))
+        if [ "$COUNT" = "$RETRIES" ]; then
+          exit 1
+        fi
+          echo "Failed to Cloned"
+        sleep $DELAY
+      done
+      echo "-------------------"
+
+      if cd ${repo_name}; then
+        if [ -d "${CHART_NAME}" ]; then
+          GIT_CHART_VERSION=$(helm inspect chart "${CHART_NAME}" | grep ^version | cut -d ':' -f 2 | tr -d '[:space:]')
+          if [ "${GIT_CHART_VERSION}" = "${VERSION}" ]; then
+            echo "No differences in the charts. Nothing to publish" 1>&2
+            exit 0
+          fi
+        else
+          echo "Chart version ${GIT_CHART_VERSION} not published to git yet" 1>&2
+        fi
+        echo "-------------------"
+
+        if rsync -a --delete-after "${CHART_DIRECTORY}/" "./stable/${CHART_NAME}"; then
+
+          if [ -d ./stable/${CHART_NAME}/charts ]; then
+            rm -rf ./stable/${CHART_NAME}/charts
+            if [[ $? -ne 0 ]]; then
+              echo "Unable to delete stable/${CHART_NAME}/charts directory" 1>&2
+            fi
+          fi
+          echo "-------------------"
+
+          if [ -e ./stable/${CHART_NAME}/Chart.lock ]; then
+            rm -f ./stable/${CHART_NAME}/Chart.lock
+            if [[ $? -ne 0 ]]; then
+              echo "Unable to delete stable/${CHART_NAME}/Chart.lock " 1>&2
+            fi
+          fi
+          echo "-------------------"
+
+          if [ -e ./stable/${CHART_NAME}/requirements.lock ]; then
+            rm -f ./stable/${CHART_NAME}/requirements.lock
+            if [[ $? -ne 0 ]]; then
+              echo "Unable to delete stable/${CHART_NAME}/requirements.lock " 1>&2
+            fi
+          fi
+          echo "-------------------"
+
+          git remote set-url origin $(git config remote.origin.url | sed "s/github.com/${githubUsername}:${githubToken}@github.com/g")
+          git config --global user.name "${githubUsername}"
+          git config --global user.email "${githubEmail}"
+          echo "-------------------"
+
+          git add "stable/${CHART_NAME}/"
+          git commit -m "Auto-release ${CHART_NAME} ${VERSION} from ADO"
+
+          echo "-------------------"
+          while [ $COUNT -lt $RETRIES ]; do
+            git pull origin ${branch_name}
+            if git push origin HEAD:${branch_name} --verbose; then
+              echo "Chart published successfully with ${GIT_CHART_VERSION}"
+              COUNT=0
+              break
+            else
+              echo "Failed to publish chart to git. Retry count $COUNT of $RETRIES"
+            fi
+            COUNT=$(($COUNT + 1))
+            if [ "$COUNT" = "$RETRIES" ]; then
+              exit 1
+            fi
+            sleep $DELAY
+          done
+          echo "-------------------"
+
+        else
+          echo "Could not copy charts directory! Aborting" 1>&2
+          exit 1
+        fi
+        echo "-------------------"
+      else
+        echo "Could not change directory! Aborting" 1>&2
+        exit 1
+      fi
+      echo "-------------------"
+
+
+    env:
+      chartPath: ${{ parameters.chartPath }}
+      chartName: ${{ parameters.chartName }}
+      chartRepoName: ${{ parameters.chartRepoName }}
+      chartRepoBranch: ${{ parameters.chartRepoBranch }}
+      githubToken: ${{ parameters.githubToken }}
+      githubUsername: ${{ parameters.githubUsername }}
+      githubEmail: ${{ parameters.githubEmail }}
+    displayName: Push chart to heml-chart repo
