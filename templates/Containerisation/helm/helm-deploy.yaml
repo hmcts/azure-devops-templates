@@ -33,7 +33,7 @@ steps:
       kubernetesCluster: ${{ parameters.kubernetesCluster }}-aks
       command: upgrade
       chartType: filepath
-      chartName: ${{ parameters.chartName }}-${{ parameters.imageTag }}.tgz #sdshmctspublic/vh-bookings-api 
+      chartName: ${{ parameters.chartName }}-${{ parameters.imageTag }}.tgz
       releaseName: ${{ parameters.chartName }}-${{ parameters.imageTag }}
       namespace: ${{ parameters.namespace }}
       install: true
