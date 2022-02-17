@@ -1,0 +1,48 @@
+
+parameters:
+  - name: githubToken
+    type: string
+  - name: githubOrganisationName
+    type: string
+
+steps:
+  - bash: |
+      ACCOUNT_NAME="${githubOrganisationName}"
+      APP_TOKEN="${githubToken}"
+
+      INSTALLATION_ID_RESPONSE=$(curl -s -H "Authorization: Bearer ${APP_TOKEN}" \
+        -H "Accept: application/vnd.github.machine-man-preview+json" \
+        https://api.github.com/app/installations)
+
+      INSTALLATION_ID=$(echo $INSTALLATION_ID_RESPONSE | jq '.[] | select(.account.login=="'${ACCOUNT_NAME}'")' | jq -r '.id')
+
+      if [ -z "$INSTALLATION_ID" ];
+      then
+        >&2 echo "Unable to obtain installation ID"
+        >&2 echo "$INSTALLATION_ID_RESPONSE"
+        exit 1
+      fi
+
+      # authenticate as github app and get access token
+      INSTALLATION_TOKEN_RESPONSE=$(curl -s -X POST \
+            -H "Authorization: Bearer ${APP_TOKEN}" \
+            -H "Accept: application/vnd.github.machine-man-preview+json" \
+            https://api.github.com/app/installations/$INSTALLATION_ID/access_tokens)
+
+      INSTALLATION_TOKEN=$(echo $INSTALLATION_TOKEN_RESPONSE | jq -r '.token')
+
+      if [ -z "$INSTALLATION_TOKEN" ];
+      then
+        >&2 echo "Unable to obtain installation token"
+        >&2 echo "$INSTALLATION_TOKEN_RESPONSE"
+        exit 1
+      fi
+
+      echo $INSTALLATION_TOKEN
+      echo "##vso[task.setvariable variable=token;isOutput=true]$INSTALLATION_TOKEN"
+      
+    env:
+      githubToken: ${{ parameters.githubToken }}
+      githubOrganisationName: ${{ parameters.githubOrganisationName }}
+    displayName: Get Installation Token
+    name: githubappinstall
