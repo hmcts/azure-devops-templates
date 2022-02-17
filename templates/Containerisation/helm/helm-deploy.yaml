@@ -7,7 +7,7 @@ parameters:
     default: ""
   - name: kubernetesCluster
     type: string
-    default: "ss-dev-01-aks"
+    default: "ss-dev-01"
   - name: acrName
     type: string
     default: "sdshmctspublic"
