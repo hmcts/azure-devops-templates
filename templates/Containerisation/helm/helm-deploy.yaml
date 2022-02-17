@@ -23,80 +23,6 @@ parameters:
     default: "$(Build.BuildNumber)"
 
 steps:
-  #- task: AzureCLI@2
-  #  displayName: 'check creds and AKS merge'
-  #  inputs:
-  #    azureSubscription: "${{ parameters.azureSubscription }}-Video Hearings"
-  #    scriptType: bash
-  #    scriptLocation: inlineScript
-  #    inlineScript: |
-  #      az --version
-  #      az account show
-  #      AKS_CLUSTER=$(az aks show --resource-group ${{ parameters.kubernetesCluster }}-rg --name ${{ parameters.kubernetesCluster }}-aks --query id -o tsv)
-  #      echo $AKS_CLUSTER
-  #      ACCOUNT_UPN=$(az account show --query user.name -o tsv)
-  #      ACCOUNT_ID=$(az ad user show --id $ACCOUNT_UPN --query objectId -o tsv)
-  #      echo $ACCOUNT_UPN
-  #      echo $ACCOUNT_ID
-  #      az role assignment create \
-  #          --assignee $ACCOUNT_ID \
-  #          --scope $AKS_CLUSTER \
-  #          --role "Azure Kubernetes Service Cluster Admin Role"
-#
-  #      az aks get-credentials --resource-group ${{ parameters.kubernetesCluster }}-rg  --name ${{ parameters.kubernetesCluster }}-aks --admin
-
- # - task: AzureCLI@1
- #   displayName: "AKS Authenticate"
- #   inputs:
- #     azureSubscription: '${{ parameters.azureSubscription }}-Video Hearings'
- #     scriptLocation: "inlineScript"
- #     inlineScript: az aks get-credentials --admin --resource-group ${{ parameters.kubernetesCluster }}-rg --name ${{ parameters.kubernetesCluster }}-aks
- # 
- # - task: HelmDeploy@0
- #   displayName: login
- #   inputs:
- #     connectionType: 'Azure Resource Manager'
- #     azureSubscription: '${{ parameters.azureSubscription }}-Video Hearings'
- #     azureResourceGroup: '${{ parameters.kubernetesCluster }}-rg'
- #     kubernetesCluster: '${{ parameters.kubernetesCluster }}-aks'
- #     namespace: '${{ parameters.namespace }}'
- #     command: 'login'
-#
-  #- task: AzureCLI@2
-  #  displayName: test kubectl and helm from bash
-  #  continueOnError: true 
-  #  inputs:
-  #    azureSubscription: '${{ parameters.azureSubscription }}-Video Hearings'
-  #    scriptType: bash
-  #    scriptLocation: inlineScript
-  #    inlineScript: |
-  #      az --version
-  #      az account show
-  #      kubectl get pods -n vh
-  #      helm list --namespace vh
-
- #- task: AzureCLI@2
- #displayName: 'Deploy ${{ parameters.chartName }} to ${{ parameters.kubernetesCluster }}'
- #inputs:
- #  azureSubscription: '${{ parameters.azureSubscription }}'
- #  scriptType: 'bash'
- #  scriptLocation: 'inlineScript'
- #  inlineScript: |
-
- #  #connect to aks
- #  az aks get-credentials -g ss-dev-00-rg -n ss-dev-00-aks -s DTS-SHAREDSERVCIES-DEV -a
- #  #configure acr
- #  
- #  az acr login --name $acrName
-
- #  helm repo add $acrName https://${{ paramters.acrName }}.azurecr.io/helm/v1/repo
-
- #  helm chart pull ${{ paramters.acrName }}.azurecr.io/
-
- #  helm upgrade --namespace {{ parameters.namespace }} --create-namespace --install \
- #  --set image.repository=sdshmctspublic/${{ parameters.chartName }} \
- #  --set image.tag=latest \
- #  ${{ parameters.chartName }}  sdshmctspublic/${{ parameters.chartName }} 
 
   - task: HelmInstaller@1
     inputs:
@@ -125,8 +51,8 @@ steps:
       azureResourceGroup: ${{ parameters.kubernetesCluster }}-rg 
       kubernetesCluster: ${{ parameters.kubernetesCluster }}-aks
       command: upgrade
-      chartType: Name
-      chartName: sdshmctspublic/vh-bookings-api #_blobs/${{ parameters.chartName }}-${{ parameters.imageTag }}.tgz
+      chartType: filepath
+      chartName: ${{ parameters.chartName }}-${{ parameters.imageTag }}.tgz #sdshmctspublic/vh-bookings-api 
       releaseName: ${{ parameters.chartName }}-${{ parameters.imageTag }}
       namespace: ${{ parameters.namespace }}
       install: true
