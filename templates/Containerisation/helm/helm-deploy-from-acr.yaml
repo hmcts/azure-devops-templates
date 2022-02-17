@@ -24,6 +24,25 @@ parameters:
 
 steps:
 
+  - task: HelmInstaller@1
+    inputs:
+      helmVersionToInstall: ${{ parameters.helmVersion }}
+
+  - task: HelmDeploy@0
+    displayName: Add ${{ parameters.acrName }}
+    inputs:
+      useClusterAdmin: true
+      connectionType: 'Azure Resource Manager'
+      azureSubscription: '${{ parameters.azureSubscription }}'
+      azureResourceGroup: ${{ parameters.kubernetesCluster }}-rg 
+      kubernetesCluster:  ${{ parameters.kubernetesCluster }}-aks
+      command: 'repo'
+      arguments: 'add ${{ parameters.acrName }} https://sdshmctspublic.azurecr.io/helm/v1/repo'
+
+  - bash: |
+      helm search repo
+    displayName: repo search
+
   - task: HelmDeploy@0
     displayName: Helm upgrade
     inputs:
@@ -32,8 +51,8 @@ steps:
       azureResourceGroup: ${{ parameters.kubernetesCluster }}-rg 
       kubernetesCluster: ${{ parameters.kubernetesCluster }}-aks
       command: upgrade
-      chartType: filepath
-      chartName: ${{ parameters.chartName }}-${{ parameters.imageTag }}.tgz #sdshmctspublic/vh-bookings-api 
+      chartType: name
+      chartName: sdshmctspublic/${{ parameters.chartName }}-${{ parameters.imageTag }} #sdshmctspublic/vh-bookings-api 
       releaseName: ${{ parameters.chartName }}-${{ parameters.imageTag }}
       namespace: ${{ parameters.namespace }}
       install: true
