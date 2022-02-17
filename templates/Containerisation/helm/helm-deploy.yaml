@@ -33,7 +33,7 @@ steps:
     inputs:
       useClusterAdmin: true
       connectionType: 'Azure Resource Manager'
-      azureSubscription: '${{ parameters.azureSubscription }}-Video Hearings'
+      azureSubscription: '${{ parameters.azureSubscription }}'
       azureResourceGroup: ${{ parameters.kubernetesCluster }}-rg 
       kubernetesCluster:  ${{ parameters.kubernetesCluster }}-aks
       command: 'repo'
@@ -47,7 +47,7 @@ steps:
     displayName: Helm upgrade
     inputs:
       connectionType: 'Azure Resource Manager'
-      azureSubscriptionEndpoint: '${{ parameters.azureSubscription }}-Video Hearings'
+      azureSubscriptionEndpoint: '${{ parameters.azureSubscription }}'
       azureResourceGroup: ${{ parameters.kubernetesCluster }}-rg 
       kubernetesCluster: ${{ parameters.kubernetesCluster }}-aks
       command: upgrade
