@@ -16,17 +16,21 @@ parameters:
     default: "vh"
   - name: chartName
     type: string
-  - name: chartPath
+  - name: fullChartPath
     type: string
   - name: imageTag
     type: string
     default: "$(Build.BuildNumber)"
+  - name: valuesFile
+    type: string
+    default: "values.yaml"
 
 steps:
   - bash: |
-        ls -ltr ${{ parameters.chartPath }}
+        ls -ltr ${{ parameters.fullChartPath }}
         echo "general filecheck"
         ls -ltr . 
+        echo ${{ parameters.fullChartPath }}
 
   - task: HelmDeploy@0
     displayName: Helm upgrade
@@ -37,9 +41,9 @@ steps:
       kubernetesCluster: ${{ parameters.kubernetesCluster }}-aks
       command: upgrade
       chartType: filepath
-      chartPath: ${{ parameters.chartPath }}/${{ parameters.chartName }}-${{ parameters.imageTag }}.tgz
+      chartPath: ${{ parameters.fullChartPath }}
       releaseName: ${{ parameters.chartName }}-${{ parameters.imageTag }}
-      valueFile: ${{ parameters.chartPath }}/values.yaml
+      valueFile: ${{ parameters.chartPath }}/${{ parameters.valuesFile }}
       namespace: ${{ parameters.namespace }}
       install: true
       waitForExecution: false
