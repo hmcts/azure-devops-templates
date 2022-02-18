@@ -1,0 +1,22 @@
+parameters:
+  - name: privateKeyFileName
+    type: string
+  - name: appId
+    type: string
+  - name: githubOrganisationName
+    type: string
+    default: "hmcts"
+
+
+steps:
+
+  - template: get-jwt.yaml
+    parameters:
+      privateKeyFileName: ${{ parameters.privateKeyFileName }}
+      appId: ${{ parameters.appId }}
+
+  - template: get-installation-token.yaml
+    parameters:
+      githubToken: $(githubapp.token)
+      githubOrganisationName: ${{ parameters.githubOrganisationName }}
+ 
