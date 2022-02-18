@@ -26,10 +26,7 @@ steps:
   - bash: |
         ls -ltr ${{ parameters.chartPath }}
         echo "general filecheck"
-        ls -ltr .
-        echo "param check"
-        ls -ltr ${{ parameters.imageTag }} 
-    
+        ls -ltr . 
 
   - task: HelmDeploy@0
     displayName: Helm upgrade
