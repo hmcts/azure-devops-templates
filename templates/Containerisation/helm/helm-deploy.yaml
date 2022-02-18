@@ -18,6 +18,8 @@ parameters:
     type: string
   - name: fullChartPath
     type: string
+  - name: fullChartPath
+    type: string
   - name: imageTag
     type: string
     default: "$(Build.BuildNumber)"
