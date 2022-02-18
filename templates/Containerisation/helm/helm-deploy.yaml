@@ -27,7 +27,10 @@ steps:
         ls -ltr ${{ parameters.chartPath }}
         echo "general filecheck"
         ls -ltr .
-        
+        echo "param check"
+        ls -ltr ${{ parameters.imageTag }} 
+    
+
   - task: HelmDeploy@0
     displayName: Helm upgrade
     inputs:
@@ -37,8 +40,9 @@ steps:
       kubernetesCluster: ${{ parameters.kubernetesCluster }}-aks
       command: upgrade
       chartType: filepath
-      chartName: ${{ parameters.chartPath }}
-      releaseName: ${{ parameters.chartName }}-${{ parameters.imageTag }} 
+      chartName: ${{ parameters.chartPath }}/Chart.yaml
+      releaseName: ${{ parameters.chartPath }}-${{ parameters.chartName }}-${{ parameters.imageTag }}.tgz
+      valueFile: ${{ parameters.chartPath }}/values.yaml
       namespace: ${{ parameters.namespace }}
       install: true
       waitForExecution: false
