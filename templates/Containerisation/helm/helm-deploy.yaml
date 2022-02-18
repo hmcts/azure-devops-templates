@@ -23,7 +23,11 @@ parameters:
     default: "$(Build.BuildNumber)"
 
 steps:
-
+  - bash: |
+        ls -ltr ${{ parameters.chartPath }}
+        echo "general filecheck"
+        ls -ltr .
+        
   - task: HelmDeploy@0
     displayName: Helm upgrade
     inputs:
