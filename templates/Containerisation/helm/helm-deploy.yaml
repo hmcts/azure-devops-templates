@@ -41,7 +41,7 @@ steps:
       command: upgrade
       chartType: filepath
       chartName: ${{ parameters.chartPath }}/Chart.yaml
-      releaseName: ${{ parameters.chartPath }}-${{ parameters.chartName }}-${{ parameters.imageTag }}.tgz
+      releaseName: ${{ parameters.chartPath }}/${{ parameters.chartName }}-${{ parameters.imageTag }}.tgz
       valueFile: ${{ parameters.chartPath }}/values.yaml
       namespace: ${{ parameters.namespace }}
       install: true
