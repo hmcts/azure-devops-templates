@@ -29,7 +29,7 @@ parameters:
 
 steps:
   - bash: |
-        ls -ltr ${{ parameters.chartPath }}
+        ls -ltr ${{ parameters.chartPath }}/vh-bookings-api
         echo "general filecheck"
         ls -ltr . 
         echo ${{ parameters.chartPath }}
