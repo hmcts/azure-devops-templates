@@ -23,9 +23,6 @@ parameters:
   - name: imageTag
     type: string
     default: "$(Build.BuildNumber)"
-  - name: valuesFile
-    type: string
-    default: "values.yaml"
 
 steps:
   - bash: |
@@ -46,7 +43,6 @@ steps:
       chartType: filepath
       chartPath: ${{ parameters.chartPath }}/${{ parameters.fullChartName }}
       releaseName: ${{ parameters.chartName }}-${{ parameters.imageTag }}
-      valueFile: ${{ parameters.chartPath }}/${{ parameters.valuesFile }}
       namespace: ${{ parameters.namespace }}
       install: true
       waitForExecution: false
