@@ -32,7 +32,8 @@ steps:
         ls -ltr ${{ parameters.chartPath }}
         echo "general filecheck"
         ls -ltr . 
-        echo ${{ parameters.fullChartPath }}
+        echo ${{ parameters.chartPath }}
+        echo ${{ parameters.fullChartName }}
 
   - task: HelmDeploy@0
     displayName: Helm upgrade
