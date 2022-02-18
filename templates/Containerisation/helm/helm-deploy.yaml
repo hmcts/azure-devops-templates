@@ -5,9 +5,11 @@ parameters:
   - name: azureSubscription
     type: string
     default: ""
+  - name: kubernetesRG
+    type: string
   - name: kubernetesCluster
     type: string
-    default: "ss-dev-01"
+    default: "ss-dev-01-aks"
   - name: acrName
     type: string
     default: "sdshmctspublic"
@@ -38,8 +40,8 @@ steps:
     inputs:
       connectionType: 'Azure Resource Manager'
       azureSubscriptionEndpoint: '${{ parameters.azureSubscription }}'
-      azureResourceGroup: ${{ parameters.kubernetesCluster }}-rg 
-      kubernetesCluster: ${{ parameters.kubernetesCluster }}-aks
+      azureResourceGroup: ${{ parameters.kubernetesRG }}
+      kubernetesCluster: ${{ parameters.kubernetesCluster }}
       command: upgrade
       chartType: filepath
       chartPath: ${{ parameters.chartPath }}/${{ parameters.fullChartName }}
