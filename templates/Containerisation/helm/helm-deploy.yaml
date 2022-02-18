@@ -18,7 +18,7 @@ parameters:
     type: string
   - name: chartPath
     type: string
-  - name: fullChartPath
+  - name: fullChartName
     type: string
   - name: imageTag
     type: string
@@ -29,7 +29,7 @@ parameters:
 
 steps:
   - bash: |
-        ls -ltr ${{ parameters.fullChartPath }}
+        ls -ltr ${{ parameters.chartPath }}
         echo "general filecheck"
         ls -ltr . 
         echo ${{ parameters.fullChartPath }}
@@ -43,7 +43,7 @@ steps:
       kubernetesCluster: ${{ parameters.kubernetesCluster }}-aks
       command: upgrade
       chartType: filepath
-      chartPath: ${{ parameters.fullChartPath }}
+      chartPath: ${{ parameters.chartPath }}/${{ parameters.fullChartName }}
       releaseName: ${{ parameters.chartName }}-${{ parameters.imageTag }}
       valueFile: ${{ parameters.chartPath }}/${{ parameters.valuesFile }}
       namespace: ${{ parameters.namespace }}
