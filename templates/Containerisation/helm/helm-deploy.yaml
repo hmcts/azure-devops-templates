@@ -20,6 +20,7 @@ parameters:
     type: string
   - name: fullChartName
     type: string
+    default: ""
   - name: imageTag
     type: string
     default: "$(Build.BuildNumber)"
