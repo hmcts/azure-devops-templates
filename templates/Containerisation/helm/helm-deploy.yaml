@@ -26,6 +26,9 @@ parameters:
   - name: imageTag
     type: string
     default: "$(Build.BuildNumber)"
+  - name: additionalArgs
+    type: string
+    default: ""
 
 steps:
   - bash: |
@@ -50,3 +53,4 @@ steps:
       install: true
       waitForExecution: false
       useClusterAdmin: true
+      arguments: additionalArgs
