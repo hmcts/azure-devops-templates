@@ -11,8 +11,8 @@ parameters:
   - name: recordName
     type: string
   - name: ttl
-    type: string
-    default: "300"
+    type: number
+    default: 300
   - name: serviceIP
     type: string
 
@@ -22,13 +22,13 @@ steps:
     inputs:
       azureSubscription: ${{ parameters.subscriptionName }}
       scriptType: pscore
-      scriptLocation: 'inlineScript'
+      scriptLocation: inlineScript
       inlineScript: |
         $resourceGroup = "${{ parameters.dnsResourceGroupName }}"
         $zone = "${{ parameters.zoneName }}"
         $recordName = "${{ parameters.recordName }}"
         $subscription = "${{ parameters.dnsSubscriptionName }}"
-        $ttl = "${{ parameters.ttl }}"
+        $ttl = ${{ parameters.ttl }}
         $serviceIP = "${{ parameters.serviceIP }}"
 
         Write-Host "Check $recordName exists in $zone in $resourceGroup"
