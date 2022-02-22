@@ -24,12 +24,14 @@ steps:
       scriptType: pscore
       scriptLocation: inlineScript
       inlineScript: |
-        $resourceGroup = "${{ parameters.dnsResourceGroupName }}"
-        $zone = "${{ parameters.zoneName }}"
-        $recordName = "${{ parameters.recordName }}"
-        $subscription = "${{ parameters.dnsSubscriptionName }}"
-        $ttl = ${{ parameters.ttl }}
-        $serviceIP = "${{ parameters.serviceIP }}"
+
+
+        $resourceGroup = "vh-infra-wowza-sbox"
+        $zone = "privatelink.blob.core.windows.net"
+        $recordName = "cp-test"
+        $subscription = "a8140a9e-f1b0-481f-a4de-09e2ee23f7ab"
+        $ttl = 300
+        $serviceIP = "10.1.1.2"
 
         Write-Host "Check $recordName exists in $zone in $resourceGroup"
         $existingRecord = az network private-dns record-set a list -g ${resourceGroup} -z ${zone} --query "[? contains(name, '${recordName}')]" --subscription ${subscription} -o json | ConvertFrom-Json
