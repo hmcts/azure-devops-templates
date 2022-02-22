@@ -1,0 +1,53 @@
+parameters:
+  - name: subscriptionName
+    type: string
+  - name: resourceGroupName
+    type: string
+  - name: clusterName
+    type: string
+  - name: serviceName
+    type: string
+    default: "traefik"
+  - name: namespace
+    type: string
+    default: "admin"
+
+steps:
+  - task: AzureCLI@2
+    displayName: Getting ${{ parameters.serviceName }} Details from ${{ parameters.clusterName }} 
+    name: akslb
+    inputs:
+      azureSubscription: ${{ parameters.subscriptionName }}
+      scriptType: pscore
+      scriptLocation: inlineScript
+      inlineScript: |
+        $serviceName = "${{ parameters.serviceName }}"
+        $namespace = "${{ parameters.namespace }}"
+        $resourceGroupName = "${{ parameters.resourceGroupName }}"
+        $clusterName = "${{ parameters.clusterName }}"
+
+        Write-Host "Login to AKS"
+        az aks get-credentials --resource-group $resourceGroupName --name $clusterName -a
+
+        $maxAttempts = 30
+        $sleepDuration = 10
+
+        for ($i = 1; $i -le $maxAttempts; $i++) {
+          Write-Host "Checking service $serviceName in namespace $namespace"
+          $loadBalanceService = kubectl get service $serviceName -n $namespace -o json | ConvertFrom-Json
+
+          $lbIp = ""
+          if ($loadBalanceService.status.loadBalancer.ingress.length -lt 1) {
+            Write-Host "ILB not found or still initialising..."
+          }
+          else {
+            $lbIp = $loadBalanceService.status.loadBalancer.ingress[0].ip
+            Write-Host "The LB IP is $lbIp"
+            break
+          }
+
+          Write-Host "Sleeping"
+          Start-Sleep -Seconds $sleepDuration
+        }
+
+        Write-Host "##vso[task.setvariable variable=ip;isOutput=true]$lbIp"

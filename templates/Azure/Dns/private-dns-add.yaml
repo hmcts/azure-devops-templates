@@ -1,0 +1,48 @@
+parameters:
+  - name: subscriptionName
+    type: string
+
+  - name: dnsSubscriptionName
+    type: string
+  - name: dnsResourceGroupName
+    type: string
+  - name: zoneName
+    type: string
+  - name: recordName
+    type: string
+  - name: ttl
+    type: number
+    default: 300
+  - name: serviceIP
+    type: string
+
+steps:
+  - task: AzureCLI@2
+    displayName: Create/Update ${{ parameters.recordName }} in ${{ parameters.zoneName }}
+    inputs:
+      azureSubscription: ${{ parameters.subscriptionName }}
+      scriptType: pscore
+      scriptLocation: inlineScript
+      inlineScript: |
+        $resourceGroup = "${{ parameters.dnsResourceGroupName }}"
+        $recordName = "${{ parameters.recordName }}"
+        $zone = "${{ parameters.zoneName }}"
+        $subscription = "${{ parameters.dnsSubscriptionName }}"
+        $ttl = ${{ parameters.ttl }}
+        $serviceIP = "${{ parameters.serviceIP }}"
+
+        Write-Host "Check $recordName exists in $zone in $resourceGroup"
+
+        $existingRecord = az network private-dns record-set a list -g ${resourceGroup} -z ${zone} --query "[? contains(name, '${recordName}')]" --subscription ${subscription} -o json | ConvertFrom-Json
+
+        if ($existingRecord.length -lt 1) {
+          Write-Host "No Record found for $recordName"
+          Write-Host "Adding Record $recordName for $serviceIP"
+          az network private-dns record-set a create -g ${resourceGroup} -z ${zone} -n ${recordName} --ttl ${ttl} --subscription ${subscription}
+          az network private-dns record-set a add-record -g ${resourceGroup} -z ${zone} -n ${recordName} -a ${serviceIP} --subscription ${subscription}
+        }
+        else {
+          Write-Host "Record found for $recordName"
+          Write-Host "Updating Record $recordName for $serviceIP"
+          az network private-dns record-set a update -g ${resourceGroup} -z ${zone} -n ${recordName} --subscription ${subscription} --set "aRecords[0].ipv4Address=`"${serviceIP}`"" --set "ttl=${ttl}"
+        }

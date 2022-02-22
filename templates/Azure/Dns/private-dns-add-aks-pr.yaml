@@ -1,0 +1,36 @@
+parameters:
+  - name: subscriptionName
+    type: string
+
+  - name: aksSubscriptionName
+    type: string
+  - name: aksResourceGroupName
+    type: string
+  - name: aksClusterName
+    type: string
+
+  - name: dnsSubscriptionName
+    type: string
+  - name: dnsResourceGroupName
+    type: string
+  - name: zoneName
+    type: string
+  - name: recordName
+    type: string
+
+steps:
+
+  - template: ../Aks/get-load-balancer.yaml
+    parameters:
+      subscriptionName: ${{ parameters.aksSubscriptionName }}
+      resourceGroupName: ${{ parameters.aksResourceGroupName }}
+      clusterName: ${{ parameters.aksClusterName }}
+
+  - template: private-dns-add.yaml
+    parameters:
+      subscriptionName: ${{ parameters.subscriptionName }}
+      dnsSubscriptionName: ${{ parameters.dnsSubscriptionName }}
+      dnsResourceGroupName: ${{ parameters.dnsResourceGroupName }}
+      zoneName: "${{ parameters.zoneName }}"
+      serviceIP: "$(akslb.ip)"
+      recordName: "${{ parameters.recordName }}"

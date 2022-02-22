@@ -1,0 +1,35 @@
+parameters:
+  - name: subscriptionName
+    type: string
+  - name: resourceGroupName
+    type: string
+  - name: zoneName
+    type: string
+  - name: recordName
+    type: string
+
+steps:
+  - task: AzureCLI@2
+    displayName: Remove ${{ parameters.recordName }} from ${{ parameters.zoneName }}
+    inputs:
+      azureSubscription: ${{ parameters.subscriptionName }}
+      scriptType: pscore
+      scriptLocation: inlineScript
+      inlineScript: |
+        $resourceGroup = "${{ parameters.resourceGroupName }}"
+        $zone = "${{ parameters.zoneName }}"
+        $recordName = "${{ parameters.recordName }}"
+        $subscription = "${{ parameters.subscriptionName }}"
+
+        Write-Host "Check $recordName exists in $zone in $resourceGroup"
+        $existingRecord = az network private-dns record-set a list -g ${resourceGroup} -z ${zone} --query "[? contains(name, '${recordName}')]" --subscription ${subscription} -o json | ConvertFrom-Json
+
+        if ($existingRecord.length -lt 1) {
+          Write-Host "No Record found for $recordName"
+        }
+        else {
+          Write-Host "Record found for $recordName"
+          Write-Host "Deleting Record $recordName"
+          az network private-dns record-set a delete -g ${resourceGroup} -z ${zone} -n ${recordName} --subscription ${subscription} -y
+        }
+
