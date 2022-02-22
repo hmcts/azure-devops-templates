@@ -11,8 +11,8 @@ parameters:
   - name: recordName
     type: string
   - name: ttl
-    type: number
-    default: 300
+    type: string
+    default: "300"
   - name: serviceIP
     type: string
 
