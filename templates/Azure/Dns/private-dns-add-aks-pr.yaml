@@ -31,6 +31,6 @@ steps:
       subscriptionName: ${{ parameters.subscriptionName }}
       dnsSubscriptionName: ${{ parameters.dnsSubscriptionName }}
       dnsResourceGroupName: ${{ parameters.dnsResourceGroupName }}
-      zoneName: ${{ parameters.zoneName }}
-      serviceIP: $(akslb.ip)
-      recordName: ${{ parameters.recordName }}
+      zoneName: "${{ parameters.zoneName }}"
+      serviceIP: "$(akslb.ip)"
+      recordName: "${{ parameters.recordName }}"
