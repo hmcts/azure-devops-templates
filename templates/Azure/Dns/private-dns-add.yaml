@@ -22,7 +22,7 @@ steps:
     inputs:
       azureSubscription: ${{ parameters.subscriptionName }}
       scriptType: pscore
-      scriptLocation: inlineScript
+      scriptLocation: 'inlineScript'
       inlineScript: |
         $resourceGroup = "${{ parameters.dnsResourceGroupName }}"
         $zone = "${{ parameters.zoneName }}"
