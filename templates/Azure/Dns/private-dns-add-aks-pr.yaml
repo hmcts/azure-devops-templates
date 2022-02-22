@@ -33,3 +33,4 @@ steps:
       dnsResourceGroupName: ${{ parameters.dnsResourceGroupName }}
       zoneName: ${{ parameters.zoneName }}
       serviceIP: $(akslb.ip)
+      recordName: ${{ parameters.recordName }}
