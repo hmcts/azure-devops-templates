@@ -26,13 +26,12 @@ steps:
       inlineScript: |
         $resourceGroup = "${{ parameters.dnsResourceGroupName }}"
         $recordName = "${{ parameters.recordName }}"
-
-        Write-Host "Check $recordName exists in $zone in $resourceGroup"
-
         $zone = "${{ parameters.zoneName }}"
         $subscription = "${{ parameters.dnsSubscriptionName }}"
         $ttl = ${{ parameters.ttl }}
-        $serviceIP = "${{ parameters.serviceIP }}"
+        $serviceIP = "10.10.10.10"
+
+        Write-Host "Check $recordName exists in $zone in $resourceGroup"
 
         $existingRecord = az network private-dns record-set a list -g ${resourceGroup} -z ${zone} --query "[? contains(name, '${recordName}')]" --subscription ${subscription} -o json | ConvertFrom-Json
 
