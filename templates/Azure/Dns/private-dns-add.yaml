@@ -27,7 +27,7 @@ steps:
         $resourceGroup = "${{ parameters.dnsResourceGroupName }}"
         $recordName = "${{ parameters.recordName }}"
         $zone = "${{ parameters.zoneName }}"
-        $subscription = "${{ parameters.dnsSubscriptionName }}"
+        $subscription = "a8140a9e-f1b0-481f-a4de-09e2ee23f7ab"
         $ttl = 300
         $serviceIP = "10.10.10.10"
 
