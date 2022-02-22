@@ -28,8 +28,8 @@ steps:
         $recordName = "${{ parameters.recordName }}"
         $zone = "${{ parameters.zoneName }}"
         $subscription = "${{ parameters.dnsSubscriptionName }}"
+        $ttl = 300
         $serviceIP = "10.10.10.10"
-        $ttl = ${{ parameters.ttl }}
 
         Write-Host "Check $recordName exists in $zone in $resourceGroup"
 
