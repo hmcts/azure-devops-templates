@@ -5,7 +5,7 @@ parameters:
     type: string
   - name: chartRepoName
     type: string
-    default: helm-chart
+    default: hmcts-charts
   - name: chartRepoBranch
     type: string
     default: master
