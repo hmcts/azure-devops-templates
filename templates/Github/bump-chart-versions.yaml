@@ -82,7 +82,7 @@ steps:
         echo "==================================================================="
 
         git remote set-url origin $(git config remote.origin.url | sed "s/github.com/${githubUsername}:${githubToken}@github.com/g")
-        git remote set-url origin https://${githubUsername}:${githubToken}@github.com/hmcts/${repo_name}.git
+        git remote set-url origin https://${githubUsername}:${githubToken}@github.com/hmcts/${CHART_NAME}.git
         git config --global user.name "${githubUsername}"
         git config --global user.email "${githubEmail}"
 
