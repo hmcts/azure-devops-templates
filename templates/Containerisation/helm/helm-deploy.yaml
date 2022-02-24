@@ -33,6 +33,14 @@ parameters:
     default: ""
 
 steps:
+  - bash: |
+      echo $askName
+      echo $askRg
+      echo $azureSubscription
+    env: 
+      askName: ${{ parameters.kubernetesCluster }}
+      askRg: ${{ parameters.kubernetesRG }}
+      azureSubscription: ${{ parameters.azureSubscription }}
 
   - bash: |
       valuesPath="${valuesPath}"
