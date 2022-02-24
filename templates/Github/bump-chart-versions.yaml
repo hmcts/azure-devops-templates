@@ -40,7 +40,7 @@ steps:
       fi
 
       echo "Get difference on Charts"
-      git diff -s --exit-code origin/master "${CHART_DIRECTORY}/charts/${CHART_NAME}Chart.yaml"
+      git diff -s --exit-code origin/master "${CHART_DIRECTORY}/charts/${CHART_NAME}/Chart.yaml"
 
       if [ $? -eq 1 ]; then
         echo "Diff in Chart.yaml detected"
@@ -52,9 +52,9 @@ steps:
 
       echo "Get difference on requirements"
       DIFF_IN_REQUIREMENTS=false
-      if [[ -f "${CHART_DIRECTORY}/charts/${CHART_NAME}requirements.yaml" ]]
+      if [[ -f "${CHART_DIRECTORY}/charts/${CHART_NAME}/requirements.yaml" ]]
       then
-        git diff -s --exit-code origin/master "${CHART_DIRECTORY}/charts/${CHART_NAME}requirements.yaml"
+        git diff -s --exit-code origin/master "${CHART_DIRECTORY}/charts/${CHART_NAME}/requirements.yaml"
         if [ $? -eq 1 ]; then
           echo "Diff in requirements.yaml detected"
           DIFF_IN_REQUIREMENTS=true
@@ -69,7 +69,7 @@ steps:
         exit 0
       fi
 
-      git diff origin/master "${CHART_DIRECTORY}/charts/${CHART_NAME}Chart.yaml" | grep --quiet '+version'
+      git diff origin/master "${CHART_DIRECTORY}/charts/${CHART_NAME}/Chart.yaml" | grep --quiet '+version'
 
       if [ $? -eq 0 ]; then
         echo "Chart.yaml version has been bumped :)"
@@ -86,15 +86,16 @@ steps:
         git config --global user.name "${githubUsername}"
         git config --global user.email "${githubEmail}"
 
-        CHART_VERSION=$(cat "${CHART_DIRECTORY}/charts/${CHART_NAME}Chart.yaml" | grep ^version | cut -d ':' -f 2 | sed -e 's/^[[:space:]]*//')
+        CHART_VERSION=$(cat "${CHART_DIRECTORY}/charts/${CHART_NAME}/Chart.yaml" | grep ^version | cut -d ':' -f 2 | sed -e 's/^[[:space:]]*//')
         NEW_VERSION=$(echo $CHART_VERSION | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g' )
-        sed -i -e "s/^version: $CHART_VERSION/version: $NEW_VERSION/" "${CHART_DIRECTORY}/charts/${CHART_NAME}Chart.yaml"
+        sed -i -e "s/^version: $CHART_VERSION/version: $NEW_VERSION/" "${CHART_DIRECTORY}/charts/${CHART_NAME}/Chart.yaml"
 
-        git add "${CHART_DIRECTORY}/charts/${CHART_NAME}Chart.yaml"
+        git add "${CHART_DIRECTORY}/charts/${CHART_NAME}/Chart.yaml"
         git commit -m "Bumping chart version"
         git push origin HEAD:$BRANCH
         exit 1
       fi
+
     env:
       chartPath: ${{ parameters.chartPath }}
       chartName: ${{ parameters.chartName }}
