@@ -59,7 +59,7 @@ steps:
       env: ${{ parameters.environment }}
 
   
-  - ${{ if eq(parameters.fullChartName, "") }}:
+  - ${{ if eq(parameters.fullChartName, '') }}:
     - bash: |
 
           cd $chartPath
