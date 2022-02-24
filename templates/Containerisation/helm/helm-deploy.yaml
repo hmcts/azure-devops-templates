@@ -26,17 +26,37 @@ parameters:
   - name: imageTag
     type: string
     default: "$(Build.BuildNumber)"
+  - name: environment
+    type: string
   - name: additionalArgs
     type: string
     default: ""
 
 steps:
+
   - bash: |
-        ls -ltr ${{ parameters.chartPath }}/vh-bookings-api
-        echo "general filecheck"
-        ls -ltr . 
-        echo ${{ parameters.chartPath }}
-        echo ${{ parameters.fullChartName }}
+      valuesPath="${valuesPath}"
+      
+      helmArgs=""
+      if test -f "${valuesPath}/values.yaml"; then
+
+        echo "$valuesPath found"
+        helmArgs=" -f ${valuesPath}/values.yaml"
+        valuesEnv="${valuesPath}/values.${env}.yaml"
+
+        if test -f "$valuesEnv"; then
+          echo "$valuesEnv found"
+          helmArgs="$helmArgs -f $valuesEnv"
+        fi
+      fi
+      helmArgs="$helmArgs $additionalArgs"
+      echo "arg: $helmArgs"
+      echo "##vso[task.setvariable variable=helmArgs;isOutput=true]$helmArgs"
+    displayName: Set Helm Arguments
+    env:
+      valuesPath: ${{ parameters.chartPath }}
+      additionalArgs: ${{ parameters.additionalArgs }}
+      env: ${{ parameters.environment }}
 
   - task: HelmDeploy@0
     displayName: Helm upgrade
