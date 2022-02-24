@@ -1,7 +1,7 @@
 parameters:
   - name: project
     type: string
-    default: hmcts
+    default: "hmcts"
   - name: repoName
     type: string
   - name: pullRequestId
@@ -18,6 +18,7 @@ steps:
       $contentType = "application/json"
 
       $requestUrl = "https://api.github.com/repos/$project/$repoName/pulls/$pullRequestId"
+      Write-Host "Request: $requestUrl"
 
       $response = Invoke-WebRequest -Uri $requestUrl -Method GET -Headers $header -ContentType $contentType | ConvertFrom-Json
 
