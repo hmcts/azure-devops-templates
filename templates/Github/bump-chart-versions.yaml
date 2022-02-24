@@ -29,7 +29,7 @@ steps:
 
       echo "Get difference on Values"
       git fetch origin master:master
-      git diff -s --exit-code origin/master "${CHART_DIRECTORY}/charts/${CHART_NAME}/charts/${CHART_NAME}/values.yaml"
+      git diff -s --exit-code origin/master "${CHART_DIRECTORY}/charts/${CHART_NAME}/values.yaml"
 
       if [ $? -eq 1 ]; then
         echo "Diff in values.yaml detected"
