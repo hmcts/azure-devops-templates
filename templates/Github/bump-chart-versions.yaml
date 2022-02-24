@@ -20,9 +20,9 @@ steps:
       BRANCH="${chartBranch}"
       CHART_NAME="${chartName}"
 
-      githubUsername="hmcts-vh-test-app"
-      githubToken="ghs_XhEo3DJhCjHZuZPBMgpNruuFOGeI4r21645S"
-      githubEmail="172582"
+      echo "github User: ${githubUsername}"
+      echo "github Email: ${githubEmail}"
+      echo "github Token: ${githubToken}"
 
       ## Move to root
       cd ${CHART_DIRECTORY}
