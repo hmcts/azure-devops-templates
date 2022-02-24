@@ -58,6 +58,19 @@ steps:
       additionalArgs: ${{ parameters.additionalArgs }}
       env: ${{ parameters.environment }}
 
+  
+  - ${{ if eq(parameters.fullChartName, "") }}:
+    - bash: |
+
+          cd $chartPath
+
+          echo "Update Dependencys"
+          helm dependency update
+
+      displayName: Helm Dependency build
+      env:
+        chartPath: "${{ parameters.chartPath }}"
+
   - task: HelmDeploy@0
     displayName: Helm upgrade
     inputs:
