@@ -79,6 +79,14 @@ steps:
       env:
         chartPath: "${{ parameters.chartPath }}"
 
+  - bash: |
+      echo "path: ${path}"
+      echo "releasename: ${releaseName}"
+    env: 
+      releaseName: ${{ parameters.chartName }}-${{ parameters.imageTag }}
+      path: ${{ parameters.chartPath }}/${{ parameters.fullChartName }}
+    displayName: "Helm Details"
+
   - task: HelmDeploy@0
     displayName: Helm upgrade
     inputs:
