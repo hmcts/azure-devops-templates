@@ -97,7 +97,7 @@ steps:
       command: upgrade
       chartType: filepath
       chartPath: ${{ parameters.chartPath }}/${{ parameters.fullChartName }}
-      releaseName: 'vh-bookings-api-20220218.11'  ##${{ parameters.chartName }}-${{ parameters.imageTag }}
+      releaseName: ${{ parameters.chartName }}-${{ parameters.imageTag }}
       namespace: ${{ parameters.namespace }}
       install: true
       waitForExecution: false
