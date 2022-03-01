@@ -1,0 +1,29 @@
+parameters:
+  - name: project
+    type: string
+    default: "hmcts"
+  - name: repoName
+    type: string
+  - name: pullRequestId
+    type: number
+
+
+steps:
+  - powershell: |
+      $project="${{ parameters.project }}"
+      $repoName="${{ parameters.repoName }}"
+      $pullRequestId="${{ parameters.pullRequestId }}"
+
+      $header = @{Accept = "application/vnd.github.v3+json" }
+      $contentType = "application/json"
+
+      $requestUrl = "https://api.github.com/repos/$project/$repoName/pulls/$pullRequestId"
+      Write-Host "Request: $requestUrl"
+
+      $response = Invoke-WebRequest -Uri $requestUrl -Method GET -Headers $header -ContentType $contentType | ConvertFrom-Json
+
+      $branch="$($response.head.ref)"
+      Write-Host "PR Branch is $branch"
+      Write-Host "##vso[task.setvariable variable=branch;isOutput=true]$branch"
+    name: pr
+    displayName: Get Pull Request ${{ parameters.pullRequestId }} from ${{ parameters.repoName }}
