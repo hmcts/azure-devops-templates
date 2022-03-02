@@ -1,0 +1,32 @@
+parameters:
+  - name: repoName
+    type: string
+  - name: branchName
+    type: string
+    default: master
+
+steps:
+  - bash: |
+      if [ -d "${repo_name}" ]; then
+        echo "Remove Chart Directory"
+        rm -rf ${repo_name}
+      fi
+      echo "-------------------"
+
+      while [ $COUNT -lt $RETRIES ]; do
+        if git clone --branch ${branch_name} https://github.com/hmcts/${repo_name}.git; then
+          echo "Cloned"
+          COUNT=0
+          break
+        fi
+        COUNT=$(($COUNT + 1))
+        if [ "$COUNT" = "$RETRIES" ]; then
+          exit 1
+        fi
+          echo "Failed to Cloned"
+        sleep $DELAY
+      done
+    env:
+      repo_name: ${{ parameters.repoName }}
+      branch_name: ${{ parameters.branchName }}
+    displayName: Clone ${{ parameters.repoName }}
