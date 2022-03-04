@@ -31,29 +31,31 @@ parameters:
     default: ""
 
 steps:
-    - bash: |
-        echo $aksName
-        echo $aksRg
-        echo $azureSubscription
-      env: 
-        aksName: ${{ parameters.kubernetesCluster }}
-        aksRg: ${{ parameters.kubernetesRG }}
-        azureSubscription: ${{ parameters.azureSubscription }}
-     - bash: |
-        echo "path: ${path}"
-        echo "releasename: ${releaseName}"
-      env: 
-        releaseName: ${{ parameters.chartName }}-${{ parameters.imageTag }}
-        path: ${{ parameters.chartPath }}/${{ parameters.fullChartName }}
-      displayName: "Helm Details"
-    - task: HelmDeploy@0
-      displayName: Helm Uninstall
-      inputs:
-        connectionType: 'Azure Resource Manager'
-        azureSubscriptionEndpoint: '${{ parameters.azureSubscription }}'
-        azureResourceGroup: ${{ parameters.kubernetesRG }}
-        kubernetesCluster: ${{ parameters.kubernetesCluster }}
-        command: uninstall
-        releaseName: ${{ parameters.chartName }}-${{ parameters.imageTag }}
-        namespace: ${{ parameters.namespace }}
-        useClusterAdmin: true
+  - bash: |
+      echo $aksName
+      echo $aksRg
+      echo $azureSubscription
+    env: 
+      aksName: ${{ parameters.kubernetesCluster }}
+      aksRg: ${{ parameters.kubernetesRG }}
+      azureSubscription: ${{ parameters.azureSubscription }}
+
+  - bash: |
+      echo "path: ${path}"
+      echo "releasename: ${releaseName}"
+    env: 
+      releaseName: ${{ parameters.chartName }}-${{ parameters.imageTag }}
+      path: ${{ parameters.chartPath }}/${{ parameters.fullChartName }}
+    displayName: "Helm Details"
+
+  - task: HelmDeploy@0
+    displayName: Helm Uninstall
+    inputs:
+      connectionType: 'Azure Resource Manager'
+      azureSubscriptionEndpoint: '${{ parameters.azureSubscription }}'
+      azureResourceGroup: ${{ parameters.kubernetesRG }}
+      kubernetesCluster: ${{ parameters.kubernetesCluster }}
+      command: uninstall
+      releaseName: ${{ parameters.chartName }}-${{ parameters.imageTag }}
+      namespace: ${{ parameters.namespace }}
+      useClusterAdmin: true
