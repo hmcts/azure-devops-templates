@@ -30,7 +30,7 @@ parameters:
     type: string
     default: ""
 
-step:
+steps:
   - bash: |
       echo $aksName
       echo $aksRg
