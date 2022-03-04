@@ -58,7 +58,6 @@ steps:
       azureResourceGroup: ${{ parameters.kubernetesRG }}
       kubernetesCluster: ${{ parameters.kubernetesCluster }}
       command: delete
-      releaseName: ${{ parameters.chartName }}-${{ parameters.imageTag }}
       namespace: ${{ parameters.namespace }}
       useClusterAdmin: true
       arguments: ${{ parameters.chartName }}-${{ parameters.imageTag }}
