@@ -1,0 +1,71 @@
+parameters:
+  - name: azureSubscription
+    type: string
+  - name: action
+    type: string
+    default: "add"
+    values:
+      - "add"
+      - "remove"
+  - name: domain
+    type: string
+  - name: appId
+    type: string
+  - name: domainUris
+    type: object
+    default:
+      - "/"
+
+
+
+steps:
+  - task: AzureCLI@2
+    displayName: '${{ parameters.action }} ${{ parameters.domain }} Reply URL to ${{ parameters.appId }}'
+    inputs:
+      azureSubscription: '${{ parameters.azureSubscription }}'
+      scriptType: 'pscore'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        $action="${{ parameters.action }}"
+
+        $appId = "${{ parameters.appId }}"
+        $newDomain = "${{ parameters.domain }}"
+        $domainUris = ${{ convertToJson(parameters.domainUris) }} | ConvertFrom-Array
+
+        $replyUrls = az ad app show --id $appId --query "replyUrls" -o json | ConvertFrom-Json
+
+        $replyUrls = $replyUrls + "https://pr-me.dom.me/login"
+
+        Write-Host "Found $($replyUrls.length) Reply URLs"
+
+        if ($replyUrls -match $newDomain) {
+          Write-Host "Reply URLs contains $newDomain"
+          Write-Host "Remove exiting references"
+          $tempReplyUrls = @()
+          foreach ($url in ($replyUrls | Where-Object { $_ -notmatch $newDomain } ) ) {
+            $tempReplyUrls = $tempReplyUrls + $url
+          }
+          $replyUrls = $tempReplyUrls
+          Write-Host "ReplyUrls now have $($replyUrls.length) Reply URLs"
+        }
+        else {
+          Write-Host "Reply URLs DOES NOT contains $newDomain"
+        }
+
+        if ($action -eq "add") {
+          Write-Host "Adding domain $newDomain"
+          foreach ($uri in $domainUris) {
+            $fullUrl = $newDomain + $uri
+            Write-Host "Adding URL $fullUrl"
+            $replyUrls = $replyUrls + $fullUrl
+          }
+        }
+
+        Write-Host "Updating Reply URLs with"
+        $replyUrlsResponse = ""
+        foreach ($url in $replyUrls) {
+          $replyUrlsResponse += "`"$url`" "
+        }
+        Write-Host $replyUrlsResponse
+
+        az ad app update --id $appId --add replyUrls $replyUrlsResponse
