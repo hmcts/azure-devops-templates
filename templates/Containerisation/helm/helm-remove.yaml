@@ -18,6 +18,8 @@ parameters:
     default: "vh"
   - name: chartName
     type: string
+  - name: chartPath
+    type: string
   - name: fullChartName
     type: string
     default: ""
