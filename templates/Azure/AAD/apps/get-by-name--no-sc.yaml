@@ -13,7 +13,6 @@ parameters:
 
 steps:
   - powershell: |
-
         az login --service-principal --username ${{ parameters.azureClientId }} --password ${{ parameters.azureClientSecret }} --tenant ${{ parameters.azureTenant }} --allow-no-subscriptions
 
         $name="${{ parameters.name }}"
@@ -24,8 +23,10 @@ steps:
           Write-Host "App $name found"
           $app=$apps[0];
 
-          Write-Host "##vso[task.setvariable variable=appId;isOutput=true]$($app.appId)"
-          Write-Host "##vso[task.setvariable variable=objectId;isOutput=true]$($app.objectId)"
+          $appId = $app.appId
+          $objectId = $app.objectId
+          Write-Host "##vso[task.setvariable variable=appId;isOutput=true]$appId"
+          Write-Host "##vso[task.setvariable variable=objectId;isOutput=true]$objectId"
 
         } else {
           Write-Host "App $name not found"
