@@ -24,6 +24,7 @@ steps:
           $app=$apps[0];
 
           $appId = $app.appId
+          Write-Host "App $appId"
           $objectId = $app.objectId
           Write-Host "##vso[task.setvariable variable=appId;isOutput=true]$appId"
           Write-Host "##vso[task.setvariable variable=objectId;isOutput=true]$objectId"
