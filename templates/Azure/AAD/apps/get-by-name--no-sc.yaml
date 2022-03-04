@@ -1,5 +1,9 @@
 parameters:
-  - name: azureSubscription
+  - name: azureClientId
+    type: string
+  - name: azureClientSecret
+    type: string
+  - name: azureTenant
     type: string
   - name: name
     type: string
@@ -8,14 +12,10 @@ parameters:
     default: app
 
 steps:
-  - task: AzureCLI@2
-    displayName: 'Get ${{ parameters.name }} Application'
-    name: ${{ parameters.taskName }}
-    inputs:
-      azureSubscription: '${{ parameters.azureSubscription }}'
-      scriptType: 'pscore'
-      scriptLocation: 'inlineScript'
-      inlineScript: |
+  - powershell: |
+
+        az login --service-principal --username ${{ parameters.azureClientId }} --password ${{ parameters.azureClientSecret }} --tenant ${{ parameters.azureTenant }}
+
         $name="${{ parameters.name }}"
 
         $apps = az ad app list --all --filter "displayname eq '$name'" -o json | ConvertFrom-Json
@@ -30,4 +30,5 @@ steps:
         } else {
           Write-Host "App $name not found"
         }
- 
+    displayName: 'Get ${{ parameters.name }} Application'
+    name: ${{ parameters.taskName }}
