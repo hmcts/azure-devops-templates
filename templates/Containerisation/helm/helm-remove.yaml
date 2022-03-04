@@ -57,7 +57,7 @@ steps:
       azureSubscriptionEndpoint: '${{ parameters.azureSubscription }}'
       azureResourceGroup: ${{ parameters.kubernetesRG }}
       kubernetesCluster: ${{ parameters.kubernetesCluster }}
-      command: uninstall
+      command: delete
       releaseName: ${{ parameters.chartName }}-${{ parameters.imageTag }}
       namespace: ${{ parameters.namespace }}
       useClusterAdmin: true
