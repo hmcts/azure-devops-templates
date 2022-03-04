@@ -18,8 +18,6 @@ parameters:
     default: "vh"
   - name: chartName
     type: string
-  - name: chartPath
-    type: string
   - name: fullChartName
     type: string
     default: ""
@@ -58,8 +56,6 @@ steps:
       azureResourceGroup: ${{ parameters.kubernetesRG }}
       kubernetesCluster: ${{ parameters.kubernetesCluster }}
       command: uninstall
-      chartType: filepath
       releaseName: ${{ parameters.chartName }}-${{ parameters.imageTag }}
       namespace: ${{ parameters.namespace }}
       useClusterAdmin: true
-      arguments: $(helm.args)
