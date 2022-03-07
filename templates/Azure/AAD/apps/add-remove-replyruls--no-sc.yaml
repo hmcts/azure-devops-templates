@@ -1,0 +1,80 @@
+parameters:
+  - name: azureClientId
+    type: string
+  - name: azureClientSecret
+    type: string
+  - name: azureTenant
+    type: string
+  - name: action
+    type: string
+    default: "add"
+    values:
+      - "add"
+      - "remove"
+  - name: domain
+    type: string
+  - name: appId
+    type: string
+    default: ""
+  - name: name
+    type: string
+    default: ""
+  - name: domainUris
+    type: string
+    default: "/"
+
+steps:  
+  - powershell: |
+        az login --service-principal --username ${{ parameters.azureClientId }} --password ${{ parameters.azureClientSecret }} --tenant ${{ parameters.azureTenant }}  --allow-no-subscriptions
+
+        $appId = "${{ parameters.appId }}"
+        if ($appId -eq "") {
+
+          $name="${{ parameters.name }}"
+
+          $apps = az ad app list --all --filter "displayname eq '$name'" -o json | ConvertFrom-Json
+
+          if ($apps.length -gt 0) {
+            Write-Host "App $name found"
+            $app=$apps[0];
+
+            $appId = $app.appId
+          } else {
+            Write-Host "App $name not found"
+          }
+        }
+        Write-Host "App ID $appId"
+        $action="${{ parameters.action }}"
+        $newDomain = "${{ parameters.domain }}"
+        $domainUris = "${{ parameters.domainUris }}".Split(",")
+
+        $replyUrls = az ad app show --id $appId --query "replyUrls" -o json | ConvertFrom-Json
+
+        Write-Host "Found $($replyUrls.length) Reply URLs"
+
+        if ($replyUrls -match $newDomain) {
+          Write-Host "Reply URLs contains $newDomain"
+          Write-Host "Remove exiting references"
+          $tempReplyUrls = @()
+          foreach ($url in ($replyUrls | Where-Object { $_ -notmatch $newDomain } ) ) {
+            $tempReplyUrls = $tempReplyUrls + $url
+          }
+          $replyUrls = $tempReplyUrls
+          Write-Host "ReplyUrls now have $($replyUrls.length) Reply URLs"
+        }
+        else {
+          Write-Host "Reply URLs DOES NOT contains $newDomain"
+        }
+
+        if ($action -eq "add") {
+          Write-Host "Adding domain $newDomain"
+          foreach ($uri in $domainUris) {
+            $fullUrl = $newDomain + $uri
+            Write-Host "Adding URL $fullUrl"
+            $replyUrls = $replyUrls + $fullUrl
+          }
+        }
+
+        az ad app update --id $appId --reply-urls $replyUrls
+        
+    displayName: '${{ parameters.action }} ${{ parameters.domain }} Reply URL to ${{ parameters.appId }} ${{ parameters.name }}'
