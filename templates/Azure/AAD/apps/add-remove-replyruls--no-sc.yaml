@@ -78,7 +78,7 @@ steps:
         Write-Host "Updating Reply URLs with"
         $replyUrlsResponse = ""
         foreach ($url in $replyUrls) {
-          $replyUrlsResponse += "`"$url`" "
+          $replyUrlsResponse += $url + " "
         }
         Write-Host $replyUrlsResponse
 
