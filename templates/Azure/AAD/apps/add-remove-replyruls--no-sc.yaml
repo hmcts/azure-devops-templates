@@ -20,8 +20,6 @@ parameters:
     default:
       - "/"
 
-
-
 steps:  
   - powershell: |
         az login --service-principal --username ${{ parameters.azureClientId }} --password ${{ parameters.azureClientSecret }} --tenant ${{ parameters.azureTenant }}  --allow-no-subscriptions
@@ -31,9 +29,7 @@ steps:
         $appId = "${{ parameters.appId }}"
         $newDomain = "${{ parameters.domain }}"
         
-        $domainUrisJson = @(${{ converttojson(parameters.domainUris) }}) | ConvertFrom-Json
-        Write-Host "$domainUrisJson"
-        $domainUris = @() # $domainUrisJson | ConvertFrom-Json
+        $domainUris = ${{ converttojson(parameters.domainUris) }} | ConvertFrom-Json
 
         $replyUrls = az ad app show --id $appId --query "replyUrls" -o json | ConvertFrom-Json
 
