@@ -30,7 +30,7 @@ steps:
 
         $appId = "${{ parameters.appId }}"
         $newDomain = "${{ parameters.domain }}"
-        Write-Host "${{ parameters.domainUris }}"
+        Write-Host ${{ parameters.domainUris }}
         $domainUrisJson = "${{ converttojson(parameters.domainUris) }}"
         Write-Host "$domainUrisJson"
         $domainUris = $domainUrisJson | ConvertFrom-Json
