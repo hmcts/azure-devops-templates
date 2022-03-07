@@ -34,8 +34,6 @@ steps:
 
         $replyUrls = az ad app show --id $appId --query "replyUrls" -o json | ConvertFrom-Json
 
-        $replyUrls = $replyUrls + "https://pr-me.dom.me/login"
-
         Write-Host "Found $($replyUrls.length) Reply URLs"
 
         if ($replyUrls -match $newDomain) {
@@ -61,11 +59,4 @@ steps:
           }
         }
 
-        Write-Host "Updating Reply URLs with"
-        $replyUrlsResponse = ""
-        foreach ($url in $replyUrls) {
-          $replyUrlsResponse += "`"$url`" "
-        }
-        Write-Host $replyUrlsResponse
-
-        az ad app update --id $appId --add replyUrls $replyUrlsResponse
+        az ad app update --id $appId --add replyUrls $replyUrls
