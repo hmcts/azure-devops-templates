@@ -18,7 +18,7 @@ parameters:
   - name: domainUris
     type: object
     default:
-      - ""
+      - "/"
 
 
 
@@ -30,7 +30,10 @@ steps:
 
         $appId = "${{ parameters.appId }}"
         $newDomain = "${{ parameters.domain }}"
-        $domainUris = "${{ converttojson(parameters.domainUris) }}" | ConvertFrom-Json
+        Write-Host "${{ parameters.domainUris }}"
+        $domainUrisJson = "${{ converttojson(parameters.domainUris) }}"
+        Write-Host "$domainUrisJson"
+        $domainUris = $domainUrisJson | ConvertFrom-Json
 
         $replyUrls = az ad app show --id $appId --query "replyUrls" -o json | ConvertFrom-Json
 
