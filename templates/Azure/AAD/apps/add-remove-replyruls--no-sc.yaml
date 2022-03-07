@@ -30,7 +30,7 @@ steps:
 
         $appId = "${{ parameters.appId }}"
         $newDomain = "${{ parameters.domain }}"
-        $domainUris = "${{ replace(converttojson(parameters.domainUris), '/', '\') }}" | ConvertFrom-Json
+        $domainUris = "${{ converttojson(parameters.domainUris) }}" | ConvertFrom-Json
 
         $replyUrls = az ad app show --id $appId --query "replyUrls" -o json | ConvertFrom-Json
 
