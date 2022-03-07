@@ -82,7 +82,7 @@ steps:
         }
         Write-Host $replyUrlsResponse
 
-        Write-Host "Command: az ad app update --id $appId --reply-urls $replyUrlsResponse"
-        az ad app update --id $appId --reply-urls $replyUrlsResponse --debug
+        Write-Host "Command: az ad app update --id $appId --reply-urls $replyUrls"
+        az ad app update --id $appId --reply-urls $replyUrls --debug
         
     displayName: '${{ parameters.action }} ${{ parameters.domain }} Reply URL to ${{ parameters.appId }} ${{ parameters.name }}'
