@@ -7,9 +7,6 @@ parameters:
     type: string
   - name: name
     type: string
-  - name: taskName
-    type: string
-    default: app
 
 steps:
   - powershell: |
@@ -33,4 +30,4 @@ steps:
           Write-Host "App $name not found"
         }
     displayName: 'Get ${{ parameters.name }} Application'
-    name: ${{ parameters.taskName }}
+    name: app
