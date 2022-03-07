@@ -16,9 +16,8 @@ parameters:
   - name: appId
     type: string
   - name: domainUris
-    type: object
-    default:
-      - "/"
+    type: string
+    default: "/"
 
 steps:  
   - powershell: |
@@ -29,7 +28,7 @@ steps:
         $appId = "${{ parameters.appId }}"
         $newDomain = "${{ parameters.domain }}"
         
-        $domainUris = ${{ converttojson(parameters.domainUris) }} | ConvertFrom-Json
+        $domainUris = "${{ parameters.domainUris }}".Split(",")
 
         $replyUrls = az ad app show --id $appId --query "replyUrls" -o json | ConvertFrom-Json
 
