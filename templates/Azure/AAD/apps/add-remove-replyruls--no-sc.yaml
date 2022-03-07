@@ -69,7 +69,7 @@ steps:
         if ($action -eq "add") {
           Write-Host "Adding domain $newDomain"
           foreach ($uri in $domainUris) {
-            $fullUrl = "$newDomain/$uri" 
+            $fullUrl = $newDomain + $uri
             Write-Host "Adding URL $fullUrl"
             $replyUrls = $replyUrls + $fullUrl
           }
@@ -78,10 +78,11 @@ steps:
         Write-Host "Updating Reply URLs with"
         $replyUrlsResponse = ""
         foreach ($url in $replyUrls) {
-          $replyUrlsResponse += "`"$url`" "
+          $replyUrlsResponse += "$url "
         }
         Write-Host $replyUrlsResponse
 
+        Write-Host "Command: az ad app update --id $appId --reply-urls $replyUrlsResponse"
         az ad app update --id $appId --reply-urls $replyUrlsResponse
         
     displayName: '${{ parameters.action }} ${{ parameters.domain }} Reply URL to ${{ parameters.appId }} ${{ parameters.name }}'
