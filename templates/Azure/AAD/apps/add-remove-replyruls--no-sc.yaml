@@ -33,7 +33,7 @@ steps:
         
         $domainUrisJson = "${{ converttojson(parameters.domainUris) }}"
         Write-Host "$domainUrisJson"
-        $domainUris = $domainUrisJson | ConvertFrom-Json
+        $domainUris = @() # $domainUrisJson | ConvertFrom-Json
 
         $replyUrls = az ad app show --id $appId --query "replyUrls" -o json | ConvertFrom-Json
 
