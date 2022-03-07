@@ -31,7 +31,7 @@ steps:
         $appId = "${{ parameters.appId }}"
         $newDomain = "${{ parameters.domain }}"
         
-        $domainUrisJson = ${{ parameters.domainUris }} | ConvertFrom-Json
+        $domainUrisJson = ${{ parameters.domainUris }}
         Write-Host "$domainUrisJson"
         $domainUris = @() # $domainUrisJson | ConvertFrom-Json
 
