@@ -18,7 +18,7 @@ parameters:
   - name: domainUris
     type: object
     default:
-      - "/"
+      - ""
 
 
 
@@ -53,7 +53,7 @@ steps:
         if ($action -eq "add") {
           Write-Host "Adding domain $newDomain"
           foreach ($uri in $domainUris) {
-            $fullUrl = $newDomain + $uri
+            $fullUrl = "$newDomain/$uri" 
             Write-Host "Adding URL $fullUrl"
             $replyUrls = $replyUrls + $fullUrl
           }
