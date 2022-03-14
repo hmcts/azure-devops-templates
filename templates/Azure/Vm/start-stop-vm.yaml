@@ -1,0 +1,67 @@
+parameters:
+  - name: env
+    type: string
+  - name: pipelineStart
+    type: boolean
+  - name: subscriptionName
+    type: string
+
+steps:
+  - task: AzureCLI@2
+    displayName: Start and Stop Vms during pipeline run
+    name: startStopVm
+    condition: always()
+    inputs:
+      azureSubscription: '${{ parameters.subscriptionName }}'
+      scriptType: pscore
+      scriptLocation: inlineScript
+      inlineScript: |
+        Write-Output "Task started: startStopVm"
+        $turn_off_vm_post_run="$env:TURN_OFF_VM_POST_RUN"
+        $resourcegroup="cvp-recordings-${{parameters.env}}-rg"
+        $pipelineStart="${{parameters.pipelineStart}}"
+
+        $rgExists = az group exists --name $resourcegroup
+        if ( $rgExists )
+        {
+          Write-Output "$resourcegroup exists in subscription"
+          $vmList = az vm list --resource-group $resourcegroup  --query "[].{name:name}"  | ConvertFrom-Json
+          $vmListCnt=$vmList.Count 
+          Write-Output "$vmListCnt found in resource group"
+          $timeToSleep = 1
+          foreach ($vm in $vmList) {
+              $vmName= $vm.name
+              $vmDetails = az vm get-instance-view --name $vmName --resource-group $resourcegroup | ConvertFrom-Json
+              $statusVm = $vmDetails.instanceView.statuses[1].Code
+              Write-Output "Initial status for VM '$vmName'= $statusVm"
+
+              if ( $pipelineStart -eq $true -And "PowerState/deallocated","PowerState/deallocating","PowerState/stopped","PowerState/stopping","PowerState/unknown" -contains $statusVm){
+                  Write-Output "Start VM '$vmName'"
+                  az vm start --name $vmName --resource-group $resourcegroup
+                  Write-Output ""
+                  Write-Output "Starting VM '$vmName'"
+                  az vm start --name $vmName --resource-group $resourcegroup
+                  Write-Output "Running script on target vm; sudo sh /home/wowza/runcmd.sh"
+                  az vm run-command invoke -g $resourcegroup -n $vmName  --command-id RunShellScript --scripts "sudo /home/wowza/runcmd.sh"
+                  Write-Output ""
+                  $timeToSleep = 90
+              } 
+              elseif ( $pipelineStart -eq $false -And "PowerState/running","PowerState/starting","PowerState/unknown" -contains $statusVm){
+                if ( $turn_off_vm_post_run )
+                {
+                  Write-Output "Deallocating VM '$vmName'"
+                  az vm deallocate --name $vmName --resource-group $resourcegroup
+                  Write-Output ""
+                }
+              }  
+              else {
+                  Write-Output "The VM '$vmName' is in the desired state"
+              }
+          }
+          Start-Sleep -s $timeToSleep   
+        }else
+        {
+            Write-Output "$resourcegroup does not exist in subscription"
+        }
+        
+        Write-Output "Task finished: startStopVm"
