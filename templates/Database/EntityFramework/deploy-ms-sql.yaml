@@ -1,0 +1,21 @@
+parameters:
+  - name: azureSubscription
+    type: string
+  - name: dbServerName
+    type: string
+  - name: databaseName
+    type: string
+  - name: sqlScriptLocation
+    type: string
+
+
+steps:
+  - task: SqlAzureDacpacDeployment@1
+    inputs:
+      azureSubscription: '${{ parameters.azureSubscription }}'
+      AuthenticationType: 'servicePrincipal'
+      ServerName: '${{ parameters.dbServerName }}.database.windows.net'
+      DatabaseName: '${{ parameters.databaseName }}'
+      deployType: 'SqlTask'
+      SqlFile: '${{ parameters.sqlScriptLocation }}'
+      IpDetectionMethod: 'AutoDetect'
