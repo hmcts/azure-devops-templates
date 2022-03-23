@@ -1,0 +1,109 @@
+parameters:
+  - name: baseAgent
+    type: string
+    default: Ubuntu-latest
+
+  - name: dependantJobs
+    type: object
+    default: []
+
+  - name: environment
+    type: string
+
+  - name: devOpsResource
+    type: string
+
+  - name: releaseName
+    type: string
+    default: ''
+
+  - name: useCurrentPipeline
+    type: boolean
+    default: false
+
+  - name: projectId
+    type: string
+    default: 3f69a23d-fbc7-4541-afc7-4cccefcad773
+
+
+  - name: deployBranch
+    type: string
+    default: refs/heads/master
+
+  - name: resourceGroup
+    type: string
+
+  - name: dependentApps
+    type: object
+    default: []
+
+  - name: subscription
+    type: string
+
+  - name: CIPipelineID
+    type: string
+    default: ''
+
+  - name: variables
+    type: object
+    default: []
+
+  - name: CIPipelineID
+    type: string
+
+  - name: databaseName
+    type: string
+
+  - name: scriptName
+    type: string
+ 
+jobs:
+- deployment: ${{ parameters.devOpsResource }}_db
+  pool:
+      vmImage: ${{ parameters.baseAgent }}
+
+  dependsOn:
+  - ${{ if parameters.dependantJobs }}:
+    - ${{ parameters.dependantJobs }}
+
+  environment: ${{ parameters.environment }}
+
+  variables:
+    - ${{ each variable in parameters.variables }}:
+      - ${{ each property in variable }}:
+        - ${{ if eq('group', property.key) }}:
+          - group: ${{ variable.group }}
+        - ${{ if eq('name', property.key) }}:
+          - name: ${{ variable.name }}
+            value: ${{ variable.value }}
+    - name: deploymentSettings
+      value: ''
+  strategy:
+    runOnce:
+      deploy:
+        steps:
+        - checkout: none
+
+        - download: none
+
+        - task: DownloadPipelineArtifact@2
+          displayName: Download Database Script
+          inputs:
+            artifact: dbScript
+            path: $(Pipeline.Workspace)/dbScript
+            preferTriggeringPipeline: true
+            ${{ if parameters.useCurrentPipeline }}:
+              source: current
+            ${{ if eq(parameters.useCurrentPipeline, false) }}:
+              buildType: specific
+              project: ${{ parameters.projectId }}
+              pipeline: ${{ parameters.CIPipelineId }}
+              runVersion: latestFromBranch
+              runBranch: ${{ parameters.deployBranch }}
+
+        - template: ../templates/Database/EntityFramework/deploy-ms-sql.yaml
+          parameters:
+            azureSubscription: '${{ parameters.subscription }}'
+            dbServerName: 'vh-core-infra-${{ parameters.environment }}'
+            databaseName: '${{ parameters.databaseName }}'
+            sqlScriptLocation: '$(Pipeline.Workspace)/dbScript/${{ parameters.scriptName }}'

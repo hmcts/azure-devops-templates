@@ -106,6 +106,13 @@ parameters:
     type: string
     default: '5.x'
 
+  - name: databaseName
+    type: string
+    default: ''
+  - name: scriptName
+    type: string
+    default: ''
+
 stages:
   - stage: ${{ parameters.stageName }}
     ${{ if ne(parameters.condition, '') }}:
@@ -170,6 +177,26 @@ stages:
                 ${{ if eq(setting.slot.active.secret, true) }}:
                   secretref: ${{ setting.slot.active.value}}
                   value: $(${{ setting.slot.active.value}})
+
+    - ${{ if ne(parameters.scriptName, "") }}:
+      - template: ../job/msSqlDatabaseDeployJob.yml
+        parameters:
+          baseAgent: ${{ parameters.baseAgent }}
+          environment: ${{ parameters.environment }}
+          devOpsResource: ${{ parameters.devOpsResource }}
+          resourceGroup: ${{ parameters.resourceGroup }}
+          subscription: ${{ parameters.subscription }}
+          dependantJobs: Secret_Gathering
+          dependentApps: ${{ parameters.dependentApps }}
+          variables: ${{ parameters.variables }}
+          useCurrentPipeline: ${{ parameters.useCurrentPipeline }}
+          ${{ if not(parameters.useCurrentPipeline) }}:
+            releaseName: $(resources.pipeline.${{ parameters.CIPipelineResourceID }}.runName)
+            CIPipelineID: $(resources.pipeline.${{ parameters.CIPipelineResourceID }}.pipelineID)
+            deployBranch: ${{ parameters.deployBranch }}
+          databaseName: ${{ parameters.databaseName }}
+          scriptName: ${{ parameters.scriptName }}
+ 
 
     - template: ../jobs/azWebAppDeployJob.yml
       parameters:
