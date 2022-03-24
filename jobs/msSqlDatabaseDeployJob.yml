@@ -48,9 +48,6 @@ parameters:
     type: object
     default: []
 
-  - name: CIPipelineID
-    type: string
-
   - name: databaseName
     type: string
 
