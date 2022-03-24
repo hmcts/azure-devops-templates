@@ -1,7 +1,7 @@
 parameters:
   - name: baseAgent
     type: string
-    default: Ubuntu-latest
+    default: windows-latest
 
   - name: dependantJobs
     type: object
