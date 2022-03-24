@@ -1,0 +1,62 @@
+parameters:
+  - name: azureSubscription
+    type: string
+  - name: action
+    type: string
+    default: "add"
+    values:
+      - "add"
+      - "remove"
+  - name: domain
+    type: string
+  - name: appId
+    type: string
+  - name: domainUris
+    type: object
+    default:
+      - "/"
+
+
+
+steps:
+  - task: AzureCLI@2
+    displayName: '${{ parameters.action }} ${{ parameters.domain }} Reply URL to ${{ parameters.appId }}'
+    inputs:
+      azureSubscription: '${{ parameters.azureSubscription }}'
+      scriptType: 'pscore'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        $action="${{ parameters.action }}"
+
+        $appId = "${{ parameters.appId }}"
+        $newDomain = "${{ parameters.domain }}"
+        $domainUris = ${{ join(' ', parameters.domainUris) }} | ConvertFrom-Json
+
+        $replyUrls = az ad app show --id $appId --query "replyUrls" -o json | ConvertFrom-Json
+
+        Write-Host "Found $($replyUrls.length) Reply URLs"
+
+        if ($replyUrls -match $newDomain) {
+          Write-Host "Reply URLs contains $newDomain"
+          Write-Host "Remove exiting references"
+          $tempReplyUrls = @()
+          foreach ($url in ($replyUrls | Where-Object { $_ -notmatch $newDomain } ) ) {
+            $tempReplyUrls = $tempReplyUrls + $url
+          }
+          $replyUrls = $tempReplyUrls
+          Write-Host "ReplyUrls now have $($replyUrls.length) Reply URLs"
+        }
+        else {
+          Write-Host "Reply URLs DOES NOT contains $newDomain"
+        }
+
+        if ($action -eq "add") {
+          Write-Host "Adding domain $newDomain"
+          foreach ($uri in $domainUris) {
+            $fullUrl = $newDomain + $uri
+            Write-Host "Adding URL $fullUrl"
+            $replyUrls = $replyUrls + $fullUrl
+          }
+        }
+
+        az ad app update --id $appId --add replyUrls $replyUrls

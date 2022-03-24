@@ -1,0 +1,33 @@
+parameters:
+  - name: azureSubscription
+    type: string
+  - name: name
+    type: string
+  - name: taskName
+    type: string
+    default: app
+
+steps:
+  - task: AzureCLI@2
+    displayName: 'Get ${{ parameters.name }} Application'
+    name: ${{ parameters.taskName }}
+    inputs:
+      azureSubscription: '${{ parameters.azureSubscription }}'
+      scriptType: 'pscore'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        $name="${{ parameters.name }}"
+
+        $apps = az ad app list --all --filter "displayname eq '$name'" -o json | ConvertFrom-Json
+
+        if ($apps.length -gt 0) {
+          Write-Host "App $name found"
+          $app=$apps[0];
+
+          Write-Host "##vso[task.setvariable variable=appId;isOutput=true]$($app.appId)"
+          Write-Host "##vso[task.setvariable variable=objectId;isOutput=true]$($app.objectId)"
+
+        } else {
+          Write-Host "App $name not found"
+        }
+ 
