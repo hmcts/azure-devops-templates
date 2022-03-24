@@ -108,10 +108,10 @@ parameters:
 
   - name: databaseName
     type: string
-    default: ""
+    default: ''
   - name: scriptName
     type: string
-    default: ""
+    default: ''
 
 stages:
   - stage: ${{ parameters.stageName }}
@@ -178,7 +178,7 @@ stages:
                   secretref: ${{ setting.slot.active.value}}
                   value: $(${{ setting.slot.active.value}})
 
-    - ${{ if ne(parameters.scriptName, "") }}:
+    - ${{ if ne(parameters.scriptName, '') }}:
       - template: ../job/msSqlDatabaseDeployJob.yml
         parameters:
           baseAgent: ${{ parameters.baseAgent }}

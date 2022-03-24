@@ -24,11 +24,11 @@ parameters:
 
   - name: coreProjectName
     type: string
-    default: ""
+    default: ''
 
   - name: databaseContextName
     type: string
-    default: ""
+    default: ''
 
   - name: nugetProjectPath
     type: string
@@ -198,7 +198,7 @@ stages:
             PathtoPublish: $(Build.ArtifactStagingDirectory)/App
             ArtifactName: App
 
-        - ${{ if ne(parameters.databaseContextName, "") }}:
+        - ${{ if ne(parameters.databaseContextName, '') }}:
           - template: ../templates/Database/EntityFramework/generate-script.yaml
             parameters: 
                 outputPath: $(Build.ArtifactStagingDirectory)/dbScript
