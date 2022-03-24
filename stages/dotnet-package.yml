@@ -95,7 +95,7 @@ parameters:
     
   - name: databaseName
     type: string
-    default: ''
+    default: ""
 
 stages:
 - ${{ if or(parameters.PackageApp, parameters.PackageAcceptanceTests, parameters.ACTest, parameters.PackageNuget) }}:

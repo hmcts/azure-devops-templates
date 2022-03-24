@@ -67,17 +67,6 @@ jobs:
     - ${{ parameters.dependantJobs }}
 
   environment: ${{ parameters.environment }}
-
-  variables:
-    - ${{ each variable in parameters.variables }}:
-      - ${{ each property in variable }}:
-        - ${{ if eq('group', property.key) }}:
-          - group: ${{ variable.group }}
-        - ${{ if eq('name', property.key) }}:
-          - name: ${{ variable.name }}
-            value: ${{ variable.value }}
-    - name: deploymentSettings
-      value: ''
   strategy:
     runOnce:
       deploy:

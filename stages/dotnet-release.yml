@@ -108,10 +108,10 @@ parameters:
 
   - name: databaseName
     type: string
-    default: ''
+    default: ""
   - name: scriptName
     type: string
-    default: ''
+    default: ""
 
 stages:
   - stage: ${{ parameters.stageName }}
