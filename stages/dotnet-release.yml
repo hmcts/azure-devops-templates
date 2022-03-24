@@ -181,7 +181,6 @@ stages:
     - ${{ if ne(parameters.scriptName, '') }}:
       - template: ../jobs/msSqlDatabaseDeployJob.yml
         parameters:
-          baseAgent: ${{ parameters.baseAgent }}
           environment: ${{ parameters.environment }}
           devOpsResource: ${{ parameters.devOpsResource }}
           resourceGroup: ${{ parameters.resourceGroup }}
