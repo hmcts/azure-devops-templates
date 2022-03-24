@@ -179,7 +179,7 @@ stages:
                   value: $(${{ setting.slot.active.value}})
 
     - ${{ if ne(parameters.scriptName, '') }}:
-      - template: ../job/msSqlDatabaseDeployJob.yml
+      - template: ../jobs/msSqlDatabaseDeployJob.yml
         parameters:
           baseAgent: ${{ parameters.baseAgent }}
           environment: ${{ parameters.environment }}
