@@ -157,7 +157,7 @@ stages:
             packageType: sdk
             version: ${{ parameters.netVersion}}
             installationPath: $(Agent.ToolsDirectory)/dotnet
-
+            
         - task: DotNetCoreCLI@2
           displayName: Install dotnet-ef
           inputs:
@@ -209,7 +209,7 @@ stages:
           - template: ../templates/Database/EntityFramework/generate-script.yaml
             parameters: 
                 outputPath: $(Build.ArtifactStagingDirectory)/dbScript
-                workingPath: $(Build.ArtifactStagingDirectory)/App/${{ parameters.coreProjectPath }}
+                workingPath: ${{ parameters.coreProjectPath }}
                 projectName: ${{ parameters.coreProjectName }}
                 contextName: ${{ parameters.databaseContextName }}
 
