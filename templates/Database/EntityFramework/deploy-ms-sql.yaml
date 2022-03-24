@@ -7,13 +7,20 @@ parameters:
     type: string
   - name: sqlScriptLocation
     type: string
+  - name: connectionString
+    type: string
+    default: null
 
 
 steps:
   - task: SqlAzureDacpacDeployment@1
     inputs:
       azureSubscription: '${{ parameters.azureSubscription }}'
-      AuthenticationType: 'servicePrincipal'
+      ${{ if ne(parameters.connectionString, null) }}:
+        AuthenticationType: 'connectionString'
+      ${{ else }}:
+        AuthenticationType: 'servicePrincipal'
+      ConnectionString: ${{ parameters.connectionString }}
       ServerName: '${{ parameters.dbServerName }}.database.windows.net'
       DatabaseName: '${{ parameters.databaseName }}'
       deployType: 'SqlTask'

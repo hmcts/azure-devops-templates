@@ -87,9 +87,17 @@ jobs:
               runVersion: latestFromBranch
               runBranch: ${{ parameters.deployBranch }}
 
+        - template: ../templates/KeyVault/get-secret.yaml
+          parameters: 
+            azureSubscription: '${{ parameters.subscription }}'
+            keyVaultName: 'vhcoreinfraht${{ parameters.environment }}'
+            secretKeyName: '${{ parameters.databaseName }}DatabaseConnectionString'
+            taskName: 'secret'
+
         - template: ../templates/Database/EntityFramework/deploy-ms-sql.yaml
           parameters:
             azureSubscription: '${{ parameters.subscription }}'
             dbServerName: 'vh-core-infra-${{ parameters.environment }}'
             databaseName: '${{ parameters.databaseName }}'
             sqlScriptLocation: '$(Pipeline.Workspace)/dbScript/${{ parameters.scriptName }}'
+            ConnectionString: $(secret.prop.value)
