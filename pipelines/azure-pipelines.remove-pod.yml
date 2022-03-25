@@ -38,7 +38,7 @@ variables:
     value: ${{ parameters.app_name }}-${{ parameters.pod_suffix }}
 
 stages:
-  - stage: Uninstall Pod
+  - stage: uninstall_pod
     displayName: Uninstall from aks-${{ parameters.cluster }}-${{ parameters.env }}
     jobs:
       - job:
@@ -54,7 +54,7 @@ stages:
             imageTag: '${{ parameters.pod_suffix }}'
             environment: ${{ parameters.env }}
             #additionalArgs: "-o json"
-  - stage: remove dns
+  - stage: remove_dns
     displayName: remove  ${{ variables.dnsRecordName }} from ${{ variables.dnsZone }}
     jobs:
       - job:
