@@ -15,8 +15,6 @@ parameters:
         - 00
         - 01
 
-
-
   - name: project
     type: string
     default: vh
@@ -29,6 +27,10 @@ parameters:
     type: string
     default: pr-396
 
+  - name: dns_only
+    type: boolean
+    default: false
+
 variables:
   - template: ../variables/shared.yaml
     parameters:
@@ -36,13 +38,11 @@ variables:
       app_name: ${{ parameters.app_name }}
       cluster: ${{ parameters.cluster }}
       project: ${{ parameters.project }}
-  - name: prTagName
-    value: 'pr-379'
   - name: dnsRecordName
     value: ${{ parameters.app_name }}-${{ parameters.pod_suffix }}
 
 stages:
-  - stage: Uninstall
+  - stage: Uninstall Pod
     displayName: Uninstall from aks-${{ parameters.cluster }}-${{ parameters.env }}
     jobs:
       - job:
@@ -58,10 +58,16 @@ stages:
               imageTag: '${{ parameters.pod_suffix }}'
               environment: ${{ parameters.env }}
               #additionalArgs: "-o json"
-          - template: ../templates/Azure/Dns/private-dns-remove.yaml
-            parameters: 
-              subscriptionName: ${{ variables.subscriptionName }}
-              dnsSubscriptionName: ${{ variables.dnsZoneSubscription }}
-              dnsResourceGroupName: ${{ variables.dnsZoneResourceGroup }}
-              zoneName: ${{ variables.dnsZone }}
-              recordName: ${{ variables.dnsRecordName }}
+  - stage: remove dns
+    displayName: remove  ${{ variables.dnsRecordName }} from ${{ variables.dnsZone }}
+    jobs:
+      - job:
+        conditon: or(succeeded(), eq(${{ parameters.dns_only }}, 'true'))
+        steps:
+        - template: ../templates/Azure/Dns/private-dns-remove.yaml
+          parameters: 
+            subscriptionName: ${{ variables.subscriptionName }}
+            dnsSubscriptionName: ${{ variables.dnsZoneSubscription }}
+            dnsResourceGroupName: ${{ variables.dnsZoneResourceGroup }}
+            zoneName: ${{ variables.dnsZone }}
+            recordName: ${{ variables.dnsRecordName }}
