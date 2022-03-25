@@ -4,6 +4,10 @@ parameters:
     default: ""
   - name: cluster
     type: string
+  - name: app_name
+    type: string
+  - name: project
+    type: string
 
 variables:
   - name: subscriptionName
