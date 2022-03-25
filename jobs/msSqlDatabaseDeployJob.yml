@@ -66,7 +66,7 @@ jobs:
   environment: ${{ parameters.environment }}
   variables:
     - name: "connectionString"
-      value: $[ dependencies.Secret_Gathering.outputs['SetSecretVariables.${{ parameters.connectionStringSecretName }}'] ]
+      value: $[ dependencies.Secret_Gathering.outputs['SetSecretVariables._${{ parameters.connectionStringSecretName }}'] ]
   strategy:
     runOnce:
       deploy:
