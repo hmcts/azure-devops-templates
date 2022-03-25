@@ -194,7 +194,7 @@ stages:
             CIPipelineID: $(resources.pipeline.${{ parameters.CIPipelineResourceID }}.pipelineID)
             deployBranch: ${{ parameters.deployBranch }}
           scriptName: ${{ parameters.scriptName }}
-          connectionStringSecretName: ${{ parameters.connectionStringSecretName }} ]
+          connectionStringSecretName: ${{ parameters.connectionStringSecretName }}
  
 
     - template: ../jobs/azWebAppDeployJob.yml
