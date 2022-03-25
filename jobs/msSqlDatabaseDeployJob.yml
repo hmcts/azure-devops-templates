@@ -87,7 +87,7 @@ jobs:
               runVersion: latestFromBranch
               runBranch: ${{ parameters.deployBranch }}
 
-        - template: ../templates/KeyVault/get-secret.yaml
+        - template: ../templates\Azure\KeyVault\get-secret.yaml
           parameters: 
             azureSubscription: '${{ parameters.subscription }}'
             keyVaultName: 'vhcoreinfraht${{ parameters.environment }}'
