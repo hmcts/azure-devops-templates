@@ -27,10 +27,6 @@ parameters:
     type: string
     default: pr-396
 
-  - name: dns_only
-    type: boolean
-    default: false
-
 variables:
   - template: ../variables/shared.yaml
     parameters:
