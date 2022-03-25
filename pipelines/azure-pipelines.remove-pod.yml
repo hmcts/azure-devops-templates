@@ -60,14 +60,14 @@ stages:
               #additionalArgs: "-o json"
   - stage: remove dns
     displayName: remove  ${{ variables.dnsRecordName }} from ${{ variables.dnsZone }}
-    conditon: eq(${{ parameters.dns_only }}, 'true')
     jobs:
       - job:
         steps:
-        - template: ../templates/Azure/Dns/private-dns-remove.yaml
-          parameters: 
-            subscriptionName: ${{ variables.subscriptionName }}
-            dnsSubscriptionName: ${{ variables.dnsZoneSubscription }}
-            dnsResourceGroupName: ${{ variables.dnsZoneResourceGroup }}
-            zoneName: ${{ variables.dnsZone }}
-            recordName: ${{ variables.dnsRecordName }}
+        - ${{ if eq(${{ parameters.dns_only }}, 'true') }}
+            - template: ../templates/Azure/Dns/private-dns-remove.yaml
+              parameters: 
+                subscriptionName: ${{ variables.subscriptionName }}
+                dnsSubscriptionName: ${{ variables.dnsZoneSubscription }}
+                dnsResourceGroupName: ${{ variables.dnsZoneResourceGroup }}
+                zoneName: ${{ variables.dnsZone }}
+                recordName: ${{ variables.dnsRecordName }}
