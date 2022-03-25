@@ -37,7 +37,7 @@ variables:
   - name: prTagName
     value: 'pr-379'
   - name: dnsRecordName
-    value: ${{ parameters.project }}-${{ parameters.app_name }}-${{ parameters.pod_suffix }}
+    value: ${{ parameters.app_name }}-${{ parameters.pod_suffix }}
 
 stages:
   - stage: Uninstall
