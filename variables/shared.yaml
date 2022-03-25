@@ -19,11 +19,11 @@ variables:
     value: "ss-${{ parameters.env }}-${{ parameters.cluster }}-rg"
 
   - name: chartName
-    value: "vh-${{ parameters.git_repo_name }}"
+    value: "vh-${{ parameters.app_name }}"
   - name: chartRepoPath
-    value: '$(Build.SourcesDirectory)/${{ parameters.git_repo_name }}'
+    value: '$(Build.SourcesDirectory)/${{ parameters.app_name }}'
   - name: chartPath
-    value: 'charts/vh-${{ parameters.git_repo_name }}'
+    value: 'charts/vh-${{ parameters.app_name }}'
   - name: envValuesPath
     value: "${{ variables.chartPath }}/values.${env}.yaml"
   - name: envValuesTemplatePath
