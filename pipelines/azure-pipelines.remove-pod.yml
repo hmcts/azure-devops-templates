@@ -63,7 +63,7 @@ stages:
     jobs:
       - job:
         steps:
-        - ${{ if eq(${{ parameters.dns_only }}, 'true') }}
+        - ${{ if eq(${{ parameters.dns_only }}, 'true') }}:
             - template: ../templates/Azure/Dns/private-dns-remove.yaml
               parameters: 
                 subscriptionName: ${{ variables.subscriptionName }}
