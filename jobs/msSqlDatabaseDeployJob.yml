@@ -103,11 +103,17 @@ jobs:
           parameters:
             subscription: '${{ parameters.subscription }}'
             keyVaultName: 'vhcoreinfraht${{ parameters.environment }}' 
+        
+        - template: ../templates\Database\MsSql\split-connection-string.yaml
+          parameters:
+            connectionString: $(secret.prop.value)
+            taskName: connectionString
 
         - template: ../templates/Database/EntityFramework/deploy-ms-sql.yaml
           parameters:
             azureSubscription: '${{ parameters.subscription }}'
-            dbServerName: 'vh-core-infra-${{ parameters.environment }}'
-            databaseName: '${{ parameters.databaseName }}'
+            dbServerName: $(connectionString.prop.serverName)
+            databaseName: $(connectionString.prop.database)
             sqlScriptLocation: '$(Pipeline.Workspace)/dbScript/${{ parameters.scriptName }}'
-            ConnectionString: $(secret.prop.value)
+            SqlUsername: $(connectionString.prop.userId)
+            SqlPassword: $(connectionString.prop.password)

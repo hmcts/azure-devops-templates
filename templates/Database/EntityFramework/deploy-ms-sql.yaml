@@ -10,6 +10,12 @@ parameters:
   - name: connectionString
     type: string
     default: ''
+  - name: sqlUsername
+    type: string
+    default: ''
+  - name: sqlPassword
+    type: string
+    default: ''
 
 
 steps:
@@ -18,14 +24,22 @@ steps:
       azureSubscription: '${{ parameters.azureSubscription }}'
       ${{ if ne(parameters.connectionString, '') }}:
         AuthenticationType: 'connectionString'
+        ConnectionString: ${{ parameters.connectionString }}
+      ${{ if and(ne(parameters.sqlUsername, ''),ne(parameters.sqlPassword, '')) }}:
+        AuthenticationType: 'server'
+        ServerName: '${{ parameters.dbServerName }}'
+        DatabaseName: '${{ parameters.databaseName }}'
+        SqlUsername: '${{ parameters.sqlUsername }}'
+        SqlPassword: '${{ parameters.sqlPassword }}'
       ${{ else }}:
         AuthenticationType: 'servicePrincipal'
+        ServerName: '${{ parameters.dbServerName }}'
+        DatabaseName: '${{ parameters.databaseName }}'
       
       ${{ if ne(parameters.connectionString, '') }}:
-        ConnectionString: ${{ parameters.connectionString }}
       ${{ else}}:
-        ServerName: '${{ parameters.dbServerName }}.database.windows.net'
-        DatabaseName: '${{ parameters.databaseName }}'
+
+
       deployType: 'SqlTask'
       SqlFile: '${{ parameters.sqlScriptLocation }}'
       IpDetectionMethod: 'AutoDetect'
