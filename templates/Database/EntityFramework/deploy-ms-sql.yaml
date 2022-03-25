@@ -1,0 +1,41 @@
+parameters:
+  - name: azureSubscription
+    type: string
+  - name: dbServerName
+    type: string
+  - name: databaseName
+    type: string
+  - name: sqlScriptLocation
+    type: string
+  - name: connectionString
+    type: string
+    default: ''
+  - name: sqlUsername
+    type: string
+    default: ''
+  - name: sqlPassword
+    type: string
+    default: ''
+
+
+steps:
+  - task: SqlAzureDacpacDeployment@1
+    inputs:
+      azureSubscription: '${{ parameters.azureSubscription }}'
+      ${{ if ne(parameters.connectionString, '') }}:
+        AuthenticationType: 'connectionString'
+        ConnectionString: ${{ parameters.connectionString }}
+      ${{ elseif and(ne(parameters.sqlUsername, ''),ne(parameters.sqlPassword, '')) }}:
+        AuthenticationType: 'server'
+        ServerName: '${{ parameters.dbServerName }}'
+        DatabaseName: '${{ parameters.databaseName }}'
+        SqlUsername: '${{ parameters.sqlUsername }}'
+        SqlPassword: '${{ parameters.sqlPassword }}'
+      ${{ else }}:
+        AuthenticationType: 'servicePrincipal'
+        ServerName: '${{ parameters.dbServerName }}'
+        DatabaseName: '${{ parameters.databaseName }}'
+
+      deployType: 'SqlTask'
+      SqlFile: '${{ parameters.sqlScriptLocation }}'
+      IpDetectionMethod: 'AutoDetect'

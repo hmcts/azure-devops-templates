@@ -22,6 +22,14 @@ parameters:
   - name: coreProjectPath
     type: string
 
+  - name: coreProjectName
+    type: string
+    default: ''
+
+  - name: databaseContextName
+    type: string
+    default: ''
+
   - name: nugetProjectPath
     type: string
     default: ''
@@ -84,6 +92,10 @@ parameters:
   - name: netVersion
     type: string
     default: '5.x'
+    
+  - name: connectionStringSecretName
+    type: string
+    default: ""
 
 stages:
 - ${{ if or(parameters.PackageApp, parameters.PackageAcceptanceTests, parameters.ACTest, parameters.PackageNuget) }}:
@@ -145,6 +157,13 @@ stages:
             packageType: sdk
             version: ${{ parameters.netVersion}}
             installationPath: $(Agent.ToolsDirectory)/dotnet
+            
+        - task: DotNetCoreCLI@2
+          displayName: Install dotnet-ef
+          inputs:
+            command: 'custom'
+            custom: 'tool'
+            arguments: 'install --global dotnet-ef'
 
         - task: DotNetCoreCLI@2
           displayName: dotnet Restore
@@ -185,6 +204,21 @@ stages:
           inputs:
             PathtoPublish: $(Build.ArtifactStagingDirectory)/App
             ArtifactName: App
+
+        - ${{ if ne(parameters.databaseContextName, '') }}:
+          - template: ../templates/Database/EntityFramework/generate-script.yaml
+            parameters: 
+                outputPath: $(Build.ArtifactStagingDirectory)/dbScript
+                workingPath: ${{ parameters.coreProjectPath }}
+                projectName: ${{ parameters.coreProjectName }}
+                contextName: ${{ parameters.databaseContextName }}
+
+          - task: PublishBuildArtifacts@1
+            displayName: Publish Database Script
+            inputs:
+              PathtoPublish: $(Build.ArtifactStagingDirectory)/dbScript
+              ArtifactName: dbScript
+
 
     - ${{ if or(parameters.PackageAcceptanceTests, parameters.ACTest) }}:
       - job: Publish_AcceptanceTests
@@ -352,3 +386,5 @@ stages:
         ${{ each setting in parameters.releaseParameters }}:
           ${{ if ne(setting.key, 'runZapTests') }}:
             ${{ setting.key }}: ${{ setting.value }}
+        connectionStringSecretName: ${{ parameters.connectionStringSecretName }}
+        scriptName: '${{ parameters.databaseContextName }}.sql'
