@@ -59,7 +59,6 @@ stages:
               environment: ${{ parameters.env }}
               #additionalArgs: "-o json"
           - template: ../templates/Azure/Dns/private-dns-remove.yaml
-            condition: always()
             parameters: 
               subscriptionName: ${{ variables.subscriptionName }}
               dnsSubscriptionName: ${{ variables.dnsZoneSubscription }}
