@@ -20,9 +20,12 @@ steps:
         AuthenticationType: 'connectionString'
       ${{ else }}:
         AuthenticationType: 'servicePrincipal'
-      ConnectionString: ${{ parameters.connectionString }}
-      ServerName: '${{ parameters.dbServerName }}.database.windows.net'
-      DatabaseName: '${{ parameters.databaseName }}'
+      
+      ${{ if ne(parameters.connectionString, '') }}:
+        ConnectionString: ${{ parameters.connectionString }}
+      ${{ else}}:
+        ServerName: '${{ parameters.dbServerName }}.database.windows.net'
+        DatabaseName: '${{ parameters.databaseName }}'
       deployType: 'SqlTask'
       SqlFile: '${{ parameters.sqlScriptLocation }}'
       IpDetectionMethod: 'AutoDetect'
