@@ -1,0 +1,65 @@
+parameters:
+  - name: env
+    type: string
+    default: dev
+    values:
+      - dev
+      - demo
+      - test
+      - ithc
+      - stg
+
+  - name: cluster
+    type: string
+    values:
+        - 00
+        - 01
+
+  - name: project
+    type: string
+    default: vh
+
+  - name: app_name
+    type: string
+    default: bookings-api
+
+  - name: pod_suffix
+    type: string
+    default: pr-396
+
+variables:
+  - template: variables/shared.yaml
+    parameters:
+      env: ${{ parameters.env }}
+      app_name: ${{ parameters.app_name }}
+      cluster: ${{ parameters.cluster }}
+      project: ${{ parameters.project }}
+  - name: prTagName
+    value: 'pr-379'
+  - name: dnsRecordName
+    value: ${{ parameters.project }}-${{ parameters.app_name }}-${{ parameters.pod_suffix }}
+
+stages:
+  - stage: Uninstall
+    displayName: Uninstall from aks-${{ parameters.cluster }}-${{ parameters.env }}
+    jobs:
+      - job:
+        steps:
+          - template: templates/Containerisation/helm/helm-remove.yaml@azTemplates
+            parameters: 
+              azureSubscription: ${{ variables.subscriptionName }}
+              kubernetesRG: "${{ variables.clusterResourceGroup }}"
+              kubernetesCluster: "${{ variables.clusterName }}"
+              chartPath: '${{ variables.chartPath }}'
+              namespace: '${{ parameters.project }}'
+              chartName: '${{ parameters.project }}-${{ parameters.app_name }}'
+              imageTag: '${{ parameters.pod_suffix }}'
+              environment: ${{ parameters.env }}
+              #additionalArgs: "-o json"
+          - template: templates/Azure/Dns/private-dns-remove.yaml@azTemplates
+            parameters: 
+              subscriptionName: ${{ variables.subscriptionName }}
+              dnsSubscriptionName: ${{ variables.dnsZoneSubscription }}
+              dnsResourceGroupName: ${{ variables.dnsZoneResourceGroup }}
+              zoneName: ${{ variables.dnsZone }}
+              recordName: ${{ variables.dnsRecordName }}
