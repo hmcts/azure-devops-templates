@@ -43,45 +43,6 @@ steps:
       azureSubscription: ${{ parameters.azureSubscription }}
 
   - bash: |
-      valuesPath="${valuesPath}"
-      
-      helmArgs=""
-      if test -f "${valuesPath}/values.yaml"; then
-
-        echo "$valuesPath found"
-        helmArgs=" -f ${valuesPath}/values.yaml"
-        valuesEnv="${valuesPath}/values.${env}.yaml"
-
-        if test -f "$valuesEnv"; then
-          echo "$valuesEnv found"
-          helmArgs="$helmArgs -f $valuesEnv"
-        else
-          echo "NOT $valuesEnv found"
-        fi
-      fi
-      helmArgs="$helmArgs $additionalArgs"
-      echo "arg: $helmArgs"
-      echo "##vso[task.setvariable variable=args;isOutput=true]$helmArgs"
-    displayName: Set Helm Arguments
-    name: helm
-    env:
-      valuesPath: ${{ parameters.chartPath }}
-      additionalArgs: ${{ parameters.additionalArgs }}
-      env: ${{ parameters.environment }}
-
-  
-  - ${{ if eq(parameters.fullChartName, '') }}:
-    - bash: |
-          cd $chartPath
-
-          echo "Update Dependencys"
-          helm dependency update
-
-      displayName: Helm Dependency build
-      env:
-        chartPath: "${{ parameters.chartPath }}"
-
-  - bash: |
       echo "path: ${path}"
       echo "releasename: ${releaseName}"
     env: 
@@ -90,18 +51,13 @@ steps:
     displayName: "Helm Details"
 
   - task: HelmDeploy@0
-    displayName: Helm upgrade
+    displayName: Helm Uninstall
     inputs:
       connectionType: 'Azure Resource Manager'
       azureSubscriptionEndpoint: '${{ parameters.azureSubscription }}'
       azureResourceGroup: ${{ parameters.kubernetesRG }}
       kubernetesCluster: ${{ parameters.kubernetesCluster }}
-      command: upgrade
-      chartType: filepath
-      chartPath: ${{ parameters.chartPath }}/${{ parameters.fullChartName }}
-      releaseName: ${{ parameters.chartName }}-${{ parameters.imageTag }}
+      command: delete
       namespace: ${{ parameters.namespace }}
-      install: true
-      waitForExecution: false
       useClusterAdmin: true
-      arguments: $(helm.args)
+      arguments: ${{ parameters.chartName }}-${{ parameters.imageTag }}
