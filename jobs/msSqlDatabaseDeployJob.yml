@@ -48,7 +48,7 @@ parameters:
     type: object
     default: []
 
-  - name: connectionString
+  - name: connectionStringSecretName
     type: string
 
   - name: scriptName
@@ -64,6 +64,9 @@ jobs:
     - ${{ parameters.dependantJobs }}
 
   environment: ${{ parameters.environment }}
+  variables:
+    - name: "connectionString"
+      value: $[ dependencies.Secret_Gathering.outputs['SetSecretVariables.${{ parameters.connectionStringSecretName }}'] ]
   strategy:
     runOnce:
       deploy:
@@ -89,7 +92,7 @@ jobs:
         
         - template: ../templates\Database\MsSql\split-connection-string.yaml
           parameters:
-            connectionString: ${{ parameters.connectionString }}
+            connectionString: ${{ variables.connectionString }}
             taskName: connectionString
 
         - template: ../templates/Database/EntityFramework/deploy-ms-sql.yaml
