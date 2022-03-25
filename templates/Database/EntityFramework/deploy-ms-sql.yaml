@@ -25,7 +25,7 @@ steps:
       ${{ if ne(parameters.connectionString, '') }}:
         AuthenticationType: 'connectionString'
         ConnectionString: ${{ parameters.connectionString }}
-      ${{ if and(ne(parameters.sqlUsername, ''),ne(parameters.sqlPassword, '')) }}:
+      ${{ else if and(ne(parameters.sqlUsername, ''),ne(parameters.sqlPassword, '')) }}:
         AuthenticationType: 'server'
         ServerName: '${{ parameters.dbServerName }}'
         DatabaseName: '${{ parameters.databaseName }}'
@@ -35,10 +35,6 @@ steps:
         AuthenticationType: 'servicePrincipal'
         ServerName: '${{ parameters.dbServerName }}'
         DatabaseName: '${{ parameters.databaseName }}'
-      
-      ${{ if ne(parameters.connectionString, '') }}:
-      ${{ else}}:
-
 
       deployType: 'SqlTask'
       SqlFile: '${{ parameters.sqlScriptLocation }}'
