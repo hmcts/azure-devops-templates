@@ -9,14 +9,14 @@ parameters:
     type: string
   - name: connectionString
     type: string
-    default: null
+    default: ''
 
 
 steps:
   - task: SqlAzureDacpacDeployment@1
     inputs:
       azureSubscription: '${{ parameters.azureSubscription }}'
-      ${{ if ne(parameters.connectionString, null) }}:
+      ${{ if ne(parameters.connectionString, '') }}:
         AuthenticationType: 'connectionString'
       ${{ else }}:
         AuthenticationType: 'servicePrincipal'
