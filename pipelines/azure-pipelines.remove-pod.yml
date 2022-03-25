@@ -60,9 +60,9 @@ stages:
               #additionalArgs: "-o json"
   - stage: remove dns
     displayName: remove  ${{ variables.dnsRecordName }} from ${{ variables.dnsZone }}
+    conditon: or(succeeded(), eq(${{ parameters.dns_only }}, 'true'))
     jobs:
       - job:
-        conditon: or(succeeded(), eq(${{ parameters.dns_only }}, 'true'))
         steps:
         - template: ../templates/Azure/Dns/private-dns-remove.yaml
           parameters: 
