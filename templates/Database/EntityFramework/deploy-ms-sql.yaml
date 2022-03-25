@@ -25,7 +25,7 @@ steps:
       ${{ if ne(parameters.connectionString, '') }}:
         AuthenticationType: 'connectionString'
         ConnectionString: ${{ parameters.connectionString }}
-      ${{ else if and(ne(parameters.sqlUsername, ''),ne(parameters.sqlPassword, '')) }}:
+      ${{ elseif and(ne(parameters.sqlUsername, ''),ne(parameters.sqlPassword, '')) }}:
         AuthenticationType: 'server'
         ServerName: '${{ parameters.dbServerName }}'
         DatabaseName: '${{ parameters.databaseName }}'
