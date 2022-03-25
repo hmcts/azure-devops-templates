@@ -45,7 +45,7 @@ stages:
     jobs:
       - job:
         steps:
-          - template: templates/Containerisation/helm/helm-remove.yaml@azTemplates
+          - template: ../templates/Containerisation/helm/helm-remove.yaml
             parameters: 
               azureSubscription: ${{ variables.subscriptionName }}
               kubernetesRG: "${{ variables.clusterResourceGroup }}"
@@ -56,7 +56,7 @@ stages:
               imageTag: '${{ parameters.pod_suffix }}'
               environment: ${{ parameters.env }}
               #additionalArgs: "-o json"
-          - template: templates/Azure/Dns/private-dns-remove.yaml@azTemplates
+          - template: ../templates/Azure/Dns/private-dns-remove.yaml
             parameters: 
               subscriptionName: ${{ variables.subscriptionName }}
               dnsSubscriptionName: ${{ variables.dnsZoneSubscription }}
