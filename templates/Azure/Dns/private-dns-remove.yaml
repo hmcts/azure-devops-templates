@@ -1,7 +1,10 @@
 parameters:
   - name: subscriptionName
     type: string
-  - name: resourceGroupName
+
+  - name: dnsSubscriptionName
+    type: string
+  - name: dnsResourceGroupName
     type: string
   - name: zoneName
     type: string
@@ -16,10 +19,10 @@ steps:
       scriptType: pscore
       scriptLocation: inlineScript
       inlineScript: |
-        $resourceGroup = "${{ parameters.resourceGroupName }}"
+        $resourceGroup = "${{ parameters.dnsResourceGroupName }}"
         $zone = "${{ parameters.zoneName }}"
         $recordName = "${{ parameters.recordName }}"
-        $subscription = "${{ parameters.subscriptionName }}"
+        $subscription = "${{ parameters.dnsSubscriptionName }}"
 
         Write-Host "Check $recordName exists in $zone in $resourceGroup"
         $existingRecord = az network private-dns record-set a list -g ${resourceGroup} -z ${zone} --query "[? contains(name, '${recordName}')]" --subscription ${subscription} -o json | ConvertFrom-Json
