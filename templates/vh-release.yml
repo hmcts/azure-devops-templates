@@ -12,7 +12,7 @@ parameters:
   type: object
   default: []
     
-- name: databaseName
+- name: connectionStringSecretName
   type: string
   default: ""
 
@@ -30,7 +30,7 @@ stages:
     parameters:
       environment: Preview
       stageName: Preview
-      databaseName: ${{ parameters.databaseName }}
+      connectionStringSecretName: ${{ parameters.connectionStringSecretName }}
       scriptName: '${{ parameters.databaseContextName }}.sql'
       netVersion: ${{ parameters.netVersion }}
       ${{ if ne(variables['Build.Reason'], 'ResourceTrigger') }}:
@@ -59,7 +59,7 @@ stages:
     parameters:
       environment: Dev
       stageName: Dev
-      databaseName: ${{ parameters.databaseName }}
+      connectionStringSecretName: ${{ parameters.connectionStringSecretName }}
       scriptName: '${{ parameters.databaseContextName }}.sql'
       ${{ if ne(variables['Build.Reason'], 'ResourceTrigger') }}:
         deployBranch: ${{ parameters.deploymentBranch }}
@@ -87,7 +87,7 @@ stages:
     parameters:
       environment: AAT
       stageName: AAT
-      databaseName: ${{ parameters.databaseName }}
+      connectionStringSecretName: ${{ parameters.connectionStringSecretName }}
       scriptName: '${{ parameters.databaseContextName }}.sql'
       ${{ if ne(variables['Build.Reason'], 'ResourceTrigger') }}:
         deployBranch: ${{ parameters.deploymentBranch }}
@@ -115,7 +115,7 @@ stages:
     parameters:
       environment: Demo
       stageName: Demo
-      databaseName: ${{ parameters.databaseName }}
+      connectionStringSecretName: ${{ parameters.connectionStringSecretName }}
       scriptName: '${{ parameters.databaseContextName }}.sql'
       ${{ if ne(variables['Build.Reason'], 'ResourceTrigger') }}:
         deployBranch: ${{ parameters.deploymentBranch }}
@@ -141,7 +141,7 @@ stages:
     parameters:
       environment: Sandbox
       stageName: Sandbox
-      databaseName: ${{ parameters.databaseName }}
+      connectionStringSecretName: ${{ parameters.connectionStringSecretName }}
       scriptName: '${{ parameters.databaseContextName }}.sql'
       ${{ if ne(variables['Build.Reason'], 'ResourceTrigger') }}:
         deployBranch: ${{ parameters.deploymentBranch }}
@@ -167,7 +167,7 @@ stages:
 - ${{ if contains(join(';',parameters.environments), 'Test') }}:
   - template: ..\stages\dotnet-release.yml
     parameters:
-      databaseName: ${{ parameters.databaseName }}
+      connectionStringSecretName: ${{ parameters.connectionStringSecretName }}
       scriptName: '${{ parameters.databaseContextName }}.sql'
     # add below if block for new test* envs
       ${{ if contains(join(';',parameters.environments), 'Test1') }}:
@@ -206,7 +206,7 @@ stages:
     parameters:
       environment: Preprod
       stageName: Preprod
-      databaseName: ${{ parameters.databaseName }}
+      connectionStringSecretName: ${{ parameters.connectionStringSecretName }}
       scriptName: '${{ parameters.databaseContextName }}.sql'
       ${{ if ne(variables['Build.Reason'], 'ResourceTrigger') }}:
         deployBranch: ${{ parameters.deploymentBranch }}
@@ -234,7 +234,7 @@ stages:
     parameters:
       environment: Prod
       stageName: Prod
-      databaseName: ${{ parameters.databaseName }}
+      connectionStringSecretName: ${{ parameters.connectionStringSecretName }}
       scriptName: '${{ parameters.databaseContextName }}.sql'
       ${{ if ne(variables['Build.Reason'], 'ResourceTrigger') }}:
         deployBranch: ${{ parameters.deploymentBranch }}

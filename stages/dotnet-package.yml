@@ -93,7 +93,7 @@ parameters:
     type: string
     default: '5.x'
     
-  - name: databaseName
+  - name: connectionStringSecretName
     type: string
     default: ""
 
@@ -386,5 +386,5 @@ stages:
         ${{ each setting in parameters.releaseParameters }}:
           ${{ if ne(setting.key, 'runZapTests') }}:
             ${{ setting.key }}: ${{ setting.value }}
-        databaseName: ${{ parameters.databaseName }}
+        connectionStringSecretName: ${{ parameters.connectionStringSecretName }}
         scriptName: '${{ parameters.databaseContextName }}.sql'

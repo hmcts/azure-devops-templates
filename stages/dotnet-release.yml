@@ -106,7 +106,7 @@ parameters:
     type: string
     default: '5.x'
 
-  - name: databaseName
+  - name: connectionStringSecretName
     type: string
     default: ''
   - name: scriptName
@@ -193,8 +193,8 @@ stages:
             releaseName: $(resources.pipeline.${{ parameters.CIPipelineResourceID }}.runName)
             CIPipelineID: $(resources.pipeline.${{ parameters.CIPipelineResourceID }}.pipelineID)
             deployBranch: ${{ parameters.deployBranch }}
-          databaseName: ${{ parameters.databaseName }}
           scriptName: ${{ parameters.scriptName }}
+          connectionString: $[ dependencies.Secret_Gathering.outputs['SetSecretVariables.${{ parameters.connectionStringSecretName }}'] ]
  
 
     - template: ../jobs/azWebAppDeployJob.yml

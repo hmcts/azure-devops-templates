@@ -48,7 +48,7 @@ parameters:
     type: object
     default: []
 
-  - name: databaseName
+  - name: connectionString
     type: string
 
   - name: scriptName
@@ -86,27 +86,10 @@ jobs:
               pipeline: ${{ parameters.CIPipelineId }}
               runVersion: latestFromBranch
               runBranch: ${{ parameters.deployBranch }}
-
-        - template: ../templates\Azure\KeyVault\firewall-exception-add.yaml
-          parameters:
-            subscription: '${{ parameters.subscription }}'
-            keyVaultName: 'vhcoreinfraht${{ parameters.environment }}' 
-
-        - template: ../templates\Azure\KeyVault\get-secret.yaml
-          parameters: 
-            azureSubscription: '${{ parameters.subscription }}'
-            keyVaultName: 'vhcoreinfraht${{ parameters.environment }}'
-            secretKeyName: '${{ parameters.databaseName }}DatabaseConnectionString'
-            taskName: 'secret'
-
-        - template: ../templates\Azure\KeyVault\firewall-exception-remove.yaml
-          parameters:
-            subscription: '${{ parameters.subscription }}'
-            keyVaultName: 'vhcoreinfraht${{ parameters.environment }}' 
         
         - template: ../templates\Database\MsSql\split-connection-string.yaml
           parameters:
-            connectionString: $(secret.prop.value)
+            connectionString: ${{ parameters.connectionString }}
             taskName: connectionString
 
         - template: ../templates/Database/EntityFramework/deploy-ms-sql.yaml
