@@ -64,9 +64,6 @@ jobs:
     - ${{ parameters.dependantJobs }}
 
   environment: ${{ parameters.environment }}
-  variables:
-    - name: "connectionString"
-      value: $[ dependencies.Secret_Gathering.outputs['SetSecretVariables._${{ parameters.connectionStringSecretName }}'] ]
   strategy:
     runOnce:
       deploy:
@@ -89,10 +86,27 @@ jobs:
               pipeline: ${{ parameters.CIPipelineId }}
               runVersion: latestFromBranch
               runBranch: ${{ parameters.deployBranch }}
+
+        - template: ../templates\Azure\KeyVault\firewall-exception-add.yaml
+          parameters:
+            subscription: '${{ parameters.subscription }}'
+            keyVaultName: 'vhcoreinfraht${{ parameters.environment }}' 
+
+        - template: ../templates\Azure\KeyVault\get-secret.yaml
+          parameters: 
+            azureSubscription: '${{ parameters.subscription }}'
+            keyVaultName: 'vhcoreinfraht${{ parameters.environment }}'
+            secretKeyName: '${{ parameters.connectionStringSecretName }}'
+            taskName: 'secret'
+
+        - template: ../templates\Azure\KeyVault\firewall-exception-remove.yaml
+          parameters:
+            subscription: '${{ parameters.subscription }}'
+            keyVaultName: 'vhcoreinfraht${{ parameters.environment }}' 
         
         - template: ../templates\Database\MsSql\split-connection-string.yaml
           parameters:
-            connectionString: ${{ variables.connectionString }}
+            connectionString: $(secret.prop.value)
             taskName: connectionString
 
         - template: ../templates/Database/EntityFramework/deploy-ms-sql.yaml
