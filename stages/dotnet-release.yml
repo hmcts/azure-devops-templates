@@ -178,7 +178,7 @@ stages:
                   secretref: ${{ setting.slot.active.value}}
                   value: $(${{ setting.slot.active.value}})
 
-    - ${{ if ne(parameters.scriptName, '') }}:
+    - ${{ if and(ne(parameters.scriptName, ''), ne(parameters.scriptName, '.sql')) }}:
       - template: ../jobs/msSqlDatabaseDeployJob.yml
         parameters:
           environment: ${{ parameters.environment }}
