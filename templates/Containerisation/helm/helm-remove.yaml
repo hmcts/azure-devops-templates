@@ -53,6 +53,7 @@ steps:
   - task: Kubernetes@1
     name: podCheck 
     displayName: Check pod ${{ parameters.chartName }}-${{ parameters.imageTag }} exists
+    continueOnError: true 
     inputs:
       connectionType: 'Azure Resource Manager'
       azureSubscriptionEndpoint: '${{ parameters.azureSubscription }}'
