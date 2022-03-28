@@ -23,7 +23,7 @@ parameters:
   - name: fullChartName
     type: string
     default: ""
-  - name: imageTag
+  - name: suffix
     type: string
     default: "$(Build.BuildNumber)"
   - name: environment
@@ -46,7 +46,7 @@ steps:
       echo "path: ${path}"
       echo "releasename: ${releaseName}"
     env: 
-      releaseName: ${{ parameters.chartName }}-${{ parameters.imageTag }}
+      releaseName: ${{ parameters.chartName }}-${{ parameters.suffix }}
       path: ${{ parameters.chartPath }}/${{ parameters.fullChartName }}
     displayName: "Helm Details"
 
@@ -61,4 +61,4 @@ steps:
       command: delete
       namespace: ${{ parameters.namespace }}
       useClusterAdmin: true
-      arguments: ${{ parameters.chartName }}-${{ parameters.imageTag }}
+      arguments: ${{ parameters.chartName }}-${{ parameters.suffix }}
