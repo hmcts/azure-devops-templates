@@ -17,11 +17,9 @@ parameters:
 
   - name: project
     type: string
-    default: vh
 
   - name: app_name
     type: string
-    default: bookings-api
 
   - name: pod_suffix
     type: string
