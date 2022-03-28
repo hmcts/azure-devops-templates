@@ -50,16 +50,15 @@ steps:
       path: ${{ parameters.chartPath }}/${{ parameters.fullChartName }}
     displayName: "Helm Details"
 
-  - bash: |
-      kubectl describe pod ${{ parameters.chartName }}-${{ parameters.imageTag }}
+  - task: Kubernetes@1 
     displayName: Check pod ${{ parameters.chartName }}-${{ parameters.imageTag }} exists
-    #inputs:
-    #  connectionType: 'Azure Resource Manager'
-    #  azureSubscriptionEndpoint: '${{ parameters.azureSubscription }}'
-    #  azureResourceGroup: ${{ parameters.kubernetesRG }}
-    #  kubernetesCluster: ${{ parameters.kubernetesCluster }}
-    #  command: get
-    #  arguments: pods ${{ parameters.chartName }}-${{ parameters.imageTag }} -n ${{ parameters.namespace }}
+    inputs:
+      connectionType: 'Azure Resource Manager'
+      azureSubscriptionEndpoint: '${{ parameters.azureSubscription }}'
+      azureResourceGroup: ${{ parameters.kubernetesRG }}
+      kubernetesCluster: ${{ parameters.kubernetesCluster }}
+      command: describe
+      arguments: pod ${{ parameters.chartName }}-${{ parameters.imageTag }} -n ${{ parameters.namespace }} 
 
   - task: HelmDeploy@0
     displayName: Helm Uninstall
