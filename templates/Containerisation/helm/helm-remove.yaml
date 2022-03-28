@@ -50,7 +50,8 @@ steps:
       path: ${{ parameters.chartPath }}/${{ parameters.fullChartName }}
     displayName: "Helm Details"
 
-  - task: Kubernetes@1 
+  - task: Kubernetes@1
+    name: podCheck 
     displayName: Check pod ${{ parameters.chartName }}-${{ parameters.imageTag }} exists
     inputs:
       connectionType: 'Azure Resource Manager'
@@ -63,6 +64,8 @@ steps:
 
   - task: HelmDeploy@0
     displayName: Helm Uninstall
+    dependsOn: podCheck
+    condition: succeeded()
     inputs:
       connectionType: 'Azure Resource Manager'
       azureSubscriptionEndpoint: '${{ parameters.azureSubscription }}'
