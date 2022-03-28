@@ -50,7 +50,7 @@ steps:
       path: ${{ parameters.chartPath }}/${{ parameters.fullChartName }}
     displayName: "Helm Details"
 
-   - task: HelmDeploy@0
+  - task: HelmDeploy@0
     displayName: Helm Uninstall
     condition: succeeded()
     inputs:
