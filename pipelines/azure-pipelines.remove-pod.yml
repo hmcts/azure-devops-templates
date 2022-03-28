@@ -28,7 +28,7 @@ parameters:
     default: pr-396
 
 variables:
-  - template: ../variables/shared.yaml
+  - template: ../variables/sds-aks-shared.yaml
     parameters:
       env: ${{ parameters.env }}
       app_name: ${{ parameters.app_name }}
