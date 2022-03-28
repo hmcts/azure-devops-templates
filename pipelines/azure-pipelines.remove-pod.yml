@@ -58,7 +58,7 @@ stages:
         
       - job:
         dependsOn: podCheck
-        condition: succeeded()
+        condition: eq(dependencies.podCheck.result,'Succeeded')
         steps:
         - template: ../templates/Containerisation/helm/helm-remove.yaml
           parameters: 
