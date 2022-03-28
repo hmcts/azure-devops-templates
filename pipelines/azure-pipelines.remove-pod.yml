@@ -45,7 +45,7 @@ stages:
         steps:
         - task: Kubernetes@1
           name: podCheck 
-          displayName: Check pod ${{ parameters.chartName }}-${{ parameters.imageTag }} exists
+          displayName: Check pod ${{ parameters.project }}-${{ parameters.app_name }}-${{ parameters.pod_suffix }} exists
           continueOnError: true 
           inputs:
             connectionType: 'Azure Resource Manager'
