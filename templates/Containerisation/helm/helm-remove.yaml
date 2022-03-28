@@ -65,7 +65,6 @@ steps:
 
   - task: HelmDeploy@0
     displayName: Helm Uninstall
-    dependsOn: podCheck
     condition: succeeded()
     inputs:
       connectionType: 'Azure Resource Manager'
