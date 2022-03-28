@@ -1,6 +1,7 @@
 parameters:
   - name: subscriptionName
     type: string
+
   - name: dnsSubscriptionName
     type: string
   - name: dnsResourceGroupName

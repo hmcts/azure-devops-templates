@@ -11,6 +11,18 @@ parameters:
 - name: environments
   type: object
   default: []
+    
+- name: connectionStringSecretName
+  type: string
+  default: ""
+
+- name: databaseContextName
+  type: string
+  default: ""
+
+- name: netVersion
+  type: string
+  default: '5.x'
 
 stages:
 - ${{ if or(eq(variables['Build.Reason'], 'ResourceTrigger'), containsValue(parameters.environments, 'Preview')) }}:
@@ -18,6 +30,9 @@ stages:
     parameters:
       environment: Preview
       stageName: Preview
+      connectionStringSecretName: ${{ parameters.connectionStringSecretName }}
+      scriptName: '${{ parameters.databaseContextName }}.sql'
+      netVersion: ${{ parameters.netVersion }}
       ${{ if ne(variables['Build.Reason'], 'ResourceTrigger') }}:
         deployBranch: ${{ parameters.deploymentBranch }}
       ${{ if eq(variables['Build.Reason'], 'ResourceTrigger') }}:
@@ -44,6 +59,8 @@ stages:
     parameters:
       environment: Dev
       stageName: Dev
+      connectionStringSecretName: ${{ parameters.connectionStringSecretName }}
+      scriptName: '${{ parameters.databaseContextName }}.sql'
       ${{ if ne(variables['Build.Reason'], 'ResourceTrigger') }}:
         deployBranch: ${{ parameters.deploymentBranch }}
       ${{ if eq(variables['Build.Reason'], 'ResourceTrigger') }}:
@@ -70,6 +87,8 @@ stages:
     parameters:
       environment: AAT
       stageName: AAT
+      connectionStringSecretName: ${{ parameters.connectionStringSecretName }}
+      scriptName: '${{ parameters.databaseContextName }}.sql'
       ${{ if ne(variables['Build.Reason'], 'ResourceTrigger') }}:
         deployBranch: ${{ parameters.deploymentBranch }}
       ${{ if eq(variables['Build.Reason'], 'ResourceTrigger') }}:
@@ -96,6 +115,8 @@ stages:
     parameters:
       environment: Demo
       stageName: Demo
+      connectionStringSecretName: ${{ parameters.connectionStringSecretName }}
+      scriptName: '${{ parameters.databaseContextName }}.sql'
       ${{ if ne(variables['Build.Reason'], 'ResourceTrigger') }}:
         deployBranch: ${{ parameters.deploymentBranch }}
       ${{ if eq(variables['Build.Reason'], 'ResourceTrigger') }}:
@@ -120,6 +141,8 @@ stages:
     parameters:
       environment: Sandbox
       stageName: Sandbox
+      connectionStringSecretName: ${{ parameters.connectionStringSecretName }}
+      scriptName: '${{ parameters.databaseContextName }}.sql'
       ${{ if ne(variables['Build.Reason'], 'ResourceTrigger') }}:
         deployBranch: ${{ parameters.deploymentBranch }}
       ${{ if eq(variables['Build.Reason'], 'ResourceTrigger') }}:
@@ -144,6 +167,8 @@ stages:
 - ${{ if contains(join(';',parameters.environments), 'Test') }}:
   - template: ..\stages\dotnet-release.yml
     parameters:
+      connectionStringSecretName: ${{ parameters.connectionStringSecretName }}
+      scriptName: '${{ parameters.databaseContextName }}.sql'
     # add below if block for new test* envs
       ${{ if contains(join(';',parameters.environments), 'Test1') }}:
         environment: Test1
@@ -181,6 +206,8 @@ stages:
     parameters:
       environment: Preprod
       stageName: Preprod
+      connectionStringSecretName: ${{ parameters.connectionStringSecretName }}
+      scriptName: '${{ parameters.databaseContextName }}.sql'
       ${{ if ne(variables['Build.Reason'], 'ResourceTrigger') }}:
         deployBranch: ${{ parameters.deploymentBranch }}
       ${{ if eq(variables['Build.Reason'], 'ResourceTrigger') }}:
@@ -207,6 +234,8 @@ stages:
     parameters:
       environment: Prod
       stageName: Prod
+      connectionStringSecretName: ${{ parameters.connectionStringSecretName }}
+      scriptName: '${{ parameters.databaseContextName }}.sql'
       ${{ if ne(variables['Build.Reason'], 'ResourceTrigger') }}:
         deployBranch: ${{ parameters.deploymentBranch }}
       ${{ if eq(variables['Build.Reason'], 'ResourceTrigger') }}:
