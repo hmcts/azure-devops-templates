@@ -27,6 +27,10 @@ parameters:
     type: string
     default: pr-396
 
+  - name: subscriptionName
+    type: string
+    default: "DTS-SHAREDSERVICES-${{ upper(parameters.env) }}-Video Hearings"
+
 variables:
   - template: ../variables/sds-aks-shared.yaml
     parameters:
@@ -49,7 +53,7 @@ stages:
           continueOnError: true 
           inputs:
             connectionType: 'Azure Resource Manager'
-            azureSubscriptionEndpoint: ${{ variables.subscriptionName }}
+            azureSubscriptionEndpoint: ${{ parameters.subscriptionName }}
             azureResourceGroup: "${{ variables.clusterResourceGroup }}"
             kubernetesCluster: "${{ variables.clusterName }}"
             useClusterAdmin: true
@@ -62,7 +66,7 @@ stages:
         steps:
         - template: ../templates/Containerisation/helm/helm-remove.yaml
           parameters: 
-            azureSubscription: ${{ variables.subscriptionName }}
+            azureSubscription: ${{ parameters.subscriptionName }}
             kubernetesRG: "${{ variables.clusterResourceGroup }}"
             kubernetesCluster: "${{ variables.clusterName }}"
             chartPath: '${{ variables.chartPath }}'
@@ -79,7 +83,7 @@ stages:
         steps:
         - template: ../templates/Azure/Dns/private-dns-remove.yaml
           parameters: 
-            subscriptionName: ${{ variables.subscriptionName }}
+            subscriptionName: ${{ parameters.subscriptionName }}
             dnsSubscriptionName: ${{ variables.dnsZoneSubscription }}
             dnsResourceGroupName: ${{ variables.dnsZoneResourceGroup }}
             zoneName: ${{ variables.dnsZone }}
