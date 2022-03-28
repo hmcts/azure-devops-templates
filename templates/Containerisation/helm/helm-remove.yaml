@@ -58,7 +58,7 @@ steps:
       azureResourceGroup: ${{ parameters.kubernetesRG }}
       kubernetesCluster: ${{ parameters.kubernetesCluster }}
       command: get
-      arguments: pod ${{ parameters.chartName }}-${{ parameters.imageTag }} -n ${{ parameters.namespace }}
+      arguments: pods ${{ parameters.chartName }}-${{ parameters.imageTag }} -n ${{ parameters.namespace }}
 
   - task: HelmDeploy@0
     displayName: Helm Uninstall
