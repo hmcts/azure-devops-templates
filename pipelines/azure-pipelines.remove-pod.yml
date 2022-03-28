@@ -58,6 +58,7 @@ stages:
         
       - job:
         dependsOn: podCheck
+        condition: succeeded()
         steps:
         - template: ../templates/Containerisation/helm/helm-remove.yaml
           parameters: 
