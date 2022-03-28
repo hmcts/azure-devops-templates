@@ -57,7 +57,8 @@ steps:
       azureSubscriptionEndpoint: '${{ parameters.azureSubscription }}'
       azureResourceGroup: ${{ parameters.kubernetesRG }}
       kubernetesCluster: ${{ parameters.kubernetesCluster }}
-      command: describe
+      useClusterAdmin: true
+      command: get
       arguments: pod ${{ parameters.chartName }}-${{ parameters.imageTag }} -n ${{ parameters.namespace }} 
 
   - task: HelmDeploy@0
