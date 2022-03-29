@@ -1,0 +1,37 @@
+parameters:
+  - name: env
+    type: string
+    default: ""
+  - name: cluster
+    type: string
+  - name: app_name
+    type: string
+  - name: project
+    type: string
+
+variables:
+  - name: subscriptionName
+    value: "DTS-SHAREDSERVICES-${{ upper(parameters.env) }}-Video Hearings"
+
+  - name: clusterName
+    value: "ss-${{ parameters.env }}-${{ parameters.cluster }}-aks"
+  - name: clusterResourceGroup
+    value: "ss-${{ parameters.env }}-${{ parameters.cluster }}-rg"
+
+  - name: chartName
+    value: "${{ parameters.project }}-${{ parameters.app_name }}"
+  - name: chartRepoPath
+    value: '$(Build.SourcesDirectory)/${{ parameters.app_name }}'
+  - name: chartPath
+    value: 'charts/${{ parameters.project }}-${{ parameters.app_name }}'
+  - name: envValuesPath
+    value: "${{ variables.chartPath }}/values.${env}.yaml"
+  - name: envValuesTemplatePath
+    value: "${{ variables.chartPath }}/values.${env}.template.yaml"
+    
+  - name: dnsZoneSubscription
+    value: "DTS-CFTPTL-INTSVC"
+  - name: dnsZoneResourceGroup
+    value: "core-infra-intsvc-rg"
+  - name: dnsZone
+    value: ${{ parameters.env }}.platform.hmcts.net

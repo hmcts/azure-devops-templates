@@ -1,0 +1,88 @@
+parameters:
+  - name: env
+    type: string
+    default: dev
+    values:
+      - dev
+      - demo
+      - test
+      - ithc
+      - stg
+
+  - name: cluster
+    type: string
+    values:
+        - 00
+        - 01
+
+  - name: project
+    type: string
+
+  - name: app_name
+    type: string
+
+  - name: pod_suffix
+    type: string
+    default: pr-396
+
+  - name: connectionName
+    type: string
+    default: "DTS-SHAREDSERVICES-DEV-Video Hearings"
+
+variables:
+  - template: ../variables/sds-aks-shared.yaml
+    parameters:
+      env: ${{ parameters.env }}
+      app_name: ${{ parameters.app_name }}
+      cluster: ${{ parameters.cluster }}
+      project: ${{ parameters.project }}
+  - name: dnsRecordName
+    value: ${{ parameters.app_name }}-${{ parameters.pod_suffix }}
+
+stages:
+  - stage: uninstall_pod
+    displayName: Uninstall from aks-${{ parameters.cluster }}-${{ parameters.env }}
+    jobs:
+      - job: podCheck
+        steps:
+        - task: Kubernetes@1
+          name: podCheck 
+          displayName: Check pod ${{ parameters.project }}-${{ parameters.app_name }}-${{ parameters.pod_suffix }} exists
+          continueOnError: true 
+          inputs:
+            connectionType: 'Azure Resource Manager'
+            azureSubscriptionEndpoint: ${{ parameters.connectionName }}
+            azureResourceGroup: "${{ variables.clusterResourceGroup }}"
+            kubernetesCluster: "${{ variables.clusterName }}"
+            useClusterAdmin: true
+            command: get
+            arguments: pod ${{ parameters.project }}-${{ parameters.app_name }}-${{ parameters.pod_suffix }} -n ${{ parameters.project }} 
+        
+      - job:
+        dependsOn: podCheck
+        condition: eq(dependencies.podCheck.result,'Succeeded')
+        steps:
+        - template: ../templates/Containerisation/helm/helm-remove.yaml
+          parameters: 
+            azureSubscription: ${{ parameters.connectionName }}
+            kubernetesRG: "${{ variables.clusterResourceGroup }}"
+            kubernetesCluster: "${{ variables.clusterName }}"
+            chartPath: '${{ variables.chartPath }}'
+            namespace: '${{ parameters.project }}'
+            chartName: '${{ parameters.project }}-${{ parameters.app_name }}'
+            suffix: '${{ parameters.pod_suffix }}'
+            environment: ${{ parameters.env }}
+            #additionalArgs: "-o json"
+  - stage: remove_dns
+    displayName: remove  ${{ variables.dnsRecordName }} from ${{ variables.dnsZone }}
+    condition: always()
+    jobs:
+      - job:
+        steps:
+        - template: ../templates/Azure/Dns/private-dns-remove.yaml
+          parameters: 
+            subscriptionName: ${{ parameters.connectionName }}
+            dnsSubscriptionName: ${{ variables.dnsZoneSubscription }}
+            dnsResourceGroupName: ${{ variables.dnsZoneResourceGroup }}
+            zoneName: ${{ variables.dnsZone }}
+            recordName: ${{ variables.dnsRecordName }}
