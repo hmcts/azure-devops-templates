@@ -70,7 +70,7 @@ stages:
             chartPath: '${{ variables.chartPath }}'
             namespace: '${{ parameters.project }}'
             chartName: '${{ parameters.project }}-${{ parameters.app_name }}'
-            suffix: '${{ parameters.pod_suffix }}'
+            imageTag: '${{ parameters.pod_suffix }}'
             environment: ${{ parameters.env }}
             #additionalArgs: "-o json"
   - stage: remove_dns
