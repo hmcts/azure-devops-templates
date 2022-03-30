@@ -91,7 +91,7 @@ parameters:
 
   - name: netVersion
     type: string
-    default: '5.x'
+    default: '3.1.x'
     
   - name: connectionStringSecretName
     type: string
