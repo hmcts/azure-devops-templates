@@ -252,6 +252,8 @@ stages:
           dependantJobs:
           - Secret_Gathering
           - ${{ parameters.devOpsResource }}
+          - ${{ if and(ne(parameters.scriptName, ''), ne(parameters.scriptName, '.sql')) }}:
+            - ${{ parameters.devOpsResource }}_db
           slot: ${{ parameters.deploymentSlot }}
           dependentApps: ${{ parameters.dependentApps }}
           deviceConfiguration: ${{ parameters.deviceConfiguration }}
