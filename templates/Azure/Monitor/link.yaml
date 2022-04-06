@@ -52,6 +52,10 @@ steps:
           $env = "staging" 
           $workspaceName = "hmcts-nonprod"
         }
+        elseif ($environment -ieq "test") { 
+          $env = "testing" 
+          $workspaceName = "hmcts-nonprod"
+        }
         elseif ($environment -ieq "prod") { 
           $env = "production" 
           $workspaceName = "hmcts-prod"
