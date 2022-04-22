@@ -21,7 +21,7 @@ steps:
         
   - bash: |
       git checkout $(Build.SourceBranchName)
-    displayName: Checkout Branch
+    displayName: Checkout Branch - $(Build.SourceBranchName)
       
   - task: DockerCompose@0
     displayName: 'Run a Docker Compose Build'
