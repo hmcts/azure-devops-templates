@@ -43,10 +43,7 @@ parameters:
     - name: recordName
       type: string
     - name: clusterResourceGroup
-      type: string
-    - name: dnsZoneResourceGroup
-      type: string
-    
+      type: string    
 
 steps:
     - bash: |
