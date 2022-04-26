@@ -97,7 +97,7 @@ steps:
         aksResourceGroupName: "${{ parameters.clusterResourceGroup }}"
         aksClusterName: "${{ parameters.aksClusterName }}"
         dnsSubscriptionName: "${{ parameters.dnsSubscriptionName }}"
-        dnsResourceGroupName: "${{ parameters.dnsZoneResourceGroup }}"
+        dnsResourceGroupName: "${{ parameters.dnsResourceGroup }}"
         zoneName: ${{ parameters.dnsZone }}
         recordName: ${{ parameters.dnsRecordName }}
 
