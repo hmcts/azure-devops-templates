@@ -5,6 +5,10 @@ parameters:
       type: string
     - name: appId
       type: string
+    - name: envValuesTemplatePath
+      type: string
+    - name: envValuesPath
+      type: string
     - name: acrName
       type: string
     - name: repositoryName
@@ -38,6 +42,10 @@ parameters:
       type: string
     - name: recordName
       type: string
+    - name: clusterResourceGroup
+      type: string
+    - name: dnsZoneResourceGroup
+      type: string
     
 
 steps:
@@ -48,7 +56,7 @@ steps:
         
     - template: ..\..\Github\get-app-token.yaml
       parameters:
-        privateKeyFileName: ${{ parameters.gh_app_private_key_file_name }}
+        privateKeyFileName: ${{ parameters.privateKeyFileName }}
         appId: ${{ parameters.appId }}
 
     - bash: |
@@ -87,8 +95,8 @@ steps:
         subscriptionName: "${{ parameters.subscriptionName }}"
         aksSubscriptionName: "${{ parameters.subscriptionName }}"
         aksResourceGroupName: "${{ parameters.clusterResourceGroup }}"
-        aksClusterName: "${{ parameters.clusterName }}"
-        dnsSubscriptionName: "${{ parameters.dnsZoneSubscription }}"
+        aksClusterName: "${{ parameters.aksClusterName }}"
+        dnsSubscriptionName: "${{ parameters.dnsSubscriptionName }}"
         dnsResourceGroupName: "${{ parameters.dnsZoneResourceGroup }}"
         zoneName: ${{ parameters.dnsZone }}
         recordName: ${{ parameters.dnsRecordName }}
@@ -98,7 +106,7 @@ steps:
         helmVersion: $(chartVersion)
         azureSubscription: ${{ parameters.subscriptionName }}
         kubernetesRG: "${{ parameters.clusterResourceGroup }}"
-        kubernetesCluster: "${{ parameters.clusterName }}"
+        kubernetesCluster: "${{ parameters.aksClusterName }}"
         namespace: "vh"
         chartName: '${{ parameters.chartName }}'
         chartPath: '${{ parameters.chartPath }}'
