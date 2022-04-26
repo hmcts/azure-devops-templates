@@ -98,7 +98,7 @@ steps:
         zoneName: ${{ parameters.dnsZone }}
         recordName: ${{ parameters.dnsRecordName }}
 
-    - template: ..\Containerisation\helm\helm-deploy.yaml
+    - template: ..\helm\helm-deploy.yaml
       parameters:
         helmVersion: $(chartVersion)
         azureSubscription: ${{ parameters.subscriptionName }}
