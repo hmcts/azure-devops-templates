@@ -19,7 +19,7 @@ parameters:
       type: string
     - name: dnsZone
       type: string
-    - name: devEnv
+    - name: env
       type: string
       default: ""
     - name: chartName
@@ -38,12 +38,8 @@ parameters:
       type: string
     - name: dnsResourceGroupName
       type: string
-    - name: zoneName
-      type: string
     - name: recordName
       type: string
-    - name: clusterResourceGroup
-      type: string    
 
 steps:
     - bash: |
@@ -76,7 +72,7 @@ steps:
       env:
         imageName: ${{ parameters.acrName }}.azurecr.io/${{ parameters.repositoryName }}:${{ parameters.prTagName }}
         fqdn: ${{ parameters.dnsRecordName }}.${{ parameters.dnsZone }}
-        env: ${{ parameters.devEnv }}
+        env: ${{ parameters.env }}
         releaseName: "${{ parameters.chartName }}-${{ parameters.prTagName }}"
 
     - bash: |
@@ -91,7 +87,7 @@ steps:
       parameters:
         subscriptionName: "${{ parameters.subscriptionName }}"
         aksSubscriptionName: "${{ parameters.subscriptionName }}"
-        aksResourceGroupName: "${{ parameters.clusterResourceGroup }}"
+        aksResourceGroupName: "${{ parameters.aksResourceGroupName }}"
         aksClusterName: "${{ parameters.aksClusterName }}"
         dnsSubscriptionName: "${{ parameters.dnsSubscriptionName }}"
         dnsResourceGroupName: "${{ parameters.dnsResourceGroupName }}"
@@ -102,11 +98,11 @@ steps:
       parameters:
         helmVersion: $(chartVersion)
         azureSubscription: ${{ parameters.subscriptionName }}
-        kubernetesRG: "${{ parameters.clusterResourceGroup }}"
+        kubernetesRG: "${{ parameters.aksResourceGroupName }}"
         kubernetesCluster: "${{ parameters.aksClusterName }}"
         namespace: "vh"
         chartName: '${{ parameters.chartName }}'
         chartPath: '${{ parameters.chartPath }}'
         imageTag: '${{ parameters.prTagName }}'
-        environment: ${{ parameters.devEnv }}
+        environment: ${{ parameters.env }}
         additionalArgs: "-o json"
