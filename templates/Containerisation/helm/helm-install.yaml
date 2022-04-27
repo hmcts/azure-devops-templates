@@ -1,51 +1,49 @@
 parameters:
-    - name: prNumber
-      type: string
+#GitHub app vars
     - name: privateKeyFileName
       type: string
     - name: appId
       type: string
+
+#GitHub Repo vars
     - name: envValuesTemplatePath
       type: string
     - name: envValuesPath
-      type: string
-    - name: acrName
       type: string
     - name: repositoryName
       type: string
     - name: prTagName
       type: string
-    - name: dnsRecordName
-      type: string
-    - name: dnsZone
-      type: string
-    - name: env
-      type: string
-      default: ""
     - name: chartName
       type: string
     - name: chartPath
       type: string
-    - name: subscriptionName
+
+#AKS vars
+    - name: acrName
       type: string
-    - name: aksSubscriptionName
+    - name: env
+      type: string
+      default: ""
+    - name: subscriptionName
       type: string
     - name: aksResourceGroupName
       type: string
     - name: aksClusterName
       type: string
+
+# DNS vars
     - name: dnsSubscriptionName
       type: string
     - name: dnsResourceGroupName
       type: string
-    - name: recordName
+    - name: dnsZone
+      type: string
+    - name: dnsRecordName
       type: string
 
+
 steps:
-    - bash: |
-              echo "our PR id is:"
-              echo ${{ parameters.prNumber }}
-    - checkout: self
         
     - template: ..\..\Github\get-app-token.yaml
       parameters:
