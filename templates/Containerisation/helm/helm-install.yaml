@@ -1,0 +1,106 @@
+parameters:
+#GitHub app vars
+    - name: privateKeyFileName
+      type: string
+    - name: appId
+      type: string
+
+#GitHub Repo vars
+    - name: envValuesTemplatePath
+      type: string
+    - name: envValuesPath
+      type: string
+    - name: repositoryName
+      type: string
+    - name: prTagName
+      type: string
+    - name: chartName
+      type: string
+    - name: chartPath
+      type: string
+
+#AKS vars
+    - name: acrName
+      type: string
+    - name: env
+      type: string
+      default: ""
+    - name: subscriptionName
+      type: string
+    - name: aksResourceGroupName
+      type: string
+    - name: aksClusterName
+      type: string
+
+# DNS vars
+    - name: dnsSubscriptionName
+      type: string
+    - name: dnsResourceGroupName
+      type: string
+    - name: dnsZone
+      type: string
+    - name: dnsRecordName
+      type: string
+
+
+steps:
+        
+    - template: ..\..\Github\get-app-token.yaml
+      parameters:
+        privateKeyFileName: ${{ parameters.privateKeyFileName }}
+        appId: ${{ parameters.appId }}
+
+    - bash: |
+        export IMAGE_NAME="${imageName}"
+        export SERVICE_FQDN="${fqdn}"
+        export RELEASE_NAME="${releaseName}"
+                      
+        valuesEnvTemplate="${{ parameters.envValuesTemplatePath }}"
+        valuesEnv="${{ parameters.envValuesPath }}"
+        
+        if test -f "$valuesEnvTemplate"; then
+          echo "$valuesEnvTemplate found"
+          envsubst < ${valuesEnvTemplate} > ${valuesEnv}
+          echo "created $valuesEnv"
+          cat $valuesEnv
+        else
+          echo "No Environment File"
+        fi
+      displayName: Create Environment Values File
+      env:
+        imageName: ${{ parameters.acrName }}.azurecr.io/${{ parameters.repositoryName }}:${{ parameters.prTagName }}
+        fqdn: ${{ parameters.dnsRecordName }}.${{ parameters.dnsZone }}
+        env: ${{ parameters.env }}
+        releaseName: "${{ parameters.chartName }}-${{ parameters.prTagName }}"
+
+    - bash: |
+        VERSION=$(cat "${chartPath}/Chart.yaml" | grep ^version | cut -d  ':' -f 2 | tr -d '[:space:]')
+        echo "Chart Version: $VERSION"
+        echo "##vso[task.setvariable variable=chartVersion;isOutput=true]$VERSION"
+      displayName: Get Chart Version
+      env:
+        chartPath: ${{ parameters.chartPath }}
+
+    - template: ..\..\Azure\Dns\private-dns-add-aks-pr.yaml
+      parameters:
+        subscriptionName: "${{ parameters.subscriptionName }}"
+        aksSubscriptionName: "${{ parameters.subscriptionName }}"
+        aksResourceGroupName: "${{ parameters.aksResourceGroupName }}"
+        aksClusterName: "${{ parameters.aksClusterName }}"
+        dnsSubscriptionName: "${{ parameters.dnsSubscriptionName }}"
+        dnsResourceGroupName: "${{ parameters.dnsResourceGroupName }}"
+        zoneName: ${{ parameters.dnsZone }}
+        recordName: ${{ parameters.dnsRecordName }}
+
+    - template: ..\helm\helm-deploy.yaml
+      parameters:
+        helmVersion: $(chartVersion)
+        azureSubscription: ${{ parameters.subscriptionName }}
+        kubernetesRG: "${{ parameters.aksResourceGroupName }}"
+        kubernetesCluster: "${{ parameters.aksClusterName }}"
+        namespace: "vh"
+        chartName: '${{ parameters.chartName }}'
+        chartPath: '${{ parameters.chartPath }}'
+        imageTag: '${{ parameters.prTagName }}'
+        environment: ${{ parameters.env }}
+        additionalArgs: "-o json"
