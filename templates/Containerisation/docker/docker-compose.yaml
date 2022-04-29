@@ -21,13 +21,14 @@ steps:
  
   - bash: |
       echo "##[section]checking out branch : $branchName"
+      echo  "$(System.PullRequest.SourceBranch)"
       git checkout $branchName
     displayName: Checkout Branch
     env:
       ${{ if startsWith(variables['Build.SourceBranch'], 'refs/heads/') }}:
         branchName: $(Build.SourceBranchName)
       ${{ if startsWith(variables['Build.SourceBranch'], 'refs/pull/') }}:
-        branchName: $(Build.SourceBranch)
+        branchName: (System.PullRequest.SourceBranch)
       
   - task: DockerCompose@0
     displayName: 'Run a Docker Compose Build'
