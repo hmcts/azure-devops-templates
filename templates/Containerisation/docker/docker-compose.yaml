@@ -6,12 +6,6 @@ parameters:
   - name: repositoryName
     type: string
     
-variables:
-  ${{ if startsWith(variables['Build.SourceBranch'], 'refs/heads/') }}:
-    branchName: $(Build.SourceBranchName)
-  ${{ if startsWith(variables['Build.SourceBranch'], 'refs/pull/') }}:
-    branchName: $[ replace(variables['System.PullRequest.SourceBranch'], 'refs/heads/', '') ]
-    
 steps:
   - task: AzureCLI@2
     displayName: 'Get ID for ${{ parameters.acrName }}'
@@ -24,10 +18,16 @@ steps:
         $acrId=az acr show -n '${{ parameters.acrName }}' --query "id" -o tsv
 
         echo "##vso[task.setvariable variable=acrId;isOutput=true]$acrId"
-        
+ 
   - bash: |
-      git checkout $(branchName)
-    displayName: Checkout Branch - $(branchName)
+      echo "##[section]checking out branch : $branchName"
+      git checkout $branchName
+    displayName: Checkout Branch
+    env:
+      ${{ if startsWith(variables['Build.SourceBranch'], 'refs/heads/') }}:
+        branchName: $(Build.SourceBranchName)
+      ${{ if startsWith(variables['Build.SourceBranch'], 'refs/pull/') }}:
+        branchName: $[ replace(variables['System.PullRequest.SourceBranch'], 'refs/heads/', '') ]
       
   - task: DockerCompose@0
     displayName: 'Run a Docker Compose Build'
