@@ -46,3 +46,5 @@ steps:
           Write-Host "Updating Record $recordName for $serviceIP"
           az network private-dns record-set a update -g ${resourceGroup} -z ${zone} -n ${recordName} --subscription ${subscription} --set "aRecords[0].ipv4Address=`"${serviceIP}`"" --set "ttl=${ttl}"
         }
+
+        Write-Host "Compelted $recordName.$zone"
