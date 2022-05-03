@@ -19,9 +19,6 @@ steps:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
-          
-          
-
           docker tag $imageName:latest $acrName.azurecr.io/$repositoryName:${tag}
     
           docker images
