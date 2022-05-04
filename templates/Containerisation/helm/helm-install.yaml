@@ -101,7 +101,8 @@ steps:
         kubernetesRG: "${{ parameters.aksResourceGroupName }}"
         kubernetesCluster: "${{ parameters.aksClusterName }}"
         namespace: "vh"
-        chartName: '${{ parameters.releaseName }}'
+        releaseName: ${{ parameters.releaseName }}
+        chartName: '${{ parameters.chartName }}'
         chartPath: '${{ parameters.chartPath }}'
         imageTag: '${{ parameters.prTagName }}'
         environment: ${{ parameters.env }}
