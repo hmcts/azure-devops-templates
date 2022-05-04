@@ -10,6 +10,10 @@ parameters:
     type: string
     default: master
 
+  - name: publishPath
+    type: string
+    default: './stable'
+
   - name: githubToken
     type: string
   - name: githubUsername
@@ -23,6 +27,8 @@ steps:
       CHART_NAME="${chartName}"
       repo_name="${chartRepoName}"
       branch_name="${chartRepoBranch}"
+
+      publish_path="${publishPath}"
 
       RETRIES=3
       DELAY=5
@@ -77,28 +83,28 @@ steps:
         fi
         echo "-------------------"
 
-        if rsync -a --delete-after "${CHART_DIRECTORY}/" "./stable/${CHART_NAME}"; then
+        if rsync -a --delete-after "${CHART_DIRECTORY}/" "${publish_path}/${CHART_NAME}"; then
 
-          if [ -d ./stable/${CHART_NAME}/charts ]; then
-            rm -rf ./stable/${CHART_NAME}/charts
+          if [ -d ${publish_path}/${CHART_NAME}/charts ]; then
+            rm -rf ${publish_path}/${CHART_NAME}/charts
             if [[ $? -ne 0 ]]; then
-              echo "Unable to delete stable/${CHART_NAME}/charts directory" 1>&2
+              echo "Unable to delete ${publish_path}/${CHART_NAME}/charts directory" 1>&2
             fi
           fi
           echo "-------------------"
 
-          if [ -e ./stable/${CHART_NAME}/Chart.lock ]; then
-            rm -f ./stable/${CHART_NAME}/Chart.lock
+          if [ -e ${publish_path}/${CHART_NAME}/Chart.lock ]; then
+            rm -f ${publish_path}/${CHART_NAME}/Chart.lock
             if [[ $? -ne 0 ]]; then
-              echo "Unable to delete stable/${CHART_NAME}/Chart.lock " 1>&2
+              echo "Unable to delete ${publish_path}/${CHART_NAME}/Chart.lock " 1>&2
             fi
           fi
           echo "-------------------"
 
-          if [ -e ./stable/${CHART_NAME}/requirements.lock ]; then
-            rm -f ./stable/${CHART_NAME}/requirements.lock
+          if [ -e ${publish_path}/${CHART_NAME}/requirements.lock ]; then
+            rm -f .${publish_path}/${CHART_NAME}/requirements.lock
             if [[ $? -ne 0 ]]; then
-              echo "Unable to delete stable/${CHART_NAME}/requirements.lock " 1>&2
+              echo "Unable to delete ${publish_path}/${CHART_NAME}/requirements.lock " 1>&2
             fi
           fi
           echo "-------------------"
@@ -108,7 +114,7 @@ steps:
           git config --global user.email "${githubEmail}"
           echo "-------------------"
 
-          git add "stable/${CHART_NAME}/"
+          git add "${publish_path}/${CHART_NAME}/"
           git commit -m "Auto-release ${CHART_NAME} ${VERSION} from ADO"
 
           echo "-------------------"
@@ -149,4 +155,5 @@ steps:
       githubToken: ${{ parameters.githubToken }}
       githubUsername: ${{ parameters.githubUsername }}
       githubEmail: ${{ parameters.githubEmail }}
+      publishPath: ${{ parameters.publishPath }}
     displayName: Push chart to heml-chart repo
