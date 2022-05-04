@@ -103,4 +103,4 @@ steps:
         chartPath: '${{ parameters.chartPath }}'
         imageTag: '${{ parameters.prTagName }}'
         environment: ${{ parameters.env }}
-        additionalArgs: "  --wait --set 'global.enableKeyVaults=true' --set 'global.devMode=true' --set 'global.environment=${{ parameters.env }}' -o json "
+        additionalArgs: "  --wait --set 'global.enableKeyVaults=true' --set 'global.devMode=true' --set 'global.environment=${{ parameters.env }}' --timeout 1000s -o json "
