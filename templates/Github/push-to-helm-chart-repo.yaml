@@ -83,6 +83,10 @@ steps:
         fi
         echo "-------------------"
 
+        echo "Make Directory ${publish_path}/${CHART_NAME}"
+        mkdir -p "${publish_path}/${CHART_NAME}"
+        echo "-------------------"
+
         if rsync -a --delete-after "${CHART_DIRECTORY}/" "${publish_path}/${CHART_NAME}"; then
 
           if [ -d ${publish_path}/${CHART_NAME}/charts ]; then
