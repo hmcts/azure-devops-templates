@@ -10,9 +10,9 @@ parameters:
     type: string
     default: master
 
-  - name: publishPath
+  - name: subDirectory
     type: string
-    default: './stable'
+    default: ''
 
   - name: githubToken
     type: string
@@ -28,7 +28,8 @@ steps:
       repo_name="${chartRepoName}"
       branch_name="${chartRepoBranch}"
 
-      publish_path="${publishPath}"
+      hmcts_chart_root="./stable"
+      hmcts_chart_directory="${CHART_NAME}${subDirectory}"
 
       RETRIES=3
       DELAY=5
@@ -83,32 +84,32 @@ steps:
         fi
         echo "-------------------"
 
-        echo "Make Directory ${publish_path}/${CHART_NAME}"
-        mkdir -p "${publish_path}/${CHART_NAME}"
+        echo "Make Directory ${hmcts_chart_root}/${hmcts_chart_directory}"
+        mkdir -p "${hmcts_chart_root}/${hmcts_chart_directory}"
         echo "-------------------"
 
-        if rsync -a --delete-after "${CHART_DIRECTORY}/" "${publish_path}/${CHART_NAME}"; then
+        if rsync -a --delete-after "${CHART_DIRECTORY}/" "${hmcts_chart_root}/${hmcts_chart_directory}"; then
 
-          if [ -d ${publish_path}/${CHART_NAME}/charts ]; then
-            rm -rf ${publish_path}/${CHART_NAME}/charts
+          if [ -d ${hmcts_chart_root}/${hmcts_chart_directory}/charts ]; then
+            rm -rf ${hmcts_chart_root}/${hmcts_chart_directory}/charts
             if [[ $? -ne 0 ]]; then
-              echo "Unable to delete ${publish_path}/${CHART_NAME}/charts directory" 1>&2
+              echo "Unable to delete ${hmcts_chart_root}/${hmcts_chart_directory}/charts directory" 1>&2
             fi
           fi
           echo "-------------------"
 
-          if [ -e ${publish_path}/${CHART_NAME}/Chart.lock ]; then
-            rm -f ${publish_path}/${CHART_NAME}/Chart.lock
+          if [ -e ${hmcts_chart_root}/${hmcts_chart_directory}/Chart.lock ]; then
+            rm -f ${hmcts_chart_root}/${hmcts_chart_directory}/Chart.lock
             if [[ $? -ne 0 ]]; then
-              echo "Unable to delete ${publish_path}/${CHART_NAME}/Chart.lock " 1>&2
+              echo "Unable to delete ${hmcts_chart_root}/${CHART_NAME}/Chart.lock " 1>&2
             fi
           fi
           echo "-------------------"
 
-          if [ -e ${publish_path}/${CHART_NAME}/requirements.lock ]; then
-            rm -f .${publish_path}/${CHART_NAME}/requirements.lock
+          if [ -e ${hmcts_chart_root}/${hmcts_chart_directory}/requirements.lock ]; then
+            rm -f ${hmcts_chart_root}/${hmcts_chart_directory}/requirements.lock
             if [[ $? -ne 0 ]]; then
-              echo "Unable to delete ${publish_path}/${CHART_NAME}/requirements.lock " 1>&2
+              echo "Unable to delete ${hmcts_chart_root}/${hmcts_chart_directory}/requirements.lock " 1>&2
             fi
           fi
           echo "-------------------"
@@ -118,7 +119,7 @@ steps:
           git config --global user.email "${githubEmail}"
           echo "-------------------"
 
-          git add "${publish_path}/${CHART_NAME}/"
+          git add "${hmcts_chart_root}/${hmcts_chart_directory}/"
           git commit -m "Auto-release ${CHART_NAME} ${VERSION} from ADO"
 
           echo "-------------------"
@@ -159,5 +160,5 @@ steps:
       githubToken: ${{ parameters.githubToken }}
       githubUsername: ${{ parameters.githubUsername }}
       githubEmail: ${{ parameters.githubEmail }}
-      publishPath: ${{ parameters.publishPath }}
+      subDirectory: ${{ parameters.subDirectory }}
     displayName: Push chart to heml-chart repo
