@@ -18,6 +18,8 @@ parameters:
       type: string
     - name: chartPath
       type: string
+    - name: releaseName
+      type: string
 
 #AKS vars
     - name: acrName
@@ -71,7 +73,7 @@ steps:
         imageName: ${{ parameters.acrName }}.azurecr.io/${{ parameters.repositoryName }}:${{ parameters.prTagName }}
         fqdn: ${{ parameters.dnsRecordName }}.${{ parameters.dnsZone }}
         env: ${{ parameters.env }}
-        releaseName: "${{ parameters.chartName }}-${{ parameters.prTagName }}"
+        releaseName: "${{ parameters.releaseName }}"
 
     - bash: |
         VERSION=$(cat "${chartPath}/Chart.yaml" | grep ^version | cut -d  ':' -f 2 | tr -d '[:space:]')
