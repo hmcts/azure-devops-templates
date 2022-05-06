@@ -13,6 +13,7 @@ steps:
       inlineScript: |
         Write-Host "##vso[task.setvariable variable=ARM_CLIENT_ID;isOutput=true]$($env:servicePrincipalId)"
         Write-Host "##vso[task.setvariable variable=ARM_CLIENT_SECRET;isOutput=true]$($env:servicePrincipalKey)"
-        Write-Host "##vso[task.setvariable variable=ARM_TENANT_ID;isOutput=true]$($env:tenantId)"
+        $tenantId = az account show --query tenantId -o tsv
+        Write-Host "##vso[task.setvariable variable=ARM_TENANT_ID;isOutput=true]$tenantId"
         $subscriptionId = az account show --query id -o tsv
         Write-Host "##vso[task.setvariable variable=ARM_SUBSCRIPTION_ID;isOutput=true]$subscriptionId"
