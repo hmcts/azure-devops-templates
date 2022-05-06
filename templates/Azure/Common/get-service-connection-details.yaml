@@ -8,7 +8,7 @@ steps:
     name: "serviceConnection"
     inputs:
       azureSubscription: '${{ parameters.subscriptionName }}'
-      scriptType: 'bash'
+      scriptType: 'pscore'
       scriptLocation: 'inlineScript'
       inlineScript: |
         Write-Host "##vso[task.setvariable variable=ARM_CLIENT_ID;isOutput=true]$($env:servicePrincipalId)"
