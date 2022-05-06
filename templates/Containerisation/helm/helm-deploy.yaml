@@ -71,6 +71,17 @@ steps:
       additionalArgs: ${{ parameters.additionalArgs }}
       env: ${{ parameters.environment }}
 
+  - ${{ if eq(parameters.fullChartName, '') }}:
+    - bash: |
+          cd $chartPath
+
+          echo "Update Dependencys"
+          helm dependency update
+
+      displayName: Helm Dependency build
+      env:
+        chartPath: "${{ parameters.chartPath }}"
+
   - bash: |
       echo "path: ${path}"
       echo "releasename: ${releaseName}"
@@ -95,4 +106,3 @@ steps:
       waitForExecution: false
       useClusterAdmin: true
       arguments: $(helm.args)
-      updateDependency: true
