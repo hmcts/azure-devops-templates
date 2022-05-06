@@ -94,6 +94,10 @@ steps:
         zoneName: ${{ parameters.dnsZone }}
         recordName: ${{ parameters.dnsRecordName }}
 
+    - template: ..\..\Azure\Common\get-service-connection-details.yaml
+      parameters:
+        subscriptionName: ${{ parameters.subscriptionName }}
+
     - template: ..\helm\helm-deploy.yaml
       parameters:
         helmVersion: $(chartVersion)
@@ -106,4 +110,4 @@ steps:
         chartPath: '${{ parameters.chartPath }}'
         imageTag: '${{ parameters.prTagName }}'
         environment: ${{ parameters.env }}
-        additionalArgs: "  --wait --set global.enableKeyVaults=true --set global.devMode=true --set global.environment=${{ parameters.env }} --timeout 1000s -o json "
+        additionalArgs: "  --wait --set global.enableKeyVaults=true --set global.devMode=true --set global.environment=${{ parameters.env }} --set global.subscriptionId=$(serviceConnection.ARM_SUBSCRIPTION_ID) --set global.tenantId=$(serviceConnection.ARM_TENANT_ID) --timeout 1000s -o json "

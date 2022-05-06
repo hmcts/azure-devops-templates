@@ -1,0 +1,18 @@
+parameters:
+  - name: subscriptionName
+    type: string
+
+steps:
+  - task: AzureCLI@2
+    displayName: 'Get ${{ parameters.subscriptionName }} Details'
+    name: "serviceConnection"
+    inputs:
+      azureSubscription: '${{ parameters.subscriptionName }}'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        Write-Host "##vso[task.setvariable variable=ARM_CLIENT_ID;isOutput=true]$($env:servicePrincipalId)"
+        Write-Host "##vso[task.setvariable variable=ARM_CLIENT_SECRET;isOutput=true]$($env:servicePrincipalKey)"
+        Write-Host "##vso[task.setvariable variable=ARM_TENANT_ID;isOutput=true]$($env:tenantId)"
+        $subscriptionId = az account show --query id -o tsv
+        Write-Host "##vso[task.setvariable variable=ARM_SUBSCRIPTION_ID;isOutput=true]$subscriptionId"
