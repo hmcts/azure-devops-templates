@@ -71,6 +71,7 @@ steps:
       additionalArgs: ${{ parameters.additionalArgs }}
       env: ${{ parameters.environment }}
 
+  
   - ${{ if eq(parameters.fullChartName, '') }}:
     - bash: |
           cd $chartPath
@@ -97,7 +98,7 @@ steps:
       azureSubscriptionEndpoint: '${{ parameters.azureSubscription }}'
       azureResourceGroup: ${{ parameters.kubernetesRG }}
       kubernetesCluster: ${{ parameters.kubernetesCluster }}
-      command: install
+      command: upgrade
       chartType: filepath
       chartPath: ${{ parameters.chartPath }}/${{ parameters.fullChartName }}
       releaseName: ${{ parameters.releaseName }}
