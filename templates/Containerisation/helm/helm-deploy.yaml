@@ -18,6 +18,8 @@ parameters:
     default: "vh"
   - name: chartName
     type: string
+  - name: releaseName
+    type: string
   - name: chartPath
     type: string
   - name: fullChartName
@@ -85,7 +87,7 @@ steps:
       echo "path: ${path}"
       echo "releasename: ${releaseName}"
     env: 
-      releaseName: ${{ parameters.chartName }}-${{ parameters.imageTag }}
+      releaseName: ${{ parameters.releaseName }}
       path: ${{ parameters.chartPath }}/${{ parameters.fullChartName }}
     displayName: "Helm Details"
 
@@ -99,7 +101,7 @@ steps:
       command: upgrade
       chartType: filepath
       chartPath: ${{ parameters.chartPath }}/${{ parameters.fullChartName }}
-      releaseName: ${{ parameters.chartName }}-${{ parameters.imageTag }}
+      releaseName: ${{ parameters.releaseName }}
       namespace: ${{ parameters.namespace }}
       install: true
       waitForExecution: false
