@@ -21,7 +21,7 @@ steps:
       releaseName: ${{ parameters.releaseName }}
 
   - task: HelmDeploy@0
-    condition: eq(helmStatus.exist, 'true')
+    condition: eq(variables['helmStatus.exist'], 'true')
     displayName: ${{ parameters.releaseName }} Uninstall 
     inputs:
       connectionType: 'Azure Resource Manager'
