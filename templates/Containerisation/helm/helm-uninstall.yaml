@@ -12,16 +12,16 @@ parameters:
 
 steps:
 
-  - template: helm-status.yaml
-    parameters:
-      azureSubscription: ${{ parameters.azureSubscription }}
-      aksResourceGroupName: ${{ parameters.aksResourceGroupName }}
-      aksClusterName: ${{ parameters.aksClusterName }}
-      namespace: ${{ parameters.namespace }}
-      releaseName: ${{ parameters.releaseName }}
+  #- template: helm-status.yaml
+  #  parameters:
+  #    azureSubscription: ${{ parameters.azureSubscription }}
+  #    aksResourceGroupName: ${{ parameters.aksResourceGroupName }}
+  #    aksClusterName: ${{ parameters.aksClusterName }}
+  #    namespace: ${{ parameters.namespace }}
+  #    releaseName: ${{ parameters.releaseName }}
 
   - task: HelmDeploy@0
-    condition: eq(variables['helmStatus.exist'], 'true')
+  #  condition: eq(variables['helmStatus.exist'], 'true')
     displayName: ${{ parameters.releaseName }} Uninstall 
     inputs:
       connectionType: 'Azure Resource Manager'
