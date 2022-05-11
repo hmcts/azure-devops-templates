@@ -1,0 +1,55 @@
+parameters:
+  - name: azureSubscription
+    type: string
+  - name: aksResourceGroupName
+    type: string
+  - name: aksClusterName
+    type: string
+  - name: namespace
+    type: string
+  - name: releaseName
+    type: string
+  - name: taskName
+    type: string
+    default: 'helmStatus'
+
+steps:
+  - task: AzureCLI@2
+    displayName: ${{ parameters.releaseName }} Helm Status
+    name: ${{ parameters.taskName }}
+    inputs:
+      azureSubscription: '${{ parameters.azureSubscription }}'
+      scriptType: 'pscore'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        $namespace="$($env:namespace)"
+        $releaseName="$($env:releaseName)"
+
+        $aksClusterName="$($env:aksClusterName)"
+        $aksResourceGroupName="$($env:aksResourceGroupName)"
+
+        az aks get-credentials --name $aksClusterName --resource-group $aksResourceGroupName --overwrite-existing
+        
+        $releaseStatus = helm status -n $namespace $releaseName -o json | ConvertFrom-Json
+
+        $statusResult=""
+        $exists=$true
+        if ($null -eq $releaseStatus -or $releaseStatus -eq ""){
+          $statusResult="Release does not exist"
+          $exists=$false
+          Write-host $statusResult
+        } else {
+          Write-host "Release Exists"
+          Write-host "Name: $($releaseStatus.name)"
+          Write-host "Status: $($releaseStatus.info.status)"
+          Write-host "Note: $($releaseStatus.info.notes)"
+          $statusResult="$($releaseStatus.info.status) - $($releaseStatus.info.notes)"
+        }
+        Write-Host "##vso[task.setvariable variable=status;isOutput=true]$statusResult"
+        Write-Host "##vso[task.setvariable variable=exists;isOutput=true]$exists"
+
+    env:
+      releaseName: ${{ parameters.releaseName }}
+      namespace: ${{ parameters.namespace }}
+      aksResourceGroupName: ${{ parameters.aksResourceGroupName }}
+      aksClusterName: ${{ parameters.aksClusterName }}
