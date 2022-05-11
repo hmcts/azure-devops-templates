@@ -28,7 +28,7 @@ steps:
         $aksClusterName="$($env:aksClusterName)"
         $aksResourceGroupName="$($env:aksResourceGroupName)"
 
-        az aks get-credentials --name $aksClusterName --resource-group $aksResourceGroupName --overwrite-existing
+        az aks get-credentials --name $aksClusterName --resource-group $aksResourceGroupName --overwrite-existing -a
         
         $releaseStatus = helm status -n $namespace $releaseName -o json | ConvertFrom-Json
 
