@@ -31,6 +31,5 @@ steps:
             Write-Host "##vso[task.setvariable variable=fwRuleAdded;isOutput=true]yes"
           }
           else {
-            Write-Error "##[error]Failed To Add Firewall Rule To SQL Server..."
-            exit (0)
+            Throw "Failed To Add Firewall Rule To SQL Server..."
           }
