@@ -1,0 +1,69 @@
+parameters:
+- name: sqlServerResourceGroup
+  type: string
+
+- name: sqlServerName
+  type: string
+
+- name: databaseName
+  type: string
+
+- name: azureSubscription
+  type: string
+
+- name: outputPath
+  type: string
+  default: $(Build.StagingDirectory)
+
+- name: contextName
+  type: string
+
+- name: workingPath
+  type: string
+
+- name: projectName 
+  type: string
+
+- name: sqlScriptLocation
+  type: string
+
+- name: sqlUsername
+  type: string
+
+- name: sqlPassword
+  type: string
+
+- name: firewallRequired
+  type: boolean
+  default: true
+
+steps:
+    - ${{ if eq(parameters.firewallRequired, true) }}:
+      - template: ../../Azure/MSSQL/Firewall/addSqlFirewallRule.yaml
+        parameters:
+          sqlServerResourceGroup: ${{ parameters.sqlServerResourceGroup }}
+          sqlServerName: ${{ parameters.sqlServerName }}
+          azureSubscription: ${{ parameters.azureSubscription }}
+
+    - template: ./generate-script.yaml
+      parameters:
+        outputPath: ${{ parameters.outputPath }}
+        contextName: ${{ parameters.contextName }}
+        workingPath: ${{ parameters.workingPath }}
+        projectName: ${{ parameters.projectName }}
+
+    - template: ./deploy-ms-sql.yaml
+      parameters:
+        azureSubscription: ${{ parameters.azureSubscription }}
+        dbServerName: "${{ parameters.sqlServerName }}.database.windows.net"
+        databaseName: ${{ parameters.databaseName }}
+        sqlScriptLocation: ${{ parameters.sqlScriptLocation }}
+        sqlUsername: ${{ parameters.sqlUsername }}
+        sqlPassword: ${{ parameters.sqlPassword }}
+        
+    - ${{ if eq(parameters.firewallRequired, true) }}:
+      - template: ../../Azure/MSSQL/Firewall/removeSqlFirewallRule.yaml
+        parameters:
+          sqlServerResourceGroup: ${{ parameters.sqlServerResourceGroup }}
+          sqlServerName: ${{ parameters.sqlServerName }}
+          azureSubscription: ${{ parameters.azureSubscription }}
