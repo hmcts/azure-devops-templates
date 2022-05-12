@@ -12,6 +12,7 @@ steps:
     - task: AzureCLI@2
       name: RemoveFirewallRule
       displayName: Remove SQL Firewall Rule
+      condition: eq(variables['AddFirewallRule.fwRuleAdded'], 'yes')
       continueOnError: false
       inputs:
         azureSubscription: ${{ parameters.azureSubscription }}
