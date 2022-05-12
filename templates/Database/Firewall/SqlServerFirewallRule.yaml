@@ -13,6 +13,9 @@ parameters:
     type: string
     default: null
 
+  - name: azureSubscription
+    type: string
+
 steps:
     - task: AzureCLI@2
       name: AddFirewallRule
@@ -20,7 +23,7 @@ steps:
       displayName: Add SQL Firewall Rule
       continueOnError: false
       inputs:
-        azureSubscription: ${{ variables.subscriptionName }}
+        azureSubscription: ${{ parameters.azureSubscription }}
         scriptType: pscore
         scriptLocation: inlineScript
         inlineScript: |
@@ -47,7 +50,7 @@ steps:
       continueOnError: false
       condition: ne('${{ parameters.removeFirewallRule }}', 'null')
       inputs:
-        azureSubscription: ${{ variables.subscriptionName }}
+        azureSubscription: ${{ parameters.azureSubscription }}
         scriptType: pscore
         scriptLocation: inlineScript
         inlineScript: |
