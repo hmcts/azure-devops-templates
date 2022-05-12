@@ -12,15 +12,8 @@ parameters:
 
 
 steps:
-  - powershell: |
-      $outputPath="${{ parameters.outputPath }}"
-
-      $workingPath="${{ parameters.workingPath }}"
-      $projectName="${{ parameters.projectName }}"
-      
-      $contextName="${{ parameters.contextName }}"
-
-      $outputName="$contextName.sql"
-
-      dotnet ef migrations script --output "$outputPath/$outputName" --context $contextName --idempotent --project "$workingPath/$projectName" --startup-project "$workingPath/$projectName" -v
-    displayName: 'Generate ${{parameters.contextName}} Scripts'
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'custom'
+    custom: 'ef'
+    arguments: 'migrations script --output "$(outputPath)/$(contextName).sql" --context $(contextName) --idempotent --project "$(workingPath)/$(projectName)" --startup-project "$(workingPath)/$(projectName)" -v'
