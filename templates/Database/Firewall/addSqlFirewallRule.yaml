@@ -5,21 +5,12 @@ parameters:
   - name: sqlServerResourceGroup
     type: string
 
-  - name: addFirewallRule
-    type: string
-    default: null
-
-  - name: removeFirewallRule
-    type: string
-    default: null
-
   - name: azureSubscription
     type: string
 
 steps:
     - task: AzureCLI@2
       name: AddFirewallRule
-      condition: ne('${{ parameters.addFirewallRule }}', 'null')
       displayName: Add SQL Firewall Rule
       continueOnError: false
       inputs:
@@ -43,19 +34,3 @@ steps:
             Write-Error "##[error]Failed To Add Firewall Rule To SQL Server..."
             exit (0)
           }
-
-    - task: AzureCLI@2
-      name: RemoveFirewallRule
-      displayName: Remove SQL Firewall Rule
-      continueOnError: false
-      condition: ne('${{ parameters.removeFirewallRule }}', 'null')
-      inputs:
-        azureSubscription: ${{ parameters.azureSubscription }}
-        scriptType: pscore
-        scriptLocation: inlineScript
-        inlineScript: |
-          $ruleName = "AzureDevOpsRule-$(Build.BuildId)"
-          $sqlServer = "${{ parameters.sqlServerName }}"
-          $sqlResourceGroup = "${{ parameters.sqlServerResourceGroup }}"
-
-          az sql server firewall-rule delete -g $sqlResourceGroup  -s $sqlServer -n $ruleName
