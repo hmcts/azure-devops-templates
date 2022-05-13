@@ -11,10 +11,6 @@ parameters:
 - name: azureSubscription
   type: string
 
-- name: outputPath
-  type: string
-  default: $(Build.StagingDirectory)
-
 - name: contextName
   type: string
 
@@ -33,24 +29,49 @@ parameters:
 - name: sqlPassword
   type: string
 
-- name: firewallRequired
+- name: sqlfirewallRequired
   type: boolean
   default: true
 
+- name: kvfirewallRequired
+  type: boolean
+  default: true
+
+- name: kvName
+  type: string
+  default: ''
+
+- name: kvSecret
+  type: string
+  default: ''
+
+
 steps:
-    - ${{ if eq(parameters.firewallRequired, true) }}:
+    - ${{ if eq(parameters.kvfirewallRequired, true) }}:      
+      - template: ../../Azure/KeyVault/firewall-exception-add.yaml
+        parameters:
+          subscription: ${{ parameters.azureSubscription }}
+          keyVaultName: ${{ parameters.kvName }}
+
+    - template: ../../Azure/KeyVault/get-secret.yaml
+      parameters: 
+        azureSubscription: ${{ parameters.azureSubscription }}
+        keyVaultName: ${{ parameters.kvName }}
+        secretKeyName: '${{ parameters.kvSecret }}'
+        taskName: 'Get Secret ${{ parameters.kvSecret }}'
+
+    - ${{ if eq(parameters.kvfirewallRequired, true) }}:      
+      - template: ../../Azure/KeyVault/firewall-exception-remove.yaml
+        parameters:
+          subscription: ${{ parameters.azureSubscription }}
+          keyVaultName: ${{ parameters.kvName }}
+
+    - ${{ if eq(parameters.sqlfirewallRequired, true) }}:
       - template: ../../Azure/MSSQL/Firewall/addSqlFirewallRule.yaml
         parameters:
           sqlServerResourceGroup: ${{ parameters.sqlServerResourceGroup }}
           sqlServerName: ${{ parameters.sqlServerName }}
           azureSubscription: ${{ parameters.azureSubscription }}
-
-    - template: ./generate-script.yaml
-      parameters:
-        outputPath: ${{ parameters.outputPath }}
-        contextName: ${{ parameters.contextName }}
-        workingPath: ${{ parameters.workingPath }}
-        projectName: ${{ parameters.projectName }}
 
     - template: ./deploy-ms-sql.yaml
       parameters:
@@ -60,8 +81,8 @@ steps:
         sqlScriptLocation: ${{ parameters.sqlScriptLocation }}
         sqlUsername: ${{ parameters.sqlUsername }}
         sqlPassword: ${{ parameters.sqlPassword }}
-        
-    - ${{ if eq(parameters.firewallRequired, true) }}:
+
+    - ${{ if eq(parameters.sqlfirewallRequired, true) }}:
       - template: ../../Azure/MSSQL/Firewall/removeSqlFirewallRule.yaml
         parameters:
           sqlServerResourceGroup: ${{ parameters.sqlServerResourceGroup }}
