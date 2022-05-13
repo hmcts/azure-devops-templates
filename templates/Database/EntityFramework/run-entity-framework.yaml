@@ -14,9 +14,6 @@ parameters:
 - name: sqlScriptLocation
   type: string
 
-- name: sqlUsername
-  type: string
-
 - name: sqlfirewallRequired
   type: boolean
   default: true
