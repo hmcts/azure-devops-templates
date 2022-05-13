@@ -68,7 +68,7 @@ steps:
         databaseName: ${{ parameters.databaseName }}
         sqlScriptLocation: ${{ parameters.sqlScriptLocation }}
         sqlUsername: ${{ parameters.sqlUsername }}
-        sqlPassword: $(GetSecret.value)
+        sqlPassword: $(GetSecret.prop.value)
 
     - ${{ if eq(parameters.sqlfirewallRequired, true) }}:
       - template: ../../Azure/MSSQL/Firewall/removeSqlFirewallRule.yaml
