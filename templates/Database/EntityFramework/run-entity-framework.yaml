@@ -17,9 +17,6 @@ parameters:
 - name: sqlUsername
   type: string
 
-- name: sqlPassword
-  type: string
-
 - name: sqlfirewallRequired
   type: boolean
   default: true
@@ -32,7 +29,7 @@ parameters:
   type: string
   default: ''
 
-- name: kvSecret
+- name: kvSqlPasswordSecret
   type: string
   default: ''
 
@@ -48,8 +45,8 @@ steps:
       parameters: 
         azureSubscription: ${{ parameters.azureSubscription }}
         keyVaultName: ${{ parameters.kvName }}
-        secretKeyName: '${{ parameters.kvSecret }}'
-        taskName: 'Get Secret ${{ parameters.kvSecret }}'
+        secretKeyName: '${{ parameters.kvSqlPasswordSecret }}'
+        taskName: 'GetSecret'
 
     - ${{ if eq(parameters.kvfirewallRequired, true) }}:      
       - template: ../../Azure/KeyVault/firewall-exception-remove.yaml
@@ -71,7 +68,7 @@ steps:
         databaseName: ${{ parameters.databaseName }}
         sqlScriptLocation: ${{ parameters.sqlScriptLocation }}
         sqlUsername: ${{ parameters.sqlUsername }}
-        sqlPassword: ${{ parameters.sqlPassword }}
+        sqlPassword: $(GetSecret.value)
 
     - ${{ if eq(parameters.sqlfirewallRequired, true) }}:
       - template: ../../Azure/MSSQL/Firewall/removeSqlFirewallRule.yaml
