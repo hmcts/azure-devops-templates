@@ -11,15 +11,6 @@ parameters:
 - name: azureSubscription
   type: string
 
-- name: contextName
-  type: string
-
-- name: workingPath
-  type: string
-
-- name: projectName 
-  type: string
-
 - name: sqlScriptLocation
   type: string
 
