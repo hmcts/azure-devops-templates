@@ -30,15 +30,16 @@ steps:
 
         az aks get-credentials --name $aksClusterName --resource-group $aksResourceGroupName --overwrite-existing -a
         
-        $releaseStatus = helm status -n $namespace $releaseName -o json | ConvertFrom-Json
+        $releases=helm history $releaseName --namespace $namespace -o json | ConvertFrom-Json
 
         $statusResult=""
         $exists=$true
-        if ($null -eq $releaseStatus -or $releaseStatus -eq ""){
+        if ($releases.length -lt 1){
           $statusResult="Release does not exist"
           $exists=$false
           Write-host $statusResult
         } else {
+          $releaseStatus = helm status -n $namespace $releaseName -o json | ConvertFrom-Json
           Write-host "Release Exists"
           Write-host "Name: $($releaseStatus.name)"
           Write-host "Status: $($releaseStatus.info.status)"
