@@ -1,0 +1,26 @@
+parameters:
+  - name: sqlServerName
+    type: string
+
+  - name: sqlServerResourceGroup
+    type: string
+
+  - name: azureSubscription
+    type: string
+
+steps:
+    - task: AzureCLI@2
+      name: RemoveFirewallRule
+      displayName: Remove SQL Firewall Rule
+      condition: eq(variables['AddFirewallRule.fwRuleAdded'], 'yes')
+      continueOnError: false
+      inputs:
+        azureSubscription: ${{ parameters.azureSubscription }}
+        scriptType: pscore
+        scriptLocation: inlineScript
+        inlineScript: |
+          $ruleName = "AzureDevOpsRule-$(Build.BuildId)"
+          $sqlServer = "${{ parameters.sqlServerName }}"
+          $sqlResourceGroup = "${{ parameters.sqlServerResourceGroup }}"
+
+          az sql server firewall-rule delete -g $sqlResourceGroup  -s $sqlServer -n $ruleName
