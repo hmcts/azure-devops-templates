@@ -1,0 +1,78 @@
+parameters:
+- name: sqlServerResourceGroup
+  type: string
+
+- name: sqlServerName
+  type: string
+
+- name: databaseName
+  type: string
+
+- name: azureSubscription
+  type: string
+
+- name: sqlScriptLocation
+  type: string
+
+- name: sqlUsername
+  type: string
+
+- name: sqlfirewallRequired
+  type: boolean
+  default: true
+
+- name: kvfirewallRequired
+  type: boolean
+  default: true
+
+- name: kvName
+  type: string
+  default: ''
+
+- name: kvSqlPasswordSecret
+  type: string
+  default: ''
+
+
+steps:
+    - ${{ if eq(parameters.kvfirewallRequired, true) }}:      
+      - template: ../../Azure/KeyVault/firewall-exception-add.yaml
+        parameters:
+          subscription: ${{ parameters.azureSubscription }}
+          keyVaultName: ${{ parameters.kvName }}
+
+    - template: ../../Azure/KeyVault/get-secret.yaml
+      parameters: 
+        azureSubscription: ${{ parameters.azureSubscription }}
+        keyVaultName: ${{ parameters.kvName }}
+        secretKeyName: '${{ parameters.kvSqlPasswordSecret }}'
+        taskName: 'GetSecret'
+
+    - ${{ if eq(parameters.kvfirewallRequired, true) }}:      
+      - template: ../../Azure/KeyVault/firewall-exception-remove.yaml
+        parameters:
+          subscription: ${{ parameters.azureSubscription }}
+          keyVaultName: ${{ parameters.kvName }}
+
+    - ${{ if eq(parameters.sqlfirewallRequired, true) }}:
+      - template: ../../Azure/MSSQL/Firewall/addSqlFirewallRule.yaml
+        parameters:
+          sqlServerResourceGroup: ${{ parameters.sqlServerResourceGroup }}
+          sqlServerName: ${{ parameters.sqlServerName }}
+          azureSubscription: ${{ parameters.azureSubscription }}
+
+    - template: ./deploy-ms-sql.yaml
+      parameters:
+        azureSubscription: ${{ parameters.azureSubscription }}
+        dbServerName: "${{ parameters.sqlServerName }}.database.windows.net"
+        databaseName: ${{ parameters.databaseName }}
+        sqlScriptLocation: ${{ parameters.sqlScriptLocation }}
+        sqlUsername: ${{ parameters.sqlUsername }}
+        sqlPassword: $(GetSecret.prop.value)
+
+    - ${{ if eq(parameters.sqlfirewallRequired, true) }}:
+      - template: ../../Azure/MSSQL/Firewall/removeSqlFirewallRule.yaml
+        parameters:
+          sqlServerResourceGroup: ${{ parameters.sqlServerResourceGroup }}
+          sqlServerName: ${{ parameters.sqlServerName }}
+          azureSubscription: ${{ parameters.azureSubscription }}
