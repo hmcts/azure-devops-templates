@@ -1,0 +1,34 @@
+parameters:
+  - name: azureSubscription
+    type: string
+  - name: aksResourceGroupName
+    type: string
+  - name: aksClusterName
+    type: string
+  - name: namespace
+    type: string
+  - name: releaseName
+    type: string
+
+steps:
+
+  - template: helm-status.yaml
+    parameters:
+      azureSubscription: ${{ parameters.azureSubscription }}
+      aksResourceGroupName: ${{ parameters.aksResourceGroupName }}
+      aksClusterName: ${{ parameters.aksClusterName }}
+      namespace: ${{ parameters.namespace }}
+      releaseName: ${{ parameters.releaseName }}
+
+  - task: HelmDeploy@0
+    condition: eq(variables['helmStatus.exists'], 'true')
+    displayName: ${{ parameters.releaseName }} Uninstall 
+    inputs:
+      connectionType: 'Azure Resource Manager'
+      azureSubscription: '${{ parameters.azureSubscription }}'
+      azureResourceGroup: ${{ parameters.aksResourceGroupName }}
+      kubernetesCluster: ${{ parameters.aksClusterName }}
+      command: uninstall
+      namespace: ${{ parameters.namespace }}
+      useClusterAdmin: true
+      arguments: ${{ parameters.releaseName }}
