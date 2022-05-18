@@ -164,6 +164,7 @@ jobs:
         - pwsh: |
             $stagingSettings=@()
             Get-ChildItem ENV: | Where-Object -FilterScript { $_.Name -cmatch "^secrets_((|azDeploymentSlotSetting)(?!azActiveSlotSetting|azDeploymentSlotSetting)_?(.+))" } | Foreach-Object -Process {
+              Write-Host "Add item $($matches[3]) - Slot Setting $([Boolean]$matches[2])"
               $stagingSettings += @{
                 name         = $matches[3]
                 slotSettings = [Boolean]$matches[2]
