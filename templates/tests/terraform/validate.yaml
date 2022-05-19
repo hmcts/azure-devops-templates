@@ -8,7 +8,7 @@ steps:
       $path="${{ parameters.terraformPath }}"
 
       cd $path
-
+      pwd
       terraform init -backend=false
       terraform validate
     displayName: Validate Files
