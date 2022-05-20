@@ -1,0 +1,43 @@
+parameters:
+  - name: subscriptionName
+    type: string
+  - name: environment
+    type: string
+
+steps:
+  - task: AzureCLI@2
+    displayName: Find SDS AKS in ${{ parameters.environment }} 
+    name: aksCluster
+    inputs:
+      azureSubscription: ${{ parameters.subscriptionName }}
+      scriptType: pscore
+      scriptLocation: inlineScript
+      inlineScript: |
+        $env="${{ parameters.environment }}"
+        $aksIndexes = @("00","01")
+
+        $aksArr = az aks list --query "[].{Name:name, rg:resourceGroup}" | ConvertFrom-Json
+        Write-Host $($aksArr | ConvertTo-Json)
+
+        $aksName=""
+        $aksResourceGroup=""
+        foreach ($aksIndex in $aksIndexes){
+
+            $name = "ss-$env-$aksIndex-aks"
+
+            Write-Host "Looking for $name"
+            if ($aksArr.name -contains $name){
+                $aksName = $aksArr.name
+                $aksResourceGroup=$aksArr.rg
+                break;
+            }
+        }
+
+        if ($aksName -ne ""){
+            Write-Host "Found $aksName in $aksResourceGroup"
+            Write-Host "##vso[task.setvariable variable=name;isOutput=true]$aksName"
+            Write-Host "##vso[task.setvariable variable=resourceGroup;isOutput=true]$aksResourceGroup"
+        } else {
+            Write-Host "No Cluster Found"
+            Write-Host '##vso[task.complete result=Failed;]No Cluster Found'
+        }
