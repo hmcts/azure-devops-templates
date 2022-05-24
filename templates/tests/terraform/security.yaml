@@ -10,7 +10,7 @@ steps:
       echo "Make Directory"
       mkdir ${workDir}/TFSecReport
       docker run --rm -t -v ${tfDir}:/src tfsec/tfsec ./src --format JUnit > ${workDir}/TFSecReport/junit.xml
-      exit 0
+      exit 0 # add exit 0 due to azure-pipelines reporting exit 1 even though commands are running successfully.
     displayName: TFSec Static Code Analysis
 
   - powershell: |
