@@ -1,0 +1,48 @@
+parameters:
+- name: azureSubscription
+  type: string
+
+- name: lockName
+  type: string
+
+- name: resourceGroup
+  type: string
+
+- name: lockType
+  type: string
+  default: CanNotDelete
+  values:
+  - CanNotDelete
+  - ReadOnly
+
+- name: addOrDelete
+  type: string
+  values:
+  - add
+  - delete
+
+steps:
+- ${{ if eq(parameters.addOrDelete, 'delete') }}:
+    - task: AzureCLI@2
+      displayName: Remove Lock ${{ parameters.lockName }}
+      inputs:
+        azureSubscription: ${{ parameters.azureSubscription }}
+        scriptType: pscore
+        scriptLocation: inlineScript
+        inlineScript: |
+            $lockName = "${{ parameters.lockName }}"
+            $resourceGroup = "${{ parameters.resourceGroup }}"
+            az lock delete --name "$lockName" --resource-group "$resourceGroup"
+
+- ${{ if eq(parameters.addOrDelete, 'add') }}:
+    - task: AzureCLI@2
+      displayName: Add Lock ${{ parameters.lockName }}
+      inputs:
+        azureSubscription: ${{ parameters.azureSubscription }}
+        scriptType: pscore
+        scriptLocation: inlineScript
+        inlineScript: |
+            $lockName = "${{ parameters.lockName }}"
+            $resourceGroup = "${{ parameters.resourceGroup }}"
+            $lockType = "${{ parameters.lockType }}"
+            az lock create --name "$lockName" --resource-group "$resourceGroup" --lock-type "$lockType"
