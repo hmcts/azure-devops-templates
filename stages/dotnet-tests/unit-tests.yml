@@ -20,7 +20,7 @@ parameters:
     default: []
 
 stages:
-  - template: ./dotnet-test.yml
+  - template: ../dotnet-test.yml
     parameters:
       packageManagers: ${{ parameters.packageManagers }}
       nodeVersion:  ${{ parameters.nodeVersion }}

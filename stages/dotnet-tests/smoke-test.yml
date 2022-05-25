@@ -1,0 +1,139 @@
+parameters:
+  - name: environment
+    type: string 
+  - name: acSettings
+    type: object
+    default: [] 
+  - name: runZapTests
+    type: boolean
+    default: false
+  - name: acceptanceTestPath
+    type: string
+    default: "$(Pipeline.Workspace)/AcceptanceTests"
+  - name: testCaseFilter
+    type: string
+    default: ''
+  - name: zapThresholdHigh
+    type: string
+  - name: zapThresholdMedium
+    type: string
+  - name: zapThresholdLow
+    type: string
+
+steps:
+  - ${{ if parameters.runZapTests }}:
+    - script: |
+        sudo curl 'http://localhost:8080/OTHER/core/other/rootcert?apikey=ryUH6nrB1i!M' -o /usr/local/share/ca-certificates/zap.crt
+        sudo update-ca-certificates
+
+        curl 'http://localhost:8080/JSON/pscan/action/setEnabled/?enabled=true&apikey=ryUH6nrB1i!M'
+        curl 'http://localhost:8080/JSON/pscan/action/enableAllScanners/?apikey=ryUH6nrB1i!M'
+      displayName: Install ZAP Cert and Enable Scanners
+
+  - pwsh: |
+      $environment = '${{ parameters.environment }}'.tolower()
+      Write-Host "##vso[task.setvariable variable=environment]$environment"
+      Write-Host "##vso[task.setvariable variable=Release.EnvironmentName]$environment"
+    displayName: Set Environment Alias ENVVARS
+
+  - pwsh: |
+      $appsettings = @{}
+      Get-ChildItem ENV: | Where-Object -FilterScript { $_.Name -cmatch "^acDevSettings_((|azDeploymentSlotSetting)(?!azActiveSlotSetting|azDeploymentSlotSetting)_?(.+))" } | Foreach-Object -Process {
+        $appsettings[$matches[3]] = $_.value
+      }
+
+      $appSettings = $appSettings | ConvertTo-Json -Depth 99
+
+      New-Item -Path ${{ parameters.acceptanceTestPath }} -Name appsettings.Production.json -ItemType File -Value $appSettings -Force | Out-Null
+
+      $runtimeSettings = '<?xml version="1.0" encoding="utf-8"?><RunSettings><TestRunParameters><Parameter name="TargetEnvironment" value="Production"/></TestRunParameters></RunSettings>'
+      New-Item -Path ${{ parameters.acceptanceTestPath }} -Name parameters.runsettings -ItemType File -Value $runtimeSettings -Force | Out-Null
+    displayName: Set Environment Variables for Config Transform
+    env:
+      ${{ each setting in parameters.acSettings }}:
+        ${{ if eq(setting.slot, true)}}:
+          "acDevSettings_azDeploymentSlotSetting_${{ setting.name }}": $(acDevSettings_azDeploymentSlotSetting_${{ setting.name }})
+        ${{ if ne(setting.slot, true)}}:
+          "acDevSettings_${{ setting.name }}": $(acDevSettings_${{ setting.name }})
+      ${{ if parameters.runZapTests }}:
+        acDevSettings_ZapConfiguration.SetupProxy: true
+        acDevSettings_ZapConfiguration.ApiAddress: localhost
+        acDevSettings_ZapConfiguration.ApiPort: 8080
+
+  - task: DotNetCoreCLI@2
+    displayName: Verify dotnet version
+    inputs:
+      testRunTitle: Acceptance Tests
+      command: custom
+      custom: --version
+
+  - pwsh: |
+      if([string]::IsNullOrEmpty($env:testCaseFilter)) {
+        dotnet vstest ${{ parameters.acceptanceTestPath }}/*.AcceptanceTests.dll --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:${{ parameters.acceptanceTestPath }}/parameters.runsettings --logger:console
+      } else {
+        dotnet vstest ${{ parameters.acceptanceTestPath }}/*.AcceptanceTests.dll --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:${{ parameters.acceptanceTestPath }}/parameters.runsettings --TestCaseFilter:${{ parameters.testCaseFilter }} --logger:console
+      }
+
+      $retry = 1
+      do {
+        $testFiles = (Get-ChildItem '$(Agent.TempDirectory)/TestResults' | Sort-Object LastWriteTime | Select-Object -last 1).FullName
+
+        $failedTests = (Select-Xml -Path $testFiles -XPath "//ns:UnitTestResult[@outcome='Failed']/@testName" -Namespace @{"ns"="http://microsoft.com/schemas/VisualStudio/TeamTest/2010"}).Node.Value
+
+        if($failedTests.count -gt 0) {
+          write-warning "There are currently $($failedTests.count) failing tests, retrying for $retry times in 10 seconds"
+          Start-Sleep 10
+          dotnet vstest ${{ parameters.acceptanceTestPath }}/*.AcceptanceTests.dll /Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:${{ parameters.acceptanceTestPath }}/parameters.runsettings /Tests:"$($failedTests -join ',')" --logger:console
+        }
+      } while ($failedTests.count -gt 0 -and $retry++ -lt 2)
+    displayName: Smoke Test
+    condition: and(succeeded(), ne(variables['Release.EnvironmentName'], 'Prod')) 
+    env:
+      testCaseFilter: ${{ parameters.testCaseFilter }}
+
+  - task: PublishTestResults@2
+    displayName: Publish Test Results
+    condition: succeededOrFailed()
+    inputs:
+      testResultsFormat: VSTest
+      testResultsFiles: '**/*.trx'
+      searchFolder: $(Agent.TempDirectory)/TestResults
+      mergeTestResults: true
+      testRunTitle: Smoke Test
+
+  - ${{ if parameters.runZapTests }}:
+    - pwsh: |
+        while ((irm "http://localhost:8080/JSON/pscan/view/recordsToScan/?apikey=ryUH6nrB1i!M").recordsToScan -gt 0) {
+          sleep 1
+        }
+
+        $report = irm "http://localhost:8080/OTHER/core/other/htmlreport/?apikey=ryUH6nrB1i!M"
+        $reportfile = New-Item -Path $env:BUILD_ARTIFACTSTAGINGDIRECTORY -Name zap.html -ItemType File -Value $report -Force
+        Write-Host "##vso[task.uploadfile]$($reportfile.fullname)"
+
+        $mdreport = irm "http://localhost:8080/OTHER/core/other/mdreport//?apikey=ryUH6nrB1i!M"
+        $mdreportfile = New-Item -Path $env:BUILD_ARTIFACTSTAGINGDIRECTORY -Name ZAP.md -ItemType File -Value $mdreport -Force
+        Write-Host "##vso[task.uploadsummary]$($mdreportfile.fullname)"
+
+        $summary = (irm "http://localhost:8080/JSON/core/view/alertsSummary/?apikey=ryUH6nrB1i!M").alertsSummary
+        if($summary.High -gt $env:HighThreshold) {
+          Write-Host  "##vso[task.LogIssue type=error;]$('{0} high alerts found and threshold is {1}' -f $summary.High, $env:HighThreshold)"
+          exit 1
+        }
+
+        if($summary.Medium -gt $env:MediumThreshold) {
+          Write-Host  "##vso[task.LogIssue type=error;]$('{0} medium alerts found and threshold is {1}' -f $summary.Medium, $env:HighThreshold)"
+          exit 1
+        }
+
+        if($summary.Low -gt $env:LowThreshold) {
+          Write-Host  "##vso[task.LogIssue type=error;]$('{0} low alerts found and threshold is {1}' -f $summary.Low, $env:LowThreshold)"
+          exit 1
+        }
+
+      displayName: Process ZAP Alert Summary
+      condition: succeededOrFailed()
+      env:
+        HighThreshold: ${{ parameters.zapThresholdHigh }}
+        MediumThreshold: ${{ parameters.zapThresholdMedium }}
+        LowThreshold: ${{ parameters.zapThresholdLow }}
