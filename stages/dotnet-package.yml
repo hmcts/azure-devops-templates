@@ -219,7 +219,6 @@ stages:
               PathtoPublish: $(Build.ArtifactStagingDirectory)/dbScript
               ArtifactName: dbScript
 
-
     - ${{ if or(parameters.PackageAcceptanceTests, parameters.ACTest) }}:
       - job: Publish_AcceptanceTests
 
