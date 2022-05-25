@@ -15,21 +15,23 @@ parameters:
   - name: testSettings
     type: object
     default: []
+  - name: secrets_KeyVault
+    type: string
+  - name: secrets_Subscription
+    type: string
 
 stages:
   - template: ../dotnet-test.yml
     parameters:
       packageManagers: ${{ parameters.packageManagers }}
-      nodeVersion:  ${{ parameters.nodeVersion }}
+      nodeVersion:  ${{ parameters.nodeVersion }} 
+      secrets_KeyVault: ${{ parameters.secrets_KeyVault }}
+      secrets_Subscription: ${{ parameters.secrets_Subscription }}
       testParameters:
         baseAgent: windows-latest
         coreProjectPath: ${{ parameters.coreProjectPath }}
         nugetConfigPath: ${{ parameters.nugetConfigPath }}
         integTestProjectPath: ${{ parameters.integTestProjectPath }}
-
-        secrets_KeyVault: $(pr_Secret_KeyVault)
-        secrets_Subscription: $(pr_Secret_Subscription)
-
         RunUnitTests: false
         RunIntegrationTests: true
         RunSonarCloud: false

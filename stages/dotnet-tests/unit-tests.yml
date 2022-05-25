@@ -24,6 +24,8 @@ stages:
     parameters:
       packageManagers: ${{ parameters.packageManagers }}
       nodeVersion:  ${{ parameters.nodeVersion }}
+      secrets_KeyVault: ''
+      secrets_Subscription: ''
       testParameters:
         baseAgent: windows-latest
         coreProjectPath: ${{ parameters.coreProjectPath }}
