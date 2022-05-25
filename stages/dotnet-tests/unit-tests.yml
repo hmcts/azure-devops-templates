@@ -26,16 +26,15 @@ stages:
       nodeVersion:  ${{ parameters.nodeVersion }}
       secrets_KeyVault: ''
       secrets_Subscription: ''
-      testParameters:
-        baseAgent: windows-latest
-        coreProjectPath: ${{ parameters.coreProjectPath }}
-        nugetConfigPath: ${{ parameters.nugetConfigPath }}
-        unitTestProjectPath: ${{ parameters.unitTestProjectPath }}
-        RunUnitTests: true
-        RunSonarCloud: true
-        RunStryker: true
-        coverletCoverageExclusions: ${{ parameters.coverletCoverageExclusion }}
-        sonarCloud_ExtraProperties: |
-          sonar.cs.opencover.reportsPaths=$(Common.TestResultsDirectory)\Coverage\coverage.opencover.xml
-          sonar.coverage.exclusions=${{ parameters.sonarExclusion }}
-        StrykerBreak: 75
+      baseAgent: windows-latest
+      coreProjectPath: ${{ parameters.coreProjectPath }}
+      nugetConfigPath: ${{ parameters.nugetConfigPath }}
+      unitTestProjectPath: ${{ parameters.unitTestProjectPath }}
+      RunUnitTests: true
+      RunSonarCloud: true
+      RunStryker: true
+      coverletCoverageExclusions: ${{ parameters.coverletCoverageExclusion }}
+      sonarCloud_ExtraProperties: |
+        sonar.cs.opencover.reportsPaths=$(Common.TestResultsDirectory)\Coverage\coverage.opencover.xml
+        sonar.coverage.exclusions=${{ parameters.sonarExclusion }}
+      StrykerBreak: 75
