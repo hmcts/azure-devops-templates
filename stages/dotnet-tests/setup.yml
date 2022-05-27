@@ -1,0 +1,52 @@
+parameters:
+  - name: environment 
+    type: string
+  - name: dotnetCoreVersion
+    type: string
+    default: '3.1.x'
+  - name: testProjectPath
+    type: string
+  - name: nugetPackagePath
+    type: string
+    default: $(Pipeline.Workspace)/.nuget/packages
+  - name: nugetConfigPath
+    type: string
+    default: ''
+  - name: vstsFeedId
+    type: string
+    default: ''
+
+steps:
+  - pwsh: |
+      $environment = '${{ parameters.environment }}'.tolower()
+      Write-Host "##vso[task.setvariable variable=environment]$environment"
+      Write-Host "##vso[task.setvariable variable=Release.EnvironmentName]$environment"
+    displayName: Set Environment Alias ENVVARS
+
+  - task: UseDotNet@2
+    displayName: 'Install .NET Core sdk ${{ parameters.dotnetCoreVersion }}'
+    inputs:
+      packageType: sdk
+      version: ${{ parameters.dotnetCoreVersion }}
+      installationPath: $(Agent.ToolsDirectory)/dotnet
+
+  - task: Cache@2
+    displayName: Cache NuGet packages
+    inputs:
+      key: 'nuget | "$(Agent.OS)" | ${{ parameters.testProjectPath }}/packages.lock.json'
+      path: ${{ parameters.nugetPackagePath }}
+      cacheHitVar: NUGET_CACHE_RESTORED
+
+  - task: DotNetCoreCLI@2
+    displayName: Restore Unit Test Project
+    inputs:
+      command: restore
+      projects: ${{ parameters.testProjectPath }}/*.csproj
+      restoreArguments: --locked-mode --use-lock-file
+      ${{ if ne(parameters.nugetConfigPath, '') }}:
+        feedsToUse: config
+        nugetConfigPath: ${{ parameters.nugetConfigPath }}/nuget.config
+      ${{ if ne(parameters.vstsFeedId, '') }}:
+        vstsFeed: ${{ parameters.vstsFeedId }}
+        includeNuGetOrg: true
+    condition: ne(variables.NUGET_CACHE_RESTORED, 'true')

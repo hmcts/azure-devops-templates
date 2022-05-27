@@ -1,40 +1,48 @@
 parameters:
-  - name: packageManagers
-    type: object
-    default:
-     - nuget
-  - name: nodeVersion
+  - name: environment 
     type: string
-    default: '8.11.4'
-  - name: coreProjectPath
+  - name: dotnetCoreVersion
     type: string
-  - name: nugetConfigPath
-    type: string
+    default: '3.1.x'
   - name: unitTestProjectPath
     type: string
-  - name: sonarExclusion
+  - name: nugetPackagePath
+    type: string
+    default: $(Pipeline.Workspace)/.nuget/packages
+  - name: nugetConfigPath
+    type: string
+    default: ''
+  - name: vstsFeedId
     type: string
     default: ''
   - name: coverletCoverageExclusion
     type: object
     default: []
 
-stages:
-  - template: ../dotnet-test.yml
-    parameters:
-      packageManagers: ${{ parameters.packageManagers }}
-      nodeVersion:  ${{ parameters.nodeVersion }}
-      secrets_KeyVault: ''
-      secrets_Subscription: ''
-      baseAgent: windows-latest
-      coreProjectPath: ${{ parameters.coreProjectPath }}
+steps:
+  - template: setup.yml
+    parameters: 
+      environment: ${{ parameters.environment }}
+      dotnetCoreVersion: ${{ parameters.dotnetCoreVersion }}
+      testProjectPath: ${{ parameters.unitTestProjectPath }}
+      nugetPackagePath: ${{ parameters.nugetPackagePath }}
       nugetConfigPath: ${{ parameters.nugetConfigPath }}
-      unitTestProjectPath: ${{ parameters.unitTestProjectPath }}
-      RunUnitTests: true
-      RunSonarCloud: true
-      RunStryker: true
-      coverletCoverageExclusions: ${{ parameters.coverletCoverageExclusion }}
-      sonarCloud_ExtraProperties: |
-        sonar.cs.opencover.reportsPaths=$(Common.TestResultsDirectory)\Coverage\coverage.opencover.xml
-        sonar.coverage.exclusions=${{ parameters.sonarExclusion }}
-      StrykerBreak: 75
+      vstsFeedId: ${{ parameters.vstsFeedId }}
+
+  - task: DotNetCoreCLI@2
+    displayName: Run dotnet tests
+    inputs:
+      testRunTitle: dotnet Tests
+      command: test
+      projects: |
+        ${{ parameters.unitTestProjectPath }}/*.csproj
+      arguments: ${{ format(--configuration Release /p:CollectCoverage=true /p:CoverletOutputFormat="\"opencover,cobertura,json,lcov\"" /p:Exclude="\"{0}\"" /p:CoverletOutput=$(Common.TestResultsDirectory)/Coverage/ /p:MergeWith=$(Common.TestResultsDirectory)/Coverage/coverage.json, join(',', parameters.coverletCoverageExclusions)) }}
+
+  - task: PublishCodeCoverageResults@1
+    displayName: Publish code coverage
+    inputs:
+      codeCoverageTool: Cobertura
+      summaryFileLocation: $(Common.TestResultsDirectory)/Coverage/coverage.cobertura.xml
+      reportDirectory: $(Common.TestResultsDirectory)/Coverage
+      failIfCoverageEmpty: true
+    condition: always()
