@@ -1,6 +1,4 @@
 parameters:
-  - name: environment 
-    type: string
   - name: dotnetCoreVersion
     type: string
     default: '3.1.x'
@@ -17,12 +15,6 @@ parameters:
     default: ''
 
 steps:
-  - pwsh: |
-      $environment = '${{ parameters.environment }}'.tolower()
-      Write-Host "##vso[task.setvariable variable=environment]$environment"
-      Write-Host "##vso[task.setvariable variable=Release.EnvironmentName]$environment"
-    displayName: Set Environment Alias ENVVARS
-
   - task: UseDotNet@2
     displayName: 'Install .NET Core sdk ${{ parameters.dotnetCoreVersion }}'
     inputs:
