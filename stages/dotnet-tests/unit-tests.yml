@@ -33,7 +33,7 @@ steps:
       command: test
       projects: |
         ${{ parameters.unitTestProjectPath }}/*.csproj
-      arguments: ${{ format("--configuration Release /p:CollectCoverage=true /p:CoverletOutputFormat="\"opencover,cobertura,json,lcov\"" /p:Exclude="\"{0}\"" /p:CoverletOutput=$(Common.TestResultsDirectory)/Coverage/ /p:MergeWith=$(Common.TestResultsDirectory)/Coverage/coverage.json", join(',', parameters.coverletCoverageExclusions)) }}
+      arguments: ${{ format('--configuration Release /p:CollectCoverage=true /p:CoverletOutputFormat="\"opencover,cobertura,json,lcov\"" /p:Exclude="\"{0}\"" /p:CoverletOutput=$(Common.TestResultsDirectory)/Coverage/ /p:MergeWith=$(Common.TestResultsDirectory)/Coverage/coverage.json', join(',', parameters.coverletCoverageExclusions)) }}
 
   - task: PublishCodeCoverageResults@1
     displayName: Publish code coverage
