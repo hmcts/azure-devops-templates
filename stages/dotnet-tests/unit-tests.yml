@@ -13,7 +13,7 @@ parameters:
   - name: vstsFeedId
     type: string
     default: ''
-  - name: coverletCoverageExclusion
+  - name: coverletCoverageExclusions
     type: object
     default: []
 
