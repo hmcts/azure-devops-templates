@@ -16,7 +16,7 @@ parameters:
 
 steps:
   - task: UseDotNet@2
-    displayName: 'Install .NET Core sdk ${{ parameters.dotnetCoreVersion }}'
+    displayName: 'Install .NET Core SDK ${{ parameters.dotnetCoreVersion }}'
     inputs:
       packageType: sdk
       version: ${{ parameters.dotnetCoreVersion }}
