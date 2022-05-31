@@ -1,12 +1,12 @@
 parameters:
-  - name: helmVersion
-    type: string
-    default: 'latest'
-  - name: chartPath
-    type: string
-  - name: chartValuesPath
-    type: string
-  - name: additionalHelmArgs
+	- name: helmVersion
+		type: string
+		default: 'latest'
+	- name: chartPath
+		type: string
+	- name: chartValuesPath
+		type: string
+	- name: additionalHelmArgs
 		type: string
 		default: ""
 
