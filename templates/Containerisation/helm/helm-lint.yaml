@@ -1,7 +1,7 @@
 parameters:
-	- name: helmVersion
-		type: string
-		default: 'latest'
+  - name: helmVersion
+    type: string
+    default: "latest"
 	- name: chartPath
 		type: string
 	- name: chartValuesPath
