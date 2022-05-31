@@ -22,15 +22,18 @@ steps:
       version: ${{ parameters.dotnetCoreVersion }}
       installationPath: $(Agent.ToolsDirectory)/dotnet
       
-  - bash: | 
-      dotnet nuget locals global-packages -l
-    displayName: 'Find Cache Location'
-
+  - powershell: | 
+      $dotNetLocation = dotnet nuget locals global-packages -l
+      $dotNetLocation = $dotNetLocation.replace('global-packages: ', '')
+      Write-Host "##vso[task.setvariable variable=cacheLocation;isOutput=true]$dotNetLocation"
+    displayName: 'Find NuGet Cache'
+    name: findCache
+    
   - task: Cache@2
     displayName: Cache NuGet packages
     inputs:
       key: 'nuget | "$(Agent.OS)" | ${{ parameters.testProjectPath }}/packages.lock.json'
-      path: ${{ parameters.nugetPackagePath }}
+      path: $(findCache.cacheLocation)
       cacheHitVar: NUGET_CACHE_RESTORED
 
   - task: DotNetCoreCLI@2
