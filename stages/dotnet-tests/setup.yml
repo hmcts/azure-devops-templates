@@ -21,6 +21,10 @@ steps:
       packageType: sdk
       version: ${{ parameters.dotnetCoreVersion }}
       installationPath: $(Agent.ToolsDirectory)/dotnet
+      
+  - bash: | 
+      dotnet nuget locals global-packages -l
+    displayName: 'Find Cache Location'
 
   - task: Cache@2
     displayName: Cache NuGet packages
