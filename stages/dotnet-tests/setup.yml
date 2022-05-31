@@ -30,7 +30,7 @@ steps:
     name: findCache
     
   - task: Cache@2
-    displayName: Cache NuGet packages
+    displayName: Cache NuGet Packages
     inputs:
       key: 'nuget | "$(Agent.OS)" | ${{ parameters.testProjectPath }}/packages.lock.json'
       path: $(findCache.cacheLocation)
