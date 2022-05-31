@@ -94,7 +94,7 @@ steps:
         git commit -m "Bumping chart version"
         git push origin HEAD:$BRANCH --force
         echo '##vso[task.complete result=Failed;]Chart Bumped Successfully'
-
+        exit 1
       fi
 
     env:
