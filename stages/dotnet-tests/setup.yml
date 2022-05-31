@@ -23,8 +23,7 @@ steps:
       installationPath: $(Agent.ToolsDirectory)/dotnet
       
   - powershell: | 
-      $dotNetLocation = dotnet nuget locals global-packages -l
-      $dotNetLocation = $dotNetLocation.replace('global-packages: ', '')
+      $dotNetLocation = (dotnet nuget locals global-packages -l).replace('global-packages: ', '')
       Write-Host "##vso[task.setvariable variable=cacheLocation;isOutput=true]$dotNetLocation"
     displayName: 'Find NuGet Cache'
     name: findCache
