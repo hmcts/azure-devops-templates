@@ -93,7 +93,8 @@ steps:
         git add "${CHART_DIRECTORY}/charts/${CHART_NAME}/Chart.yaml"
         git commit -m "Bumping chart version"
         git push origin HEAD:$BRANCH --force
-        git pull
+        echo '##vso[task.complete result=Failed;]Chart Bumped Successfully'
+
       fi
 
     env:
