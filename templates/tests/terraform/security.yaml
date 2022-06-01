@@ -10,6 +10,7 @@ steps:
       echo "Make Directory"
       mkdir ${workDir}/TFSecReport
       docker run --rm -t -v ${tfDir}:/src tfsec/tfsec ./src --format JUnit > ${workDir}/TFSecReport/junit.xml
+      echo "Running TFSec Complete"
     displayName: TFSec Static Code Analysis
 
   - powershell: |

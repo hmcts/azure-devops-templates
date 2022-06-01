@@ -1,0 +1,25 @@
+parameters:
+  - name: helmVersion
+    type: string
+    default: "latest"
+  - name: chartPath
+    type: string
+  - name: chartValuesPath
+    type: string
+  - name: additionalHelmArgs
+    type: string
+    default: ""
+
+steps:
+  - task: HelmInstaller@1
+    inputs:
+      helmVersionToInstall: ${{ parameters.helmVersion }}
+  - powershell: |
+      $chartPath = "${{ parameters.chartPath }}"
+      $chartValuesPath = "${{ parameters.chartValuesPath }}"
+      $additionalHelmArgs = "${{ parameters.additionalHelmArgs }}"
+
+      helm dependency update $chartPath
+
+      helm lint $chartPath -f $chartValuesPath/values.yaml $additionalHelmArgs
+    displayName: Lint Helm Charts
