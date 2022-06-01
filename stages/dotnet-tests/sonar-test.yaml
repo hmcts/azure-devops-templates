@@ -1,0 +1,11 @@
+parameters:
+  - name: sonarCloud_ExtraProperties
+    type: string
+    default: ''
+
+steps:
+  - template: ../../templates/sonarCloud/prepare.yml
+    parameters:
+      extraProperties: ${{ parameters.sonarCloud_ExtraProperties }}
+
+  - template: ../../templates/sonarCloud/runAnalysis.yml
