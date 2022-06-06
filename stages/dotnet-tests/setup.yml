@@ -47,4 +47,4 @@ steps:
       ${{ if ne(parameters.vstsFeedId, '') }}:
         vstsFeed: ${{ parameters.vstsFeedId }}
         includeNuGetOrg: true
-    #condition: ne(variables.NUGET_CACHE_RESTORED, 'true')
+    condition: ne(variables.NUGET_CACHE_RESTORED, 'true')
