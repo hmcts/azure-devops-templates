@@ -45,7 +45,7 @@ steps:
   inputs:
     additionalArguments: /updateassemblyinfo ${{ parameters.coreProjectPath }}.AcceptanceTests/AssemblyInfo.cs /ensureassemblyinfo
 
-- template: ../templates/pipelineCaching.yml
+- template: ../../templates/pipelineCaching.yml
   parameters:
     ${{ if containsValue(parameters.packageManagers, 'nuget') }}:
       nugetProjectPath: ${{ parameters.coreProjectPath }}.AcceptanceTests
