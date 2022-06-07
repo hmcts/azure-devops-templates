@@ -35,15 +35,13 @@ parameters:
 steps:
 - checkout: self
 
-- task: gitversion/setup@0
-  displayName: Install GitVersion
-  inputs:
-    versionSpec: '5.6.0'
+- bash: |
+    dotnet tool install --global GitVersion.Tool --version 5.6.0 
+  displayName: Install Git-Version
 
-- task: gitversion/execute@0
+- bash: |
+    git version /updateassemblyinfo ${{ parameters.coreProjectPath }}.AcceptanceTests/AssemblyInfo.cs /ensureassemblyinfo
   displayName: Determine Version for Acceptance Tests
-  inputs:
-    additionalArguments: /updateassemblyinfo ${{ parameters.coreProjectPath }}.AcceptanceTests/AssemblyInfo.cs /ensureassemblyinfo
 
 - template: ../../templates/pipelineCaching.yml
   parameters:
