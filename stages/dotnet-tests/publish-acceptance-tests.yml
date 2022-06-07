@@ -5,7 +5,7 @@ parameters:
 
   - name: useNugetConfig
     type: boolean
-    default: false
+    default: true
 
   - name: coreProjectPath
     type: string
