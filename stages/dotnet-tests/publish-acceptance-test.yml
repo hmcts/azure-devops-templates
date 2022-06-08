@@ -93,7 +93,7 @@ steps:
   condition: eq(variables.NUGET_CACHE_RESTORED, 'true')
 
 - task: PublishBuildArtifacts@1
-  displayName: Publish AcceptanceTests
+  displayName: Publish Acceptance Tests
   inputs:
     PathtoPublish: $(Build.ArtifactStagingDirectory)/AcceptanceTests
     ArtifactName: AcceptanceTests
