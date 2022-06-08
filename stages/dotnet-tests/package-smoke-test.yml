@@ -1,11 +1,11 @@
 parameters:
   - name: vstsFeedId
     type: string
-    default: 3f69a23d-fbc7-4541-afc7-4cccefcad773/e48b2732-376c-4052-ba97-b28783c9bab5
+    default: 'Video Hearings/vh-packages'
 
   - name: useNugetConfig
     type: boolean
-    default: true
+    default: false
 
   - name: coreProjectPath
     type: string
