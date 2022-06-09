@@ -1,19 +1,19 @@
 parameters:
-- name: nugetProjectPath
-  type: string
+  - name: nugetProjectPath
+    type: string
 
-- name: vstsFeed
-  type: string
-  default: 'Virtual Hearings/vh-packages'
+  - name: vstsFeed
+    type: string
+    default: 'Virtual Hearings/vh-packages'
 
-- name: containerName
-  type: string
-  default: sspublicsbox
+  - name: containerName
+    type: string
+    default: sspublicsbox
 
 jobs:
 - job: Publish_Nuget
   displayName: Push NuGet Packages
-  container: ${{ parmaeters.containerName }}
+  container: ${{ parameters.containerName }}
   steps:
 
   - task: gitversion/setup@0
