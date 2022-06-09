@@ -1,0 +1,55 @@
+parameters:
+- name: nugetProjectPath
+  type: string
+
+- name: vstsFeed
+  type: string
+  default: 'Virtual Hearings/vh-packages'
+
+resources:
+  containers:
+  - container: dotnetsdk
+    image: sspublicsbox.azurecr.io/vh/dotnet:3.1.102
+    endpoint: sspublicsbox
+    
+pool:
+  vmImage: ubuntu-latest
+
+jobs:
+- job: Publish_Nuget
+  displayName: Push NuGet Packages
+  container: dotnetsdk
+  steps:
+
+  - task: gitversion/setup@0
+    displayName: Install Git Version
+    inputs:
+      versionSpec: '5.0.1'
+      
+  - task: gitversion/execute@0
+    displayName: Run Git Version
+              
+  - task: DotNetCoreCLI@2
+    displayName: dotnet restore
+    inputs:
+      command: restore
+      projects: ${{ parameters.nugetProjectPath }}/*.csproj
+      vstsFeed: ${{ parameters.vstsFeed }}
+      verbosityLevel: Minimal
+
+  - task: DotNetCoreCLI@2
+    displayName: Create Build Nuget Project
+    inputs:
+      arguments: '--configuration release /p:Version="$(MajorMinorPatch)" /p:PackageOutputPath="$(Build.ArtifactStagingDirectory)" /p:VersionSuffix="-alpha"'
+      versioningScheme: byBuildNumber
+      projects: '${{ parameters.nugetProjectPath }}/*.csproj'
+
+  - task: DotNetCoreCLI@2
+    displayName: Push Package to VH NuGet Repo
+    inputs:
+      command: push
+      searchPatternPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
+      publishVstsFeed: ${{ parameters.vstsFeed }}
+      versioningScheme: byBuildNumber
+
+
