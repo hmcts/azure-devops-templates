@@ -1,0 +1,39 @@
+parameters:
+  - name: nugetProjectPath
+    type: string
+
+  - name: vstsFeed
+    type: string
+    default: 'Video Hearings/vh-packages'
+
+steps:
+- task: gitversion/setup@0
+  displayName: Install Git Version
+  inputs:
+    versionSpec: '5.6.0'
+    
+- task: gitversion/execute@0
+  displayName: Run Git Version
+            
+- task: DotNetCoreCLI@2
+  displayName: dotnet restore
+  inputs:
+    command: restore
+    projects: ${{ parameters.nugetProjectPath }}/*.csproj
+    vstsFeed: ${{ parameters.vstsFeed }}
+    verbosityLevel: Minimal
+
+- task: DotNetCoreCLI@2
+  displayName: Create Build NuGet Project
+  inputs:
+    arguments: '--configuration release /p:Version="$(MajorMinorPatch)" /p:PackageOutputPath="$(Build.ArtifactStagingDirectory)" /p:VersionSuffix="-alpha"'
+    versioningScheme: byBuildNumber
+    projects: '${{ parameters.nugetProjectPath }}/*.csproj'
+
+- task: DotNetCoreCLI@2
+  displayName: Push Package to VH NuGet Repo
+  inputs:
+    command: push
+    searchPatternPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
+    publishVstsFeed: ${{ parameters.vstsFeed }}
+    versioningScheme: byBuildNumber
