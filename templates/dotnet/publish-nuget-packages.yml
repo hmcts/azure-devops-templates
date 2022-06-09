@@ -24,7 +24,7 @@ steps:
     verbosityLevel: Minimal
 
 - task: DotNetCoreCLI@2
-  displayName: Create Build Nuget Project
+  displayName: Create Build NuGet Project
   inputs:
     arguments: '--configuration release /p:Version="$(MajorMinorPatch)" /p:PackageOutputPath="$(Build.ArtifactStagingDirectory)" /p:VersionSuffix="-alpha"'
     versioningScheme: byBuildNumber
