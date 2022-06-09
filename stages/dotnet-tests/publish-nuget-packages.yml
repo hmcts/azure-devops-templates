@@ -11,9 +11,6 @@ resources:
   - container: dotnetsdk
     image: sspublicsbox.azurecr.io/vh/dotnet:3.1.102
     endpoint: sspublicsbox
-    
-pool:
-  vmImage: ubuntu-latest
 
 jobs:
 - job: Publish_Nuget
