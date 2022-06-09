@@ -6,16 +6,14 @@ parameters:
   type: string
   default: 'Virtual Hearings/vh-packages'
 
-resources:
-  containers:
-  - container: dotnetsdk
-    image: sspublicsbox.azurecr.io/vh/dotnet:3.1.102
-    endpoint: sspublicsbox
+- name: containerName
+  type: string
+  default: sspublicsbox
 
 jobs:
 - job: Publish_Nuget
   displayName: Push NuGet Packages
-  container: dotnetsdk
+  container: ${{ parmaeters.containerName }}
   steps:
 
   - task: gitversion/setup@0
