@@ -2,18 +2,23 @@ parameters:
   - name: nugetProjectPath
     type: string
 
+  - name: packageVersion
+    type: string
+    default: ''
+
   - name: vstsFeed
     type: string
-    default: 'Video Hearings/vh-packages'
 
 steps:
-- task: gitversion/setup@0
-  displayName: Install Git Version
-  inputs:
-    versionSpec: '5.6.0'
-    
-- task: gitversion/execute@0
-  displayName: Run Git Version
+
+- ${{ if eq(parameters.packageVersion, '') }}:
+  - task: gitversion/setup@0
+    displayName: Install Git Version
+    inputs:
+      versionSpec: '5.6.0'
+      
+  - task: gitversion/execute@0
+    displayName: Run Git Version
             
 - task: DotNetCoreCLI@2
   displayName: dotnet restore
@@ -26,7 +31,10 @@ steps:
 - task: DotNetCoreCLI@2
   displayName: Create Build NuGet Project
   inputs:
-    arguments: '--configuration release /p:Version="$(MajorMinorPatch)" /p:PackageOutputPath="$(Build.ArtifactStagingDirectory)" /p:VersionSuffix="-alpha"'
+    ${{ if eq(parameters.packageVersion, '') }}:
+      arguments: '--configuration release /p:Version="$(MajorMinorPatch)" /p:PackageOutputPath="$(Build.ArtifactStagingDirectory)" --skip-duplicate'
+    ${{ else }}:
+      arguments: '--configuration release /p:Version="${{ parameters.packageVersion }}" /p:PackageOutputPath="$(Build.ArtifactStagingDirectory)" --skip-duplicate'
     versioningScheme: byBuildNumber
     projects: '${{ parameters.nugetProjectPath }}/*.csproj'
 
@@ -37,5 +45,3 @@ steps:
     searchPatternPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
     publishVstsFeed: ${{ parameters.vstsFeed }}
     versioningScheme: byBuildNumber
-
-
