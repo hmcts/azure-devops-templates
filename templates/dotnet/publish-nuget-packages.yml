@@ -1,0 +1,48 @@
+parameters:
+  - name: nugetProjectPath
+    type: string
+
+  - name: packageVersion
+    type: string
+    default: ''
+
+  - name: vstsFeed
+    type: string
+
+steps:
+
+- ${{ if eq(parameters.packageVersion, '') }}:
+  - task: gitversion/setup@0
+    displayName: Install Git Version
+    inputs:
+      versionSpec: '5.6.0'
+      
+  - task: gitversion/execute@0
+    displayName: Run Git Version
+            
+- task: DotNetCoreCLI@2
+  displayName: dotnet restore
+  inputs:
+    command: restore
+    projects: ${{ parameters.nugetProjectPath }}/*.csproj
+    vstsFeed: ${{ parameters.vstsFeed }}
+    verbosityLevel: Minimal
+
+- task: DotNetCoreCLI@2
+  displayName: Create Build NuGet Project
+  inputs:
+    ${{ if eq(parameters.packageVersion, '') }}:
+      arguments: '--configuration release /p:Version="$(MajorMinorPatch)" /p:PackageOutputPath="$(Build.ArtifactStagingDirectory)"'
+    ${{ else }}:
+      arguments: '--configuration release /p:Version="${{ parameters.packageVersion }}" /p:PackageOutputPath="$(Build.ArtifactStagingDirectory)"'
+    versioningScheme: byBuildNumber
+    projects: '${{ parameters.nugetProjectPath }}/*.csproj'
+
+- task: NuGetCommand@2
+  displayName: Push NuGet Packages
+  inputs:
+    command: push
+    packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
+    publishVstsFeed: ${{ parameters.vstsFeed }}
+    versioningScheme: byBuildNumber
+    allowPackageConflicts: true
