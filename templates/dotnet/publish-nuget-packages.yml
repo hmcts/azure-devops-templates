@@ -32,9 +32,9 @@ steps:
   displayName: Create Build NuGet Project
   inputs:
     ${{ if eq(parameters.packageVersion, '') }}:
-      arguments: '--configuration release /p:Version="$(MajorMinorPatch)" /p:PackageOutputPath="$(Build.ArtifactStagingDirectory)"'
+      arguments: '--configuration release /p:Version="$(MajorMinorPatch)" /p:PackageOutputPath="$(Build.ArtifactStagingDirectory)" --skip-duplicate'
     ${{ else }}:
-      arguments: '--configuration release /p:Version="${{ parameters.packageVersion }}" /p:PackageOutputPath="$(Build.ArtifactStagingDirectory)"'
+      arguments: '--configuration release /p:Version="${{ parameters.packageVersion }}" /p:PackageOutputPath="$(Build.ArtifactStagingDirectory)" --skip-duplicate'
     versioningScheme: byBuildNumber
     projects: '${{ parameters.nugetProjectPath }}/*.csproj'
 
