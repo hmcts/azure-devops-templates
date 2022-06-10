@@ -38,11 +38,19 @@ steps:
     versioningScheme: byBuildNumber
     projects: '${{ parameters.nugetProjectPath }}/*.csproj'
 
-- task: DotNetCoreCLI@2
-  displayName: Push Package to VH NuGet Repo
+# - task: DotNetCoreCLI@2
+#   displayName: Push Package to VH NuGet Repo
+#   inputs:
+#     command: push
+#     searchPatternPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
+#     publishVstsFeed: ${{ parameters.vstsFeed }}
+#     versioningScheme: byBuildNumber
+#     arguments: '--skip-duplicate'
+
+- task: NuGetCommand@2
   inputs:
     command: push
-    searchPatternPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
-    publishVstsFeed: ${{ parameters.vstsFeed }}
+    packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
+    VstsFeed: ${{ parameters.vstsFeed }}
     versioningScheme: byBuildNumber
-    arguments: '--skip-duplicate'
+    allowPackageConflicts: false
