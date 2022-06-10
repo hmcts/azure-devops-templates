@@ -32,9 +32,9 @@ steps:
   displayName: Create Build NuGet Project
   inputs:
     ${{ if eq(parameters.packageVersion, '') }}:
-      arguments: '--skip-duplicate --configuration release /p:Version="$(MajorMinorPatch)" /p:PackageOutputPath="$(Build.ArtifactStagingDirectory)"'
+      arguments: '--configuration release /p:Version="$(MajorMinorPatch)" /p:PackageOutputPath="$(Build.ArtifactStagingDirectory)"'
     ${{ else }}:
-      arguments: '--skip-duplicate --configuration release /p:Version="${{ parameters.packageVersion }}" /p:PackageOutputPath="$(Build.ArtifactStagingDirectory)"'
+      arguments: '--configuration release /p:Version="${{ parameters.packageVersion }}" /p:PackageOutputPath="$(Build.ArtifactStagingDirectory)"'
     versioningScheme: byBuildNumber
     projects: '${{ parameters.nugetProjectPath }}/*.csproj'
 
@@ -45,3 +45,4 @@ steps:
     searchPatternPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
     publishVstsFeed: ${{ parameters.vstsFeed }}
     versioningScheme: byBuildNumber
+    arguments: '--skip-duplicate'
