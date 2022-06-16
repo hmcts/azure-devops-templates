@@ -99,7 +99,7 @@ parameters:
 
   - name: dotnetEfVersion
     type: string
-    default: '6.0.x'
+    default: '6.0.5'
 
 stages:
 - ${{ if or(parameters.PackageApp, parameters.PackageAcceptanceTests, parameters.ACTest, parameters.PackageNuget) }}:
