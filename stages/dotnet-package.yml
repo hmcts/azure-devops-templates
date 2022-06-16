@@ -163,7 +163,7 @@ stages:
           inputs:
             command: 'custom'
             custom: 'tool'
-            arguments: 'install --global dotnet-ef'
+            arguments: 'install --global dotnet-ef --version 6.0.5'
 
         - task: DotNetCoreCLI@2
           displayName: dotnet Restore
