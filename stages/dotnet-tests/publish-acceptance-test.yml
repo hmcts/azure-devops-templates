@@ -44,12 +44,12 @@ steps:
 
   displayName: Determine Version for Acceptance Tests
 
-- template: ../../templates/pipelineCaching.yml
-  parameters:
-    ${{ if containsValue(parameters.packageManagers, 'nuget') }}:
-      nugetProjectPath: ${{ parameters.coreProjectPath }}.AcceptanceTests
-    packageManagers:
-    - nuget
+# - template: ../../templates/pipelineCaching.yml
+#   parameters:
+#     ${{ if containsValue(parameters.packageManagers, 'nuget') }}:
+#       nugetProjectPath: ${{ parameters.coreProjectPath }}.AcceptanceTests
+#     packageManagers:
+#     - nuget
 
 - task: UseDotNet@2
   displayName: 'Install .NET Core SDK'
