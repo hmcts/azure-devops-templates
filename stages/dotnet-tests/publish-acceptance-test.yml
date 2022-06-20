@@ -63,7 +63,7 @@ steps:
   inputs:
     command: restore
     projects: '**/*AcceptanceTests.csproj'
-    restoreArguments: --locked-mode --use-lock-file
+    #restoreArguments: --locked-mode --use-lock-file
     ${{ if eq(parameters.useNugetConfig, true) }}:
       feedsToUse: config
       nugetConfigPath: ${{ parameters.nugetConfigPath }}/nuget.config
