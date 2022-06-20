@@ -97,6 +97,10 @@ parameters:
     type: string
     default: ""
 
+  - name: dotnetEfVersion
+    type: string
+    default: '6.0.5'
+
 stages:
 - ${{ if or(parameters.PackageApp, parameters.PackageAcceptanceTests, parameters.ACTest, parameters.PackageNuget) }}:
   - stage: Package
@@ -163,7 +167,7 @@ stages:
           inputs:
             command: 'custom'
             custom: 'tool'
-            arguments: 'install --global dotnet-ef'
+            arguments: 'install --global dotnet-ef --version ${{parameters.dotnetEfVersion}}'
 
         - task: DotNetCoreCLI@2
           displayName: dotnet Restore
