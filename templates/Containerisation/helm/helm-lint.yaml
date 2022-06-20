@@ -12,8 +12,10 @@ parameters:
 
 steps:
   - task: HelmInstaller@1
+    displayName: Install Helm
     inputs:
       helmVersionToInstall: ${{ parameters.helmVersion }}
+    
   - powershell: |
       $chartPath = "${{ parameters.chartPath }}"
       $chartValuesPath = "${{ parameters.chartValuesPath }}"

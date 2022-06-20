@@ -1,0 +1,45 @@
+parameters:
+  - name: dotnetCoreVersion
+    type: string
+    default: '3.1.x'
+  - name: unitTestProjectPath
+    type: string
+  - name: nugetPackagePath
+    type: string
+    default: $(Pipeline.Workspace)/.nuget/packages
+  - name: nugetConfigPath
+    type: string
+    default: ''
+  - name: vstsFeedId
+    type: string
+    default: ''
+  - name: coverletCoverageExclusions
+    type: object
+    default: []
+
+steps:
+  - template: setup.yml
+    parameters: 
+      dotnetCoreVersion: ${{ parameters.dotnetCoreVersion }}
+      testProjectPath: ${{ parameters.unitTestProjectPath }}
+      nugetPackagePath: ${{ parameters.nugetPackagePath }}
+      nugetConfigPath: ${{ parameters.nugetConfigPath }}
+      vstsFeedId: ${{ parameters.vstsFeedId }}
+
+  - task: DotNetCoreCLI@2
+    displayName: Run dotnet Tests
+    inputs:
+      testRunTitle: dotnet Tests
+      command: test
+      projects: |
+        ${{ parameters.unitTestProjectPath }}/*.csproj
+      arguments: ${{ format('--configuration Release /p:CollectCoverage=true /p:CoverletOutputFormat="\"opencover,cobertura,json,lcov\"" /p:Exclude="\"{0}\"" /p:CoverletOutput=$(Common.TestResultsDirectory)/Coverage/ /p:MergeWith=$(Common.TestResultsDirectory)/Coverage/coverage.json', join(',', parameters.coverletCoverageExclusions)) }}
+
+  - task: PublishCodeCoverageResults@1
+    displayName: Publish Code Coverage
+    inputs:
+      codeCoverageTool: Cobertura
+      summaryFileLocation: $(Common.TestResultsDirectory)/Coverage/coverage.cobertura.xml
+      reportDirectory: $(Common.TestResultsDirectory)/Coverage
+      failIfCoverageEmpty: true
+    condition: always()
