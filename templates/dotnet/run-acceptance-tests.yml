@@ -75,4 +75,4 @@ steps:
     env:
       testFilterCriteria: ${{ parameters.testFilterCriteria }}
       ${{ each setting in parameters.acceptanceTestSettings }}:
-        ${{ each.name }}: ${{ each.value }}
+        ${{ setting.name }}: ${{ setting.value }}
