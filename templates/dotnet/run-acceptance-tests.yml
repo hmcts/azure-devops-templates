@@ -35,7 +35,7 @@ steps:
   - powershell: |
       $runtimeSettings = '<?xml version="1.0" encoding="utf-8"?><RunSettings><TestRunParameters><Parameter name="TargetEnvironment" value="Production"/></TestRunParameters></RunSettings>'
       New-Item -Path $(Pipeline.Workspace)/AcceptanceTests -Name parameters.runSettings -ItemType File -Value $runtimeSettings -Force | Out-Null
-    displayName: Set Environment Variables for Config Transform
+    displayName: Set Runtime Settings
 
   - task: DotNetCoreCLI@2
     displayName: Verify .NET Version
@@ -52,25 +52,25 @@ steps:
   #     ${{ if  ne(parameters.testFiltercriteria, '' }} }}:
   #       testFiltercriteria: 
 
-  - pwsh: |
+  - powershell: |
       if([string]::IsNullOrEmpty($env:testFilterCriteria)) {
-        dotnet vstest $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings --logger:console
+        dotnet vstest $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runSettings --logger:console
       } else {
-        dotnet vstest $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings --TestCaseFilter:${{ parameters.testFilterCriteria }} --logger:console
+        dotnet vstest $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runSettings --TestCaseFilter:${{ parameters.testFilterCriteria }} --logger:console
       }
 
-      $retry = 1
-      do {
-        $testFiles = (Get-ChildItem '$(Agent.TempDirectory)/TestResults' | Sort-Object LastWriteTime | Select-Object -last 1).FullName
+      # $retry = 1
+      # do {
+      #   $testFiles = (Get-ChildItem '$(Agent.TempDirectory)/TestResults' | Sort-Object LastWriteTime | Select-Object -last 1).FullName
 
-        $failedTests = (Select-Xml -Path $testFiles -XPath "//ns:UnitTestResult[@outcome='Failed']/@testName" -Namespace @{"ns"="http://microsoft.com/schemas/VisualStudio/TeamTest/2010"}).Node.Value
+      #   $failedTests = (Select-Xml -Path $testFiles -XPath "//ns:UnitTestResult[@outcome='Failed']/@testName" -Namespace @{"ns"="http://microsoft.com/schemas/VisualStudio/TeamTest/2010"}).Node.Value
 
-        if($failedTests.count -gt 0) {
-          write-warning "There are currently $($failedTests.count) failing tests, retrying for $retry times in 10 seconds"
-          Start-Sleep 10
-          dotnet vstest $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll /Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings /Tests:"$($failedTests -join ',')" --logger:console
-        }
-      } while ($failedTests.count -gt 0 -and $retry++ -lt 2)
+      #   if($failedTests.count -gt 0) {
+      #     write-warning "There are currently $($failedTests.count) failing tests, retrying for $retry times in 10 seconds"
+      #     Start-Sleep 10
+      #     dotnet vstest $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll /Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings /Tests:"$($failedTests -join ',')" --logger:console
+      #   }
+      # } while ($failedTests.count -gt 0 -and $retry++ -lt 2)
     displayName: Run Acceptance Tests
     env:
       testFilterCriteria: ${{ parameters.testFilterCriteria }}
