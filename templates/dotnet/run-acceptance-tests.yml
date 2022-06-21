@@ -76,3 +76,14 @@ steps:
       testFilterCriteria: ${{ parameters.testFilterCriteria }}
       ${{ each setting in parameters.acceptanceTestSettings }}:
         ${{ setting.name }}: ${{ setting.value }}
+
+
+  - task: PublishTestResults@2
+    displayName: Publish Test Results
+    condition: succeededOrFailed()
+    inputs:
+      testResultsFormat: VSTest
+      testResultsFiles: '**/*.trx'
+      searchFolder: $(Agent.TempDirectory)/TestResults
+      mergeTestResults: true
+      testRunTitle: Acceptance Tests
