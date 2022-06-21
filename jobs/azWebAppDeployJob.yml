@@ -286,6 +286,7 @@ jobs:
 
               $runtimeSettings = '<?xml version="1.0" encoding="utf-8"?><RunSettings><TestRunParameters><Parameter name="TargetEnvironment" value="Production"/></TestRunParameters></RunSettings>'
               New-Item -Path $(Pipeline.Workspace)/AcceptanceTests -Name parameters.runsettings -ItemType File -Value $runtimeSettings -Force | Out-Null
+              Get-Content "$(Pipeline.Workspace)/AcceptanceTests/appsettings.Production.json"
             displayName: Set Environment Variables for Config Transform
             env:
               ${{ each setting in parameters.acSettings }}:
