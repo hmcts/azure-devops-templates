@@ -56,7 +56,7 @@ steps:
 
   - template: replace-app-settings.yml
     parameters:
-      app_settings_path: (Pipeline.Workspace)/AcceptanceTests/appsettings.json
+      app_settings_path: $(Pipeline.Workspace)/AcceptanceTests/appsettings.json
       settings: ${{ parameters.acceptanceTestSettings }}
 
   - powershell: |
