@@ -43,5 +43,5 @@ steps:
         Set-Content -Path $appSettings_path -Value $($appSettings | ConvertTo-Json)
     env:
         app_settings_path: ${{ parameters.app_settings_path }}
-        - ${{ each setting in parameters.settings }}:
+        ${{ each setting in parameters.settings }}:
           ${{ replace(setting.name, ":", "_") }}: ${{ setting.value }}
