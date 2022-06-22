@@ -11,8 +11,6 @@ parameters:
 
   - name: azureSubscription
     type: string
-  - name: keyVaultName
-    type: string
 
 steps:
   - checkout: self
@@ -64,7 +62,7 @@ steps:
       - template: ../../templates\Azure\KeyVault\get-secret.yaml
         parameters:
           azureSubscription: ${{ parameters.azureSubscription }}
-          keyVaultName: ${{ parameters.keyVaultName }}
+          keyVaultName: ${{ setting.keyVaultName }}
           secretKeyName: ${{ setting.value }}
           taskName: ${{ replace(setting.value, '-', '_') }}
 
@@ -75,7 +73,7 @@ steps:
         - ${{ each setting in parameters.acceptanceTestSettings }}:
           - name: ${{ setting.name }}
             ${{ if eq(setting.secret, true) }}:
-              value: $[${{ replace(setting.value, '-', '_')}}]
+              value: $[${{ replace(setting.value, '-', '_')}}.value]
             ${{ if ne(setting.secret, true) }}:
               value: ${{ setting.value }}
 
