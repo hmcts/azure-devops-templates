@@ -9,6 +9,11 @@ parameters:
   - name: acceptanceTestSettings
     type: object
 
+  - name: azureSubscription
+    type: string
+  - name: keyVaultName
+    type: string
+
 steps:
   - checkout: self
 
@@ -54,10 +59,26 @@ steps:
   #     ${{ if  ne(parameters.testFiltercriteria, '' }} }}:
   #       testFiltercriteria: 
 
+  - ${{ each setting in parameters.acceptanceTestSettings }}:
+    - ${{ if eq(setting.secret, true) }}:
+      - template: ../../templates\Azure\KeyVault\get-secret.yaml
+        parameters:
+          azureSubscription: 
+          keyVaultName:
+          secretKeyName: ${{ setting.value }}
+          taskName: ${{ setting.value }}
+
   - template: replace-app-settings.yml
     parameters:
       app_settings_path: $(Pipeline.Workspace)/AcceptanceTests/appsettings.json
-      settings: ${{ parameters.acceptanceTestSettings }}
+      settings: 
+        - ${{ each setting in parameters.acceptanceTestSettings }}:
+          - ${{ if eq(setting.secret, true) }}:
+            - name: ${{ setting.name }}
+              value: $[${{ setting.value }}]
+          - ${{ if ne(setting.secret, true) }}:
+            - name: ${{ setting.name }}
+              value: ${{ setting.value }}
 
   - powershell: |
       if([string]::IsNullOrEmpty($env:testFilterCriteria)) {
