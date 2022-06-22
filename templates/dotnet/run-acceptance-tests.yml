@@ -34,6 +34,8 @@ steps:
 
   - powershell: |
       $runtimeSettings = '<?xml version="1.0" encoding="utf-8"?><RunSettings><TestRunParameters><Parameter name="TargetEnvironment" value="Production"/></TestRunParameters></RunSettings>'
+      Write-Host "Runtime Setting:"
+      Write-Host $runtimeSettings
       New-Item -Path $(Pipeline.Workspace)/AcceptanceTests -Name parameters.runSettings -ItemType File -Value $runtimeSettings -Force | Out-Null
     displayName: Set Runtime Settings
 
@@ -51,6 +53,11 @@ steps:
   #       "$(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll"
   #     ${{ if  ne(parameters.testFiltercriteria, '' }} }}:
   #       testFiltercriteria: 
+
+  - template: replace-app-settings.yml
+    parameters:
+      app_settings_path: (Pipeline.Workspace)/AcceptanceTests/appsettings.json
+      settings: ${{ parameters.acceptanceTestSettings }}
 
   - powershell: |
       if([string]::IsNullOrEmpty($env:testFilterCriteria)) {
