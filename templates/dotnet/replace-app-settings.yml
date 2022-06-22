@@ -6,41 +6,41 @@ parameters:
     default: []  
 
 steps:
-    - powershell: |
-        $appSettings_path = "$($env.app_settings_path)"
-        $appSettings = Get-Content -Path $appSettings_path | ConvertFrom-Json
+  - powershell: |
+      $appSettings_path = "$($env.app_settings_path)"
+      $appSettings = Get-Content -Path $appSettings_path | ConvertFrom-Json
 
-        Write-Host "App Settings before processing"
-        Write-Host $($appSettings | ConvertTo-Json)
-        Write-Host ""
+      Write-Host "App Settings before processing"
+      Write-Host $($appSettings | ConvertTo-Json)
+      Write-Host ""
 
-        $environmentVars = Get-ChildItem env:
+      $environmentVars = Get-ChildItem env:
 
-        $appSettings.PSObject.Properties | ForEach-Object {
-            $parentName = $_.Name
-            Write-Host "Process $($parentName)"
-            $children =  $($_.Value) # | ConvertFrom-Json
-            
-            $children.PSObject.Properties | ForEach-Object {
-                $childName = $_.Name
-                Write-Host "Process $parentName - $childName"
-                $envName="$parentName`_$childName"
-                if (Test-Path env:$envName){
-                    Write-Host "Found value for $envName"
-                    $_.Value = $($environmentVars | Where-Object { $_.Name -eq "$envName" }).Value
-                } else {
-                    
-                    Write-Host "Did NOT find value for $envName"
-                }
-            }
-        }
+      $appSettings.PSObject.Properties | ForEach-Object {
+          $parentName = $_.Name
+          Write-Host "Process $($parentName)"
+          $children =  $($_.Value) # | ConvertFrom-Json
+          
+          $children.PSObject.Properties | ForEach-Object {
+              $childName = $_.Name
+              Write-Host "Process $parentName - $childName"
+              $envName="$parentName`_$childName"
+              if (Test-Path env:$envName){
+                  Write-Host "Found value for $envName"
+                  $_.Value = $($environmentVars | Where-Object { $_.Name -eq "$envName" }).Value
+              } else {
+                  
+                  Write-Host "Did NOT find value for $envName"
+              }
+          }
+      }
 
 
-        Write-Host ""
-        Write-Host "App Settings After processing"
-        Write-Host $($appSettings | ConvertTo-Json)
+      Write-Host ""
+      Write-Host "App Settings After processing"
+      Write-Host $($appSettings | ConvertTo-Json)
 
-        Set-Content -Path $appSettings_path -Value $($appSettings | ConvertTo-Json)
+      Set-Content -Path $appSettings_path -Value $($appSettings | ConvertTo-Json)
     env:
         app_settings_path: ${{ parameters.app_settings_path }}
         ${{ each setting in parameters.settings }}:
