@@ -7,7 +7,7 @@ parameters:
 
 steps:
   - powershell: |
-      $appSettings_path = "$($env.app_settings_path)"
+      $appSettings_path = "$($env:app_settings_path)"
       $appSettings = Get-Content -Path $appSettings_path | ConvertFrom-Json
 
       Write-Host "App Settings before processing"
@@ -15,6 +15,9 @@ steps:
       Write-Host ""
 
       $environmentVars = Get-ChildItem env:
+      Write-Host "ENV Vars"
+      Write-Host $environmentVars
+      Write-Host ""
 
       $appSettings.PSObject.Properties | ForEach-Object {
           $parentName = $_.Name
@@ -41,6 +44,7 @@ steps:
       Write-Host $($appSettings | ConvertTo-Json)
 
       Set-Content -Path $appSettings_path -Value $($appSettings | ConvertTo-Json)
+    displayName: "Replace App Settings in ${{ parameters.app_settings_path }}"
     env:
         app_settings_path: ${{ parameters.app_settings_path }}
         ${{ each setting in parameters.settings }}:
