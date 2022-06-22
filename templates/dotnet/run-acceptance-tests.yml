@@ -63,8 +63,8 @@ steps:
     - ${{ if eq(setting.secret, true) }}:
       - template: ../../templates\Azure\KeyVault\get-secret.yaml
         parameters:
-          azureSubscription: 
-          keyVaultName:
+          azureSubscription: ${{ parameters.azureSubscription }}
+          keyVaultName: ${{ parameters.keyVaultName }}
           secretKeyName: ${{ setting.value }}
           taskName: ${{ replace(setting.value, '-', '_') }}
 
