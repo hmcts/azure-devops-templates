@@ -66,18 +66,17 @@ steps:
           azureSubscription: 
           keyVaultName:
           secretKeyName: ${{ setting.value }}
-          taskName: ${{ setting.value }}
+          taskName: ${{ replace(setting.value, '-', '_') }}
 
   - template: replace-app-settings.yml
     parameters:
       app_settings_path: $(Pipeline.Workspace)/AcceptanceTests/appsettings.json
       settings: 
         - ${{ each setting in parameters.acceptanceTestSettings }}:
-          - ${{ if eq(setting.secret, true) }}:
-            - name: ${{ setting.name }}
-              value: $[${{ setting.value }}]
-          - ${{ if ne(setting.secret, true) }}:
-            - name: ${{ setting.name }}
+          - name: ${{ setting.name }}
+            ${{ if eq(setting.secret, true) }}:
+              value: $[${{ replace(setting.value, '-', '_')}}]
+            ${{ if ne(setting.secret, true) }}:
               value: ${{ setting.value }}
 
   - powershell: |
