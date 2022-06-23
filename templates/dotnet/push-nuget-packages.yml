@@ -1,0 +1,20 @@
+parameters:
+  - name: vstsFeed
+    type: string
+    default: ''
+
+steps:
+  - task: DownloadPipelineArtifact@2
+    inputs:
+      artifact: 'NugetPackages'
+      path: $(Build.SourcesDirectory)/nugets
+
+  - task: NuGetCommand@2
+    displayName: Push NuGet Packages
+    inputs:
+      command: push
+      packagesToPush: '$(Build.SourcesDirectory)/nugets/*.nupkg'
+      ${{ if ne(parameters.vstsFeed, '') }}:
+        publishVstsFeed: ${{ parameters.vstsFeed }}
+      versioningScheme: byBuildNumber
+      allowPackageConflicts: true
