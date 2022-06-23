@@ -1,0 +1,98 @@
+parameters:
+  - name: vstsFeedId
+    type: string
+    default: 'Video Hearings/vh-packages'
+
+  - name: useNugetConfig
+    type: boolean
+    default: false
+
+  - name: coreProjectPath
+    type: string
+
+  - name: nugetProjectPath
+    type: string
+    default: ''
+
+  - name: nugetConfigPath
+    type: string
+    default: ''
+
+  - name: packageManagers
+    type: object
+    default:
+     - nuget
+
+  - name: Test
+    type: boolean
+    default: false
+
+  - name: netVersion
+    type: string
+    default: '3.1.x'
+
+steps:
+- checkout: self
+
+- bash: |
+    dotnet tool install --global GitVersion.Tool --version 5.6.0 
+  displayName: Install Git-Version
+
+- bash: |
+    dotnet-gitversion /output json /output buildserver /updateassemblyinfo ${{ parameters.coreProjectPath }}.AcceptanceTests/AssemblyInfo.cs /ensureassemblyinfo
+
+  displayName: Determine Version for Acceptance Tests
+
+# - template: ../../templates/pipelineCaching.yml
+#   parameters:
+#     ${{ if containsValue(parameters.packageManagers, 'nuget') }}:
+#       nugetProjectPath: ${{ parameters.coreProjectPath }}.AcceptanceTests
+#     packageManagers:
+#     - nuget
+
+- task: UseDotNet@2
+  displayName: 'Install .NET Core SDK'
+  inputs:
+    packageType: sdk
+    version: ${{ parameters.netVersion }}
+    installationPath: $(Agent.ToolsDirectory)/dotnet
+
+- task: DotNetCoreCLI@2
+  displayName: dotnet Restore
+  inputs:
+    command: restore
+    projects: '**/*AcceptanceTests.csproj'
+    restoreArguments: --force-evaluate
+    ${{ if eq(parameters.useNugetConfig, true) }}:
+      feedsToUse: config
+      nugetConfigPath: ${{ parameters.nugetConfigPath }}/nuget.config
+    ${{ if eq(parameters.useNugetConfig, false) }}:
+      vstsFeed: ${{ parameters.vstsFeedId }}
+      includeNuGetOrg: true
+  condition: ne(variables.NUGET_CACHE_RESTORED, 'true')
+
+- task: DotNetCoreCLI@2
+  displayName: donet Publish no-restore
+  inputs:
+    command: publish
+    publishWebProjects: false
+    arguments: --configuration Release --no-restore --output $(build.artifactstagingdirectory)/AcceptanceTests
+    zipAfterPublish: false
+    workingDirectory: ${{ parameters.coreProjectPath }}.AcceptanceTests
+  condition: ne(variables.NUGET_CACHE_RESTORED, 'true')
+    
+- task: DotNetCoreCLI@2
+  displayName: donet Publish
+  inputs:
+    command: publish
+    publishWebProjects: false
+    arguments: --configuration Release --output $(build.artifactstagingdirectory)/AcceptanceTests
+    zipAfterPublish: false
+    workingDirectory: ${{ parameters.coreProjectPath }}.AcceptanceTests
+  condition: eq(variables.NUGET_CACHE_RESTORED, 'true')
+
+- task: PublishBuildArtifacts@1
+  displayName: Publish Acceptance Tests
+  inputs:
+    PathtoPublish: $(Build.ArtifactStagingDirectory)/AcceptanceTests
+    ArtifactName: AcceptanceTests

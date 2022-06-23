@@ -1,0 +1,114 @@
+parameters:
+  - name: environment
+    type: string
+
+  - name: testFilterCriteria
+    type: string
+    default: ''
+
+  - name: acceptanceTestSettings
+    type: object
+
+  - name: azureSubscription
+    type: string
+
+steps:
+  - checkout: self
+
+  - task: gitversion/setup@0
+    displayName: Install GitVersion
+    inputs:
+      versionSpec: '5.6.0'
+
+  - task: gitversion/execute@0
+    displayName: Determine Version
+  
+  # - pwsh: |
+  #     $environment = '${{ parameters.environment }}'.tolower()
+  #     Write-Host "##vso[task.setvariable variable=environment]$environment"
+  #     Write-Host "##vso[task.setvariable variable=Release.EnvironmentName]$environment"
+  #   displayName: Set Environment Variable
+
+  - task: DownloadPipelineArtifact@2
+    displayName: Download Acceptance Tests
+    inputs:
+      artifact: AcceptanceTests
+      path: $(Pipeline.Workspace)/AcceptanceTests
+
+  - powershell: |
+      $runtimeSettings = '<?xml version="1.0" encoding="utf-8"?><RunSettings><TestRunParameters><Parameter name="TargetEnvironment" value="Production"/></TestRunParameters></RunSettings>'
+      Write-Host "Runtime Setting:"
+      Write-Host $runtimeSettings
+      New-Item -Path $(Pipeline.Workspace)/AcceptanceTests -Name parameters.runSettings -ItemType File -Value $runtimeSettings -Force | Out-Null
+    displayName: Set Runtime Settings
+
+  - task: DotNetCoreCLI@2
+    displayName: Verify .NET Version
+    inputs:
+      testRunTitle: Acceptance Tests
+      command: custom
+      custom: --version
+      
+  # - task: VSTest@2
+  #   inputs:
+  #     testSelector: 'testAssemblies'
+  #     testAssemblyVer2: |
+  #       "$(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll"
+  #     ${{ if  ne(parameters.testFiltercriteria, '' }} }}:
+  #       testFiltercriteria: 
+
+  - ${{ each setting in parameters.acceptanceTestSettings }}:
+    - ${{ if eq(setting.secret, true) }}:
+      - template: ../../templates\Azure\KeyVault\get-secret.yaml
+        parameters:
+          azureSubscription: ${{ parameters.azureSubscription }}
+          keyVaultName: ${{ setting.keyVaultName }}
+          secretKeyName: ${{ setting.value }}
+          taskName: ${{ replace(setting.value, '-', '_') }}
+
+  - template: replace-app-settings.yml
+    parameters:
+      app_settings_path: $(Pipeline.Workspace)/AcceptanceTests/appsettings.json
+      settings: 
+        - ${{ each setting in parameters.acceptanceTestSettings }}:
+          - name: ${{ setting.name }}
+            ${{ if eq(setting.secret, true) }}:
+              value: $(${{ replace(setting.value, '-', '_')}}.prop.value)
+            ${{ if ne(setting.secret, true) }}:
+              value: ${{ setting.value }}
+
+  - powershell: |
+      if([string]::IsNullOrEmpty($env:testFilterCriteria)) {
+        dotnet vstest $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runSettings --logger:console
+      } else {
+        dotnet vstest $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runSettings --TestCaseFilter:${{ parameters.testFilterCriteria }} --logger:console
+      }
+
+      # $retry = 1
+      # do {
+      #   $testFiles = (Get-ChildItem '$(Agent.TempDirectory)/TestResults' | Sort-Object LastWriteTime | Select-Object -last 1).FullName
+
+      #   $failedTests = (Select-Xml -Path $testFiles -XPath "//ns:UnitTestResult[@outcome='Failed']/@testName" -Namespace @{"ns"="http://microsoft.com/schemas/VisualStudio/TeamTest/2010"}).Node.Value
+
+      #   if($failedTests.count -gt 0) {
+      #     write-warning "There are currently $($failedTests.count) failing tests, retrying for $retry times in 10 seconds"
+      #     Start-Sleep 10
+      #     dotnet vstest $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll /Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings /Tests:"$($failedTests -join ',')" --logger:console
+      #   }
+      # } while ($failedTests.count -gt 0 -and $retry++ -lt 2)
+    displayName: Run Acceptance Tests
+    env:
+      testFilterCriteria: ${{ parameters.testFilterCriteria }}
+      ${{ each setting in parameters.acceptanceTestSettings }}:
+        ${{ setting.name }}: ${{ setting.value }}
+
+
+  - task: PublishTestResults@2
+    displayName: Publish Test Results
+    condition: succeededOrFailed()
+    inputs:
+      testResultsFormat: VSTest
+      testResultsFiles: '**/*.trx'
+      searchFolder: $(Agent.TempDirectory)/TestResults
+      mergeTestResults: true
+      testRunTitle: Acceptance Tests
