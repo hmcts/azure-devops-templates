@@ -15,41 +15,50 @@ parameters:
 
 steps:
 
-- ${{ if eq(parameters.packageVersion, '') }}:
-  - task: gitversion/setup@0
-    displayName: Install Git Version
+  - ${{ if eq(parameters.packageVersion, '') }}:
+    - task: gitversion/setup@0
+      displayName: Install Git Version
+      inputs:
+        versionSpec: '5.6.0'
+        
+    - task: gitversion/execute@0
+      displayName: Run Git Version
+      inputs:
+        ${{ if ne(parameters.gitVersionConfigPath, '') }}:
+          useConfigFile: true
+          configFilePath: '${{ parameters.gitVersionConfigPath }}'
+        ${{ else }}:
+          useConfigFile: false
+                
+  - task: DotNetCoreCLI@2
+    displayName: dotnet restore
     inputs:
-      versionSpec: '5.6.0'
-      
-  - task: gitversion/execute@0
-    displayName: Run Git Version
+      command: restore
+      projects: ${{ parameters.nugetProjectPath }}/*.csproj
+      vstsFeed: ${{ parameters.vstsFeed }}
+      verbosityLevel: Minimal
+
+  - task: DotNetCoreCLI@2
+    displayName: Create Build NuGet Project
     inputs:
-      ${{ if ne(parameters.gitVersionConfigPath, '') }}:
-        useConfigFile: true
-        configFilePath: '${{ parameters.gitVersionConfigPath }}'
+      ${{ if eq(parameters.packageVersion, '') }}:
+        arguments: '--configuration release /p:Version="$(GitVersion.NuGetVersion)" /p:PackageOutputPath="$(Build.ArtifactStagingDirectory)/NugetPackages"'
       ${{ else }}:
-        useConfigFile: false
-              
-- task: DotNetCoreCLI@2
-  displayName: dotnet restore
-  inputs:
-    command: restore
-    projects: ${{ parameters.nugetProjectPath }}/*.csproj
-    vstsFeed: ${{ parameters.vstsFeed }}
-    verbosityLevel: Minimal
+        arguments: '--configuration release /p:Version="${{ parameters.packageVersion }}" /p:PackageOutputPath="$(Build.ArtifactStagingDirectory)/NugetPackages"'
+      versioningScheme: byBuildNumber
+      projects: '${{ parameters.nugetProjectPath }}/*.csproj'
+      
+#  - task: ArchiveFiles@2
+#    displayName: 'Zip Terraform Files'
+#    inputs:
+#      rootFolderOrFile: '$(Build.ArtifactStagingDirectory)/NugetPackages'
+#      archiveType: zip
+#      archiveFile: '$(Build.ArtifactStagingDirectory)/packages-$(GitVersion.Major)-$(GitVersion.Minor)-$(GitVersion.Patch)-$(GitVersion.PreReleaseTag).zip'
 
-- task: DotNetCoreCLI@2
-  displayName: Create Build NuGet Project
-  inputs:
-    ${{ if eq(parameters.packageVersion, '') }}:
-      arguments: '--configuration release /p:Version="$(GitVersion.NuGetVersion)" /p:PackageOutputPath="$(Build.ArtifactStagingDirectory)"'
-    ${{ else }}:
-      arguments: '--configuration release /p:Version="${{ parameters.packageVersion }}" /p:PackageOutputPath="$(Build.ArtifactStagingDirectory)"'
-    versioningScheme: byBuildNumber
-    projects: '${{ parameters.nugetProjectPath }}/*.csproj'
+  - task: PublishPipelineArtifact@1
+    displayName: 'Publish Terraform Artifacts'
+    inputs:
+      targetPath: '$(Build.ArtifactStagingDirectory)/NugetPackages'
+      publishLocation: pipeline
+      artifact: 'NugetPackages'
 
-- task: PublishBuildArtifacts@1
-  displayName: Publish Nuget Packages
-  inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)/*.nupkg'
-    ArtifactName: NugetPackages
