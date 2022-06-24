@@ -23,7 +23,7 @@ steps:
       Write-Host "Delete versions with filter $versionFilter in proj: $project ,feed: $feedName, package: $packageName"
 
       Write-Host "Login"
-      set AZURE_DEVOPS_EXT_PAT=$(System.AccessToken)
+      $env:AZURE_DEVOPS_EXT_PAT="$(System.AccessToken)"
       az devops login --organization $organisation
 
       $feeds = az devops invoke --http-method GET --api-version "6.0-preview" --org $organisation --area "Packaging" --resource "feeds" --query "value[? name=='$feedName']" | ConvertFrom-Json
