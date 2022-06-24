@@ -1,0 +1,53 @@
+parameters:
+  - name: organisation
+    type: string
+    default: $(System.CollectionUri)
+  - name: project
+    type: string
+    default: $(System.TeamProject)
+  - name: feedName
+    type: string
+  - name: packageName
+    type: string
+  - name: versionFilter
+    type: string
+
+
+steps:
+  - powershell: |
+      $organisation="$env:organisation"
+      $project="$env:project"
+      $feedName="$env:feedName"
+      $packageName="$env:packageName"
+      $versionFilter="$env:versionFilter"
+      Write-Host "Delete versions with filter $versionFilter in proj: $project ,feed: $feedName, package: $packageName"
+
+      $feeds = az devops invoke --http-method GET --api-version "6.0-preview" --org $organisation --area "Packaging" --resource "feeds" --query "value[? name=='$feedName']" | ConvertFrom-Json
+
+      if ($null -ne $feeds){
+          $feedId="$($feeds.id)"
+          Write-Host "Found Feed with ID $feedId"
+          $packages = az devops invoke --http-method GET --org $organisation --area "Packaging" --resource "Packages" --route-parameters project=$project feedId=$feedId --query-parameters api-version="6.0-preview.1" --query "value[? name=='$packageName']" | ConvertFrom-Json
+
+          if ($null -ne $packages){
+              $packageId="$($packages.id)"
+              Write-Host "Found Package with ID $packageId"
+              
+              $versions = az devops invoke --http-method GET --org $organisation --area "Packaging" --resource "Versions" --route-parameters project=$project feedId=$feedId packageId=$packageId --query-parameters api-version="6.0-preview.1" | ConvertFrom-Json
+
+              foreach ($version in $($versions.value | Where-Object { $_.version -like "*$versionFilter*"})){
+                  $packageVersion=$($version.version)
+                  Write-Host "Version $packageVersion"
+
+                  $url = "https://pkgs.dev.azure.com/$organisation/$project/_apis/packaging/feeds/$feedId/nuget/packages/$packageName/versions/$packageVersion`?api-version=6.0-preview.1"
+                  az rest --method delete -u $url
+              }
+          }
+      }
+    env:
+      organisation: ${{ parameters.organisation }}
+      project: ${{ parameters.project }}
+      feedName: ${{ parameters.feedName }}
+      packageName: ${{ parameters.packageName }}
+      versionFilter: ${{ parameters.versionFilter }}
+    displayName: "Delete versions in ${{ parameters.feedName }}-${{ parameters.packageName }}"
