@@ -14,6 +14,11 @@ parameters:
 
 
 steps:
+
+  - script: echo $(AccessToken) | az devops login
+    env:
+      AccessToken: $(System.AccessToken)
+
   - powershell: |
       $organisation="$env:organisation"
       $project="$env:project"
@@ -22,9 +27,9 @@ steps:
       $versionFilter="$env:versionFilter"
       Write-Host "Delete versions with filter $versionFilter in proj: $project ,feed: $feedName, package: $packageName"
 
-      Write-Host "Login"
-      $env:AZURE_DEVOPS_EXT_PAT = "$(System.AccessToken)"
-      az devops login --debug
+      #Write-Host "Login"
+      #$env:AZURE_DEVOPS_EXT_PAT = "$(System.AccessToken)"
+      #az devops login --debug
 
       $feeds = az devops invoke --http-method GET --api-version "6.0-preview" --org $organisation --area "Packaging" --resource "feeds" --query "value[? name=='$feedName']" | ConvertFrom-Json
 
