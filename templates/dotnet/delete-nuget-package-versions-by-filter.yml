@@ -15,7 +15,8 @@ parameters:
 
 steps:
 
-  - script: echo $(AccessToken) | az devops login
+  - script: echo ${AccessToken} | az devops login
+    displayName: AZ DevOps Login
     env:
       AccessToken: $(System.AccessToken)
 
