@@ -28,12 +28,8 @@ steps:
       $versionFilter="$env:versionFilter"
       Write-Host "Delete versions with filter $versionFilter in proj: $project ,feed: $feedName, package: $packageName"
 
-      #Write-Host "Login"
-      #$env:AZURE_DEVOPS_EXT_PAT = "$(System.AccessToken)"
-      #az devops login --debug
-
       $feeds = az devops invoke --http-method GET --api-version "6.0-preview" --org $organisation --area "Packaging" --resource "feeds" --query "value[? name=='$feedName']" | ConvertFrom-Json
-
+      
       if ($null -ne $feeds){
           $feedId="$($feeds.id)"
           Write-Host "Found Feed with ID $feedId"
@@ -49,8 +45,10 @@ steps:
                   $packageVersion=$($version.version)
                   Write-Host "Version $packageVersion"
 
+                  $AzureDevOpsAuthenicationHeader = @{Authorization = 'Basic ' + [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$(System.AccessToken)")) }
+
                   $url = "https://pkgs.dev.azure.com/$organisation/$project/_apis/packaging/feeds/$feedId/nuget/packages/$packageName/versions/$packageVersion`?api-version=6.0-preview.1"
-                  az rest --method delete -u $url
+                  az rest --method delete -u $url --headers $AzureDevOpsAuthenicationHeader
               }
           }
       }
