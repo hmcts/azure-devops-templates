@@ -51,6 +51,7 @@ steps:
 
                   #$AzureDevOpsAuthenicationHeader = @{Authorization = 'Basic ' + [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$(System.AccessToken)")) }
                   $env:AZURE_DEVOPS_EXT_PAT = '$(System.AccessToken)'
+                  az login
 
                   $url = "https://pkgs.dev.azure.com/$org_name/$project/_apis/packaging/feeds/$feedId/nuget/packages/$packageName/versions/$packageVersion`?api-version=6.0-preview.1"
                   Write-Host "Request $url"
