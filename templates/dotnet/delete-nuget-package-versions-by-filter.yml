@@ -45,10 +45,11 @@ steps:
                   $packageVersion=$($version.version)
                   Write-Host "Version $packageVersion"
 
-                  $AzureDevOpsAuthenicationHeader = @{Authorization = 'Basic ' + [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$(System.AccessToken)")) }
+                  #$AzureDevOpsAuthenicationHeader = @{Authorization = 'Basic ' + [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$(System.AccessToken)")) }
 
                   $url = "https://pkgs.dev.azure.com/$organisation/$project/_apis/packaging/feeds/$feedId/nuget/packages/$packageName/versions/$packageVersion`?api-version=6.0-preview.1"
-                  az rest --method delete -u $url --headers $AzureDevOpsAuthenicationHeader
+                  Write-Host "Request $url"
+                  az rest --method delete -u $url --debug #--headers $AzureDevOpsAuthenicationHeader
               }
           }
       }
