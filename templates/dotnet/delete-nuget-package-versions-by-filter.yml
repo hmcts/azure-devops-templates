@@ -2,6 +2,9 @@ parameters:
   - name: organisation
     type: string
     default: $(System.CollectionUri)
+  - name: organisationName
+    type: string
+    default: 'hmcts'
   - name: project
     type: string
     default: $(System.TeamProject)
@@ -21,6 +24,7 @@ steps:
       AccessToken: $(System.AccessToken)
 
   - powershell: |
+      $org_name="${{ parameters.organisationName }}"
       $organisation="$env:organisation"
       $project="$env:project"
       $feedName="$env:feedName"
@@ -47,7 +51,7 @@ steps:
 
                   #$AzureDevOpsAuthenicationHeader = @{Authorization = 'Basic ' + [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$(System.AccessToken)")) }
 
-                  $url = "https://pkgs.dev.azure.com/$organisation/$project/_apis/packaging/feeds/$feedId/nuget/packages/$packageName/versions/$packageVersion`?api-version=6.0-preview.1"
+                  $url = "https://pkgs.dev.azure.com/$org_name/$project/_apis/packaging/feeds/$feedId/nuget/packages/$packageName/versions/$packageVersion`?api-version=6.0-preview.1"
                   Write-Host "Request $url"
                   az rest --method delete -u $url --debug #--headers $AzureDevOpsAuthenicationHeader
               }
