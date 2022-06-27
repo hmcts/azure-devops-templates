@@ -9,6 +9,10 @@ parameters:
   - name: vstsFeed
     type: string
 
+  - name: gitVersionConfigPath
+    type: string
+    default: ''
+
 steps:
 
 - ${{ if eq(parameters.packageVersion, '') }}:
@@ -19,7 +23,13 @@ steps:
       
   - task: gitversion/execute@0
     displayName: Run Git Version
-            
+    inputs:
+      ${{ if ne(parameters.gitVersionConfigPath, '') }}:
+        useConfigFile: true
+        configFilePath: '${{ parameters.gitVersionConfigPath }}'
+      ${{ else }}:
+        useConfigFile: false
+              
 - task: DotNetCoreCLI@2
   displayName: dotnet restore
   inputs:
@@ -32,7 +42,7 @@ steps:
   displayName: Create Build NuGet Project
   inputs:
     ${{ if eq(parameters.packageVersion, '') }}:
-      arguments: '--configuration release /p:Version="$(MajorMinorPatch)" /p:PackageOutputPath="$(Build.ArtifactStagingDirectory)"'
+      arguments: '--configuration release /p:Version="$(GitVersion.NuGetVersion)" /p:PackageOutputPath="$(Build.ArtifactStagingDirectory)"'
     ${{ else }}:
       arguments: '--configuration release /p:Version="${{ parameters.packageVersion }}" /p:PackageOutputPath="$(Build.ArtifactStagingDirectory)"'
     versioningScheme: byBuildNumber
