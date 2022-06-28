@@ -12,7 +12,7 @@ parameters:
   - name: databaseName
     type: string
   - name: sqlfirewallRequired
-    type: bool
+    type: boolean
     default: false
 
 steps:
