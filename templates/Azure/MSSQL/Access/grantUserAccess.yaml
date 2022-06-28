@@ -50,10 +50,10 @@ steps:
         }
 
         Invoke-SqlCmd -ServerInstance $sql_fqdn -Database $database_name -Query $query -AccessToken $token 
-      env:
-        username: ${{ parameters.username }}
-        roles: ${{ converttojson(parameters.roles) }}
-        sqlServerName: ${{ parameters.sqlServerName }}
-        databaseName: ${{ parameters.databaseName }}
+    env:
+      username: ${{ parameters.username }}
+      roles: ${{ converttojson(parameters.roles) }}
+      sqlServerName: ${{ parameters.sqlServerName }}
+      databaseName: ${{ parameters.databaseName }}
 
 
