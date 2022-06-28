@@ -23,6 +23,7 @@ steps:
         sqlServerResourceGroup: ${{ parameters.sqlServerResourceGroup }}
         sqlServerName: ${{ parameters.sqlServerName }}
         azureSubscription: ${{ parameters.azureSubscription }}
+        addTaskName: false
 
   - task: AzureCLI@2
     displayName: "Grant ${{ parameters.username }} access to ${{ parameters.sqlServerName}}/${{ parameters.databaseName }}"
@@ -69,11 +70,10 @@ steps:
       sqlServerName: ${{ parameters.sqlServerName }}
       databaseName: ${{ parameters.databaseName }}
 
-
-
   - ${{ if eq(parameters.sqlfirewallRequired, true) }}:
     - template: ../Firewall/removeSqlFirewallRule.yaml
       parameters:
         sqlServerResourceGroup: ${{ parameters.sqlServerResourceGroup }}
         sqlServerName: ${{ parameters.sqlServerName }}
         azureSubscription: ${{ parameters.azureSubscription }}
+        addTaskName: false

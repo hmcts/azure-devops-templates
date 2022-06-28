@@ -8,9 +8,14 @@ parameters:
   - name: azureSubscription
     type: string
 
+  - name: addTaskName
+    type: boolean
+    default: true
+
 steps:
     - task: AzureCLI@2
-      name: RemoveFirewallRule
+      ${{ if eq(parameters.addTaskName, true) }}:
+        name: RemoveFirewallRule
       displayName: Remove SQL Firewall Rule
       condition: eq(variables['AddFirewallRule.fwRuleAdded'], 'yes')
       continueOnError: false
