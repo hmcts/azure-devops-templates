@@ -3,14 +3,27 @@ parameters:
     type: string
   - name: sqlServerName
     type: string
+  - name: sqlServerResourceGroup
+    type: string
   - name: username
     type: string
   - name: roles
     type: object
   - name: databaseName
     type: string
+  - name: sqlfirewallRequired
+    type: bool
+    default: false
 
 steps:
+
+  - ${{ if eq(parameters.sqlfirewallRequired, true) }}:
+    - template: ..//Firewall/addSqlFirewallRule.yaml
+      parameters:
+        sqlServerResourceGroup: ${{ parameters.sqlServerResourceGroup }}
+        sqlServerName: ${{ parameters.sqlServerName }}
+        azureSubscription: ${{ parameters.azureSubscription }}
+
   - task: AzureCLI@2
     displayName: "Grant ${{ parameters.username }} access to ${{ parameters.sqlServerName}}/${{ parameters.databaseName }}"
     inputs:
@@ -57,3 +70,10 @@ steps:
       databaseName: ${{ parameters.databaseName }}
 
 
+
+  - ${{ if eq(parameters.sqlfirewallRequired, true) }}:
+    - template: ../Firewall/removeSqlFirewallRule.yaml
+      parameters:
+        sqlServerResourceGroup: ${{ parameters.sqlServerResourceGroup }}
+        sqlServerName: ${{ parameters.sqlServerName }}
+        azureSubscription: ${{ parameters.azureSubscription }}
