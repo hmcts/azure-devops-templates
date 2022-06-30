@@ -39,7 +39,7 @@ steps:
       verbosityLevel: Minimal
 
   - task: DotNetCoreCLI@2
-    displayName: Create Build NuGet Project
+    displayName: Build NuGet Project
     inputs:
       ${{ if eq(parameters.packageVersion, '') }}:
         arguments: '--configuration release /p:Version="$(GitVersion.NuGetVersion)" /p:PackageOutputPath="$(Build.ArtifactStagingDirectory)/NugetPackages"'
@@ -56,7 +56,7 @@ steps:
 #      archiveFile: '$(Build.ArtifactStagingDirectory)/packages-$(GitVersion.Major)-$(GitVersion.Minor)-$(GitVersion.Patch)-$(GitVersion.PreReleaseTag).zip'
 
   - task: PublishPipelineArtifact@1
-    displayName: 'Publish Terraform Artifacts'
+    displayName: 'Publish Artifacts'
     inputs:
       targetPath: '$(Build.ArtifactStagingDirectory)/NugetPackages'
       publishLocation: pipeline
