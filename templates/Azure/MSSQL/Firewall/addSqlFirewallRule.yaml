@@ -8,14 +8,9 @@ parameters:
   - name: azureSubscription
     type: string
 
-  - name: addTaskName
-    type: boolean
-    default: true
-
 steps:
     - task: AzureCLI@2
-      ${{ if eq(parameters.addTaskName, true) }}:
-        name: AddFirewallRule
+      name: AddFirewallRule
       displayName: Add SQL Firewall Rule
       continueOnError: false
       inputs:

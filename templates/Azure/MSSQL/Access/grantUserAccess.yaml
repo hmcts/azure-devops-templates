@@ -3,27 +3,14 @@ parameters:
     type: string
   - name: sqlServerName
     type: string
-  - name: sqlServerResourceGroup
-    type: string
   - name: username
     type: string
   - name: roles
     type: object
-  - name: databaseName
-    type: string
-  - name: sqlfirewallRequired
-    type: boolean
-    default: false
+  - name: databaseNames
+    type: object
 
 steps:
-
-  - ${{ if eq(parameters.sqlfirewallRequired, true) }}:
-    - template: ..//Firewall/addSqlFirewallRule.yaml
-      parameters:
-        sqlServerResourceGroup: ${{ parameters.sqlServerResourceGroup }}
-        sqlServerName: ${{ parameters.sqlServerName }}
-        azureSubscription: ${{ parameters.azureSubscription }}
-        addTaskName: false
 
   - task: AzureCLI@2
     displayName: "Grant ${{ parameters.username }} access to ${{ parameters.sqlServerName}}/${{ parameters.databaseName }}"
@@ -36,11 +23,9 @@ steps:
         $roles = $($env:roles) | ConvertFrom-Json
 
         $sql_fqdn = "$($env:sqlServerName).database.windows.net"
-        $database_name = "$($env:databaseName)"
+        $database_names = $($env:databaseNames) | ConvertFrom-Json
 
-        $clientId= "$($env:servicePrincipalId)"
-        Write-Host "Client ID used: $clientId"
-        $token=$(az account get-access-token --resource=https://database.windows.net --query accessToken --output tsv)
+        $token = $(az account get-access-token --resource=https://database.windows.net --query accessToken --output tsv)
 
         if (-not $(Get-Module SqlServer -ListAvailable)) { 
             Write-Host "Not got sqlServer Installed" 
@@ -48,10 +33,12 @@ steps:
             Install-Module -Name SqlServer -Scope CurrentUser -Force
         }
 
-        Write-Host "Grant $username access to $database_name in $sql_fqdn"
-        Write-Host "with roles $($roles | ConvertTo-Json)"
+        foreach ($database_name in $database_names) {
 
-        $query = "IF NOT EXISTS (
+            Write-Host "Grant $username access to $database_name in $sql_fqdn"
+            Write-Host "with roles $($roles | ConvertTo-Json)"
+
+            $query = "IF NOT EXISTS (
             SELECT  [name]
             FROM    sys.database_principals
             WHERE   [name] = '$username'
@@ -60,22 +47,14 @@ steps:
             create user [$username] from external provider;
         END;"
 
+            foreach ($role in $roles) {
+                $query += "alter role $role add member [$username];"
+            }
 
-        foreach ($role in $roles) {
-            $query += "alter role $role add member [$username];"
+            Invoke-SqlCmd -ServerInstance $sql_fqdn -Database $database_name -Query $query -AccessToken $token 
         }
-
-        Invoke-SqlCmd -ServerInstance $sql_fqdn -Database $database_name -Query $query -AccessToken $token 
     env:
       username: ${{ parameters.username }}
       roles: ${{ converttojson(parameters.roles) }}
       sqlServerName: ${{ parameters.sqlServerName }}
-      databaseName: ${{ parameters.databaseName }}
-
-  - ${{ if eq(parameters.sqlfirewallRequired, true) }}:
-    - template: ../Firewall/removeSqlFirewallRule.yaml
-      parameters:
-        sqlServerResourceGroup: ${{ parameters.sqlServerResourceGroup }}
-        sqlServerName: ${{ parameters.sqlServerName }}
-        azureSubscription: ${{ parameters.azureSubscription }}
-        addTaskName: false
+      databaseNames: ${{ parameters.databaseNames }}
