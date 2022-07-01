@@ -14,6 +14,9 @@ parameters:
     default: ''
 
 steps:
+  - powershell: |
+      Write-Host "##vso[task.setvariable variable=BuildNum;]$(Build.BuildNumber)"
+    displayName: Get Build.BuildNumber
 
   - ${{ if eq(parameters.packageVersion, '') }}:
     - task: gitversion/setup@0
@@ -39,7 +42,7 @@ steps:
       verbosityLevel: Minimal
 
   - task: DotNetCoreCLI@2
-    displayName: Create Build NuGet Project
+    displayName: Build NuGet Project
     inputs:
       ${{ if eq(parameters.packageVersion, '') }}:
         arguments: '--configuration release /p:Version="$(GitVersion.NuGetVersion)" /p:PackageOutputPath="$(Build.ArtifactStagingDirectory)/NugetPackages"'
@@ -48,17 +51,13 @@ steps:
       versioningScheme: byBuildNumber
       projects: '${{ parameters.nugetProjectPath }}/*.csproj'
       
-#  - task: ArchiveFiles@2
-#    displayName: 'Zip Terraform Files'
-#    inputs:
-#      rootFolderOrFile: '$(Build.ArtifactStagingDirectory)/NugetPackages'
-#      archiveType: zip
-#      archiveFile: '$(Build.ArtifactStagingDirectory)/packages-$(GitVersion.Major)-$(GitVersion.Minor)-$(GitVersion.Patch)-$(GitVersion.PreReleaseTag).zip'
-
   - task: PublishPipelineArtifact@1
-    displayName: 'Publish Terraform Artifacts'
+    displayName: 'Publish Artifacts'
     inputs:
       targetPath: '$(Build.ArtifactStagingDirectory)/NugetPackages'
       publishLocation: pipeline
       artifact: 'NugetPackages'
 
+  - powershell: |
+      Write-Host "##vso[build.updatebuildnumber]$(BuildNum)"
+    displayName: Set Build.BuildNumber
