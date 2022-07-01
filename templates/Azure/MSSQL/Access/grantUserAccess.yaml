@@ -13,7 +13,7 @@ parameters:
 steps:
 
   - task: AzureCLI@2
-    displayName: "Grant ${{ parameters.username }} access to ${{ parameters.sqlServerName}}/${{ parameters.databaseName }}"
+    displayName: "Grant ${{ parameters.username }} access to ${{ parameters.sqlServerName}}"
     inputs:
       azureSubscription: ${{ parameters.azureSubscription }}
       scriptType: pscore
