@@ -39,7 +39,7 @@ steps:
         $database_name = "$($env:databaseName)"
 
         $clientId= "$($env:servicePrincipalId)"
-        Wirte-Host "Client ID used: $clientId"
+        Write-Host "Client ID used: $clientId"
         $token=$(az account get-access-token --resource=https://database.windows.net --query accessToken --output tsv)
 
         if (-not $(Get-Module SqlServer -ListAvailable)) { 
