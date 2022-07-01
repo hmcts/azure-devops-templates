@@ -1,0 +1,60 @@
+parameters:
+  - name: azureSubscription
+    type: string
+  - name: sqlServerName
+    type: string
+  - name: username
+    type: string
+  - name: roles
+    type: object
+  - name: databaseNames
+    type: object
+
+steps:
+
+  - task: AzureCLI@2
+    displayName: "Grant ${{ parameters.username }} access to ${{ parameters.sqlServerName}}"
+    inputs:
+      azureSubscription: ${{ parameters.azureSubscription }}
+      scriptType: pscore
+      scriptLocation: inlineScript
+      inlineScript: |
+        $username = "$($env:username)"
+        $roles = $($env:roles) | ConvertFrom-Json
+
+        $sql_fqdn = "$($env:sqlServerName).database.windows.net"
+        $database_names = $($env:databaseNames) | ConvertFrom-Json
+
+        $token = $(az account get-access-token --resource=https://database.windows.net --query accessToken --output tsv)
+
+        if (-not $(Get-Module SqlServer -ListAvailable)) { 
+            Write-Host "Not got sqlServer Installed" 
+            Write-Host "Installing now"
+            Install-Module -Name SqlServer -Scope CurrentUser -Force
+        }
+
+        foreach ($database_name in $database_names) {
+
+            Write-Host "Grant $username access to $database_name in $sql_fqdn"
+            Write-Host "with roles $($roles | ConvertTo-Json)"
+
+            $query = "IF NOT EXISTS (
+            SELECT  [name]
+            FROM    sys.database_principals
+            WHERE   [name] = '$username'
+        )
+        BEGIN
+            create user [$username] from external provider;
+        END;"
+
+            foreach ($role in $roles) {
+                $query += "alter role $role add member [$username];"
+            }
+
+            Invoke-SqlCmd -ServerInstance $sql_fqdn -Database $database_name -Query $query -AccessToken $token 
+        }
+    env:
+      username: ${{ parameters.username }}
+      roles: ${{ converttojson(parameters.roles) }}
+      sqlServerName: ${{ parameters.sqlServerName }}
+      databaseNames: ${{ converttojson(parameters.databaseNames)  }}
