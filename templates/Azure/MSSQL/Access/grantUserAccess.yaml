@@ -57,4 +57,4 @@ steps:
       username: ${{ parameters.username }}
       roles: ${{ converttojson(parameters.roles) }}
       sqlServerName: ${{ parameters.sqlServerName }}
-      databaseNames: ${{ parameters.databaseNames }}
+      databaseNames: ${{ converttojson(parameters.databaseNames)  }}
