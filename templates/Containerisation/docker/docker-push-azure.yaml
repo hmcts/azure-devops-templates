@@ -18,13 +18,19 @@ steps:
       scriptType: 'pscore'
       scriptLocation: 'inlineScript'
       inlineScript: |
-        $tags=$($env:tags) | ConvertFrom-Json
-        $repositoryName="$($env:repositoryName)"
-        $imageName="$($env:imageName)"
-        $acrName="$($env:acrName)"
+        $tags= $env:tags | ConvertFrom-Json
+        $repositoryName=$env:repositoryName
+        $imageName=$env:imageName
+        $acrName=$env:acrName
+
+        Write-Host "$tags"
+        Write-Host "$repositoryName"
+        Write-Host "$imageName"
+        Write-Host "$acrName"
 
         Write-Host "List Images"
         docker images
+
         Write-Host "Sign Into ACR $acrName"
         az acr login --name $acrName
 
@@ -39,9 +45,9 @@ steps:
           $newTag= $tag -replace "#{DATETIME}#", $date -replace "#{SHORTCOMMITID}#", $shorterCommitId
           Write-Host "New Tag $newTag"
 
-          $imageTag="$acrName.azurecr.io/$repositoryName`:$newTag"
-          Write-Host "Retag $imageName`:latest to $imageTag"
-          docker tag $imageName:latest $imageTag
+          $imageTag="$acrName.azurecr.io/${repositoryName}:$newTag"
+
+          docker tag $imageName $imageTag
           
           Write-Host "Push $imageTag"
           docker push $imageTag
