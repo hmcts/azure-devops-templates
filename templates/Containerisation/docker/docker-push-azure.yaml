@@ -12,6 +12,22 @@ parameters:
 
 steps:
   - ${{ each tag in parameters.imageTags }}:
+
+    - powershell: |
+        $recievedTag="${{ tag }}"
+        Write-Host "Tag before $recievedTag"
+        
+        $date=$(Get-Date -Format yyyyMMddhhmm);
+        $commitId="$(Build.SourceVersion)"
+        $shorterCommitId=$commitId.SubString(0,7)
+
+        $newTag= $recievedTag -replace "#{DATETIME}#", $date -replace "#{SHORTCOMMITID}#", $shorterCommitId
+        Write-Host "Tag after $newTag"
+
+        Write-Host "##vso[task.setvariable variable=name;isOutput=true]$newTag"
+      displayName: Set Tag
+      name: tag
+
     - task: AzureCLI@2
       displayName: 'Push ${{ parameters.imageName }}:${{ tag }} to ${{ parameters.acrName }}'
       inputs:
@@ -28,4 +44,4 @@ steps:
         acrName: "${{ parameters.acrName }}"
         repositoryName: "${{ parameters.repositoryName }}"
         imageName: "${{ parameters.imageName }}"
-        tag: "${{ tag }}"
+        tag: "$(tag.name)"
