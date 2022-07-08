@@ -18,7 +18,7 @@ steps:
       scriptType: 'pscore'
       scriptLocation: 'inlineScript'
       inlineScript: |
-        $tags=$($env:repositoryName) | ConvertFrom-Json
+        $tags=$($env:tags) | ConvertFrom-Json
         $repositoryName="$($env:repositoryName)"
         $imageName="$($env:imageName)"
         $acrName="$($env:acrName)"
