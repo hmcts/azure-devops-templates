@@ -30,7 +30,7 @@ steps:
           Write-Host "No Lease Found on $blobName"
         }
         else {
-          az storage blob lease break --blob-name $blobName --container-name $containerName --account-name $storageAccountName --account-key "SsKO1RqbNEvPcdrIom3F8vOmSkmz4RVDLkO5lSN6/DC3Abin7GkdbYbO4GdHh9S5vgEzJ2m5dOEDN9+OXR/f2w=="
+          az storage blob lease break --blob-name $blobName --container-name $containerName --account-name $storageAccountName
         }
 
     env:
