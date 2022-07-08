@@ -30,13 +30,13 @@ steps:
 
         foreach ($tag in $tags){
 
-          Write-Host "Process Tag $recievedTag"
+          Write-Host "Process Tag $tag"
 
           $date=$(Get-Date -Format yyyyMMddhhmm);
           $commitId="$(Build.SourceVersion)"
           $shorterCommitId=$commitId.SubString(0,7)
 
-          $newTag= $recievedTag -replace "#{DATETIME}#", $date -replace "#{SHORTCOMMITID}#", $shorterCommitId
+          $newTag= $tag -replace "#{DATETIME}#", $date -replace "#{SHORTCOMMITID}#", $shorterCommitId
           Write-Host "New Tag $newTag"
 
           $imageTag="$acrName.azurecr.io/$repositoryName`:$newTag"
