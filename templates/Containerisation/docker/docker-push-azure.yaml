@@ -11,37 +11,44 @@ parameters:
     type: object
 
 steps:
-  - ${{ each tag in parameters.imageTags }}:
+  - task: AzureCLI@2
+    displayName: 'Push ${{ parameters.imageName }} to ${{ parameters.acrName }}'
+    inputs:
+      azureSubscription: '${{ parameters.azureSubscription }}'
+      scriptType: 'pscore'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        $tags=$($env:repositoryName) | ConvertFrom-Json
+        $repositoryName="$($env:repositoryName)"
+        $imageName="$($env:imageName)"
+        $acrName="$($env:acrName)"
 
-    - powershell: |
-        $recievedTag="${{ tag }}"
-        Write-Host "Tag before $recievedTag"
-        
-        $date=$(Get-Date -Format yyyyMMddhhmm);
-        $commitId="$(Build.SourceVersion)"
-        $shorterCommitId=$commitId.SubString(0,7)
+        Write-Host "List Images"
+        docker images
+        Write-Host "Sign Into ACR $acrName"
+        az acr login --name $acrName
 
-        $newTag= $recievedTag -replace "#{DATETIME}#", $date -replace "#{SHORTCOMMITID}#", $shorterCommitId
-        Write-Host "Tag after $newTag"
+        foreach ($tag in $tags){
 
-        Write-Host "##vso[task.setvariable variable=name;isOutput=true]$newTag"
-      displayName: Set Tag
-      name: tag
+          Write-Host "Process Tag $recievedTag"
 
-    - task: AzureCLI@2
-      displayName: 'Push ${{ parameters.imageName }}:${{ tag }} to ${{ parameters.acrName }}'
-      inputs:
-        azureSubscription: '${{ parameters.azureSubscription }}'
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-          docker tag $imageName:latest $acrName.azurecr.io/$repositoryName:${tag}
-    
-          docker images
-          az acr login --name sdshmctspublic
-          docker push $acrName.azurecr.io/$repositoryName:${tag}
-      env:
-        acrName: "${{ parameters.acrName }}"
-        repositoryName: "${{ parameters.repositoryName }}"
-        imageName: "${{ parameters.imageName }}"
-        tag: "$(tag.name)"
+          $date=$(Get-Date -Format yyyyMMddhhmm);
+          $commitId="$(Build.SourceVersion)"
+          $shorterCommitId=$commitId.SubString(0,7)
+
+          $newTag= $recievedTag -replace "#{DATETIME}#", $date -replace "#{SHORTCOMMITID}#", $shorterCommitId
+          Write-Host "New Tag $newTag"
+
+          $imageTag="$acrName.azurecr.io/$repositoryName`:$newTag"
+          Write-Host "Retag $imageName`:latest to $imageTag"
+          docker tag $imageName:latest $imageTag
+          
+          Write-Host "Push $imageTag"
+          docker push $imageTag
+        }
+
+    env:
+      acrName: "${{ parameters.acrName }}"
+      repositoryName: "${{ parameters.repositoryName }}"
+      imageName: "${{ parameters.imageName }}"
+      tags: ${{ convertToJson(parameters.imageTags) }}
