@@ -44,8 +44,10 @@ steps:
       command: restore
       projects: ${{ parameters.nugetProjectPath }}/*.csproj
       ${{ if ne(parameters.vstsFeed, '') }}:
+        feedsToUse: select
         vstsFeed: ${{ parameters.vstsFeed }}
       ${{ else }}:
+        feedsToUse: config 
         nugetConfigPath: ${{ parameters.nugetConfigFile }}
       verbosityLevel: Minimal
 
