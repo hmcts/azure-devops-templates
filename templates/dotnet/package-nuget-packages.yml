@@ -8,8 +8,13 @@ parameters:
 
   - name: vstsFeed
     type: string
+    default: ''
 
   - name: gitVersionConfigPath
+    type: string
+    default: ''
+  
+  - name: nugetConfigFile
     type: string
     default: ''
 
@@ -38,7 +43,12 @@ steps:
     inputs:
       command: restore
       projects: ${{ parameters.nugetProjectPath }}/*.csproj
-      vstsFeed: ${{ parameters.vstsFeed }}
+      ${{ if ne(parameters.vstsFeed, '') }}:
+        feedsToUse: select
+        vstsFeed: ${{ parameters.vstsFeed }}
+      ${{ else }}:
+        feedsToUse: config 
+        nugetConfigPath: ${{ parameters.nugetConfigFile }}
       verbosityLevel: Minimal
 
   - task: DotNetCoreCLI@2
