@@ -1,7 +1,7 @@
 parameters:
   - name: vstsFeedId
     type: string
-    default: 'Video Hearings/vh-packages'
+    default: ''
 
   - name: useNugetConfig
     type: boolean
