@@ -66,6 +66,13 @@ steps:
           secretKeyName: ${{ setting.value }}
           taskName: ${{ replace(setting.value, '-', '_') }}
 
+  - powershell: |
+      dotnet test "$(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll" --logger trx --logger console --settings "$(Pipeline.Workspace)/AcceptanceTests/parameters.runSettings"
+    env:
+    ${{ each setting in parameters.acceptanceTestSettings }}:
+      ${{ upper(replace(setting.name, ':', '__')) }}: ${{ setting.value }}
+
+
   - template: replace-app-settings.yml
     parameters:
       app_settings_path: $(Pipeline.Workspace)/AcceptanceTests/appsettings.json
