@@ -1,0 +1,43 @@
+parameters:
+  - name: subscription
+    type: string
+  - name: publisher
+    type: string
+  - name: offer
+    type: string
+  - name: sku
+    type: string
+  - name: version
+    type: string
+    default: ""
+
+steps:
+  - task: AzureCLI@2
+    displayName: Accept ${{ parameters.publisher }}:${{ parameters.offer }}:${{ parameters.sku }}:${{ parameters.version }}
+    condition: always()
+    continueOnError: true
+    inputs:
+      azureSubscription: ${{ parameters.subscription }}
+      scriptType: pscore
+      scriptLocation: inlineScript
+      inlineScript: |
+      $publisher="$($env:publisher)"
+      $offer="$($env:offer)"
+      $sku="$($env:sku)"
+      $version="$($env:version)"
+
+      if ($null -eq $version -or $version -eq "") {
+        $offerings = az vm image list -p $publisher -s $sku --all --query "[?offer=='$offer']" -o json | ConvertFrom-Json
+        
+        foreach ($offering in $offerings){
+          az vm image terms accept --urn $publisher`:$offer`:$sku`:$($offering.version)
+        }
+
+      } else {
+        az vm image terms accept --urn $publisher`:$offer`:$sku`:$version
+      }
+    env:
+      publisher: ${{ parameters.publisher }}
+      offer: ${{ parameters.offer }}
+      sku: ${{ parameters.sku }}
+      version: ${{ parameters.version }}
