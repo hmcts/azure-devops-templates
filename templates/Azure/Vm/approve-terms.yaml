@@ -19,23 +19,23 @@ steps:
       scriptType: pscore
       scriptLocation: inlineScript
       inlineScript: |
-      $publisher="$($env:publisher)"
-      $offer="$($env:offer)"
-      $sku="$($env:sku)"
-      $version="$($env:version)"
+        $publisher="$($env:image_publisher)"
+        $offer="$($env:image_offer)"
+        $sku="$($env:image_sku)"
+        $version="$($env:image_version)"
 
-      if ($null -eq $version -or $version -eq "") {
-        $offerings = az vm image list -p $publisher -s $sku --all --query "[?offer=='$offer']" -o json | ConvertFrom-Json
-        
-        foreach ($offering in $offerings){
-          az vm image terms accept --urn $publisher`:$offer`:$sku`:$($offering.version)
+        if ($null -eq $version -or $version -eq "") {
+          $offerings = az vm image list -p $publisher -s $sku --all --query "[?offer=='$offer']" -o json | ConvertFrom-Json
+          
+          foreach ($offering in $offerings){
+            az vm image terms accept --urn $publisher`:$offer`:$sku`:$($offering.version)
+          }
+
+        } else {
+          az vm image terms accept --urn $publisher`:$offer`:$sku`:$version
         }
-
-      } else {
-        az vm image terms accept --urn $publisher`:$offer`:$sku`:$version
-      }
     env:
-      publisher: ${{ parameters.publisher }}
-      offer: ${{ parameters.offer }}
-      sku: ${{ parameters.sku }}
-      version: ${{ parameters.version }}
+      image_publisher: ${{ parameters.publisher }}
+      image_offer: ${{ parameters.offer }}
+      image_sku: ${{ parameters.sku }}
+      image_version: ${{ parameters.version }}
