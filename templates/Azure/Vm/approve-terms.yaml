@@ -13,7 +13,7 @@ parameters:
 
 steps:
   - task: AzureCLI@2
-    displayName: Accept ${{ parameters.publisher }}:${{ parameters.offer }}:${{ parameters.sku }}:${{ parameters.version }}
+    displayName: Accept ${{ parameters.publisher }} ${{ parameters.offer }} ${{ parameters.sku }} ${{ parameters.version }}
     condition: always()
     continueOnError: true
     inputs:
