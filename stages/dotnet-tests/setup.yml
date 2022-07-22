@@ -40,7 +40,7 @@ steps:
     inputs:
       command: restore
       projects: ${{ parameters.testProjectPath }}/*.csproj
-      restoreArguments: --locked-mode --use-lock-file
+      restoreArguments: --force-evaluate
       ${{ if ne(parameters.nugetConfigPath, '') }}:
         feedsToUse: config
         nugetConfigPath: ${{ parameters.nugetConfigPath }}/nuget.config

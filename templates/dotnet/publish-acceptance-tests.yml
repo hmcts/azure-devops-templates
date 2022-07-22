@@ -1,7 +1,7 @@
 parameters:
   - name: vstsFeedId
     type: string
-    default: 'Video Hearings/vh-packages'
+    default: ''
 
   - name: useNugetConfig
     type: boolean
@@ -33,6 +33,10 @@ parameters:
 
 steps:
 - checkout: self
+
+- powershell: |
+    Write-Host "##vso[task.setvariable variable=BuildNum;]$(Build.BuildNumber)"
+  displayName: Get Build.BuildNumber
 
 - bash: |
     dotnet tool install --global GitVersion.Tool --version 5.6.0 
@@ -96,3 +100,7 @@ steps:
   inputs:
     PathtoPublish: $(Build.ArtifactStagingDirectory)/AcceptanceTests
     ArtifactName: AcceptanceTests
+
+- powershell: |
+    Write-Host "##vso[build.updatebuildnumber]$(BuildNum)"
+  displayName: Set Build.BuildNumber
