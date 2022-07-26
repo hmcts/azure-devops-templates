@@ -14,7 +14,7 @@ parameters:
   infraKeyVaultName: ''
   infraSecretsFilter: ''
   nodeVersion: '8.11.4'
-  dotNetCoreVersion: '6.x.x'
+  dotNetCoreVersion: '6.x'
 
 jobs:
 - job:

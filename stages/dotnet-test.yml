@@ -116,7 +116,7 @@ parameters:
 
   - name: netVersion
     type: string
-    default: '6.x.x'
+    default: '6.x'
 
 stages:
   - stage: Test
