@@ -17,6 +17,9 @@ parameters:
     type: string
   - name: recordName
     type: string
+  - name: serviceName
+    type: string
+    default: traefik
 
 steps:
 
@@ -25,6 +28,7 @@ steps:
       subscriptionName: ${{ parameters.aksSubscriptionName }}
       resourceGroupName: ${{ parameters.aksResourceGroupName }}
       clusterName: ${{ parameters.aksClusterName }}
+      serviceName: ${{ parameters.serviceName }}
 
   - template: private-dns-add.yaml
     parameters:
