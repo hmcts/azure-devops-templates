@@ -43,7 +43,9 @@ parameters:
       type: string
     - name: dnsRecordName
       type: string
-
+    - name: serviceName
+      type: string
+      default: traefik
 
 steps:
         
@@ -93,6 +95,7 @@ steps:
         dnsResourceGroupName: "${{ parameters.dnsResourceGroupName }}"
         zoneName: ${{ parameters.dnsZone }}
         recordName: ${{ parameters.dnsRecordName }}
+        serviceName: ${{ parameters.serviceName }}
 
     - template: ..\..\Azure\Common\get-service-connection-details.yaml
       parameters:
