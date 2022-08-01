@@ -21,6 +21,10 @@ parameters:
   - name: githubEmail
     type: string
 
+  - name: excludeFiles
+    type: string
+    default: 'values.demo.template.yaml;values.dev.template.yaml'
+
 steps:
   - bash: |
       CHART_DIRECTORY="${chartPath}"
@@ -106,12 +110,29 @@ steps:
           fi
           echo "-------------------"
 
+
+
           if [ -e ${hmcts_chart_root}/${hmcts_chart_directory}/requirements.lock ]; then
             rm -f ${hmcts_chart_root}/${hmcts_chart_directory}/requirements.lock
             if [[ $? -ne 0 ]]; then
               echo "Unable to delete ${hmcts_chart_root}/${hmcts_chart_directory}/requirements.lock " 1>&2
             fi
           fi
+          echo "-------------------"
+
+          IFS=';' read -ra FILES <<< "$exclusions"
+          for file in "${FILES[@]}"; do
+            if [ -f ${hmcts_chart_root}/${hmcts_chart_directory}/$file ]; then
+            
+              echo "Removing ${hmcts_chart_root}/${hmcts_chart_directory}/$file"
+              rm -f ${hmcts_chart_root}/${hmcts_chart_directory}/$file
+
+              if [[ $? -ne 0 ]]; then
+                echo "Unable to delete ${hmcts_chart_root}/${hmcts_chart_directory}/$file " 1>&2
+              fi
+            fi
+          done
+
           echo "-------------------"
 
           git remote set-url origin $(git config remote.origin.url | sed "s/github.com/${githubUsername}:${githubToken}@github.com/g")
@@ -161,4 +182,5 @@ steps:
       githubUsername: ${{ parameters.githubUsername }}
       githubEmail: ${{ parameters.githubEmail }}
       subDirectory: ${{ parameters.subDirectory }}
-    displayName: Push chart to heml-chart repo
+      exclusions: ${{ parameters.excludeFiles }}
+    displayName: Push chart to helm-chart repo
