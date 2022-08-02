@@ -1,0 +1,72 @@
+parameters:
+  - name: unitTestProjectPath
+    type: string
+  
+  - name: useNugetConfig
+    type: boolean
+    default: false
+
+  - name: nugetConfigPath
+    type: string
+    default: ''
+
+  - name: vstsFeed
+    type: string
+    default: ''
+
+  - name: nodeVersion
+    type: string
+    default: '16.x'
+
+  - name: strykerBreak
+    type: number
+    default: -1
+
+  - name: strykerHigh
+    type: number
+    default: -1
+
+  - name: strykerLow
+    type: number
+    default: -1
+
+  - name: dotnetVersion
+    type: string
+    default: '3.1.x'
+
+steps:
+- checkout: self
+
+- task: UseDotNet@2
+  displayName: 'Install .NET Core SDK'
+  inputs:
+    packageType: sdk
+    version: ${{ parameters.dotnetVersion }}
+
+- task: NodeTool@0
+  displayName: Install Node Version
+  inputs:
+    versionSpec:  ${{ parameters.nodeVersion }}
+
+- task: DotNetCoreCLI@2
+  displayName: dotnet restore
+  inputs:
+    command: restore
+    projects: ${{ parameters.unitTestProjectPath }}/*.csproj
+    restoreArguments: --locked-mode --use-lock-file
+    ${{ if eq(parameters.useNugetConfig, true) }}:
+      feedsToUse: config
+      nugetConfigPath: ${{ parameters.nugetConfigPath }}/nuget.config
+    ${{ if eq(parameters.useNugetConfig, false) }}:
+      vstsFeed: ${{ parameters.vstsFeedId }}
+      includeNuGetOrg: true
+
+- template: ../templates/tests/stryker.yml
+  parameters:
+    path: ${{ parameters.unitTestProjectPath }}
+    ${{ if ge(parameters.strykerBreak, 0)}}:
+      breakThreshold: ${{ parameters.strykerBreak }}
+    ${{ if ge(parameters.strykerHigh, 0)}}:
+      highThreshold: ${{ parameters.strykerHigh }}
+    ${{ if ge(parameters.strykerLow, 0)}}:
+      lowThreshold: ${{ parameters.strykerLow }}
