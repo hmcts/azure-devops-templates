@@ -61,7 +61,7 @@ steps:
       vstsFeed: ${{ parameters.vstsFeedId }}
       includeNuGetOrg: true
 
-- template: ../templates/tests/stryker.yml
+- template: /templates/tests/stryker.yml
   parameters:
     path: ${{ parameters.unitTestProjectPath }}
     ${{ if ge(parameters.strykerBreak, 0)}}:
