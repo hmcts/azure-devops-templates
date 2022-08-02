@@ -52,7 +52,7 @@ steps:
   displayName: dotnet restore
   inputs:
     command: restore
-    projects: ${{ parameters.unitTestProjectPath }}/*.UnitTests.csproj
+    projects: ${{ parameters.unitTestProjectPath }}/TestWeb.UnitTests.csproj
     restoreArguments: --force-evaluate
     ${{ if eq(parameters.useNugetConfig, true) }}:
       feedsToUse: config
