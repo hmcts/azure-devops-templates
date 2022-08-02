@@ -35,8 +35,6 @@ parameters:
     default: '3.1.x'
 
 steps:
-- checkout: self
-
 - task: UseDotNet@2
   displayName: 'Install .NET Core SDK'
   inputs:
@@ -49,7 +47,7 @@ steps:
     versionSpec:  ${{ parameters.nodeVersion }}
 
 - task: DotNetCoreCLI@2
-  displayName: dotnet restore
+  displayName: Restore .NET Project(s)
   inputs:
     command: restore
     projects: ${{ parameters.unitTestProjectPath }}/*.csproj
