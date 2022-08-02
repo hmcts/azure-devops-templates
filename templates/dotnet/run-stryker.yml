@@ -52,8 +52,8 @@ steps:
   displayName: dotnet restore
   inputs:
     command: restore
-    projects: ${{ parameters.unitTestProjectPath }}/*.csproj
-    restoreArguments: --locked-mode --use-lock-file
+    projects: ${{ parameters.unitTestProjectPath }}/*.UnitTests.csproj
+    restoreArguments: --force-evaluate
     ${{ if eq(parameters.useNugetConfig, true) }}:
       feedsToUse: config
       nugetConfigPath: ${{ parameters.nugetConfigPath }}/nuget.config
