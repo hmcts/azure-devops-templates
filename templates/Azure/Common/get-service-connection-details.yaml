@@ -10,6 +10,7 @@ steps:
       azureSubscription: '${{ parameters.subscriptionName }}'
       scriptType: 'pscore'
       scriptLocation: 'inlineScript'
+      addSpnToEnvironment: true
       inlineScript: |
         Write-Host "##vso[task.setvariable variable=ARM_CLIENT_ID;isOutput=true]$($env:servicePrincipalId)"
         Write-Host "##vso[task.setvariable variable=ARM_CLIENT_SECRET;isOutput=true]$($env:servicePrincipalKey)"
