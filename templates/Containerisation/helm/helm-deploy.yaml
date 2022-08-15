@@ -39,6 +39,7 @@ steps:
       echo $aksName
       echo $aksRg
       echo $azureSubscription
+    displayName: Print AKS Properties
     env: 
       aksName: ${{ parameters.kubernetesCluster }}
       aksRg: ${{ parameters.kubernetesRG }}
