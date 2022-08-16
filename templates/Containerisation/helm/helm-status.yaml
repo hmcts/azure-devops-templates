@@ -32,7 +32,7 @@ steps:
 
         Write-Host "##[section]Looking for HELM Release '$releaseName'."
         
-        $releases = $(helm list --namespace $namespace -o json | ConvertFrom-Json) | Where-Object {$_.name -eq $releaseName}
+        $releases = $(helm list --all --namespace $namespace -o json | ConvertFrom-Json) | Where-Object {$_.name -eq $releaseName}
 
         $statusResult = ""
         $exists = $true
