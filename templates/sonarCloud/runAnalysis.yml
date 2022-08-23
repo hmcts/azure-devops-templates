@@ -1,4 +1,12 @@
 steps:
+
+  - powershell: |
+      Write-Host "Test Dir"
+      ls $(Common.TestResultsDirectory)
+      Write-Host "Code Coverage"
+      ls $(Common.TestResultsDirectory)\Coverage
+    displayName: Test Dir
+
   - task: SonarCloudAnalyze@1
     displayName: 'Run Code Analysis'
   

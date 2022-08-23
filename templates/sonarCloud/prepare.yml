@@ -15,7 +15,7 @@ steps:
       displayName: Set Sonar Cloud Project Key
 
     - powershell: |
-        Write-Output ${{ parameters.ExtraProperties }}
+        Write-Host ${{ parameters.ExtraProperties }}
       displayName: Sonar Cloud Extras
 
   - task: SonarCloudPrepare@1
