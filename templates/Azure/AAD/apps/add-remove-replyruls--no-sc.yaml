@@ -22,6 +22,12 @@ parameters:
   - name: domainUris
     type: string
     default: "/"
+  - name: appType
+    type: string
+    default: "spa"
+    values:
+      - "spa"
+      - "web"
 
 steps:  
   - powershell: |
@@ -47,9 +53,9 @@ steps:
         $action="${{ parameters.action }}"
         $newDomain = "${{ parameters.domain }}"
         $domainUris = "${{ parameters.domainUris }}".Split(",")
+        $appType= "${{ parameters.appType }}"
 
-        $replyUrls = az ad app show --id $appId --query "replyUrls" -o json | ConvertFrom-Json
-
+        $replyUrls = az ad app show --id $appId --query "$appType.redirectUris" -o json | ConvertFrom-Json
         Write-Host "Found $($replyUrls.length) Reply URLs"
 
         if ($replyUrls -match $newDomain) {
@@ -71,10 +77,20 @@ steps:
           foreach ($uri in $domainUris) {
             $fullUrl = $newDomain + $uri
             Write-Host "Adding URL $fullUrl"
-            $replyUrls = $replyUrls + $fullUrl
+            $replyUrls += $fullUrl
           }
         }
 
-        az ad app update --id $appId --reply-urls $replyUrls
-        
+        $objectId = az ad app show --id $appId --query "id" -o tsv --only-show-errors
+        Write-Host "Object ID $objectId"
+
+        $restUrl = "https://graph.microsoft.com/v1.0/applications/$objectId"
+        Write-Host "Calling: $restUrl"
+
+        $replyUrlsStr = $replyUrls | ConvertTo-Json -Compress -Depth 100
+        $replyUrlsStr = $replyUrlsStr -replace "`"", "\`""
+        Write-Host "Body: $replyUrlsStr"
+
+        az rest --method PATCH --header "Content-Type=application/json" --uri $restUrl --body "{`"$appType`":{`"redirectUris`":$replyUrlsStr}}" --debug
+                
     displayName: '${{ parameters.action }} ${{ parameters.domain }} Reply URL to ${{ parameters.appId }} ${{ parameters.name }}'
