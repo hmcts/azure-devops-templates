@@ -1,7 +1,7 @@
 parameters:
   - name: dotnetCoreVersion
     type: string
-    default: '3.1.x'
+    default: '6.x'
   - name: unitTestProjectPath
     type: string
   - name: nugetPackagePath
