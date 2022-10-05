@@ -5,6 +5,9 @@ parameters:
     type: string
   - name: repositoryName
     type: string
+  - name: dockerComposeFile
+    type: string
+    default: "docker-compose.yml"
     
 steps:
   - task: AzureCLI@2
@@ -25,3 +28,4 @@ steps:
       projectName: '${{ parameters.acrName }}/${{ parameters.repositoryName }}'
       qualifyImageNames: false
       dockerComposeCommand: build
+      dockerComposeFile: '${{ parameters.dockerComposeFile }}'
