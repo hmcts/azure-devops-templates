@@ -1,0 +1,23 @@
+parameters:
+  - name: migrationsPath
+    type: string
+    default: "$(Build.SourcesDirectory)/migrations"
+  - name: sourceBranch
+    type: string
+    default: "orgin@master"
+
+steps:
+  - powershell: |
+      $sourceBranch="${{ parameters.sourceBranch }}"
+      $diffSourcePath="${{ parameters.migrationsPath }}"
+
+      $changes=$(git diff --name-only $sourceBranch --name-only -- $diffSourcePath)
+
+      if ($changes.length -gt 0){
+        Write-Host "Changes have been made to path $diffSourcePath"
+        Write-Host $changes
+      } else {
+        Write-Host "No Changes found in path $diffSourcePath"
+      }
+
+    displayName: 'Check for change in ${{ parameters.migrationsPath }} against ${{ parameters.sourceBranch }}'
