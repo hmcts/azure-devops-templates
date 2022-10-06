@@ -1,0 +1,20 @@
+parameters:
+  - name: migrsationsPath
+    type: string
+    default: "$(Build.SourcesDirectory)/migrations"
+  - name: sourceBranch
+    type: string
+    default: "orgin@master"
+
+steps:
+  - powershell: |
+      $outputPath="${{ parameters.outputPath }}"
+      $workingPath="${{ parameters.workingPath }}"
+      $projectName="${{ parameters.projectName }}"
+      
+      $contextName="${{ parameters.contextName }}"
+      $outputName="$contextName.sql"
+      
+      dotnet tool install --global dotnet-ef
+      dotnet ef migrations script --output "$outputPath/$outputName" --context $contextName --idempotent --project "$workingPath/$projectName" --startup-project "$workingPath/$projectName" -v
+    displayName: 'Generate ${{parameters.contextName}} Scripts'
