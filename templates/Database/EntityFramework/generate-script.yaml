@@ -19,12 +19,6 @@ steps:
         migrationsPath: $(System.DefaultWorkingDirectory)/BookingsApi/BookingsApi.DAL/Migrations
 
     - powershell: |
-        Write-Host $env:HadChange
-        
-      env:
-        HadChange: $(git.hasChanged)
-
-    - powershell: |
         $outputPath="${{ parameters.outputPath }}"
         $workingPath="${{ parameters.workingPath }}"
         $projectName="${{ parameters.projectName }}"
