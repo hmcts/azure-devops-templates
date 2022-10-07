@@ -4,7 +4,7 @@ parameters:
     default: "./**/migrations"
   - name: sourceBranch
     type: string
-    default: "orgin@master"
+    default: "orgin/master"
 
 steps:
   - powershell: |
