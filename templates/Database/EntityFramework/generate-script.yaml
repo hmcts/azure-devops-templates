@@ -14,7 +14,7 @@ parameters:
     default: 'true'
 
 steps:
-  - ${{ if eq(parameters.execute, 'true') }}:
+  - ${{ if eq(lower(parameters.execute), 'true') }}:
     - powershell: |
         $outputPath="${{ parameters.outputPath }}"
         $workingPath="${{ parameters.workingPath }}"
