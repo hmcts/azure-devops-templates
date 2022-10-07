@@ -1,7 +1,7 @@
 parameters:
   - name: migrationsPath
     type: string
-    default: "$(Build.SourcesDirectory)/migrations"
+    default: "./**/migrations"
   - name: sourceBranch
     type: string
     default: "orgin@master"
@@ -11,13 +11,24 @@ steps:
       $sourceBranch="${{ parameters.sourceBranch }}"
       $diffSourcePath="${{ parameters.migrationsPath }}"
 
-      $changes=$(git diff --name-only $sourceBranch --name-only -- $diffSourcePath)
+      $hasChanged = $false;
 
-      if ($changes.length -gt 0){
-        Write-Host "Changes have been made to path $diffSourcePath"
-        Write-Host $changes
-      } else {
-        Write-Host "No Changes found in path $diffSourcePath"
+      foreach ($path in $diffSourcePath) { 
+        Write-Host "Testing Path $path"
+
+        $changes = $(git diff --name-only $sourceBranch --name-only -- $path)
+
+        if ($changes.length -gt 0) {
+          Write-Host "Changes have been made to path $diffSourcePath"
+          Write-Host $changes
+          $hasChanged = $true
+        }
+        else {
+          Write-Host "No Changes found in path $diffSourcePath"
+        }
+
       }
+      Write-Host "##vso[task.setvariable variable=hasChanged;isOutput=true]$hasChanged"
 
     displayName: 'Check for change in ${{ parameters.migrationsPath }} against ${{ parameters.sourceBranch }}'
+    name: git
