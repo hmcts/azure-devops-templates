@@ -14,6 +14,8 @@ parameters:
       type: string
     - name: prTagName
       type: string
+    - name: prNumber
+      type: string
     - name: chartName
       type: string
     - name: chartPath
@@ -58,6 +60,7 @@ steps:
         export IMAGE_NAME="${imageName}"
         export SERVICE_FQDN="${fqdn}"
         export RELEASE_NAME="${releaseName}"
+        export PR_NUMBER="${prNumber}"
                       
         valuesEnvTemplate="${{ parameters.envValuesTemplatePath }}"
         valuesEnv="${{ parameters.envValuesPath }}"
@@ -76,7 +79,8 @@ steps:
         fqdn: ${{ parameters.dnsRecordName }}.${{ parameters.dnsZone }}
         env: ${{ parameters.env }}
         releaseName: "${{ parameters.releaseName }}"
-
+        prNumber: ${{ parameters.prNumber }}
+        
     - bash: |
         VERSION=$(cat "${chartPath}/Chart.yaml" | grep ^version | cut -d  ':' -f 2 | tr -d '[:space:]')
         echo "Chart Version: $VERSION"
