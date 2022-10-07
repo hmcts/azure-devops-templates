@@ -5,6 +5,9 @@ parameters:
   - name: workingPath
     type: string
     default: "$(Build.SourcesDirectory)"
+  - name: migrationsPath
+    type: string
+    default: "$(Build.SourcesDirectory)"
   - name: projectName
     type: string
   - name: contextName
@@ -16,7 +19,7 @@ parameters:
 steps:
     - template: ../../Github\check-for-changes.yaml
       parameters:
-        migrationsPath: $(System.DefaultWorkingDirectory)/BookingsApi/BookingsApi.DAL/Migrations
+        migrationsPath: ${{ parameters.migrationsPath }} 
 
     - powershell: |
         $outputPath="${{ parameters.outputPath }}"
