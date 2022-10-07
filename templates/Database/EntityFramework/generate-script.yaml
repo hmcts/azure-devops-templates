@@ -10,11 +10,11 @@ parameters:
   - name: contextName
     type: string
   - name: execute
-    type: boolean
-    default: true
+    type: string
+    default: 'true'
 
 steps:
-  - ${{ if eq(parameters.execute, true) }}:
+  - ${{ if eq(parameters.execute, 'true') }}:
     - powershell: |
         $outputPath="${{ parameters.outputPath }}"
         $workingPath="${{ parameters.workingPath }}"
