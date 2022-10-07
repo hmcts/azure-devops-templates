@@ -14,6 +14,16 @@ parameters:
     default: 'true'
 
 steps:
+    - template: templates/Github\check-for-changes.yaml@azTemplates
+      parameters:
+        migrationsPath: $(System.DefaultWorkingDirectory)/BookingsApi/BookingsApi.DAL/Migrations
+
+    - powershell: |
+        Write-Host $env:HadChange
+        
+      env:
+        HadChange: $(git.hasChanged)
+
     - powershell: |
         $outputPath="${{ parameters.outputPath }}"
         $workingPath="${{ parameters.workingPath }}"
@@ -25,11 +35,11 @@ steps:
         dotnet tool install --global dotnet-ef
         dotnet ef migrations script --output "$outputPath/$outputName" --context $contextName --idempotent --project "$workingPath/$projectName" --startup-project "$workingPath/$projectName" -v
       displayName: 'Generate ${{parameters.contextName}} Scripts'
-      condition: eq(lower(parameters['execute']), 'true')
+      condition: eq(lower(variables['git.hasChanged']), 'true')
 
     - task: PublishPipelineArtifact@1
       displayName: Publish Artifacts
-      condition: eq(lower(parameters['execute']), 'true')
+      condition: eq(lower(variables['git.hasChanged']), 'true')
       inputs:
         targetPath: $(Build.StagingDirectory)
         publishLocation: Pipeline
