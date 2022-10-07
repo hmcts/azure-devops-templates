@@ -14,7 +14,7 @@ parameters:
     default: 'true'
 
 steps:
-    - template: templates/Github\check-for-changes.yaml@azTemplates
+    - template: ../Github\check-for-changes.yaml
       parameters:
         migrationsPath: $(System.DefaultWorkingDirectory)/BookingsApi/BookingsApi.DAL/Migrations
 
