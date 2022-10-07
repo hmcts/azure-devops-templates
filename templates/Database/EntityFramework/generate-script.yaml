@@ -25,11 +25,11 @@ steps:
         dotnet tool install --global dotnet-ef
         dotnet ef migrations script --output "$outputPath/$outputName" --context $contextName --idempotent --project "$workingPath/$projectName" --startup-project "$workingPath/$projectName" -v
       displayName: 'Generate ${{parameters.contextName}} Scripts'
-      condition: eq(lower(parameters.execute), 'true')
+      condition: eq(lower('${{ parameters.execute }}'), 'true')
 
     - task: PublishPipelineArtifact@1
       displayName: Publish Artifacts
-      condition: eq(lower(parameters.execute), 'true')
+      condition: eq(lower('${{ parameters.execute }}'), 'true')
       inputs:
         targetPath: $(Build.StagingDirectory)
         publishLocation: Pipeline
