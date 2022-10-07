@@ -16,6 +16,7 @@ parameters:
       type: string
     - name: prNumber
       type: string
+      default: ''
     - name: chartName
       type: string
     - name: chartPath
