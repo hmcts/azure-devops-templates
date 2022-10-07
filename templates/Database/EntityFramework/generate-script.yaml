@@ -10,7 +10,7 @@ parameters:
   - name: contextName
     type: string
   - name: execute
-    type: bool
+    type: boolean
     default: true
 
 steps:
