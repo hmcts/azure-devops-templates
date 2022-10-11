@@ -66,6 +66,10 @@ steps:
           secretKeyName: ${{ setting.value }}
           taskName: ${{ replace(setting.value, '-', '_') }}
 
+  - powershell: |
+      Rename-Item -Path "$(PipelineWorkspace)/AcceptanceTests/appsettings.json" -NewName "appsettings.json.old"
+      Move-Item -Path $(Pipeline.Workspace)/AcceptanceTests/appsettings.sds.json -Destination $(Pipeline.Workspace)/AcceptanceTests/appsettings.json
+
   - template: replace-app-settings.yml
     parameters:
       app_settings_path: $(Pipeline.Workspace)/AcceptanceTests/appsettings.json
@@ -76,10 +80,6 @@ steps:
               value: $(${{ replace(setting.value, '-', '_')}}.prop.value)
             ${{ if ne(setting.secret, true) }}:
               value: ${{ setting.value }}
-  
-  - powershell: |
-      Rename-Item -Path "$(PipelineWorkspace)/appsettings.json" -NewName "appsettings.json.old"
-      Move-Item -Path $(Pipeline.Workspace)/AcceptanceTests/appsettings.sds.json -Destination $(Pipeline.Workspace)/appsettings.json
 
   - powershell: |
       if([string]::IsNullOrEmpty($env:testFilterCriteria)) {
