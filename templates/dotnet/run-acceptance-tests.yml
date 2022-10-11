@@ -78,7 +78,7 @@ steps:
               value: ${{ setting.value }}
   
   - powershell: |
-      Rename-Item -Path "$(PipelineWorkspace)/AcceptanceTests/appsettings.json" -NewName "appsettings.json.old"
+      Rename-Item -Path "$(PipelineWorkspace)/appsettings.json" -NewName "appsettings.json.old"
       Move-Item -Path $(Pipeline.Workspace)/AcceptanceTests/appsettings.sds.json -Destination $(Pipeline.Workspace)/appsettings.json
 
   - powershell: |
