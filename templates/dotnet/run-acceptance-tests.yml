@@ -67,6 +67,7 @@ steps:
           taskName: ${{ replace(setting.value, '-', '_') }}
 
   - powershell: |
+      Write-Host "Swapping appsettings.json"
       Rename-Item -Path "$(PipelineWorkspace)/AcceptanceTests/appsettings.json" -NewName "appsettings.json.old"
       Move-Item -Path $(Pipeline.Workspace)/AcceptanceTests/appsettings.sds.json -Destination $(Pipeline.Workspace)/AcceptanceTests/appsettings.json
 
