@@ -76,6 +76,10 @@ steps:
               value: $(${{ replace(setting.value, '-', '_')}}.prop.value)
             ${{ if ne(setting.secret, true) }}:
               value: ${{ setting.value }}
+  
+  - powershell: |
+      Rename-Item -Path "$(PipelineWorkspace)/AcceptanceTests/appsettings.json" -NewName "appsettings.json.old"
+      Move-Item -Path $(Pipeline.Workspace)/AcceptanceTests/appsettings.sds.json -Destination $(Pipeline.Workspace)/appsettings.json
 
   - powershell: |
       if([string]::IsNullOrEmpty($env:testFilterCriteria)) {
