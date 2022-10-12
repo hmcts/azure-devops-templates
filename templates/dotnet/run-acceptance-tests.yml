@@ -12,9 +12,9 @@ parameters:
   - name: azureSubscription
     type: string
 
-  - name: acceptanceTestsPath
-    type: string
-    
+  # - name: acceptanceTestsPath
+  #   type: string
+
 steps:
   - checkout: self
 
@@ -63,8 +63,8 @@ steps:
       Write-Host "Swapping appsettings.json"
       Write-Host $pwd
       Write-Host $dir
-      Rename-Item -Path ${{parameters.acceptanceTestsPath }}/appsettings.json -NewName ${{parameters.acceptanceTestsPath }}/appsettings.json.old
-      Rename-Item -Path ${{parameters.acceptanceTestsPath }}/appsettings.sds.json -NewName ${{parameters.acceptanceTestsPath }}/appsettings.json
+      Rename-Item -Path appsettings.json -NewName appsettings.json.old
+      Rename-Item -Path appsettings.sds.json -NewName appsettings.json
     displayName: Swap appsettings files
 
   - ${{ each setting in parameters.acceptanceTestSettings }}:
