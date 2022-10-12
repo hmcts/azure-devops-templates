@@ -14,8 +14,7 @@ parameters:
 
   - name: acceptanceTestsPath
     type: string
-    default: $(Pipeline.Workspace)/AdminWebsite.AcceptanceTests
-
+    
 steps:
   - checkout: self
 
