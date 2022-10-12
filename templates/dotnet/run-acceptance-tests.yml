@@ -61,8 +61,8 @@ steps:
   #       testFiltercriteria: 
   - powershell: |
       Write-Host "Swapping appsettings.json"
-      Write-Host $pwd
-      Write-Host $dir
+      Write-Host pwd
+      Write-Host dir
   # Rename-Item -Path appsettings.json -NewName appsettings.json.old
   # Rename-Item -Path appsettings.sds.json -NewName appsettings.json
     displayName: Swap appsettings files
