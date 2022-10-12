@@ -56,6 +56,10 @@ steps:
   #       "$(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll"
   #     ${{ if  ne(parameters.testFiltercriteria, '' }} }}:
   #       testFiltercriteria: 
+  - powershell: |
+      Write-Host "Swapping appsettings.json"
+      Rename-Item -Path "appsettings.json" -NewName "appsettings.json.old"
+      Rename-Item -Path "appsettings.sds.json" -NewName "appsettings.json"
 
   - ${{ each setting in parameters.acceptanceTestSettings }}:
     - ${{ if eq(setting.secret, true) }}:
@@ -65,11 +69,6 @@ steps:
           keyVaultName: ${{ setting.keyVaultName }}
           secretKeyName: ${{ setting.value }}
           taskName: ${{ replace(setting.value, '-', '_') }}
-
-  - powershell: |
-      Write-Host "Swapping appsettings.json"
-      Rename-Item -Path "$(PipelineWorkspace)/AcceptanceTests/appsettings.json" -NewName "appsettings.json.old"
-      Move-Item -Path $(Pipeline.Workspace)/AcceptanceTests/appsettings.sds.json -Destination $(Pipeline.Workspace)/AcceptanceTests/appsettings.json
 
   - template: replace-app-settings.yml
     parameters:
