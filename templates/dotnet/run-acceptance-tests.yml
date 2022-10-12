@@ -12,6 +12,10 @@ parameters:
   - name: azureSubscription
     type: string
 
+  - name: acceptanceTestsPath
+    type: string
+    default: $(Pipeline.Workspace)/AdminWebsite/AdminWebsite.AcceptanceTests
+
 steps:
   - checkout: self
 
@@ -58,8 +62,8 @@ steps:
   #       testFiltercriteria: 
   - powershell: |
       Write-Host "Swapping appsettings.json"
-      Rename-Item -Path $(Pipeline.Workspace)/AcceptanceTests/appsettings.json -NewName $(Pipeline.Workspace)/AcceptanceTests/appsettings.json.old
-      Rename-Item -Path $(Pipeline.Workspace)/AcceptanceTests/appsettings.sds.json -NewName $(Pipeline.Workspace)/AcceptanceTests/appsettings.json
+      Rename-Item -Path ${{paramaters.acceptanceTestsPath }}/appsettings.json -NewName ${{paramaters.acceptanceTestsPath }}/appsettings.json.old
+      Rename-Item -Path ${{paramaters.acceptanceTestsPath }}/appsettings.sds.json -NewName ${{paramaters.acceptanceTestsPath }}/appsettings.json
     displayName: Swap appsettings files
 
   - ${{ each setting in parameters.acceptanceTestSettings }}:
