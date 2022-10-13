@@ -58,8 +58,8 @@ steps:
   #       testFiltercriteria: 
   - powershell: |
       Write-Host "Swapping appsettings.json"
-      Rename-Item -Path appsettings.json -NewName appsettings.json.old
-      Rename-Item -Path appsettings.sds.json -NewName appsettings.json
+      Rename-Item -Path $(Pipeline.Workspace)/AcceptanceTests/appsettings.json -NewName $(Pipeline.Workspace)/AcceptanceTests/appsettings.json.old
+      Rename-Item -Path $(Pipeline.Workspace)/AcceptanceTests/appsettings.sds.json -NewName $(Pipeline.Workspace)/AcceptanceTests/appsettings.json
     displayName: Swap appsettings files
 
   - ${{ each setting in parameters.acceptanceTestSettings }}:
