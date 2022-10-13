@@ -16,10 +16,10 @@ steps:
     inputs:
       helmVersionToInstall: ${{ parameters.helmVersion }}
     
-  - powershell: |
-      $chartPath = "${{ parameters.chartPath }}"
-      $chartValuesPath = "${{ parameters.chartValuesPath }}"
-      $additionalHelmArgs = "${{ parameters.additionalHelmArgs }}"
+  - bash: |
+      chartPath = "${{ parameters.chartPath }}"
+      chartValuesPath = "${{ parameters.chartValuesPath }}"
+      additionalHelmArgs = "${{ parameters.additionalHelmArgs }}"
 
       helm dependency update $chartPath
 
