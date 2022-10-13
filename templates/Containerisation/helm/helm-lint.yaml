@@ -17,9 +17,9 @@ steps:
       helmVersionToInstall: ${{ parameters.helmVersion }}
     
   - bash: |
-      chartPath = "${{ parameters.chartPath }}"
-      chartValuesPath = "${{ parameters.chartValuesPath }}"
-      additionalHelmArgs = "${{ parameters.additionalHelmArgs }}"
+      chartPath="${{ parameters.chartPath }}"
+      chartValuesPath="${{ parameters.chartValuesPath }}"
+      additionalHelmArgs="${{ parameters.additionalHelmArgs }}"
 
       helm dependency update $chartPath
 
