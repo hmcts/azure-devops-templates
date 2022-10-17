@@ -66,9 +66,12 @@ steps:
     inputs:
       testSelector: 'testAssemblies'
       runSettingsFile: $(Pipeline.Workspace)/AcceptanceTests/parameters.runSettings
+      searchFolder: $(Pipeline.Workspace)/AcceptanceTests
+      resultsFolder: $(Agent.TempDirectory)/TestResults
       testAssemblyVer2: |
-        $(Pipeline.Workspace)/AcceptanceTests/AdminWebsite.AcceptanceTests.dll
-      otherConsoleOptions: /Logger:trx /Logger:console /ResultsDirectory:$(Agent.TempDirectory)/TestResults
+        **/*.AcceptanceTests.dll
+        *.AcceptanceTests.dll
+      otherConsoleOptions: /Logger:trx /Logger:console
 
   # - powershell: |
   #     if([string]::IsNullOrEmpty($env:testFilterCriteria)) {
