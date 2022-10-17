@@ -62,11 +62,12 @@ steps:
               value: ${{ setting.value }}
 
   - task: VSTest@2
+    displayName: Run Acceptance Tests
     inputs:
       testSelector: 'testAssemblies'
       runSettingsFile: $(Pipeline.Workspace)/AcceptanceTests/parameters.runSettings
       testAssemblyVer2: |
-        "$(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll"
+        $(Pipeline.Workspace)/AcceptanceTests/AdminWebsite.AcceptanceTests.dll
       otherConsoleOptions: /Logger:trx /Logger:console /ResultsDirectory:$(Agent.TempDirectory)/TestResults
 
   # - powershell: |
