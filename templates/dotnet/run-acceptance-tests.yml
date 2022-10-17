@@ -61,6 +61,12 @@ steps:
             ${{ if ne(setting.secret, true) }}:
               value: ${{ setting.value }}
 
+  - task: PublishBuildArtifacts@1
+    displayName: Publish Acceptance Tests
+    inputs:
+      PathtoPublish: $(Pipeline.Workspace)/AcceptanceTests
+      ArtifactName: AcceptanceTestsAppSettings
+
   - task: VSTest@2
     displayName: Run Acceptance Tests
     inputs:
@@ -70,7 +76,6 @@ steps:
       resultsFolder: $(Agent.TempDirectory)/TestResults
       testAssemblyVer2: |
         **/*.AcceptanceTests.dll
-        *.AcceptanceTests.dll
       otherConsoleOptions: /Logger:trx /Logger:console
 
   # - powershell: |
