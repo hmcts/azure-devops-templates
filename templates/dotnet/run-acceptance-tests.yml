@@ -57,7 +57,7 @@ steps:
         - ${{ each setting in parameters.acceptanceTestSettings }}:
           - name: ${{ setting.name }}
             ${{ if eq(setting.secret, true) }}:
-              value: $(${{ replace(setting.value, '-', '_')}}.prop.value)
+              value: $(${{ replace(setting.value, '-', '_') }}__${{ replace(setting.name, ':', '_') }}.prop.value)
             ${{ if ne(setting.secret, true) }}:
               value: ${{ setting.value }}
 
