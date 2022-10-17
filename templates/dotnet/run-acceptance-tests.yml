@@ -67,10 +67,7 @@ steps:
       runSettingsFile: $(Pipeline.Workspace)/AcceptanceTests/parameters.runSettings
       testAssemblyVer2: |
         "$(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll"
-      ${{ if  ne(parameters.testFiltercriteria, '' }} }}:
-        testFiltercriteria: ${{ parameters.testFilterCriteria }}
       otherConsoleOptions: /Logger:trx /Logger:console /ResultsDirectory:$(Agent.TempDirectory)/TestResults
-
 
   # - powershell: |
   #     if([string]::IsNullOrEmpty($env:testFilterCriteria)) {
