@@ -36,15 +36,15 @@ steps:
 
 - powershell: |
     Write-Host "##vso[task.setvariable variable=BuildNum;]$(Build.BuildNumber)"
-  displayName: Get Build.BuildNumber
+    Write-Host "$(Build.BuildNumber)"
+  displayName: Get BuildNumber
 
 - bash: |
     dotnet tool install --global GitVersion.Tool --version 5.6.0 
-  displayName: Install Git-Version
+  displayName: Install GitVersion
 
 - bash: |
     dotnet-gitversion /output json /output buildserver /updateassemblyinfo ${{ parameters.coreProjectPath }}.AcceptanceTests/AssemblyInfo.cs /ensureassemblyinfo
-
   displayName: Determine Version for Acceptance Tests
 
 - task: UseDotNet@2
@@ -75,17 +75,6 @@ steps:
     arguments: --configuration Release --output $(build.artifactstagingdirectory)/AcceptanceTests
     zipAfterPublish: false
     workingDirectory: ${{ parameters.coreProjectPath }}.AcceptanceTests
-  #condition: ne(variables.NUGET_CACHE_RESTORED, 'true')
-    
-# - task: DotNetCoreCLI@2
-#   displayName: donet Publish
-#   inputs:
-#     command: publish
-#     publishWebProjects: false
-#     arguments: --configuration Release --output $(build.artifactstagingdirectory)/AcceptanceTests
-#     zipAfterPublish: false
-#     workingDirectory: ${{ parameters.coreProjectPath }}.AcceptanceTests
-#   condition: eq(variables.NUGET_CACHE_RESTORED, 'true')
 
 - task: PublishBuildArtifacts@1
   displayName: Publish Acceptance Tests
