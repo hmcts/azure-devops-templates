@@ -47,13 +47,6 @@ steps:
 
   displayName: Determine Version for Acceptance Tests
 
-# - template: ../../templates/pipelineCaching.yml
-#   parameters:
-#     ${{ if containsValue(parameters.packageManagers, 'nuget') }}:
-#       nugetProjectPath: ${{ parameters.coreProjectPath }}.AcceptanceTests
-#     packageManagers:
-#     - nuget
-
 - task: UseDotNet@2
   displayName: 'Install .NET Core SDK'
   inputs:
@@ -62,7 +55,7 @@ steps:
     installationPath: $(Agent.ToolsDirectory)/dotnet
 
 - task: DotNetCoreCLI@2
-  displayName: dotnet Restore
+  displayName: dotnet restore
   inputs:
     command: restore
     projects: '**/*AcceptanceTests.csproj'
@@ -73,27 +66,26 @@ steps:
     ${{ if eq(parameters.useNugetConfig, false) }}:
       vstsFeed: ${{ parameters.vstsFeedId }}
       includeNuGetOrg: true
-  condition: ne(variables.NUGET_CACHE_RESTORED, 'true')
 
 - task: DotNetCoreCLI@2
-  displayName: donet Publish no-restore
-  inputs:
-    command: publish
-    publishWebProjects: false
-    arguments: --configuration Release --no-restore --output $(build.artifactstagingdirectory)/AcceptanceTests
-    zipAfterPublish: false
-    workingDirectory: ${{ parameters.coreProjectPath }}.AcceptanceTests
-  condition: ne(variables.NUGET_CACHE_RESTORED, 'true')
-    
-- task: DotNetCoreCLI@2
-  displayName: donet Publish
+  displayName: donet publish
   inputs:
     command: publish
     publishWebProjects: false
     arguments: --configuration Release --output $(build.artifactstagingdirectory)/AcceptanceTests
     zipAfterPublish: false
     workingDirectory: ${{ parameters.coreProjectPath }}.AcceptanceTests
-  condition: eq(variables.NUGET_CACHE_RESTORED, 'true')
+  #condition: ne(variables.NUGET_CACHE_RESTORED, 'true')
+    
+# - task: DotNetCoreCLI@2
+#   displayName: donet Publish
+#   inputs:
+#     command: publish
+#     publishWebProjects: false
+#     arguments: --configuration Release --output $(build.artifactstagingdirectory)/AcceptanceTests
+#     zipAfterPublish: false
+#     workingDirectory: ${{ parameters.coreProjectPath }}.AcceptanceTests
+#   condition: eq(variables.NUGET_CACHE_RESTORED, 'true')
 
 - task: PublishBuildArtifacts@1
   displayName: Publish Acceptance Tests
