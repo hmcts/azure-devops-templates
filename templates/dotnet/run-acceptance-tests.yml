@@ -69,7 +69,7 @@ steps:
           azureSubscription: ${{ parameters.azureSubscription }}
           keyVaultName: ${{ setting.keyVaultName }}
           secretKeyName: ${{ setting.value }}
-          taskName: ${{ replace(setting.value, '-', '_') }}-${{ replace(setting.name, ':', '_') }}
+          taskName: ${{ replace(setting.value, '-', '_') }}__${{ replace(setting.name, ':', '_') }}
 
   - template: replace-app-settings.yml
     parameters:
