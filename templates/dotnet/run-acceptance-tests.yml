@@ -69,7 +69,7 @@ steps:
          "$(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll"
        ${{ if  ne(parameters.testFiltercriteria, '' }} }}:
          testFiltercriteria: ${{ parameters.testFilterCriteria }}
-      otherConsoleOptions: "--Logger:trx --logger:console --ResultsDirectory:$(Agent.TempDirectory)/TestResults" 
+      otherConsoleOptions: /Logger:trx /Logger:console /ResultsDirectory:$(Agent.TempDirectory)/TestResults
 
 
   # - powershell: |
@@ -96,7 +96,6 @@ steps:
   #     testFilterCriteria: ${{ parameters.testFilterCriteria }}
   #     ${{ each setting in parameters.acceptanceTestSettings }}:
   #       ${{ setting.name }}: ${{ setting.value }}
-
 
   - task: PublishTestResults@2
     displayName: Publish Test Results
