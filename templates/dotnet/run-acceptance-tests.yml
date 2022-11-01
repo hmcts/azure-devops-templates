@@ -28,12 +28,9 @@ steps:
       New-Item -Path $(Pipeline.Workspace)/AcceptanceTests -Name parameters.runSettings -ItemType File -Value $runtimeSettings -Force | Out-Null
     displayName: Set Runtime Settings
 
-  - task: DotNetCoreCLI@2
+  - powershell: |
+      dotnet --version
     displayName: Verify .NET Version
-    inputs:
-      testRunTitle: Acceptance Tests
-      command: custom
-      custom: --version
       
   - powershell: |
       Write-Host "Swapping appsettings.json"
