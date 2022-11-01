@@ -84,9 +84,9 @@ steps:
       projects: "$(Pipeline.Workspace)/AcceptanceTests-$(Build.BuildId)/*.AcceptanceTests.dll"
       publishTestResults: true
       ${{ if eq(parameters.testFilterCriteria, '' ) }}:
-        arguments: --settings $(Pipeline.Workspace)/AcceptanceTests/parameters.runSetting --logger console
+        arguments: --settings $(Pipeline.Workspace)/AcceptanceTests-$(Build.BuildId)/parameters.runSetting --logger console
       ${{ else }}: 
-        arguments: --settings $(Pipeline.Workspace)/AcceptanceTests/parameters.runSetting --logger console --filter ${{ parameters.testFilterCriteria }}
+        arguments: --settings $(Pipeline.Workspace)/AcceptanceTests-$(Build.BuildId)/parameters.runSetting --logger console --filter ${{ parameters.testFilterCriteria }}
 
   - powershell: |
       if([string]::IsNullOrEmpty($env:testFilterCriteria)) {
