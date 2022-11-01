@@ -81,7 +81,9 @@ steps:
   - task: DotNetCoreCLI@2
     inputs:
       command: test
-      projects: "*.AcceptanceTests.dll"
+      projects: |
+        **/*.AcceptanceTests.dll
+        *.AcceptanceTests.dll
       publishTestResults: true
       workingDirectory: $(Pipeline.Workspace)/AcceptanceTests
       ${{ if eq(parameters.testFilterCriteria, '' ) }}:
