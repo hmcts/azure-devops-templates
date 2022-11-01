@@ -67,41 +67,42 @@ steps:
       PathtoPublish: $(Pipeline.Workspace)/AcceptanceTests
       ArtifactName: AcceptanceTestsAppSettings
 
-  - task: VSTest@2
-    displayName: Run Acceptance Tests
-    inputs:
-      testSelector: 'testAssemblies'
-      runSettingsFile: $(Pipeline.Workspace)/AcceptanceTests/parameters.runSettings
-      searchFolder: $(Pipeline.Workspace)/AcceptanceTests
-      resultsFolder: $(Agent.TempDirectory)/TestResults
-      testAssemblyVer2: |
-        **/*.AcceptanceTests.dll
-      otherConsoleOptions: /Logger:trx /Logger:console
-
-  # - powershell: |
-  #     if([string]::IsNullOrEmpty($env:testFilterCriteria)) {
-  #       dotnet vstest $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runSettings --logger:console
-  #     } else {
-  #       dotnet vstest $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runSettings --TestCaseFilter:${{ parameters.testFilterCriteria }} --logger:console
-  #     }
-
-  #     # $retry = 1
-  #     # do {
-  #     #   $testFiles = (Get-ChildItem '$(Agent.TempDirectory)/TestResults' | Sort-Object LastWriteTime | Select-Object -last 1).FullName
-
-  #     #   $failedTests = (Select-Xml -Path $testFiles -XPath "//ns:UnitTestResult[@outcome='Failed']/@testName" -Namespace @{"ns"="http://microsoft.com/schemas/VisualStudio/TeamTest/2010"}).Node.Value
-
-  #     #   if($failedTests.count -gt 0) {
-  #     #     write-warning "There are currently $($failedTests.count) failing tests, retrying for $retry times in 10 seconds"
-  #     #     Start-Sleep 10
-  #     #     dotnet vstest $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll /Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings /Tests:"$($failedTests -join ',')" --logger:console
-  #     #   }
-  #     # } while ($failedTests.count -gt 0 -and $retry++ -lt 2)
+  # - task: VSTest@2
   #   displayName: Run Acceptance Tests
-  #   env:
-  #     testFilterCriteria: ${{ parameters.testFilterCriteria }}
-  #     ${{ each setting in parameters.acceptanceTestSettings }}:
-  #       ${{ setting.name }}: ${{ setting.value }}
+  #   inputs:
+  #     testSelector: 'testAssemblies'
+  #     runSettingsFile: $(Pipeline.Workspace)/AcceptanceTests/parameters.runSettings
+  #     searchFolder: $(Pipeline.Workspace)/AcceptanceTests
+  #     resultsFolder: $(Agent.TempDirectory)/TestResults
+  #     testAssemblyVer2: |
+  #       **/*.AcceptanceTests.dll
+  #     otherConsoleOptions: /Logger:trx /Logger:console
+
+  - powershell: |
+      if([string]::IsNullOrEmpty($env:testFilterCriteria)) {
+        dotnet vstest $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runSettings --logger:console
+      } 
+      else {
+        dotnet vstest $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll --Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runSettings --TestCaseFilter:${{ parameters.testFilterCriteria }} --logger:console
+      }
+
+      # $retry = 1
+      # do {
+      #   $testFiles = (Get-ChildItem '$(Agent.TempDirectory)/TestResults' | Sort-Object LastWriteTime | Select-Object -last 1).FullName
+
+      #   $failedTests = (Select-Xml -Path $testFiles -XPath "//ns:UnitTestResult[@outcome='Failed']/@testName" -Namespace @{"ns"="http://microsoft.com/schemas/VisualStudio/TeamTest/2010"}).Node.Value
+
+      #   if($failedTests.count -gt 0) {
+      #     write-warning "There are currently $($failedTests.count) failing tests, retrying for $retry times in 10 seconds"
+      #     Start-Sleep 10
+      #     dotnet vstest $(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll /Logger:trx --ResultsDirectory:$(Agent.TempDirectory)/TestResults --settings:$(Pipeline.Workspace)/AcceptanceTests/parameters.runsettings /Tests:"$($failedTests -join ',')" --logger:console
+      #   }
+      # } while ($failedTests.count -gt 0 -and $retry++ -lt 2)
+    displayName: Run Acceptance Tests
+    env:
+      testFilterCriteria: ${{ parameters.testFilterCriteria }}
+      ${{ each setting in parameters.acceptanceTestSettings }}:
+        ${{ setting.name }}: ${{ setting.value }}
 
   - task: PublishTestResults@2
     displayName: Publish Test Results
