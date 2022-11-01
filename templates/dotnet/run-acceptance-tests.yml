@@ -78,18 +78,15 @@ steps:
   #       **/*.AcceptanceTests.dll
   #     otherConsoleOptions: /Logger:trx /Logger:console
 
-  # - task: DotNetCoreCLI@2
-  #   inputs:
-  #     command: test
-  #     projects: |
-  #       **/*.AcceptanceTests.dll
-  #       *.AcceptanceTests.dll
-  #     publishTestResults: true
-  #     workingDirectory: $(Pipeline.Workspace)/AcceptanceTests
-  #     ${{ if eq(parameters.testFilterCriteria, '' ) }}:
-  #       arguments: --settings $(Pipeline.Workspace)/AcceptanceTests/parameters.runSetting --logger console
-  #     ${{ else }}: 
-  #       arguments: --settings $(Pipeline.Workspace)/AcceptanceTests/parameters.runSetting --logger console --filter ${{ parameters.testFilterCriteria }}
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: test
+      projects: "$(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll"
+      publishTestResults: true
+      ${{ if eq(parameters.testFilterCriteria, '' ) }}:
+        arguments: --settings $(Pipeline.Workspace)/AcceptanceTests/parameters.runSetting --logger console
+      ${{ else }}: 
+        arguments: --settings $(Pipeline.Workspace)/AcceptanceTests/parameters.runSetting --logger console --filter ${{ parameters.testFilterCriteria }}
 
   - powershell: |
       if([string]::IsNullOrEmpty($env:testFilterCriteria)) {
