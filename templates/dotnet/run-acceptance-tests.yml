@@ -81,7 +81,7 @@ steps:
   - task: DotNetCoreCLI@2
     inputs:
       command: test
-      projects: "$(Pipeline.Workspace)/AcceptanceTests/*.AcceptanceTests.dll"
+      projects: "$(Pipeline.Workspace)/AcceptanceTests-$(Build.BuildId)/*.AcceptanceTests.dll"
       publishTestResults: true
       ${{ if eq(parameters.testFilterCriteria, '' ) }}:
         arguments: --settings $(Pipeline.Workspace)/AcceptanceTests/parameters.runSetting --logger console
