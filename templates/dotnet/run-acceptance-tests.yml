@@ -61,6 +61,10 @@ steps:
             ${{ if ne(setting.secret, true) }}:
               value: ${{ setting.value }}
 
+  - powershell: |
+      cp "C:\tools\selenium\chromedriver.exe" "$(Pipeline.Workspace)/AcceptanceTests-$(Build.BuildId)" -force
+    displayName: Copy Chrome Driver
+
   - task: PublishBuildArtifacts@1
     displayName: Publish Acceptance Tests
     inputs:
