@@ -67,17 +67,6 @@ steps:
       PathtoPublish: $(Pipeline.Workspace)/AcceptanceTests-$(Build.BuildId)
       ArtifactName: AcceptanceTestsAppSettings
 
-  # - task: VSTest@2
-  #   displayName: Run Acceptance Tests
-  #   inputs:
-  #     testSelector: 'testAssemblies'
-  #     runSettingsFile: $(Pipeline.Workspace)/AcceptanceTests/parameters.runSettings
-  #     searchFolder: $(Pipeline.Workspace)/AcceptanceTests
-  #     resultsFolder: $(Agent.TempDirectory)/TestResults
-  #     testAssemblyVer2: |
-  #       **/*.AcceptanceTests.dll
-  #     otherConsoleOptions: /Logger:trx /Logger:console
-
   - task: DotNetCoreCLI@2
     displayName: Run Acceptance Tests
     inputs:
@@ -115,12 +104,12 @@ steps:
   #     ${{ each setting in parameters.acceptanceTestSettings }}:
   #       ${{ setting.name }}: ${{ setting.value }}
 
-  - task: PublishTestResults@2
-    displayName: Publish Test Results
-    condition: succeededOrFailed()
-    inputs:
-      testResultsFormat: VSTest
-      testResultsFiles: '**/*.trx'
-      searchFolder: $(Agent.TempDirectory)/TestResults
-      mergeTestResults: true
-      testRunTitle: Acceptance Tests
+  # - task: PublishTestResults@2
+  #   displayName: Publish Test Results
+  #   condition: succeededOrFailed()
+  #   inputs:
+  #     testResultsFormat: VSTest
+  #     testResultsFiles: '**/*.trx'
+  #     searchFolder: $(Agent.TempDirectory)/TestResults
+  #     mergeTestResults: true
+  #     testRunTitle: Acceptance Tests
