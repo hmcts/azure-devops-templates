@@ -62,14 +62,9 @@ steps:
               value: ${{ setting.value }}
 
   - powershell: |
-      cp "C:\tools\selenium\chromedriver.exe" "$(Pipeline.Workspace)/AcceptanceTests-$(Build.BuildId)" -force
+      $chromeDriver=$(where.exe chromedriver)
+      Copy-Item $chromeDriver "$(Pipeline.Workspace)/AcceptanceTests-$(Build.BuildId)" -Force
     displayName: Copy Chrome Driver
-
-  - task: PublishBuildArtifacts@1
-    displayName: Publish Acceptance Tests
-    inputs:
-      PathtoPublish: $(Pipeline.Workspace)/AcceptanceTests-$(Build.BuildId)
-      ArtifactName: AcceptanceTestsAppSettings
 
   - task: DotNetCoreCLI@2
     displayName: Run Acceptance Tests
