@@ -62,6 +62,11 @@ steps:
               value: ${{ setting.value }}
 
   - powershell: |
+      Install-PackageProvider Nuget -Scope CurrentUser -Force
+      npm install chromedriver --chromedriver_cdnurl=https://npmmirror.com/mirrors/chromedriver
+    displayName: 'Install chromedriver module'
+
+  - powershell: |
       $chromeDriver=$(where.exe chromedriver)
       Copy-Item $chromeDriver "$(Pipeline.Workspace)/AcceptanceTests-$(Build.BuildId)" -Force
     displayName: Copy Chrome Driver
