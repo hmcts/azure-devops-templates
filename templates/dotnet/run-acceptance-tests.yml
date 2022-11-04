@@ -62,14 +62,9 @@ steps:
               value: ${{ setting.value }}
 
   - powershell: |
-      Invoke-WebRequest "https://chromedriver.storage.googleapis.com/$ChromeDriverVersion/chromedriver_win32.zip" -OutFile $(Pipeline.Workspace);
-      Expand-Archive $(Pipeline.Workspace) -DestinationPath "$(Pipeline.Workspace)/AcceptanceTests-$(Build.BuildId)";
-      displayName: Download-install Chromedriver
-
-  # - powershell: |
-  #     $chromeDriver=$(where.exe chromedriver)
-  #     Copy-Item $chromeDriver "$(Pipeline.Workspace)/AcceptanceTests-$(Build.BuildId)" -Force
-  #   displayName: Copy Chrome Driver
+      $chromeDriver=$(where.exe chromedriver)
+      Copy-Item $chromeDriver "$(Pipeline.Workspace)/AcceptanceTests-$(Build.BuildId)" -Force
+    displayName: Copy Chrome Driver
 
   - task: PublishBuildArtifacts@1
     displayName: Publish Acceptance Tests
