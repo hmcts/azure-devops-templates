@@ -62,14 +62,15 @@ steps:
               value: ${{ setting.value }}
 
   - powershell: |
-      Install-PackageProvider Nuget -Scope CurrentUser -Force
-      npm install chromedriver --chromedriver_cdnurl=https://npmmirror.com/mirrors/chromedriver
-    displayName: 'Install chromedriver module'
+      Invoke-WebRequest -Uri "https://chromedriver.storage.googleapis.com/index.html?path=108.0.5359.22/chromedriver_win32.zip" -OutFile $(Pipeline.Workspace)/chromedriver_win32.zip;
+      Expand-Archive $(Pipeline.Workspace)/chromedriver_win32.zip -DestinationPath $(Pipeline.Workspace)/chromedriver_win32;
+      Copy-Item $(Pipeline.Workspace)/chromedriver_win32/chromedriver.exe -Destination $(Pipeline.Workspace)/AcceptanceTests-$(Build.BuildId);
+    displayName: Download Chrome Driver
 
-  - powershell: |
-      $chromeDriver=$(where.exe chromedriver)
-      Copy-Item $chromeDriver "$(Pipeline.Workspace)/AcceptanceTests-$(Build.BuildId)" -Force
-    displayName: Copy Chrome Driver
+  # - powershell: |
+  #     $chromeDriver=$(where.exe chromedriver)
+  #     Copy-Item $chromeDriver "$(Pipeline.Workspace)/AcceptanceTests-$(Build.BuildId)" -Force
+  #   displayName: Copy Chrome Driver
 
   - task: PublishBuildArtifacts@1
     displayName: Publish Acceptance Tests
