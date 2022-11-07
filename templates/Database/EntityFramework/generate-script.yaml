@@ -5,27 +5,39 @@ parameters:
   - name: workingPath
     type: string
     default: "$(Build.SourcesDirectory)"
+  - name: migrationsPath
+    type: string
+    default: "$(Build.SourcesDirectory)"
   - name: projectName
     type: string
   - name: contextName
     type: string
+  - name: execute
+    type: string
+    default: 'true'
 
 steps:
-  - powershell: |
-      $outputPath="${{ parameters.outputPath }}"
-      $workingPath="${{ parameters.workingPath }}"
-      $projectName="${{ parameters.projectName }}"
-      
-      $contextName="${{ parameters.contextName }}"
-      $outputName="$contextName.sql"
-      
-      dotnet tool install --global dotnet-ef
-      dotnet ef migrations script --output "$outputPath/$outputName" --context $contextName --idempotent --project "$workingPath/$projectName" --startup-project "$workingPath/$projectName" -v
-    displayName: 'Generate ${{parameters.contextName}} Scripts'
+    - template: ../../Github\check-for-changes.yaml
+      parameters:
+        migrationsPath: ${{ parameters.migrationsPath }} 
 
-  - task: PublishPipelineArtifact@1
-    displayName: Publish Artifacts
-    inputs:
-      targetPath: $(Build.StagingDirectory)
-      publishLocation: Pipeline
-      artifact: ${{ parameters.contextName }}-$(Build.BuildId)
+    - powershell: |
+        $outputPath="${{ parameters.outputPath }}"
+        $workingPath="${{ parameters.workingPath }}"
+        $projectName="${{ parameters.projectName }}"
+        
+        $contextName="${{ parameters.contextName }}"
+        $outputName="$contextName.sql"
+        
+        dotnet tool install --global dotnet-ef
+        dotnet ef migrations script --output "$outputPath/$outputName" --context $contextName --idempotent --project "$workingPath/$projectName" --startup-project "$workingPath/$projectName" -v
+      displayName: 'Generate ${{parameters.contextName}} Scripts'
+      condition: eq(lower(variables['git.hasChanged']), 'true')
+
+    - task: PublishPipelineArtifact@1
+      displayName: Publish Artifacts
+      condition: eq(lower(variables['git.hasChanged']), 'true')
+      inputs:
+        targetPath: $(Build.StagingDirectory)
+        publishLocation: Pipeline
+        artifact: ${{ parameters.contextName }}-$(Build.BuildId)

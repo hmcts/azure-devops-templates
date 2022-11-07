@@ -15,6 +15,11 @@ parameters:
 
 steps:
 
+- powershell: |
+    Write-Host "##vso[task.setvariable variable=BuildNum;]$(Build.BuildNumber)"
+    Write-Host "$(Build.BuildNumber)"
+  displayName: Get BuildNumber
+
 - ${{ if eq(parameters.packageVersion, '') }}:
   - task: gitversion/setup@0
     displayName: Install Git Version
@@ -56,3 +61,7 @@ steps:
     publishVstsFeed: ${{ parameters.vstsFeed }}
     versioningScheme: byBuildNumber
     allowPackageConflicts: true
+
+- powershell: |
+    Write-Host "##vso[build.updatebuildnumber]$(BuildNum)"
+  displayName: Set Build.BuildNumber
