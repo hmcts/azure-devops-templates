@@ -21,7 +21,8 @@ parameters:
 steps:
   - powershell: |
       Write-Host "##vso[task.setvariable variable=BuildNum;]$(Build.BuildNumber)"
-    displayName: Get Build.BuildNumber
+      Write-Host "$(Build.BuildNumber)"
+    displayName: Get BuildNumber
 
   - ${{ if eq(parameters.packageVersion, '') }}:
     - task: gitversion/setup@0
