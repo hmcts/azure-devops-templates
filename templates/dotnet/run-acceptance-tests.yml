@@ -12,6 +12,10 @@ parameters:
   - name: azureSubscription
     type: string
 
+  - name: netVersion
+    type: string
+    default: '6.x'
+
 steps:
   - checkout: self
 
@@ -20,6 +24,13 @@ steps:
     inputs:
       artifact: AcceptanceTests
       path: $(Pipeline.Workspace)/AcceptanceTests-$(Build.BuildId)
+
+  - task: UseDotNet@2
+    displayName: 'Install .NET Core SDK'
+    inputs:
+      packageType: sdk
+      version: ${{ parameters.netVersion }}
+      installationPath: $(Agent.ToolsDirectory)/dotnet
 
   - powershell: |
       $runtimeSettings = '<?xml version="1.0" encoding="utf-8"?><RunSettings><TestRunParameters><Parameter name="TargetEnvironment" value="Production"/></TestRunParameters></RunSettings>'
