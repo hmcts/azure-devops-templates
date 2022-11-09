@@ -22,18 +22,28 @@ steps:
       $appSettings.PSObject.Properties | ForEach-Object {
           $parentName = $_.Name
           Write-Host "Process $($parentName)"
-          $children =  $($_.Value) # | ConvertFrom-Json
+          if ($($_.Value) -is [System.Management.Automation.PSCustomObject]){
+
+              $children =  $($_.Value) # | ConvertFrom-Json
+              $children.PSObject.Properties | ForEach-Object {
+                  $childName = $_.Name
+                  Write-Host "Process $parentName - $childName"
+                  $envName="$parentName`_$childName"
+                  if (Test-Path env:$envName){
+                      Write-Host "Found value for $envName"
+                      $_.Value = $($environmentVars | Where-Object { $_.Name -eq "$envName" }).Value
+                  } else {
+                      Write-Host "Did NOT find value for $envName"
+                  }
+              }
           
-          $children.PSObject.Properties | ForEach-Object {
-              $childName = $_.Name
-              Write-Host "Process $parentName - $childName"
-              $envName="$parentName`_$childName"
+          } else {
+              Write-Host "$($parentName) is not an object"
               if (Test-Path env:$envName){
-                  Write-Host "Found value for $envName"
-                  $_.Value = $($environmentVars | Where-Object { $_.Name -eq "$envName" }).Value
+                  Write-Host "Found value for $parentName"
+                  $_.Value = $($environmentVars | Where-Object { $_.Name -eq "$parentName" }).Value
               } else {
-                  
-                  Write-Host "Did NOT find value for $envName"
+                  Write-Host "Did NOT find value for $parentName"
               }
           }
       }

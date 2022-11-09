@@ -35,11 +35,11 @@ steps:
       command: custom
       custom: --version
       
-  - powershell: |
-      Write-Host "Swapping appsettings.json"
-      Rename-Item -Path $(Pipeline.Workspace)/AcceptanceTests-$(Build.BuildId)/appsettings.json -NewName $(Pipeline.Workspace)/AcceptanceTests-$(Build.BuildId)/appsettings.json.old
-      Rename-Item -Path $(Pipeline.Workspace)/AcceptanceTests-$(Build.BuildId)/appsettings.sds.json -NewName $(Pipeline.Workspace)/AcceptanceTests-$(Build.BuildId)/appsettings.json
-    displayName: Swap appsettings files
+  # - powershell: |
+  #     Write-Host "Swapping appsettings.json"
+  #     Rename-Item -Path $(Pipeline.Workspace)/AcceptanceTests-$(Build.BuildId)/appsettings.json -NewName $(Pipeline.Workspace)/AcceptanceTests-$(Build.BuildId)/appsettings.json.old
+  #     Rename-Item -Path $(Pipeline.Workspace)/AcceptanceTests-$(Build.BuildId)/appsettings.sds.json -NewName $(Pipeline.Workspace)/AcceptanceTests-$(Build.BuildId)/appsettings.json
+  #   displayName: Swap appsettings files
   - ${{ each setting in parameters.acceptanceTestSettings }}:
     - ${{ if eq(setting.secret, true) }}:
       - template: ../../templates\Azure\KeyVault\get-secret.yaml
