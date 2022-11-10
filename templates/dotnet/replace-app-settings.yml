@@ -39,7 +39,7 @@ steps:
           
           } else {
               Write-Host "$($parentName) is not an object"
-              if (Test-Path env:$envName){
+              if (Test-Path env:$parentName){
                   Write-Host "Found value for $parentName"
                   $_.Value = $($environmentVars | Where-Object { $_.Name -eq "$parentName" }).Value
               } else {
