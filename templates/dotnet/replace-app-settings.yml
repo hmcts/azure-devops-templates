@@ -6,7 +6,7 @@ parameters:
     default: []  
 
 steps:
-  - powershell: |
+  - pwsh: |
       $appSettings_path = "$($env:app_settings_path)"
       $appSettings = Get-Content -Path $appSettings_path | ConvertFrom-Json -Depth 4
 
