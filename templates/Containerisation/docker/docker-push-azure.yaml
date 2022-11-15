@@ -13,6 +13,7 @@ parameters:
 steps:
   - task: AzureCLI@2
     displayName: 'Push ${{ parameters.imageName }} to ${{ parameters.acrName }}'
+    name: dockerPush
     inputs:
       azureSubscription: '${{ parameters.azureSubscription }}'
       scriptType: 'pscore'
@@ -46,6 +47,7 @@ steps:
           Write-Host "New Tag $newTag"
 
           $imageTag="$acrName.azurecr.io/${repositoryName}:$newTag"
+          Write-Host "##vso[task.setvariable variable=newImageTag;isOutput=true]$imageTag"
 
           docker tag $imageName $imageTag
           
