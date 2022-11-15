@@ -136,12 +136,10 @@ steps:
 
       Write-Host "`nTimed out before new image was available" -ForegroundColor Red
       Exit 1
-
-
-    displayName: "CHeck and wait for deployments to finish"
     env:
-      ns: {{ parameters.namespace }}
-      deploymentName: {{ parameters.deploymentName }}
-      imageName: {{ parameters.requiredImage }}
-      sleep: {{ parameters.waitSeconds }}
-      retries: {{ parameters.retries }}
+      ns: ${{ parameters.namespace }}
+      deploymentName: ${{ parameters.deploymentName }}
+      imageName: ${{ parameters.requiredImage }}
+      sleep: ${{ parameters.waitSeconds }}
+      retries: ${{ parameters.retries }}
+    displayName: "CHeck and wait for deployments to finish"
