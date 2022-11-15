@@ -2,9 +2,9 @@ parameters:
   - name: requiredImage
     type: string
   - name: namespace
-    type: sting
+    type: string
   - name: deploymentName
-    type: sting
+    type: string
   - name: waitSeconds
     type: number
     default: 30
