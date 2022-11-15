@@ -20,6 +20,12 @@ steps:
       $sleep = "$($env:sleep)"
       $retries = "$($env:retries)"
 
+      Write-Host "namespace: $ns"
+      Write-Host "deploymentName: $deploymentName"
+      Write-Host "imageName: $imageName"
+      Write-Host "sleep: $sleep"
+      Write-Host "retries: $retries"
+
       ### FUNCTIONS ###
       function Get-Pods {
           param (
@@ -142,4 +148,4 @@ steps:
       imageName: ${{ parameters.requiredImage }}
       sleep: ${{ parameters.waitSeconds }}
       retries: ${{ parameters.retries }}
-    displayName: "CHeck and wait for deployments to finish"
+    displayName: "Check and wait for deployments to finish"
