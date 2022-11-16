@@ -11,145 +11,153 @@ parameters:
   - name: retries
     type: number
     default: 5
-
+  - name: subscriptionName
+    type: string
+  - name: resourceGroupName
+    type: string
+  - name: clusterName
+    type: string
+    
 steps:
-  - powershell: |
-      $ns = "$($env:namespace)"
-      $prefix = "$($env:deploymentName)"
-      $imageName = "$($env:imageName)"
-      $sleep = "$($env:sleep)"
-      $retries = "$($env:retries)"
-
-      Write-Host "namespace: $ns"
-      Write-Host "deploymentName: $deploymentName"
-      Write-Host "imageName: $imageName"
-      Write-Host "sleep: $sleep"
-      Write-Host "retries: $retries"
-      
-      ### FUNCTIONS ###
-      function Get-Pods {
-          param (
-              $ns,
-              $prefix
-              )
-              
-              $pods = kubectl -n $ns get pods -o json | ConvertFrom-Json
-              $outPods = @()
-              foreach ($pod in $pods.items) {
-                  if ($($pod.metadata.name) -match "^$prefix-[0-9a-z]{10}-[0-9a-z]{5}$"){
-                      Write-Host "Found POD '$($pod.metadata.name)'"
-                      $outPods += @{  
-                          "PodName" = $pod.metadata.name
-                          "Image" = $pod.spec.containers.image
-                          "podStatus" = $pod.status.phase 
-                          "containerStatuses" = $pod.status.containerStatuses
-                      }
-                  }
-              }
-              return $outPods
-          }
-
-      function Get-Deployment {
-          param (
-              $ns,
-              $depName
-              )
-              
-              $deployment = kubectl -n $ns get deployments $depName -o json | ConvertFrom-Json
-              if ($deployment) {
-                  return @{  
-                      "deploymentName" = $deployment.metadata.name
-                      "replicasRequired" = $deployment.spec.replicas
-                      "availableReplicas" = $deployment.status.availableReplicas
-                      "readyReplicas" = $deployment.status.readyReplicas
-                  }
-              } else {
-                  return $false
-              }
-          }
-
-      function Test-Deployments {
-          param (
-              $ns,
-              $depName
-              )
-          $deployment = Get-Deployment $ns $depName
-          if ($deployment) {
-              write-host "Deployment: $($deployment.deploymentName) replicasRequired:$($deployment.replicasRequired) availableReplicas:$($deployment.availableReplicas) readyReplicas:$($deployment.readyReplicas)"
-              if (($deployment.replicasRequired -eq $deployment.availableReplicas) -and ($deployment.replicasRequired -eq $deployment.readyReplicas) ) {
-                  return $true
-              }
-              write-Host "Not all PODs in deployments are in ready state"
-              return $false
-          }
-          write-Host "No deployment found called '$depName'"
-          return $false
-      }
-
-      function Test-Pods {
-          param (
-              $ns,
-              $imageName,
-              $prefix
-          )
-          $pods = Get-Pods $ns $prefix
-          $hasError = $false
-          $podCount = 0
-          foreach ($pod in $pods) {
-              Write-Host "`nChecking '$($pod.PodName)' Image:$($pod.Image) Status:$($pod.podStatus)" 
-              if ($pod.Image -eq $imageName) { # Get all pods with new image
-                  write-Host "POD found, checking its running.."
-                  if($pod.podStatus -eq "Running"){
-                      write-Host "POD running, checking its containers.."
-                      foreach ($containerStatus in $pod.containerStatuses) {
-                          Write-Host "Checking container '$($containerStatus.containerID)' Started:$($containerStatus.started) Ready:$($containerStatus.ready)"
-                          if (($containerStatus.started) -and ($containerStatus.ready)) {
-                              $podCount ++
-                          } else {
-                              write-Host "POD has new image but one of the containers has not started or is not running"
-                              $hasError = $true
-                          }
-                      }
-                  } else {
-                      write-Host "POD has new image but is not running" 
-                      $hasError = $true
-                  }
-              } else {
-                  write-Host "POD does not have new image" 
-              }
-          }
-          if ($hasError -or ($podCount -eq 0)) {return $false} else {return $true}
-      }
-      ### FUNCTIONS END ###
-
-      ### The main logic
-      $i = 0
-      do {
-          $i ++
-          $running = $false
-          Write-Host "Running Checks ($i/$retries)" 
-          Write-Host "`nChecking deployments..." 
-          if (Test-Deployments $ns $prefix) {
-              Write-Host "`nChecking PODs..." 
-              $running = Test-Pods $ns $imageName $prefix
-          }
-          
-          if($running) {
-              Write-Host "`nDeployment completed, image is available"
-              Exit 0
-          } else {
-              Write-Host "`nWaiting $sleep seconds..." 
-              Start-Sleep -Seconds $sleep
-          }
-      } until ($i -eq $retries)
-
-      Write-Host "`nTimed out before new image was available"
-      Exit 1
-
-    env:
-      ns: ${{ parameters.namespace }}
-      deploymentName: ${{ parameters.deploymentName }}
-      imageName: ${{ parameters.requiredImage }}
-      sleep: ${{ parameters.waitSeconds }}
-      retries: ${{ parameters.retries }}
+  - task: AzureCLI@2
     displayName: "Check and wait for deployments to finish"
+    name: checkAKS
+    inputs:
+      azureSubscription: ${{ parameters.subscriptionName }}
+      scriptType: pscore
+      scriptLocation: inlineScript
+      inlineScript: |
+        $ns = "${{ parameters.namespace }}"
+        $prefix = "${{ parameters.deploymentName }}"
+        $imageName = "${{ parameters.requiredImage }}"
+        $sleep = "${{ parameters.waitSeconds }}"
+        $retries = "${{ parameters.retries }}"
+
+        Write-Host "namespace: $ns"
+        Write-Host "deploymentName: $deploymentName"
+        Write-Host "imageName: $imageName"
+        Write-Host "sleep: $sleep"
+        Write-Host "retries: $retries"
+
+        Write-Host "Login to AKS"
+        az aks get-credentials --resource-group $resourceGroupName --name $clusterName -a
+
+        ### FUNCTIONS ###
+        function Get-Pods {
+            param (
+                $ns,
+                $prefix
+                )
+                $pods = kubectl -n $ns get pods -o json | ConvertFrom-Json
+                $outPods = @()
+                foreach ($pod in $pods.items) {
+                    if ($($pod.metadata.name) -match "^$prefix-[0-9a-z]{10}-[0-9a-z]{5}$"){
+                        Write-Host "Found POD '$($pod.metadata.name)'"
+                        $outPods += @{  
+                            "PodName" = $pod.metadata.name
+                            "Image" = $pod.spec.containers.image
+                            "podStatus" = $pod.status.phase 
+                            "containerStatuses" = $pod.status.containerStatuses
+                        }
+                    }
+                }
+                return $outPods
+            }
+
+        function Get-Deployment {
+            param (
+                $ns,
+                $depName
+                )
+                
+                $deployment = kubectl -n $ns get deployments $depName -o json | ConvertFrom-Json
+                if ($deployment) {
+                    return @{  
+                        "deploymentName" = $deployment.metadata.name
+                        "replicasRequired" = $deployment.spec.replicas
+                        "availableReplicas" = $deployment.status.availableReplicas
+                        "readyReplicas" = $deployment.status.readyReplicas
+                    }
+                } else {
+                    return $false
+                }
+            }
+
+        function Test-Deployments {
+            param (
+                $ns,
+                $depName
+                )
+            $deployment = Get-Deployment $ns $depName
+            if ($deployment) {
+                write-host "Deployment: $($deployment.deploymentName) replicasRequired:$($deployment.replicasRequired) availableReplicas:$($deployment.availableReplicas) readyReplicas:$($deployment.readyReplicas)"
+                if (($deployment.replicasRequired -eq $deployment.availableReplicas) -and ($deployment.replicasRequired -eq $deployment.readyReplicas) ) {
+                    return $true
+                }
+                write-Host "Not all PODs in deployments are in ready state"
+                return $false
+            }
+            write-Host "No deployment found called '$depName'"
+            return $false
+        }
+
+        function Test-Pods {
+            param (
+                $ns,
+                $imageName,
+                $prefix
+            )
+            $pods = Get-Pods $ns $prefix
+            $hasError = $false
+            $podCount = 0
+            foreach ($pod in $pods) {
+                Write-Host "`nChecking '$($pod.PodName)' Image:$($pod.Image) Status:$($pod.podStatus)" 
+                if ($pod.Image -eq $imageName) { # Get all pods with new image
+                    write-Host "POD found, checking its running.."
+                    if($pod.podStatus -eq "Running"){
+                        write-Host "POD running, checking its containers.."
+                        foreach ($containerStatus in $pod.containerStatuses) {
+                            Write-Host "Checking container '$($containerStatus.containerID)' Started:$($containerStatus.started) Ready:$($containerStatus.ready)"
+                            if (($containerStatus.started) -and ($containerStatus.ready)) {
+                                $podCount ++
+                            } else {
+                                write-Host "POD has new image but one of the containers has not started or is not running"
+                                $hasError = $true
+                            }
+                        }
+                    } else {
+                        write-Host "POD has new image but is not running" 
+                        $hasError = $true
+                    }
+                } else {
+                    write-Host "POD does not have new image" 
+                }
+            }
+            if ($hasError -or ($podCount -eq 0)) {return $false} else {return $true}
+        }
+        ### FUNCTIONS END ###
+
+        ### The main logic
+        $i = 0
+        do {
+            $i ++
+            $running = $false
+            Write-Host "Running Checks ($i/$retries)" 
+            Write-Host "`nChecking deployments..." 
+            if (Test-Deployments $ns $prefix) {
+                Write-Host "`nChecking PODs..." 
+                $running = Test-Pods $ns $imageName $prefix
+            }
+            
+            if($running) {
+                Write-Host "`nDeployment completed, image is available"
+                Exit 0
+            } else {
+                Write-Host "`nWaiting $sleep seconds..." 
+                Start-Sleep -Seconds $sleep
+            }
+        } until ($i -eq $retries)
+
+        Write-Host "`nTimed out before new image was available"
+        Exit 1
+
