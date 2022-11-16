@@ -25,7 +25,7 @@ steps:
       Write-Host "imageName: $imageName"
       Write-Host "sleep: $sleep"
       Write-Host "retries: $retries"
-
+      
       ### FUNCTIONS ###
       function Get-Pods {
           param (
@@ -36,7 +36,7 @@ steps:
               $pods = kubectl -n $ns get pods -o json | ConvertFrom-Json
               $outPods = @()
               foreach ($pod in $pods.items) {
-                  if ($pod.metadata.name.StartsWith($prefix)){
+                  if ($($pod.metadata.name) -match "^$prefix-[0-9a-z]{10}-[0-9a-z]{5}$"){
                       Write-Host "Found POD '$($pod.metadata.name)'"
                       $outPods += @{  
                           "PodName" = $pod.metadata.name
@@ -75,11 +75,14 @@ steps:
               )
           $deployment = Get-Deployment $ns $depName
           if ($deployment) {
+              write-host "Deployment: $($deployment.deploymentName) replicasRequired:$($deployment.replicasRequired) availableReplicas:$($deployment.availableReplicas) readyReplicas:$($deployment.readyReplicas)"
               if (($deployment.replicasRequired -eq $deployment.availableReplicas) -and ($deployment.replicasRequired -eq $deployment.readyReplicas) ) {
                   return $true
               }
+              write-Host "Not all PODs in deployments are in ready state"
+              return $false
           }
-          write-Host "No deployment found called '$depName'" -ForegroundColor Red  
+          write-Host "No deployment found called '$depName'"
           return $false
       }
 
@@ -94,7 +97,7 @@ steps:
           $podCount = 0
           foreach ($pod in $pods) {
               Write-Host "`nChecking '$($pod.PodName)' Image:$($pod.Image) Status:$($pod.podStatus)" 
-              if ($pod.Image -eq $imageName) { # Get all pods with new image 
+              if ($pod.Image -eq $imageName) { # Get all pods with new image
                   write-Host "POD found, checking its running.."
                   if($pod.podStatus -eq "Running"){
                       write-Host "POD running, checking its containers.."
@@ -103,16 +106,16 @@ steps:
                           if (($containerStatus.started) -and ($containerStatus.ready)) {
                               $podCount ++
                           } else {
-                              write-Host "POD has new image but one of the containers has not started or is not running" -ForegroundColor Red
+                              write-Host "POD has new image but one of the containers has not started or is not running"
                               $hasError = $true
                           }
                       }
                   } else {
-                      write-Host "POD has new image but is not running" -ForegroundColor Red
+                      write-Host "POD has new image but is not running" 
                       $hasError = $true
                   }
               } else {
-                  write-Host "POD does not have new image" -ForegroundColor Red
+                  write-Host "POD does not have new image" 
               }
           }
           if ($hasError -or ($podCount -eq 0)) {return $false} else {return $true}
@@ -124,24 +127,25 @@ steps:
       do {
           $i ++
           $running = $false
-          Write-Host "Running Checks ($i/$retries)" -BackgroundColor Cyan
-          Write-Host "`nChecking deployments..." -ForegroundColor Yellow
+          Write-Host "Running Checks ($i/$retries)" 
+          Write-Host "`nChecking deployments..." 
           if (Test-Deployments $ns $prefix) {
-              Write-Host "`nChecking PODs..." -ForegroundColor Yellow
+              Write-Host "`nChecking PODs..." 
               $running = Test-Pods $ns $imageName $prefix
           }
           
           if($running) {
-              Write-Host "`nDeployment completed, image is available" -ForegroundColor Green
+              Write-Host "`nDeployment completed, image is available"
               Exit 0
           } else {
-              Write-Host "`nWaiting $sleep seconds..." -ForegroundColor Cyan
+              Write-Host "`nWaiting $sleep seconds..." 
               Start-Sleep -Seconds $sleep
           }
       } until ($i -eq $retries)
 
-      Write-Host "`nTimed out before new image was available" -ForegroundColor Red
+      Write-Host "`nTimed out before new image was available"
       Exit 1
+
     env:
       ns: ${{ parameters.namespace }}
       deploymentName: ${{ parameters.deploymentName }}
