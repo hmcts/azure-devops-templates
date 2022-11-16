@@ -17,7 +17,7 @@ parameters:
     type: string
   - name: clusterName
     type: string
-    
+
 steps:
   - task: AzureCLI@2
     displayName: "Check and wait for deployments to finish"
@@ -160,4 +160,3 @@ steps:
 
         Write-Host "`nTimed out before new image was available"
         Exit 1
-
