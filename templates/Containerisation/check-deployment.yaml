@@ -116,6 +116,7 @@ steps:
             $podCount = 0
             foreach ($pod in $pods) {
                 Write-Host "`nChecking '$($pod.PodName)' Image:$($pod.Image) Status:$($pod.podStatus)" 
+                Write-Host "`nLooking for '$imageName'" 
                 if ($pod.Image -eq $imageName) { # Get all pods with new image
                     write-Host "POD found, checking its running.."
                     if($pod.podStatus -eq "Running"){
