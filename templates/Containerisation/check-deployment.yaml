@@ -1,9 +1,5 @@
 parameters:
-  - name: acrName
-    type: string
-  - name: repositoryName
-    type: string
-  - name: prTagName
+  - name: requiredImage
     type: string
   - name: namespace
     type: string
@@ -33,7 +29,7 @@ steps:
       inlineScript: |
         $ns = "${{ parameters.namespace }}"
         $prefix = "${{ parameters.deploymentName }}"
-        $imageName = "${{ parameters.acrName }}.azurecr.io/${{ parameters.repositoryName }}:${{ parameters.prTagName }}"
+        $imageName = "${{ parameters.requiredImage }}"
         $sleep = "${{ parameters.waitSeconds }}"
         $retries = "${{ parameters.retries }}"
         $resourceGroupName = "${{ parameters.resourceGroupName }}"
