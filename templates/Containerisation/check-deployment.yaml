@@ -32,14 +32,18 @@ steps:
         $imageName = "${{ parameters.requiredImage }}"
         $sleep = "${{ parameters.waitSeconds }}"
         $retries = "${{ parameters.retries }}"
+        $resourceGroupName = "${{ parameters.resourceGroupName }}"
+        $clusterName = "${{ parameters.clusterName }}"
 
-        Write-Host "namespace: $ns"
-        Write-Host "deploymentName: $deploymentName"
+        Write-Host "ns: $ns"
+        Write-Host "prefix: $prefix"
         Write-Host "imageName: $imageName"
         Write-Host "sleep: $sleep"
         Write-Host "retries: $retries"
+        Write-Host "resourceGroupName: $resourceGroupName"
+        Write-Host "clusterName: $clusterName"
 
-        Write-Host "Login to AKS"
+        Write-Host "`nLogin to AKS"
         az aks get-credentials --resource-group $resourceGroupName --name $clusterName -a
 
         ### FUNCTIONS ###
