@@ -55,7 +55,7 @@ steps:
                 $pods = kubectl -n $ns get pods -o json | ConvertFrom-Json
                 $outPods = @()
                 foreach ($pod in $pods.items) {
-                    if ($($pod.metadata.name) -match "^$prefix-[0-9a-z]{10}-[0-9a-z]{5}$"){
+                    if ($($pod.metadata.name) -match "^$prefix-[0-9a-z]{5,}-[0-9a-z]{5}$"){
                         Write-Host "Found POD '$($pod.metadata.name)'"
                         $outPods += @{  
                             "PodName" = $pod.metadata.name
