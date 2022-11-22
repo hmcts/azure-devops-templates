@@ -13,11 +13,9 @@ parameters:
     default: 5
   - name: subscriptionName
     type: string
-  - name: resourceGroupName
+  - name: env
     type: string
-  - name: clusterName
-    type: string
-
+    
 steps:
   - task: AzureCLI@2
     displayName: "Check and wait for deployments to finish"
@@ -32,26 +30,19 @@ steps:
         $imageName = "${{ parameters.requiredImage }}"
         $sleep = "${{ parameters.waitSeconds }}"
         $retries = "${{ parameters.retries }}"
-        $resourceGroupName = "${{ parameters.resourceGroupName }}"
-        $clusterName = "${{ parameters.clusterName }}"
 
         Write-Host "ns: $ns"
         Write-Host "prefix: $prefix"
         Write-Host "imageName: $imageName"
         Write-Host "sleep: $sleep"
         Write-Host "retries: $retries"
-        Write-Host "resourceGroupName: $resourceGroupName"
-        Write-Host "clusterName: $clusterName"
 
-        Write-Host "`nLogin to AKS"
-        az aks get-credentials --resource-group $resourceGroupName --name $clusterName -a
-
-        ### FUNCTIONS ###
         function Get-Pods {
             param (
                 $ns,
                 $prefix
                 )
+                
                 $pods = kubectl -n $ns get pods -o json | ConvertFrom-Json
                 $outPods = @()
                 foreach ($pod in $pods.items) {
@@ -116,7 +107,6 @@ steps:
             $podCount = 0
             foreach ($pod in $pods) {
                 Write-Host "`nChecking '$($pod.PodName)' Image:$($pod.Image) Status:$($pod.podStatus)" 
-                Write-Host "`nLooking for '$imageName'" 
                 if ($pod.Image -eq $imageName) { # Get all pods with new image
                     write-Host "POD found, checking its running.."
                     if($pod.podStatus -eq "Running"){
@@ -140,28 +130,62 @@ steps:
             }
             if ($hasError -or ($podCount -eq 0)) {return $false} else {return $true}
         }
+
+        function Get-Clusters {
+            param (
+                $env
+            )
+
+            $clusters = az aks list --query "[].{Name:name, rg:resourceGroup}" | ConvertFrom-Json
+            $returnedClusters = @()
+            foreach ($cluster in $clusters) {
+                if ($cluster.Name -match "") {
+                    $returnedClusters += @{
+                        "rg" = $cluster.rg
+                        "name" = $cluster.name
+                    }
+                }
+            }
+            return $returnedClusters
+        }
         ### FUNCTIONS END ###
 
         ### The main logic
-        $i = 0
-        do {
-            $i ++
-            $running = $false
-            Write-Host "Running Checks ($i/$retries)" 
-            Write-Host "`nChecking deployments..." 
-            if (Test-Deployments $ns $prefix) {
-                Write-Host "`nChecking PODs..." 
-                $running = Test-Pods $ns $imageName $prefix
-            }
-            
-            if($running) {
-                Write-Host "`nDeployment completed, image is available"
-                Exit 0
-            } else {
-                Write-Host "`nWaiting $sleep seconds..." 
-                Start-Sleep -Seconds $sleep
-            }
-        } until ($i -eq $retries)
+        $podsRunning = 0
+        $clusters = Get-Clusters
+        foreach ($cluster in $clusters) {
+            Write-Host "`n========================================================"
+            Write-Host "Login to AKS cluster '$($cluster.name)'"
+            Write-Host "========================================================"
 
-        Write-Host "`nTimed out before new image was available"
-        Exit 1
+            az aks get-credentials --resource-group $cluster.rg --name $cluster.name -a
+            $context = kubectl config current-context
+            Write-Host "Logged in to cluster with context '$context'"
+
+            $i = 0
+
+            do {
+                $i ++
+                Write-Host "`nRunning Checks '$($cluster.rg)/$($cluster.name)' ($i/$retries)" 
+                Write-Host "--------------------------------------------------------"
+                Write-Host "`nChecking deployments..." 
+                if (Test-Deployments $ns $prefix) {
+                    Write-Host "`nChecking PODs..." 
+                    if(Test-Pods $ns $imageName $prefix) {
+                        Write-Host "`nDeployment completed, image is available"
+                        $podsRunning ++
+                        break;
+                    } 
+                    Write-Host "`nWaiting $sleep seconds..." 
+                    Start-Sleep -Seconds $sleep
+                }
+            } until ($i -eq $retries)
+        }
+            
+        if($podsRunning -eq $clusters.count) {
+            Write-Host "`nImage available in all clusters"
+            Exit 0
+        } else {
+            Write-Host "`nTimed out before new image was available"
+            Exit 1
+        }
