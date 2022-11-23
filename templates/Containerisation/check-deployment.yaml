@@ -139,7 +139,7 @@ steps:
             $clusters = az aks list --query "[].{Name:name, rg:resourceGroup}" | ConvertFrom-Json
             $returnedClusters = @()
             foreach ($cluster in $clusters) {
-                if ($cluster.Name -match "") {
+                if ($cluster.Name -match "^ss-$env-[0-9]{2}-aks$") {
                     $returnedClusters += @{
                         "rg" = $cluster.rg
                         "name" = $cluster.name
@@ -148,12 +148,14 @@ steps:
             }
             return $returnedClusters
         }
+
+
         ### FUNCTIONS END ###
 
         ### The main logic
         $podsRunning = 0
         $clutersFound = 0
-        $clusters = Get-Clusters
+        $clusters = Get-Clusters $env
         foreach ($cluster in $clusters) {
             Write-Host "`n========================================================"
             Write-Host "Login to AKS cluster '$($cluster.name)'"
