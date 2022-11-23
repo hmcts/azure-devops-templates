@@ -13,7 +13,6 @@ parameters:
 steps:
   - task: AzureCLI@2
     displayName: 'Push ${{ parameters.imageName }} to ${{ parameters.acrName }}'
-    name: dockerPush
     inputs:
       azureSubscription: '${{ parameters.azureSubscription }}'
       scriptType: 'pscore'
