@@ -15,7 +15,7 @@ parameters:
     type: string
   - name: env
     type: string
-    
+
 steps:
   - task: AzureCLI@2
     displayName: "Check and wait for deployments to finish"
@@ -152,6 +152,7 @@ steps:
 
         ### The main logic
         $podsRunning = 0
+        $clutersFound = 0
         $clusters = Get-Clusters
         foreach ($cluster in $clusters) {
             Write-Host "`n========================================================"
@@ -161,6 +162,7 @@ steps:
             az aks get-credentials --resource-group $cluster.rg --name $cluster.name -a
             $context = kubectl config current-context
             Write-Host "Logged in to cluster with context '$context'"
+            $clutersFound ++
 
             $i = 0
 
@@ -181,8 +183,8 @@ steps:
                 }
             } until ($i -eq $retries)
         }
-            
-        if($podsRunning -eq $clusters.count) {
+
+        if($podsRunning -eq $clutersFound) {
             Write-Host "`nImage available in all clusters"
             Exit 0
         } else {
