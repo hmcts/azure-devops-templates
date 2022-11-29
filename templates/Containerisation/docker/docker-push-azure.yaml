@@ -16,6 +16,7 @@ steps:
     inputs:
       azureSubscription: '${{ parameters.azureSubscription }}'
       scriptType: 'pscore'
+      name: pushImage
       scriptLocation: 'inlineScript'
       inlineScript: |
         $tags= $env:tags | ConvertFrom-Json
@@ -46,6 +47,8 @@ steps:
           Write-Host "New Tag $newTag"
 
           $imageTag="$acrName.azurecr.io/${repositoryName}:$newTag"
+
+          echo "##vso[task.setvariable variable=imageTag;isOutput=true]$imageTag"
 
           docker tag $imageName $imageTag
           
