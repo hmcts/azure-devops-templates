@@ -186,10 +186,15 @@ steps:
             } until ($i -eq $retries)
         }
 
-        if($podsRunning -eq $clutersFound) {
-            Write-Host "`nImage available in all clusters"
-            Exit 0
+        if($clusters){
+            if($podsRunning -eq $clutersFound) {
+                Write-Host "`nImage available in all clusters"
+                Exit 0
+            } else {
+                Write-Host "`nTimed out before new image was available"
+                Exit 1
+            }
         } else {
-            Write-Host "`nTimed out before new image was available"
+            Write-Host "`nNo clusters found in subscription"
             Exit 1
         }
