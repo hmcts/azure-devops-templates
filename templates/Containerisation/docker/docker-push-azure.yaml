@@ -48,15 +48,14 @@ steps:
 
           $imageTag="$acrName.azurecr.io/${repositoryName}:$newTag"
 
-          Write-Host "##vso[task.setvariable variable=imageTag;isOutput=true]$($imageTag)"
-
           docker tag $imageName $imageTag
           
           Write-Host "Push $imageTag"
           docker push $imageTag
         }
 
-        Write-Host "##vso[task.setvariable variable=imageTag;isOutput=true]ThsIsOutLoop"
+        Write-Host "##vso[task.setvariable variable=stagingTagName;isOutput=true]ThsIsOutLoop"
+        Write-Host "##vso[task.setvariable variable=stagingTagNameNo;]ThsIsOutLoopNoOutput"
 
     env:
       acrName: "${{ parameters.acrName }}"
