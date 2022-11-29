@@ -13,10 +13,10 @@ parameters:
 steps:
   - task: AzureCLI@2
     displayName: 'Push ${{ parameters.imageName }} to ${{ parameters.acrName }}'
+    name: pushImage
     inputs:
       azureSubscription: '${{ parameters.azureSubscription }}'
       scriptType: 'pscore'
-      name: pushImage
       scriptLocation: 'inlineScript'
       inlineScript: |
         $tags= $env:tags | ConvertFrom-Json
@@ -48,14 +48,13 @@ steps:
 
           $imageTag="$acrName.azurecr.io/${repositoryName}:$newTag"
 
-          Write-Host "##vso[task.setvariable variable=imageTag;isOutput=true]$($imageTag)"
+          Write-Host "##vso[task.setvariable variable=fullImageName;isOutput=true]$imageTag"
 
           docker tag $imageName $imageTag
           
           Write-Host "Push $imageTag"
           docker push $imageTag
         }
-
     env:
       acrName: "${{ parameters.acrName }}"
       repositoryName: "${{ parameters.repositoryName }}"
