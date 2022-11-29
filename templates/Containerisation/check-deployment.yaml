@@ -30,12 +30,14 @@ steps:
         $imageName = "${{ parameters.requiredImage }}"
         $sleep = "${{ parameters.waitSeconds }}"
         $retries = "${{ parameters.retries }}"
+        $env = "${{ parameters.env }}"
 
         Write-Host "ns: $ns"
         Write-Host "prefix: $prefix"
         Write-Host "imageName: $imageName"
         Write-Host "sleep: $sleep"
         Write-Host "retries: $retries"
+        Write-Host "env: $env"
 
         function Get-Pods {
             param (
