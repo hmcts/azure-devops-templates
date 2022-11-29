@@ -56,6 +56,8 @@ steps:
           docker push $imageTag
         }
 
+        Write-Host "##vso[task.setvariable variable=imageTag;isOutput=true]ThsIsOutLoop"
+
     env:
       acrName: "${{ parameters.acrName }}"
       repositoryName: "${{ parameters.repositoryName }}"
