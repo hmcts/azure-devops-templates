@@ -48,7 +48,7 @@ steps:
 
           $imageTag="$acrName.azurecr.io/${repositoryName}:$newTag"
 
-          Write-Host "##vso[task.setvariable variable=imageTag;isOutput=true]$imageTag"
+          Write-Host "##vso[task.setvariable variable=imageTag;isOutput=true]$($imageTag)"
 
           docker tag $imageName $imageTag
           
