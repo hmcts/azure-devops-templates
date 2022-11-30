@@ -71,12 +71,6 @@ steps:
             ${{ if ne(setting.secret, true) }}:
               value: ${{ setting.value }}
 
-  - task: PublishBuildArtifacts@1
-    displayName: Publish Acceptance Tests
-    inputs:
-      PathtoPublish: $(Pipeline.Workspace)/AcceptanceTests-$(Build.BuildId)
-      ArtifactName: AcceptanceTestsAppSettings
-
   - task: DotNetCoreCLI@2
     displayName: Run Acceptance Tests
     inputs:
