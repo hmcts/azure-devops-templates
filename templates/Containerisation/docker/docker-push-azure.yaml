@@ -39,7 +39,7 @@ steps:
 
           Write-Host "Process Tag $tag"
 
-          $date=$(Get-Date -Format yyyyMMddhhmm);
+          $date=$(Get-Date -Format yyyyMMddHHmm);
           $commitId="$(Build.SourceVersion)"
           $shorterCommitId=$commitId.SubString(0,7)
 
