@@ -17,11 +17,23 @@ parameters:
   - name: nugetConfigFile
     type: string
     default: ''
+  
+  - name: dotNetVersion
+    type: string
+    default: ''
 
 steps:
   - powershell: |
       Write-Host "##vso[task.setvariable variable=BuildNum;]$(Build.BuildNumber)"
     displayName: Get Build.BuildNumber
+
+  - ${{ if ne(parameters.dotNetVersion, '') }}:
+    - task: UseDotNet@2
+      displayName: 'Install .NET Core SDK'
+      inputs:
+        packageType: sdk
+        version: ${{ parameters.dotNetVersion }}
+        installationPath: $(Agent.ToolsDirectory)/dotnet
 
   - ${{ if eq(parameters.packageVersion, '') }}:
     - task: gitversion/setup@0
