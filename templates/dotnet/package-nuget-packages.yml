@@ -21,6 +21,7 @@ parameters:
 steps:
   - powershell: |
       Write-Host "##vso[task.setvariable variable=BuildNum;]$(Build.BuildNumber)"
+      Write-Host "$(Build.BuildNumber)"
     displayName: Get Build.BuildNumber
 
   - task: UseDotNet@2
