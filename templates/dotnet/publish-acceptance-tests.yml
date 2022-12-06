@@ -38,19 +38,11 @@ steps:
     Write-Host "##vso[task.setvariable variable=BuildNum;]$(Build.BuildNumber)"
     Write-Host "$(Build.BuildNumber)"
   displayName: Get BuildNumber
-
-# Install .NET 5 for Git Version.
-- task: UseDotNet@2
-  displayName: 'Install .NET 5.x SDK'
-  inputs:
-    packageType: sdk
-    version: 5.x
-    installationPath: $(Agent.ToolsDirectory)/dotnet
     
 - task: gitversion/setup@0
   displayName: Install Git Version
   inputs:
-    versionSpec: '5.6.0'
+    versionSpec: '5.11.1'
 
 - bash: |
     dotnet-gitversion /output json /output buildserver /updateassemblyinfo ${{ parameters.coreProjectPath }}.AcceptanceTests/AssemblyInfo.cs /ensureassemblyinfo
