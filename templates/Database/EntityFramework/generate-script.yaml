@@ -15,29 +15,40 @@ parameters:
   - name: execute
     type: string
     default: 'true'
+  - name: dotnetVersion
+    type: string
+    default: ''
 
 steps:
-    - template: ../../Github\check-for-changes.yaml
-      parameters:
-        migrationsPath: ${{ parameters.migrationsPath }} 
+- template: ../../Github\check-for-changes.yaml
+  parameters:
+    migrationsPath: ${{ parameters.migrationsPath }} 
 
-    - powershell: |
-        $outputPath="${{ parameters.outputPath }}"
-        $workingPath="${{ parameters.workingPath }}"
-        $projectName="${{ parameters.projectName }}"
-        
-        $contextName="${{ parameters.contextName }}"
-        $outputName="$contextName.sql"
-        
-        dotnet tool install --global dotnet-ef
-        dotnet ef migrations script --output "$outputPath/$outputName" --context $contextName --idempotent --project "$workingPath/$projectName" --startup-project "$workingPath/$projectName" -v
-      displayName: 'Generate ${{parameters.contextName}} Scripts'
-      condition: eq(lower(variables['git.hasChanged']), 'true')
+- ${{ if ne(parameters.dotnetVersion, '') }}:
+  - task: UseDotNet@2
+    displayName: 'Install .NET Core ${{ parameters.dotnetVersion }} SDK'
+    inputs:
+      packageType: sdk
+      version: ${{ parameters.dotnetVersion }}
+      installationPath: $(Agent.ToolsDirectory)/dotnet
 
-    - task: PublishPipelineArtifact@1
-      displayName: Publish Artifacts
-      condition: eq(lower(variables['git.hasChanged']), 'true')
-      inputs:
-        targetPath: $(Build.StagingDirectory)
-        publishLocation: Pipeline
-        artifact: ${{ parameters.contextName }}-$(Build.BuildId)
+- powershell: |
+    $outputPath="${{ parameters.outputPath }}"
+    $workingPath="${{ parameters.workingPath }}"
+    $projectName="${{ parameters.projectName }}"
+    
+    $contextName="${{ parameters.contextName }}"
+    $outputName="$contextName.sql"
+    
+    dotnet tool install --global dotnet-ef
+    dotnet ef migrations script --output "$outputPath/$outputName" --context $contextName --idempotent --project "$workingPath/$projectName" --startup-project "$workingPath/$projectName" -v
+  displayName: 'Generate ${{parameters.contextName}} Scripts'
+  condition: eq(lower(variables['git.hasChanged']), 'true')
+
+- task: PublishPipelineArtifact@1
+  displayName: Publish Artifacts
+  condition: eq(lower(variables['git.hasChanged']), 'true')
+  inputs:
+    targetPath: $(Build.StagingDirectory)
+    publishLocation: Pipeline
+    artifact: ${{ parameters.contextName }}-$(Build.BuildId)
