@@ -5,6 +5,13 @@ parameters:
   highThreshold: 95
 
 steps:
+  - task: UseDotNet@2
+    displayName: 'Install .NET Core SDK 5.x'
+    inputs:
+      packageType: sdk
+      version: '5.x'
+      installationPath: $(Agent.ToolsDirectory)/dotnet
+
   - script: |
       dotnet tool restore
       dotnet stryker --break-at ${{ parameters.breakThreshold }} --threshold-low ${{ parameters.lowThreshold }} --threshold-high ${{ parameters.highThreshold }} --reporter "json" --reporter "dots"
