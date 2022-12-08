@@ -7,7 +7,7 @@ parameters:
 steps:
   - script: |
       dotnet tool restore
-      dotnet stryker --break-at ${{ parameters.breakThreshold }} --threshold-low ${{ parameters.lowThreshold }} --threshold-high ${{ parameters.highThreshold }} --reporters "['json','dots']"
+      dotnet stryker --break-at ${{ parameters.breakThreshold }} --threshold-low ${{ parameters.lowThreshold }} --threshold-high ${{ parameters.highThreshold }} --reporter "json" --reporter "dots"
     workingDirectory: ${{ parameters.path }}
     failOnStderr: true
     displayName: Run dotnet stryker
