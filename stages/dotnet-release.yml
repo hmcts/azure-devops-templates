@@ -1,7 +1,7 @@
 parameters:
   - name: baseAgent
     type: string
-    default: Ubuntu-latest
+    default: ubuntu-20.04
 
   - name: stageName
     type: string
