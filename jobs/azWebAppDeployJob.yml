@@ -106,13 +106,13 @@ jobs:
 
   environment: ${{ parameters.environment }}
 
-  services:
-    ${{ if parameters.runZapTests }}:
-      zapapi:
-        image: sspublicsbox.azurecr.io/secops/zaproxy:latest
-        endpoint: sspublicsbox
-        ports:
-          - 8080:8080
+  # services:
+  #   ${{ if parameters.runZapTests }}:
+  #     zapapi:
+  #       image: sspublicsbox.azurecr.io/secops/zaproxy:latest
+  #       endpoint: sspublicsbox
+  #       ports:
+  #         - 8080:8080
 
   variables:
     - ${{ each variable in parameters.variables }}:
