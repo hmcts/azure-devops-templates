@@ -385,7 +385,7 @@ stages:
         dependantStages: Package
         useCurrentPipeline: true
         stageName: AcceptanceTest
-        runZapTests: ${{ coalesce(parameters.releaseParameters.runZapTests, true) }}
+        runZapTests: ${{ coalesce(parameters.releaseParameters.runZapTests, false) }}
         ${{ each setting in parameters.releaseParameters }}:
           ${{ if ne(setting.key, 'runZapTests') }}:
             ${{ setting.key }}: ${{ setting.value }}
