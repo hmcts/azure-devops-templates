@@ -24,7 +24,7 @@ steps:
       scriptLocation: inlineScript
       inlineScript: |
         $rgName="${{ parameters.rgName }}"
-        $vmName="${{ parameters.vmName }}"
+        $vmNames="${{ parameters.vmName }}"
         $extName="${{ parameters.extName }}"
         $extPublisher="${{ parameters.extPublisher }}"
         $restBody = '${{ parameters.restApiPutBodyJson }}'
@@ -33,26 +33,32 @@ steps:
           Write-Host "restbody is either null or empty"
           $restBody="{}"
         }
-                      
-        Try {
-          
-          $subscriptionId = az account show --query "id" -o tsv
-          $restUri = -join("https://management.azure.com/subscriptions/$subscriptionId/resourceGroups/$rgName/providers/Microsoft.Compute/virtualMachines/$vmName/extensions/", "$extName", "?api-version=2021-11-01")
-          
-          Write-Host "Installing $extName from $extPublisher using REST API"
-          Write-Host "restUri: $restUri"
-          Write-Host "restBody:"
-          Write-Host "$restBody"
 
-          az rest --method put --uri $restUri --body $restBody
+        $vms = $vmNames.split(',')
+        foreach ($vmName in $vms) {
+          Try {
+            Write-Host "installing to $vmName"
+            
+            $subscriptionId = az account show --query "id" -o tsv
+            $restUri = -join("https://management.azure.com/subscriptions/$subscriptionId/resourceGroups/$rgName/providers/Microsoft.Compute/virtualMachines/$vmName/extensions/", "$extName", "?api-version=2021-11-01")
+            
+            Write-Host "Installing $extName from $extPublisher using REST API"
+            Write-Host "restUri: $restUri"
+            Write-Host "restBody:"
+            Write-Host "$restBody"
 
-          $subscriptionName = az account show --query "name" -o tsv
-          az vm extension wait --created --name $extName --subscription $subscriptionName --resource-group $rgName --vm-name $vmName
+            az rest --method put --uri $restUri --body $restBody
 
-        } Catch {
-          Write-Host "Failed"
-          Write-Host "restUri: $restUri"
-          Write-Host "rgName: $rgName   vmName: $vmName"
+            $subscriptionName = az account show --query "name" -o tsv
+            az vm extension wait --created --name $extName --subscription $subscriptionName --resource-group $rgName --vm-name $vmName
+
+          } Catch {
+            Write-Host "Failed"
+            Write-Host "restUri: $restUri"
+            Write-Host "rgName: $rgName   vmName: $vmName"
+          }
+
         }
+                      
 
         
