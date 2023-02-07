@@ -47,8 +47,11 @@ else {
   $workspaceName = "hmcts-nonprod"
 }
 
+$date = (Get-date).AddHours(720)
+$expDate = Get-Date $date -Format yyyy-MM-dd
+
 $workspaceId = "/subscriptions/$logAnalyticsSubscriptionId/resourcegroups/$logAnalyticsResourceGroup/providers/microsoft.operationalinsights/workspaces/$workspaceName"
-$tags = @{"application" = "$appName"; "businessArea" = $businessArea; "builtFrom" = $builtFrom; "environment" = $env; "criticality " = "low" }
+$tags = @{"application" = "$appName"; "businessArea" = $businessArea; "builtFrom" = $builtFrom; "environment" = $env; "criticality " = "low"; "expiresAfter" = $expDate}
 $dnsZones = @('privatelink.oms.opinsights.azure.com', 'privatelink.ods.opinsights.azure.com', 'privatelink.agentsvc.azure-automation.net', 'privatelink.monitor.azure.com')
 
 if (!(Get-Module -Name Az.MonitoringSolutions)) {
