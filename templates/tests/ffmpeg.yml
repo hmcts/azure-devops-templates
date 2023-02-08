@@ -11,6 +11,10 @@ parameters:
     type: string
   - name: storageContainer
     type: string
+  - name: tcp-wait
+    default: 10
+  - name: tcp-tries
+    default: 5
 
 steps:
   - bash: |
@@ -39,6 +43,31 @@ steps:
     displayName: Download Audio Sample
     name: audio
   
+  - powershell: |
+      $port = 443
+      $ip = "${{ parameters.source }}"
+      $wait = "${{ parameters.tcp-wait }}"
+      $n = "${{ parameters.tcp-tries }}"
+
+      $i = 1
+      Do {
+        Write-Host "[$i/$n] Checking port $port on $ip"
+        $conn = (Test-NetConnection -ComputerName $ip -Port $port).TcpTestSucceeded
+        if ($conn) {
+            Write-Host "Connection successful!"
+        } else {
+            Write-Host "Connection failed, trying again in $wait second(s)"
+            Start-Sleep -Seconds $wait
+            $i ++
+        }
+      } 
+      Until ($conn -or ($i -ge $n))
+
+      if(!($conn)) {
+        Write-Host "FAILED - Connection could not be made."
+        Write-Host "task.LogIssue type=error;]FAILED - Connection could not be made."
+      }
+
   - bash: |
       application="${application}"
       audioFilePath="${audioPath}"
