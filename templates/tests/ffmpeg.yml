@@ -11,10 +11,6 @@ parameters:
     type: string
   - name: storageContainer
     type: string
-  - name: tcp-wait
-    default: 10
-  - name: tcp-tries
-    default: 5
 
 steps:
   - bash: |
@@ -46,8 +42,8 @@ steps:
   - powershell: |
       $port = 443
       $ip = "${{ parameters.source }}"
-      $wait = "${{ parameters.tcp-wait }}"
-      $n = "${{ parameters.tcp-tries }}"
+      $wait = 10
+      $n = "5
 
       $i = 1
       Do {
