@@ -43,7 +43,7 @@ steps:
       $port = 443
       $ip = "${{ parameters.source }}"
       $wait = 10
-      $n = "5
+      $n = 5
 
       $i = 1
       Do {
