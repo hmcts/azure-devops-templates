@@ -63,6 +63,8 @@ steps:
         Write-Host "FAILED - Connection could not be made."
         Write-Host "task.LogIssue type=error;]FAILED - Connection could not be made."
       }
+    displayname: Check connectivityy
+    name: tcpcheck
 
   - bash: |
       application="${application}"
