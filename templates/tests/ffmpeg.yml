@@ -63,7 +63,7 @@ steps:
         Write-Host "FAILED - Connection could not be made."
         Write-Host "task.LogIssue type=error;]FAILED - Connection could not be made."
       }
-    displayname: Check connectivity
+    displayName: Check connectivity
     name: tcpcheck
 
   - bash: |
