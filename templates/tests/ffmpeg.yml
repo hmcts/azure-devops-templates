@@ -48,7 +48,7 @@ steps:
       $i = 1
       Do {
         Write-Host "[$i/$n] Checking port $port on $ip"
-        $conn = (Test-NetConnection -ComputerName $ip -Port $port).TcpTestSucceeded
+        $conn = (Test-Connection -ComputerName $ip -TcpPort $port)
         if ($conn) {
             Write-Host "Connection successful!"
         } else {
