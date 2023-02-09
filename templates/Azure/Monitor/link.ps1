@@ -47,9 +47,14 @@ else {
   $workspaceName = "hmcts-nonprod"
 }
 
+$date = (Get-date).AddHours(720)
+$expDate = Get-Date $date -Format yyyy-MM-dd
+
 $workspaceId = "/subscriptions/$logAnalyticsSubscriptionId/resourcegroups/$logAnalyticsResourceGroup/providers/microsoft.operationalinsights/workspaces/$workspaceName"
-$tags = @{"application" = "$appName"; "businessArea" = $businessArea; "builtFrom" = $builtFrom; "environment" = $env; "criticality " = "low" }
+$tags = @{"application" = "$appName"; "businessArea" = $businessArea; "builtFrom" = $builtFrom; "environment" = $env; "criticality " = "low"; "expiresAfter" = $expDate}
 $dnsZones = @('privatelink.oms.opinsights.azure.com', 'privatelink.ods.opinsights.azure.com', 'privatelink.agentsvc.azure-automation.net', 'privatelink.monitor.azure.com')
+
+$tags
 
 if (!(Get-Module -Name Az.MonitoringSolutions)) {
   Write-Host "Installing Az.MonitoringSolutions Module..." -ForegroundColor Yellow
@@ -120,14 +125,14 @@ if (!($privateLinkScope)) {
 }
 else {
   Write-Host "Azure Private Link Scope already exists. Exiting."
-  Write-Host "Updateing Tags"
+  Write-Host "Updating Tags"
 
   $privateLinkScopeId = $privateLinkScope.Id
-  Write-Host "Updateing PrivateLinkScope Tags $privateLinkScopeId"
+  Write-Host "Updating PrivateLinkScope Tags $privateLinkScopeId"
   Update-AzTag -ResourceId $privateLinkScopeId -Tag $tags -Operation Replace
 
   try {
-    Write-Host "Updateing PrivateEndpoint Tags $privateEndpointName"
+    Write-Host "Updating PrivateEndpoint Tags $privateEndpointName"
     $privateEndpoint = Get-AzPrivateEndpoint -ResourceGroupName $resourceGroupName -Name $privateEndpointName
     Update-AzTag -ResourceId $privateEndpoint.Id -Tag $tags -Operation Replace
     Update-AzTag -ResourceId $privateEndpoint.NetworkInterfaces.Id -Tag $tags -Operation Replace
