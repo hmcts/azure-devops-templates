@@ -39,6 +39,33 @@ steps:
     displayName: Download Audio Sample
     name: audio
   
+  - powershell: |
+      $port = 443
+      $ip = "${{ parameters.source }}"
+      $wait = 10
+      $n = 5
+
+      $i = 1
+      Do {
+        Write-Host "[$i/$n] Checking port $port on $ip"
+        $conn = (Test-Connection -ComputerName $ip -TcpPort $port)
+        if ($conn) {
+            Write-Host "Connection successful!"
+        } else {
+            Write-Host "Connection failed, trying again in $wait second(s)"
+            Start-Sleep -Seconds $wait
+            $i ++
+        }
+      } 
+      Until ($conn -or ($i -ge $n))
+
+      if(!($conn)) {
+        Write-Host "FAILED - Connection could not be made."
+        Write-Host "task.LogIssue type=error;]FAILED - Connection could not be made."
+      }
+    displayname: Check connectivity
+    name: tcpcheck
+
   - bash: |
       application="${application}"
       audioFilePath="${audioPath}"
