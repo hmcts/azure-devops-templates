@@ -16,7 +16,7 @@ parameters:
       default: false
 
 steps:
-  - ${{ if or( eq(parameters.action, 'Deny' ), eg(parameters.action, 'Allow') )}}:
+  - ${{ if or( eq(parameters.action, 'Deny' ), eq(parameters.action, 'Allow') )}}:
     - task: AzureCLI@2
       displayName: Update network defualt action to '${{ parameters.action }}' for ${{ parameters.storageAccountName }}
       ${{ if eq(parameters.alwaysRun, true ) }}:
