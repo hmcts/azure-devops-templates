@@ -29,20 +29,54 @@ steps:
           $storageAccountName = "${{ parameters.storageAccountName }}"
           $resourceGroupName = "${{ parameters.resourceGroupName }}"
           $action = "${{ parameters.action }}"
+          $wait = 10
+          $n = 10
 
           Write-Host "Starting Task: Update network defualt action to '$action' for '$storageAccountName'"
           az storage account update -g $resourceGroupName --name $storageAccountName --default-action $action --public-network-access Enabled 
           Write-Host "Updated, checking it applied..."
-          $sa = az storage account show -g $resourceGroupName --name $storageAccountName | ConvertFrom-Json
 
-          $defaultAction = $sa.networkRuleSet.defaultAction
-          $publicNetworkAccess = $sa.publicNetworkAccess
+          $accessKey = (az storage account keys list -g $resourceGroupName -n $storageAccountName | ConvertFrom-Json)[0].value
 
-          if (($defaultAction -eq $action) -and ($publicNetworkAccess -eq "Enabled")) {
-            Write-Host "Setting has been applied successfully"            
+          $i = 1
+
+          if($action -eq "Allow"){
+            do { 
+              Write-Host "[$i/$n] Testing Storage Account Connectivity, This May Take A Few Attempts, Please Wait..."
+              $status = az storage container list --account-name $storageAccountName  --account-key $accessKey
+
+              if($status) {
+                Write-Host "Connection successful"
+              } else {
+                Write-Host "Connection failed, trying again in $wait second(s)"
+                Start-Sleep -Seconds $wait
+                $i ++
+              }
+            } 
+            Until ($Status -or ($i -ge $n))
+            if(!($status)) {
+              Write-Host "##vso[task.LogIssue type=error;]FAILED - Connection could not be made in time."
+              exit 1
+            }
           } else {
-            Write-Host "##vso[task.LogIssue type=error;]The requested update did not apply"
-            exit 1
+            do { 
+              Write-Host "[$i/$n] Testing Storage Account Connectivity, This May Take A Few Attempts, Please Wait..."
+              $status = az storage container list --account-name $storageAccountName  --account-key $accessKey
+
+              if(!($status)) {
+                Write-Host "Connection successfully failed >_<"
+              } else {
+                Write-Host "Connection sucscessful (should fail), trying again in $wait second(s)"
+                Start-Sleep -Seconds $wait
+                $i ++
+              }
+            } 
+            Until (!($Status) -or ($i -ge $n))
+
+            if($status) {
+              Write-Host "##vso[task.LogIssue type=error;]FAILED - Connection is still available after given time."
+              exit 1
+            }
           }
 
   - ${{ if eq(parameters.action, 'Disabled' ) }}:
@@ -58,13 +92,29 @@ steps:
           $storageAccountName = "${{ parameters.storageAccountName }}"
           $resourceGroupName = "${{ parameters.resourceGroupName }}"
           $action = "${{ parameters.action }}"
+          $wait = 10
+          $n = 10
+
           Write-Host "Starting Task: Disable public network access for '$storageAccountName'"
           az storage account update -g $resourceGroupName --name $storageAccountName --public-network-access Disabled
           Write-Host "Updated, checking it applied..."
-          $publicNetworkAccess = (az storage account show -g $resourceGroupName --name $storageAccountName | ConvertFrom-Json).publicNetworkAccess
-          if ($publicNetworkAccess -eq $action) {
-            Write-Host "Setting has been applied successfully"
-          } else {
-            Write-Host "##vso[task.LogIssue type=error;]The requested update did not apply"
+
+          $i = 1
+          do { 
+            Write-Host "[$i/$n] Testing Storage Account Connectivity, This May Take A Few Attempts, Please Wait..."
+            $status = az storage container list --account-name $storageAccountName  --account-key $accessKey
+
+            if(!($status)) {
+              Write-Host "Connection successfully failed >_<"
+            } else {
+              Write-Host "Connection sucscessful (should fail), trying again in $wait second(s)"
+              Start-Sleep -Seconds $wait
+              $i ++
+            }
+          } 
+          Until (!($Status) -or ($i -ge $n))
+
+          if($status) {
+            Write-Host "##vso[task.LogIssue type=error;]FAILED - Connection is still available after given time."
             exit 1
-          }          
+          }
