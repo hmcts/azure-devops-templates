@@ -1,0 +1,69 @@
+parameters:
+    - name: subscriptionName
+      type: string
+    - name: resourceGroupName
+      type: string
+    - name: storageAccountName
+      type: string
+    - name: action
+      type: string
+      values:
+      - Deny
+      - Allow
+      - Disabled
+    - name: alwaysRun
+      type: boolean
+      default: false
+
+steps:
+  - ${{ if or( eq(parameters.action, 'Deny' ), eg(parameters.action, 'Allow') )}}:
+    - task: AzureCLI@2
+      displayName: Update network defualt action to '${{ parameters.action }}' for ${{ parameters.storageAccountName }}
+      ${{ if eq(parameters.alwaysRun, true ) }}:
+        condition: always() 
+      inputs:
+        azureSubscription: '${{parameters.subscriptionName}}'
+        scriptType: 'pscore'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          $storageAccountName = "${{ parameters.storageAccountName }}"
+          $resourceGroupName = "${{ parameters.resourceGroupName }}"
+          $action = "${{ parameters.action }}"
+          Write-Host "Starting Task: Update network defualt action to '$action' for '$storageAccountName'"
+          az storage account update -g $resourceGroupName --name $storageAccountName --default-action $action
+          Write-Host "Updated, checking it applied..."
+          $defaultAction = (az storage account show -g $resourceGroupName --name $storageAccountName | ConvertFrom-Json).networkRuleSet.defaultAction
+          if ($defaultAction -ne $action) 
+          {
+            Write-Host "##vso[task.LogIssue type=error;]The requested update did not apply"
+            exit 1
+          } else 
+          {
+            Write-Host "Setting has been applied successfully"
+          }
+
+  - ${{ if eq(parameters.action, 'Disabled' ) }}:
+    - task: AzureCLI@2
+      displayName: Disable public network access for '${{ parameters.storageAccountName }}'
+      ${{ if eq(parameters.alwaysRun, true ) }}:
+        condition: always() 
+      inputs:
+        azureSubscription: '${{parameters.subscriptionName}}'
+        scriptType: 'pscore'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          $storageAccountName = "${{ parameters.storageAccountName }}"
+          $resourceGroupName = "${{ parameters.resourceGroupName }}"
+          $action = "${{ parameters.action }}"
+          Write-Host "Starting Task: Disable public network access for '$storageAccountName'"
+          az storage account update -g $resourceGroupName --name $storageAccountName --public-network-access Disabled
+          Write-Host "Updated, checking it applied..."
+          $publicNetworkAccess = (az storage account show -g $resourceGroupName --name $storageAccountName | ConvertFrom-Json).publicNetworkAccess
+          if ($publicNetworkAccess -ne $action) 
+          {
+            Write-Host "##vso[task.LogIssue type=error;]The requested update did not apply"
+            exit 1
+          } else 
+          {
+            Write-Host "Setting has been applied successfully"
+          }          
