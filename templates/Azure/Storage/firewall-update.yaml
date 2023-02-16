@@ -29,17 +29,20 @@ steps:
           $storageAccountName = "${{ parameters.storageAccountName }}"
           $resourceGroupName = "${{ parameters.resourceGroupName }}"
           $action = "${{ parameters.action }}"
+
           Write-Host "Starting Task: Update network defualt action to '$action' for '$storageAccountName'"
-          az storage account update -g $resourceGroupName --name $storageAccountName --default-action $action
+          az storage account update -g $resourceGroupName --name $storageAccountName --default-action $action --public-network-access Enabled 
           Write-Host "Updated, checking it applied..."
-          $defaultAction = (az storage account show -g $resourceGroupName --name $storageAccountName | ConvertFrom-Json).networkRuleSet.defaultAction
-          if ($defaultAction -ne $action) 
-          {
+          $sa = az storage account show -g $resourceGroupName --name $storageAccountName | ConvertFrom-Json
+
+          $defaultAction = $sa.networkRuleSet.defaultAction
+          $publicNetworkAccess = $sa.publicNetworkAccess
+
+          if (($defaultAction -eq $action) -and ($publicNetworkAccess -eq "Enabled")) {
+            Write-Host "Setting has been applied successfully"            
+          } else {
             Write-Host "##vso[task.LogIssue type=error;]The requested update did not apply"
             exit 1
-          } else 
-          {
-            Write-Host "Setting has been applied successfully"
           }
 
   - ${{ if eq(parameters.action, 'Disabled' ) }}:
@@ -59,11 +62,9 @@ steps:
           az storage account update -g $resourceGroupName --name $storageAccountName --public-network-access Disabled
           Write-Host "Updated, checking it applied..."
           $publicNetworkAccess = (az storage account show -g $resourceGroupName --name $storageAccountName | ConvertFrom-Json).publicNetworkAccess
-          if ($publicNetworkAccess -ne $action) 
-          {
+          if ($publicNetworkAccess -eq $action) {
+            Write-Host "Setting has been applied successfully"
+          } else {
             Write-Host "##vso[task.LogIssue type=error;]The requested update did not apply"
             exit 1
-          } else 
-          {
-            Write-Host "Setting has been applied successfully"
           }          
