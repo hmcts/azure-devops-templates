@@ -65,6 +65,7 @@ steps:
 
               if(!($status)) {
                 Write-Host "Connection successfully failed >_<"
+                exit 0
               } else {
                 Write-Host "Connection successful (should fail), trying again in $wait second(s)"
                 Start-Sleep -Seconds $wait
@@ -106,6 +107,7 @@ steps:
 
             if(!($status)) {
               Write-Host "Connection successfully failed >_<"
+              exit 0
             } else {
               Write-Host "Connection successful (should fail), trying again in $wait second(s)"
               Start-Sleep -Seconds $wait
