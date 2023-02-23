@@ -56,7 +56,7 @@ steps:
     displayName: Build NuGet Project
     inputs:
       ${{ if eq(parameters.packageVersion, '') }}:
-        arguments: '--configuration release /p:Version="$(GitVersion.NuGetVersion)" /p:PackageOutputPath="$(Build.ArtifactStagingDirectory)/NugetPackages"'
+        arguments: '--configuration release /p:Version="$(GitVersion.MajorMinorPatch)" /p:PackageOutputPath="$(Build.ArtifactStagingDirectory)/NugetPackages"'
       ${{ else }}:
         arguments: '--configuration release /p:Version="${{ parameters.packageVersion }}" /p:PackageOutputPath="$(Build.ArtifactStagingDirectory)/NugetPackages"'
       versioningScheme: byBuildNumber
