@@ -20,10 +20,6 @@ parameters:
     default: ''
 
 steps:
-- template: ../../Github\check-for-changes.yaml
-  parameters:
-    migrationsPath: ${{ parameters.migrationsPath }} 
-
 - ${{ if ne(parameters.dotnetVersion, '') }}:
   - task: UseDotNet@2
     displayName: 'Install .NET Core ${{ parameters.dotnetVersion }} SDK'
@@ -43,11 +39,9 @@ steps:
     dotnet tool install --global dotnet-ef
     dotnet ef migrations script --output "$outputPath/$outputName" --context $contextName --idempotent --project "$workingPath/$projectName" --startup-project "$workingPath/$projectName" -v
   displayName: 'Generate ${{parameters.contextName}} Scripts'
-  condition: eq(lower(variables['git.hasChanged']), 'true')
 
 - task: PublishPipelineArtifact@1
   displayName: Publish Artifacts
-  condition: eq(lower(variables['git.hasChanged']), 'true')
   inputs:
     targetPath: $(Build.StagingDirectory)
     publishLocation: Pipeline
