@@ -33,13 +33,10 @@ steps:
     - task: gitversion/execute@0
       displayName: Run Git Version
       inputs:
-        additionalArguments: /updateassemblyinfo BookingsApi/BookingsApi/AssemblyInfo.cs /ensureassemblyinfo
-      #   ${{ if ne(parameters.gitVersionConfigPath, '') }}:
-      #     useConfigFile: true
-      #     configFilePath: '${{ parameters.gitVersionConfigPath }}'
-      #   ${{ else }}:
-      #     useConfigFile: false
-
+        ${{ if ne(parameters.gitVersionConfigPath, '') }}:
+          useConfigFile: true
+          configFilePath: '${{ parameters.gitVersionConfigPath }}'
+ 
   - task: DotNetCoreCLI@2
     displayName: dotnet restore
     inputs:
