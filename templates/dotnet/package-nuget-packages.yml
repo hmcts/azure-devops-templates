@@ -19,6 +19,9 @@ parameters:
     default: ''
 
 steps:
+  - checkout: self
+    fetchTags: true
+    
   - powershell: |
       Write-Host "##vso[task.setvariable variable=BuildNum;]$(Build.BuildNumber)"
       Write-Host "$(Build.BuildNumber)"
@@ -36,9 +39,7 @@ steps:
         ${{ if ne(parameters.gitVersionConfigPath, '') }}:
           useConfigFile: true
           configFilePath: '${{ parameters.gitVersionConfigPath }}'
-        ${{ else }}:
-          useConfigFile: false
-
+ 
   - task: DotNetCoreCLI@2
     displayName: dotnet restore
     inputs:
