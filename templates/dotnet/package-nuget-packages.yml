@@ -32,7 +32,8 @@ steps:
         
     - task: gitversion/execute@0
       displayName: Run Git Version
-      # inputs:
+      inputs:
+        additionalArguments: /updateassemblyinfo BookingsApi/BookingsApi/AssemblyInfo.cs /ensureassemblyinfo
       #   ${{ if ne(parameters.gitVersionConfigPath, '') }}:
       #     useConfigFile: true
       #     configFilePath: '${{ parameters.gitVersionConfigPath }}'
