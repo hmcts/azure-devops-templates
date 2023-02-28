@@ -32,12 +32,12 @@ steps:
         
     - task: gitversion/execute@0
       displayName: Run Git Version
-      inputs:
-        ${{ if ne(parameters.gitVersionConfigPath, '') }}:
-          useConfigFile: true
-          configFilePath: '${{ parameters.gitVersionConfigPath }}'
-        ${{ else }}:
-          useConfigFile: false
+      # inputs:
+      #   ${{ if ne(parameters.gitVersionConfigPath, '') }}:
+      #     useConfigFile: true
+      #     configFilePath: '${{ parameters.gitVersionConfigPath }}'
+      #   ${{ else }}:
+      #     useConfigFile: false
 
   - task: DotNetCoreCLI@2
     displayName: dotnet restore
