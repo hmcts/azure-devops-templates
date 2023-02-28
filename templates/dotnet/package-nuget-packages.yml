@@ -19,6 +19,9 @@ parameters:
     default: ''
 
 steps:
+  - checkout: self
+    fetchTags: true
+    
   - powershell: |
       Write-Host "##vso[task.setvariable variable=BuildNum;]$(Build.BuildNumber)"
       Write-Host "$(Build.BuildNumber)"
