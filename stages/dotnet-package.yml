@@ -180,6 +180,7 @@ stages:
             command: restore
             projects: ${{ parameters.coreProjectPath }}/*.csproj
             restoreArguments: --locked-mode --use-lock-file
+            externalFeedCredentials: 'SDS NuGet Feed'
             ${{ if eq(parameters.useNugetConfig, true) }}:
               feedsToUse: config
               nugetConfigPath: ${{ parameters.nugetConfigPath }}/nuget.config
