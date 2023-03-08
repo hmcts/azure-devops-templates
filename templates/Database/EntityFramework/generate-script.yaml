@@ -28,10 +28,9 @@ steps:
       version: ${{ parameters.dotnetVersion }}
       installationPath: $(Agent.ToolsDirectory)/dotnet
 
-- bash: |    
-    dotnet tool install dotnet-ef --global
-
-  displayName: Install EF Tool
+# - bash: |    
+#     dotnet tool install dotnet-ef --global  --ignore-failed-sources
+#   displayName: Install EF Tool
 
 - powershell: |
     $outputPath="${{ parameters.outputPath }}"
