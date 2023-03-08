@@ -23,7 +23,7 @@ steps:
 
           #wait for 2 rounds of the metrics to run before checking the probe
           sleep 3m
-          healthResults=$(az monitor metrics list --resource $lbName --resource-group $rgName --resource-type $resourceType --metric $metricName --query "(value[0].timeseries[0].data)[55:60].average" -o tsv)
+          healthResults=$(az monitor metrics list --resource $lbName --resource-group $rgName --resource-type $resourceType --metric $metricName --query "(value[0].timeseries[0].data)[-5:].average" -o tsv)
           echo $healthResults
 
           healthSuccess=true
