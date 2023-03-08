@@ -28,9 +28,9 @@ steps:
       version: ${{ parameters.dotnetVersion }}
       installationPath: $(Agent.ToolsDirectory)/dotnet
 
-# - bash: |    
-#     dotnet tool install dotnet-ef --global  --ignore-failed-sources
-#   displayName: Install EF Tool
+- bash: |    
+    PATH=$PATH:$HOME/.dotnet/tools
+  displayName: Install EF Tool
 
 - powershell: |
     $outputPath="${{ parameters.outputPath }}"
@@ -40,7 +40,8 @@ steps:
     $contextName="${{ parameters.contextName }}"
     $outputName="$contextName.sql"
 
-    PATH=$PATH:$HOME/.dotnet/tools
+    printenv
+
     dotnet ef migrations script --output "$outputPath/$outputName" --context $contextName --idempotent --project "$workingPath/$projectName" --startup-project "$workingPath/$projectName" -v
   displayName: 'Generate ${{parameters.contextName}} Scripts'
 
