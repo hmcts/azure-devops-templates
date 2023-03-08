@@ -37,7 +37,7 @@ steps:
     $outputName="$contextName.sql"
     
     dotnet tool install --global dotnet-ef
-    dotnet ef migrations script --output "$outputPath/$outputName" --context $contextName --idempotent --project "$workingPath/$projectName" --startup-project "$workingPath/$projectName" -v
+    dotnet-ef migrations script --output "$outputPath/$outputName" --context $contextName --idempotent --project "$workingPath/$projectName" --startup-project "$workingPath/$projectName" -v
   displayName: 'Generate ${{parameters.contextName}} Scripts'
 
 - task: PublishPipelineArtifact@1
