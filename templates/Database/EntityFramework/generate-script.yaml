@@ -40,6 +40,8 @@ steps:
     $contextName="${{ parameters.contextName }}"
     $outputName="$contextName.sql"
 
+    printenv
+
     $env:PATH += ":$Env:HOME/.dotnet/tools"    
 
     dotnet ef migrations script --output "$outputPath/$outputName" --context $contextName --idempotent --project "$workingPath/$projectName" --startup-project "$workingPath/$projectName" -v
