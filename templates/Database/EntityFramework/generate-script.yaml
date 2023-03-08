@@ -29,7 +29,7 @@ steps:
       installationPath: $(Agent.ToolsDirectory)/dotnet
 
 - powershell : |
-    dotnet tool upgrade dotnet-ef --global
+    dotnet tool update dotnet-ef --global
   displayName: Install EF Tool
 
 - powershell: |
