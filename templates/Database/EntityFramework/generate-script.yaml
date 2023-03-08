@@ -30,7 +30,6 @@ steps:
 
 - bash: |    
     PATH=$PATH:$HOME/.dotnet/tools
-    dotnet tool install --global dotnet-ef
   displayName: Install EF Tool
 
 - powershell: |
