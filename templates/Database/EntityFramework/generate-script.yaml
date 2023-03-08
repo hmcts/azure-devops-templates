@@ -28,10 +28,6 @@ steps:
       version: ${{ parameters.dotnetVersion }}
       installationPath: $(Agent.ToolsDirectory)/dotnet
 
-- bash: |    
-    PATH=$PATH:$HOME/.dotnet/tools
-  displayName: Install EF Tool
-
 - powershell: |
     $outputPath="${{ parameters.outputPath }}"
     $workingPath="${{ parameters.workingPath }}"
@@ -39,6 +35,8 @@ steps:
     
     $contextName="${{ parameters.contextName }}"
     $outputName="$contextName.sql"
+
+    $env:PATH += ":$Env:HOME/.dotnet/tools"    
 
     printenv
 
