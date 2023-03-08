@@ -29,6 +29,7 @@ steps:
       installationPath: $(Agent.ToolsDirectory)/dotnet
 
 - bash: |    
+    dotnet tool install dotnet-ef --global
     PATH=$PATH:$HOME/.dotnet/tools
   displayName: Install EF Tool
 
