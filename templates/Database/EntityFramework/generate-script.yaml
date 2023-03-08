@@ -42,6 +42,8 @@ steps:
 
     $env:PATH += ":$Env:HOME/.dotnet/tools"    
 
+    printenv
+
     dotnet ef migrations script --output "$outputPath/$outputName" --context $contextName --idempotent --project "$workingPath/$projectName" --startup-project "$workingPath/$projectName" -v
   displayName: 'Generate ${{parameters.contextName}} Scripts'
 
