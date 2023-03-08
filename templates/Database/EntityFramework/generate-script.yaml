@@ -28,7 +28,8 @@ steps:
       version: ${{ parameters.dotnetVersion }}
       installationPath: $(Agent.ToolsDirectory)/dotnet
 
-- powershell: |    
+- bash: |    
+    PATH=$PATH:$HOME/.dotnet/tools
     dotnet tool install --global dotnet-ef
   displayName: Install EF Tool
 
