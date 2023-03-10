@@ -28,6 +28,9 @@ steps:
       version: ${{ parameters.dotnetVersion }}
       installationPath: $(Agent.ToolsDirectory)/dotnet
 
+- task: NuGetAuthenticate@0
+  displayName: NuGet Authentication
+
 - pwsh : |
     dotnet tool update dotnet-ef --global
   displayName: Install EF Tool
