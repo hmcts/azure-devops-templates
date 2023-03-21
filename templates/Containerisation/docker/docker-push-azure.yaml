@@ -44,7 +44,7 @@ steps:
           $shorterCommitId=$commitId.SubString(0,7)
 
           $newTag= $tag -replace "#{DATETIME}#", $date -replace "#{SHORTCOMMITID}#", $shorterCommitId
-          Write-Host "New Tag $newTag"
+          Write-Host "##[command]NEW TAG : $newTag"
 
           $imageTag="$acrName.azurecr.io/${repositoryName}:$newTag"
 
