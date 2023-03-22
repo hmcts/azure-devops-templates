@@ -52,11 +52,13 @@ steps:
       searchFolder: $(System.DefaultWorkingDirectory)/TestResults
       failTaskOnFailedTests: true
 
-  - task: PublishTestResults@2
-    displayName: Publish Jasmine Test Results
-    condition: eq(${{ parameters.publishNodeTests }}, true)
-    inputs:
-      testResultsFormat: "JUnit" # Options: JUnit, NUnit, VSTest, xUnit, cTest
-      testResultsFiles: "**/TESTS.xml"
-      searchFolder: ${{ parameters.nodeTestResultFolder }}
-      failTaskOnFailedTests: true
+  # if publishNodeTests is true, then publish the test results
+  - ${{ if eq(parameters.publishNodeTests, true) }}:
+      - task: PublishTestResults@2
+        displayName: Publish Jasmine Test Results
+        condition: eq(${{ parameters.publishNodeTests }}, true)
+        inputs:
+          testResultsFormat: "JUnit" # Options: JUnit, NUnit, VSTest, xUnit, cTest
+          testResultsFiles: "**/TESTS.xml"
+          searchFolder: ${{ parameters.nodeTestResultFolder }}
+          failTaskOnFailedTests: true
