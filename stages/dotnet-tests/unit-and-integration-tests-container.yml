@@ -18,7 +18,7 @@ steps:
   - bash: |
       sed -i "s|</configuration>|<packageSourceCredentials><vh-packages><add key=\"Username\" value=\"PAT\" /><add key=\"ClearTextPassword\" value=\"$(System.AccessToken)\" /></vh-packages></packageSourceCredentials></configuration>|" nuget.sds.config
     displayName: Add NuGet Feed Authentication
-    workingDirectory: ${{ variables.appName }}
+    workingDirectory: ${{ parameters.appName }}
 
   - task: DockerCompose@0
     displayName: Run Unit & Integration Tests
