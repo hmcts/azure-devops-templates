@@ -16,7 +16,7 @@ parameters:
 
 steps:
   - bash: |
-      sed -i "s|</configuration>|<packageSourceCredentials><vh-packages><add key=\"Username\" value=\"PAT\" /><add key=\"ClearTextPassword\" value=\"$(System.AccessToken)\" /></vh-packages></packageSourceCredentials></configuration>|" nuget.sds.config
+      sed -i "s|</configuration>|<packageSourceCredentials><vh-packages><add key=\"Username\" value=\"PAT\" /><add key=\"ClearTextPassword\" value=\"$(System.AccessToken)\" /></vh-packages></packageSourceCredentials></configuration>|" ${{ parameters.nugetConfigPath }}
     displayName: Add NuGet Feed Authentication
     workingDirectory: ${{ parameters.appName }}
 
@@ -31,7 +31,7 @@ steps:
       SONAR_PROJECT_NAME: $(Build.Repository.Name)
     inputs:
       action: Run a Docker Compose command
-      dockerComposeFile: docker-compose.tests.yml
+      dockerComposeFile: ${{ parameters.dockerComposeTestFile }}
       projectName: $(Build.Repository.Name)
       dockerComposeCommand: up
       arguments: --build --abort-on-container-exit
@@ -51,7 +51,6 @@ steps:
       searchFolder: $(System.DefaultWorkingDirectory)/TestResults
       failTaskOnFailedTests: true
 
-  # if publishNodeTests is true, then publish the test results
   - ${{ if eq(parameters.publishNodeTests, true) }}:
       - task: PublishTestResults@2
         displayName: Publish Jasmine Test Results
