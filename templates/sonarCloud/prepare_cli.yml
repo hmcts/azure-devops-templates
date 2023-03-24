@@ -18,13 +18,6 @@ parameters:
     default: ""
 
 steps:
-  - ${{ if eq(parameters.ProjectKey, '')}}:
-      - powershell: |
-          $ProjectKey = "$(Build.Repository.Name)" -ireplace "hmcts\/"
-          Write-Output ("Sonar Cloud project key: {0}" -f $ProjectKey)
-          Write-Host "##vso[task.setvariable variable=ProjectKey;]$ProjectKey"
-        displayName: Set Sonar Cloud Project Key
-
   - task: SonarCloudPrepare@1
     displayName: Prepare Analysis on SonarCloud
     inputs:
@@ -32,7 +25,7 @@ steps:
       organization: ${{ parameters.Organization }}
       scannerMode: "CLI"
       configMode: "manual"
-      cliProjectKey: $(ProjectKey)
+      cliProjectKey: ${{ parameters.ProjectKey }}
       cliProjectName: ${{ parameters.ProjectName }}
       cliProjectVersion: ${{ parameters.ProjectVersion }}
       cliSources: "."
