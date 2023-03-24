@@ -29,6 +29,10 @@ steps:
       SONAR_PROJECT_KEY: $(gitRepoName)
       SONAR_PROJECT_VERSION: $(Build.BuildNumber)
       SONAR_PROJECT_NAME: $(Build.Repository.Name)
+      SONAR_PR_KEY: $(System.PullRequest.PullRequestNumber)
+      SONAR_PR_BRANCH: $(System.PullRequest.SourceBranch)
+      SONAR_PR_BASE: $(System.PullRequest.TargetBranch)
+
     inputs:
       action: Run a Docker Compose command
       dockerComposeFile: ${{ parameters.dockerComposeTestFile }}
