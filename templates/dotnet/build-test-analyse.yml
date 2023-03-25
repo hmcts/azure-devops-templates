@@ -27,7 +27,7 @@ steps:
       projects: "*/*.sln"
       arguments: "--configuration Release"
 
-  - template: ../stages/dotnet-tests/unit-and-integration-tests-container.yml
+  - template: ../../stages/dotnet-tests/unit-and-integration-tests-container.yml
     parameters:
       nugetConfigPath: ${{ parameters.nugetConfigPath }} # remove this once the sds config file is removed
       appName: ${{ parameters.appName }}
