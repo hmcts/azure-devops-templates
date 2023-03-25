@@ -33,6 +33,6 @@ steps:
       appName: ${{ parameters.appName }}
       dockerComposeTestFile: ${{ parameters.dockerComposeTestFile }}
       publishNodeTests: ${{ parameters.publishNodeTests }}
-      nodeTestResultFolder: ${{ paramaters.nodeTestResultFolder}}
+      nodeTestResultFolder: ${{ parameters.nodeTestResultFolder }}
 
   - template: ../sonarCloud/runAnalysis.yml
