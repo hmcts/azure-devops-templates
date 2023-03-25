@@ -22,17 +22,6 @@ steps:
 
   - task: DockerCompose@0
     displayName: Run Unit & Integration Tests
-    env:
-      SONAR_HOST: https://sonarcloud.io
-      SONAR_ORG: hmcts
-      SONAR_TOKEN: $(SonarLoginToken)
-      SONAR_PROJECT_KEY: $(gitRepoName)
-      SONAR_PROJECT_VERSION: $(Build.BuildNumber)
-      SONAR_PROJECT_NAME: $(Build.Repository.Name)
-      SONAR_PR_KEY: $(System.PullRequest.PullRequestNumber)
-      SONAR_PR_BRANCH: $(System.PullRequest.SourceBranch)
-      SONAR_PR_BASE: $(System.PullRequest.TargetBranch)
-
     inputs:
       action: Run a Docker Compose command
       dockerComposeFile: ${{ parameters.dockerComposeTestFile }}
