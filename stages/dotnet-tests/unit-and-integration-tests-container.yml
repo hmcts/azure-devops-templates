@@ -29,28 +29,20 @@ steps:
       dockerComposeCommand: up
       arguments: --build --abort-on-container-exit
 
-  - powershell: |
-      # replace every instance of /app with the full path to the source directory in the coverage file
-      $reportFile = $(System.DefaultWorkingDirectory)/AdminWebsite/Coverage/coverage.opencover.xml
+  - bash: |
+      ls -lt
 
-      ((Get-Content -path $reportFile -Raw) -replace '/app','$(Build.SourcesDirectory') | Set-Content -Path $reportFile
-      Get-Content -Path $reportFile
+      sourcesDirectory="$(Build.SourcesDirectory)"
+      coverageReport="$(System.DefaultWorkingDirectory)/AdminWebsite/Coverage/coverage.opencover.xml"
+      content=$(cat $coverageReport)
+
+      echo $content > "$(System.DefaultWorkingDirectory)/coverage.opencover.xml"
+
+      sed -i "s|\/app|$sourcesDirectory|g" "$(System.DefaultWorkingDirectory)/coverage.opencover.xml"
+
+      cat "$(System.DefaultWorkingDirectory)/coverage.opencover.xml"
     displayName: Replace Coverage File Paths
-
-  # - bash: |
-  #     ls -lt
-
-  #     sourcesDirectory="$(Build.SourcesDirectory)"
-  #     coverageReport="$(System.DefaultWorkingDirectory)/AdminWebsite/Coverage/coverage.opencover.xml"
-  #     content=$(cat $coverageReport)
-
-  #     echo $content > "$(System.DefaultWorkingDirectory)/coverage.opencover.xml"
-
-  #     sed -i "s|\/app|$sourcesDirectory|g" "$(System.DefaultWorkingDirectory)/coverage.opencover.xml"
-
-  #     cat "$(System.DefaultWorkingDirectory)/coverage.opencover.xml"
-  #   displayName: Replace Coverage File Paths
-  #   workingDirectory: ${{ parameters.appName }}/Coverage
+    workingDirectory: ${{ parameters.appName }}/Coverage
 
   - task: PublishCodeCoverageResults@1
     displayName: "Publish Code Coverage Report"
