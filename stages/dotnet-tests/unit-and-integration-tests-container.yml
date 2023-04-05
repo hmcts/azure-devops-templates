@@ -56,7 +56,7 @@ steps:
     inputs:
       testResultsFormat: "VSTest" # Options: JUnit, NUnit, VSTest, xUnit, cTest
       testResultsFiles: "**/*TestResults.trx"
-      searchFolder: $(System.DefaultWorkingDirectory)/TestResults
+      searchFolder: $(System.DefaultWorkingDirectory)/${{ parameters.appName }}/TestResults
       failTaskOnFailedTests: true
 
   - ${{ if eq(parameters.publishNodeTests, true) }}:
