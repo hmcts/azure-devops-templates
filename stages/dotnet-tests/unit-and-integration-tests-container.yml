@@ -29,6 +29,14 @@ steps:
       dockerComposeCommand: up
       arguments: --build --abort-on-container-exit
 
+  - bash: |
+      echo $(Build.SourcesDirectory)
+      ls
+      sed -i "s|/app|$(Build.SourcesDirectory)|" coverage.opencover.xml > tmp; cat tmp > coverage.opencover.xml; rm tmp
+      cat coverage.opencover.xml
+    displayName: Replace Coverage File Paths
+    workingDirectory: ${{ parameters.appName }}/Coverage
+
   - task: PublishCodeCoverageResults@1
     displayName: "Publish Code Coverage Report"
     inputs:
