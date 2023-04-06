@@ -38,7 +38,7 @@ steps:
 
       echo $content > "$(System.DefaultWorkingDirectory)/coverage.opencover.xml"
 
-      sed -i "s|\/app\/||g" "$(System.DefaultWorkingDirectory)/coverage.opencover.xml"
+      sed -i "s|\/app\/|$sourcesDirectory|g" "$(System.DefaultWorkingDirectory)/coverage.opencover.xml"
 
       cat "$(System.DefaultWorkingDirectory)/coverage.opencover.xml"
     displayName: Replace Coverage File Paths
