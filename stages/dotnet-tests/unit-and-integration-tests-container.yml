@@ -42,7 +42,7 @@ steps:
 
       cat "$(System.DefaultWorkingDirectory)/coverage.opencover.xml"
     displayName: Replace Coverage File Paths
-    workingDirectory: ${{ parameters.appName }}/Coverage
+    workingDirectory: $(System.DefaultWorkingDirectory)
 
   - task: PublishCodeCoverageResults@1
     displayName: "Publish Code Coverage Report"
