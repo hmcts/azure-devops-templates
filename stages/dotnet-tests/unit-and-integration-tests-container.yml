@@ -44,6 +44,10 @@ steps:
   #   displayName: Replace Coverage File Paths
   #   workingDirectory: ${{ parameters.appName }}/Coverage
 
+  - bash: |
+      sed -i '' "s|\/app\/||g" ./*_VH_Test_Report/src/*.html
+    displayName: Replace Coverage File Paths
+
   - task: PublishCodeCoverageResults@1
     displayName: "Publish Code Coverage Report"
     inputs:
