@@ -29,6 +29,16 @@ steps:
       dockerComposeCommand: up
       arguments: --build --abort-on-container-exit
 
+  - bash: |
+      sourcesDirectory="$(Build.SourcesDirectory)"
+      coverageReport="$(System.DefaultWorkingDirectory)/Coverage/coverage.opencover.xml"
+      content=$(cat $coverageReport)
+
+      echo $content > "$(System.DefaultWorkingDirectory)/coverage.opencover.xml"
+      sed -i "s|\/app|$sourcesDirectory|g" "$(System.DefaultWorkingDirectory)/coverage.opencover.xml"
+    displayName: Replace Coverage File Paths
+    workingDirectory: $(System.DefaultWorkingDirectory)
+
   - task: PublishCodeCoverageResults@1
     displayName: "Publish Code Coverage Report"
     inputs:
@@ -41,7 +51,6 @@ steps:
     inputs:
       testResultsFormat: "VSTest" # Options: JUnit, NUnit, VSTest, xUnit, cTest
       testResultsFiles: "**/*TestResults.trx"
-      searchFolder: $(System.DefaultWorkingDirectory)/TestResults
       failTaskOnFailedTests: true
 
   - ${{ if eq(parameters.publishNodeTests, true) }}:
