@@ -31,7 +31,7 @@ steps:
                   $envName="$parentName`_$childName"
                   if (Test-Path env:$envName){
                       Write-Host "Found value for $envName"
-                      $_.Value = $($environmentVars | Where-Object { $_.Name -eq "$envName" }).Value
+                      $_.Value = $($environmentVars | Where-Object { $_.Name -ceq "$envName" }).Value
                   } else {
                       Write-Host "Did NOT find value for $envName"
                   }
@@ -41,7 +41,7 @@ steps:
               Write-Host "$($parentName) is not an object"
               if (Test-Path env:$parentName){
                   Write-Host "Found value for $parentName"
-                  $_.Value = $($environmentVars | Where-Object { $_.Name -eq "$parentName" }).Value
+                  $_.Value = $($environmentVars | Where-Object { $_.Name -ceq "$parentName" }).Value
               } else {
                   Write-Host "Did NOT find value for $parentName"
               }
