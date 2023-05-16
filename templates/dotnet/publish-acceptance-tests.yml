@@ -61,12 +61,13 @@ steps:
     command: restore
     projects: '**/*AcceptanceTests.csproj'
     restoreArguments: --force-evaluate
-    ${{ if eq(parameters.useNugetConfig, true) }}:
-      feedsToUse: config
-      nugetConfigPath: ${{ parameters.nugetConfigPath }}/nuget.config
-    ${{ if eq(parameters.useNugetConfig, false) }}:
-      vstsFeed: ${{ parameters.vstsFeedId }}
-      includeNuGetOrg: true
+    ${{ if ne(parameters.vstsFeed, '') }}:
+        feedsToUse: select
+        vstsFeed: ${{ parameters.vstsFeed }}
+      ${{ else }}:
+        feedsToUse: config 
+        nugetConfigPath: ${{ parameters.nugetConfigFile }}
+      verbosityLevel: Minimal
 
 - task: DotNetCoreCLI@2
   displayName: donet publish
