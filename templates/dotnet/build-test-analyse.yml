@@ -25,6 +25,20 @@ steps:
       ExtraProperties: ${{ parameters.sonarExtraProperties }}
 
   - task: DotNetCoreCLI@2
+    displayName: Restore DotNet Solution # needed for sonar since AutoScan does not support c#
+    timeoutInMinutes: 10
+    inputs:
+      command: restore
+      projects: "*/*.sln"
+      # ${{ if ne(parameters.nugetConfigPath, '') }}:
+      #   feedsToUse: config
+      #   nugetConfigPath: ${{ parameters.nugetConfigPath }}/nuget.config
+      ${{ if ne(parameters.vstsFeedId, '') }}:
+        vstsFeed: ${{ parameters.vstsFeedId }}
+        includeNuGetOrg: true
+      arguments: "--configuration Release"
+
+  - task: DotNetCoreCLI@2
     displayName: Build DotNet # needed for sonar since AutoScan does not support c#
     timeoutInMinutes: 10
     inputs:
