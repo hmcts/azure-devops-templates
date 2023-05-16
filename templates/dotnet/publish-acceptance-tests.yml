@@ -61,12 +61,12 @@ steps:
       command: restore
       projects: "**/*AcceptanceTests.csproj"
       restoreArguments: --force-evaluate
-      ${{ if ne(parameters.vstsFeed, '') }}:
+      ${{ if ne(parameters.vstsFeedId, '') }}:
         feedsToUse: select
-        vstsFeed: ${{ parameters.vstsFeed }}
+        vstsFeed: ${{ parameters.vstsFeedId }}
       ${{ else }}:
         feedsToUse: config
-        nugetConfigPath: ${{ parameters.nugetConfigFile }}
+        nugetConfigPath: ${{ parameters.nugetConfigPath }}
       verbosityLevel: Minimal
 
   - task: DotNetCoreCLI@2
