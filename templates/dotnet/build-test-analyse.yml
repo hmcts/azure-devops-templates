@@ -17,7 +17,7 @@ parameters:
     default: ""
   - name: vstsFeedId
     type: string
-    default: "Video Hearings/vh-packages"
+    default: "cf3711aa-2aed-4f62-81a8-2afaee0ce26d/8415803c-cd1a-445d-b84a-e8b04359fdc4"
 
 steps:
   - template: ../sonarCloud/prepare.yml
