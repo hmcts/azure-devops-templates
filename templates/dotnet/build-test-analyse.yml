@@ -26,6 +26,7 @@ steps:
 
   - task: DotNetCoreCLI@2
     displayName: Build DotNet # needed for sonar since AutoScan does not support c#
+    timeoutInMinutes: 10
     inputs:
       projects: "*/*.sln"
       ${{ if ne(parameters.vstsFeedId, '') }}:
