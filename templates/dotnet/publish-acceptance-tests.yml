@@ -1,7 +1,7 @@
 parameters:
   - name: vstsFeedId
     type: string
-    default: ''
+    default: ""
 
   - name: useNugetConfig
     type: boolean
@@ -12,16 +12,16 @@ parameters:
 
   - name: nugetProjectPath
     type: string
-    default: ''
+    default: ""
 
   - name: nugetConfigPath
     type: string
-    default: ''
+    default: ""
 
   - name: packageManagers
     type: object
     default:
-     - nuget
+      - nuget
 
   - name: Test
     type: boolean
@@ -29,60 +29,60 @@ parameters:
 
   - name: netVersion
     type: string
-    default: '3.1.x'
+    default: "6.x"
 
 steps:
-- checkout: self
+  - checkout: self
 
-- powershell: |
-    Write-Host "##vso[task.setvariable variable=BuildNum;]$(Build.BuildNumber)"
-    Write-Host "$(Build.BuildNumber)"
-  displayName: Get BuildNumber
-    
-- task: gitversion/setup@0
-  displayName: Install Git Version
-  inputs:
-    versionSpec: '5.11.1'
+  - powershell: |
+      Write-Host "##vso[task.setvariable variable=BuildNum;]$(Build.BuildNumber)"
+      Write-Host "$(Build.BuildNumber)"
+    displayName: Get BuildNumber
 
-- bash: |
-    dotnet-gitversion /output json /output buildserver /updateassemblyinfo ${{ parameters.coreProjectPath }}.AcceptanceTests/AssemblyInfo.cs /ensureassemblyinfo
-  displayName: Determine Version for Acceptance Tests
+  - task: gitversion/setup@0
+    displayName: Install Git Version
+    inputs:
+      versionSpec: "5.11.1"
 
-- task: UseDotNet@2
-  displayName: 'Install .NET Core SDK'
-  inputs:
-    packageType: sdk
-    version: ${{ parameters.netVersion }}
-    installationPath: $(Agent.ToolsDirectory)/dotnet
+  - bash: |
+      dotnet-gitversion /output json /output buildserver /updateassemblyinfo ${{ parameters.coreProjectPath }}.AcceptanceTests/AssemblyInfo.cs /ensureassemblyinfo
+    displayName: Determine Version for Acceptance Tests
 
-- task: DotNetCoreCLI@2
-  displayName: dotnet restore
-  inputs:
-    command: restore
-    projects: '**/*AcceptanceTests.csproj'
-    restoreArguments: --force-evaluate
-    ${{ if eq(parameters.useNugetConfig, true) }}:
-      feedsToUse: config
-      nugetConfigPath: ${{ parameters.nugetConfigPath }}/nuget.config
-    ${{ if eq(parameters.useNugetConfig, false) }}:
-      vstsFeed: ${{ parameters.vstsFeedId }}
-      includeNuGetOrg: true
+  - task: UseDotNet@2
+    displayName: "Install .NET Core SDK"
+    inputs:
+      packageType: sdk
+      version: ${{ parameters.netVersion }}
+      installationPath: $(Agent.ToolsDirectory)/dotnet
 
-- task: DotNetCoreCLI@2
-  displayName: donet publish
-  inputs:
-    command: publish
-    publishWebProjects: false
-    arguments: --configuration Release --output $(build.artifactstagingdirectory)/AcceptanceTests
-    zipAfterPublish: false
-    workingDirectory: ${{ parameters.coreProjectPath }}.AcceptanceTests
+  - task: DotNetCoreCLI@2
+    displayName: dotnet restore
+    inputs:
+      command: restore
+      projects: "**/*AcceptanceTests.csproj"
+      ${{ if ne(parameters.vstsFeedId, '') }}:
+        feedsToUse: select
+        vstsFeed: ${{ parameters.vstsFeedId }}
+      ${{ else }}:
+        feedsToUse: config
+        nugetConfigPath: ${{ parameters.nugetConfigPath }}
+      verbosityLevel: Minimal
 
-- task: PublishBuildArtifacts@1
-  displayName: Publish Acceptance Tests
-  inputs:
-    PathtoPublish: $(Build.ArtifactStagingDirectory)/AcceptanceTests
-    ArtifactName: AcceptanceTests
+  - task: DotNetCoreCLI@2
+    displayName: donet publish
+    inputs:
+      command: publish
+      publishWebProjects: false
+      arguments: --configuration Release --output $(build.artifactstagingdirectory)/AcceptanceTests
+      zipAfterPublish: false
+      workingDirectory: ${{ parameters.coreProjectPath }}.AcceptanceTests
 
-- powershell: |
-    Write-Host "##vso[build.updatebuildnumber]$(BuildNum)"
-  displayName: Set Build.BuildNumber
+  - task: PublishBuildArtifacts@1
+    displayName: Publish Acceptance Tests
+    inputs:
+      PathtoPublish: $(Build.ArtifactStagingDirectory)/AcceptanceTests
+      ArtifactName: AcceptanceTests
+
+  - powershell: |
+      Write-Host "##vso[build.updatebuildnumber]$(BuildNum)"
+    displayName: Set Build.BuildNumber
