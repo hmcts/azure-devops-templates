@@ -21,6 +21,9 @@ parameters:
   - name: includeRefDataProject
     type: boolean
     default: false
+  - name: contextNameRefData
+    type: string
+    default: "RefDataContext"
   - name: workingPathRefData
     type: string
     default: "$(Build.SourcesDirectory)"
