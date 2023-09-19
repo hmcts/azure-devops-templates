@@ -60,8 +60,15 @@ steps:
     dotnet ef migrations script --output "$outputPath/$outputName" --context $contextName --idempotent --project "$workingPath/$projectName" --startup-project "$workingPath/$projectName" -v
   displayName: 'Generate ${{ parameters.contextName }} Scripts'
 
+- task: PublishPipelineArtifact@1
+  displayName: Publish Artifacts
+  inputs:
+    targetPath: $(Build.StagingDirectory)
+    publishLocation: Pipeline
+    artifact: ${{ parameters.contextName }}-$(Build.BuildId)
+
 - ${{ if eq(parameters.includeRefDataProject, true) }}:
-    - pwsh: |
+  - pwsh: |
       $outputPath="${{ parameters.outputPathRefData }}"
       $workingPath="${{ parameters.workingPathRefData }}"
       $projectName="${{ parameters.projectNameRefData }}"
@@ -73,10 +80,3 @@ steps:
 
       dotnet ef migrations script --output "$outputPath/$outputName" --context RefDataContext --idempotent --project ./RefData/RefData.csproj -s RefData/RefData.csproj -v
     displayName: 'Generate ${{ parameters.contextNameRefData }} Scripts'
-
-- task: PublishPipelineArtifact@1
-  displayName: Publish Artifacts
-  inputs:
-    targetPath: $(Build.StagingDirectory)
-    publishLocation: Pipeline
-    artifact: ${{ parameters.contextName }}-$(Build.BuildId)
