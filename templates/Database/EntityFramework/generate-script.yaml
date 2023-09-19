@@ -83,3 +83,10 @@ steps:
 
       dotnet ef migrations script --output "$outputPath/$outputName" --context RefDataContext --idempotent --project ./RefData/RefData.csproj -s RefData/RefData.csproj -v
     displayName: 'Generate ${{ parameters.contextNameRefData }} Scripts'
+
+  - task: PublishPipelineArtifact@1
+    displayName: Publish RefData Artifacts
+    inputs:
+      targetPath: $(Build.StagingDirectory)
+      publishLocation: Pipeline
+      artifact: ${{ parameters.contextNameRefData }}-$(Build.BuildId)
