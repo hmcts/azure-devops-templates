@@ -1,0 +1,53 @@
+parameters:
+  - name: environment
+    displayName: env to run against...
+    type: string
+    values:
+    - dev
+    - stg
+    - test
+    - ithc
+    - demo
+
+    # There is no nice way to do a 'multi select' in ADO, so the best thing is to use an object and then a user can delete to ones they dont want
+    # The other option is you have a param for each database with a yes/no option, but that will be messy. THe object also lets us loop
+  - name: databases
+    displayName: list the required databases to backup
+    type: object
+    default:
+    - vhnotifications
+    - vhbookings
+    - vhvideo
+
+
+# Use variables to peice together strings based on your params this can be done as they are set at run time
+variables:
+  - name: server
+    type: string
+    value: "vh-infra-core-${{ parameters.environment }}"
+
+  - name: sa
+    type: string
+    value: "vhinfracore${{ parameters.environment }}"
+
+  - name: keyvault
+    type: string
+    value: "vh-infra-core-${{ parameters.environment }}"
+
+
+
+jobs:
+  - ${{for each database in parameters.databases }}: # this will loop each entry in the object 
+  - job: backup_${{ database }}
+      steps:
+      - task: AzureCLI@2
+          displayName: Backup ${{ server }}/${{ database }}
+          name: backup_${{ server }}_${{ database }}
+          inputs:
+          azureSubscription: DTS-SHAREDSERVICES-${{ parameters.environment }}
+          scriptType: pscore
+          scriptLocation: inlineScript
+          inlineScript: |
+            $user = az get secrets $keyvault
+            $pass = az get secrets $keyvault
+            az sql db export -s ${{ server }}/${{ database }} -n $db -u $user -p $pass -c {{variables.containerName}} -b $vhinfra{{parameters.env}}-dbbackup
