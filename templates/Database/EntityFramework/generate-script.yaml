@@ -17,7 +17,10 @@ parameters:
     default: 'true'
   - name: dotnetVersion
     type: string
-    default: '6.x'
+    default: ''
+  - name: efVersion
+    type: string
+    default: '6.0.6'
 
 steps:
 - ${{ if ne(parameters.dotnetVersion, '') }}:
@@ -32,7 +35,9 @@ steps:
   displayName: NuGet Authentication
 
 - pwsh : |
-    dotnet tool update dotnet-ef --global --version ${{ parameters.dotnetVersion }}
+    $efVersion="${{ parameters.efVersion }}"
+
+    dotnet tool update dotnet-ef --global --version $efVersion
   displayName: Install EF Tool
 
 - pwsh: |
