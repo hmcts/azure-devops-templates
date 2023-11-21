@@ -21,6 +21,11 @@ steps:
     parameters:
       ExtraProperties: ${{ parameters.sonarExtraProperties }}
 
+  - task: UseDotNet@2
+    displayName: Set DotNet Version
+    inputs:
+      useGlobalJson: true
+
   - task: DotNetCoreCLI@2
     displayName: Build DotNet # needed for sonar since AutoScan does not support c#
     inputs:
