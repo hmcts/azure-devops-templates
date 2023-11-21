@@ -17,6 +17,9 @@ parameters:
     default: ""
   - name: dotnetversion
     default: "7.x"
+  - name: vstsFeedId
+    type: string
+    default: "cf3711aa-2aed-4f62-81a8-2afaee0ce26d/8415803c-cd1a-445d-b84a-e8b04359fdc4"
 
 steps:
   - template: ../sonarCloud/prepare.yml
@@ -31,9 +34,27 @@ steps:
   - task: NuGetAuthenticate@1
 
   - task: DotNetCoreCLI@2
+    displayName: Restore DotNet Solution # needed for sonar since AutoScan does not support c#
+    timeoutInMinutes: 10
+    inputs:
+      command: restore
+      projects: "*/*.sln"
+      # ${{ if ne(parameters.nugetConfigPath, '') }}:
+      #   feedsToUse: config
+      #   nugetConfigPath: ${{ parameters.nugetConfigPath }}/nuget.config
+      ${{ if ne(parameters.vstsFeedId, '') }}:
+        vstsFeed: ${{ parameters.vstsFeedId }}
+        includeNuGetOrg: true
+      arguments: "--configuration Release"
+
+  - task: DotNetCoreCLI@2
     displayName: Build DotNet # needed for sonar since AutoScan does not support c#
+    timeoutInMinutes: 10
     inputs:
       projects: "*/*.sln"
+      ${{ if ne(parameters.vstsFeedId, '') }}:
+        vstsFeed: ${{ parameters.vstsFeedId }}
+        includeNuGetOrg: true
       arguments: "--configuration Release"
 
   - template: ../../stages/dotnet-tests/unit-and-integration-tests-container.yml
