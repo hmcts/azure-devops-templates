@@ -24,7 +24,7 @@ steps:
   - task: UseDotNet@2
     displayName: Set DotNet Version
     inputs:
-      useGlobalJson: true
+      version: 6.x
 
   - task: DotNetCoreCLI@2
     displayName: Build DotNet # needed for sonar since AutoScan does not support c#
