@@ -28,6 +28,8 @@ steps:
     inputs:
       version: ${{ parameters.dotnetversion }}
 
+  - task: NuGetAuthenticate@1
+
   - task: DotNetCoreCLI@2
     displayName: Build DotNet # needed for sonar since AutoScan does not support c#
     inputs:
