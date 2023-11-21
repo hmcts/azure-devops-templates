@@ -53,6 +53,8 @@ steps:
         nugetConfigPath: ${{ parameters.nugetConfigFile }}
       verbosityLevel: Minimal
 
+  - task: NuGetAuthenticate@1
+
   - task: DotNetCoreCLI@2
     displayName: Build NuGet Project
     inputs:
