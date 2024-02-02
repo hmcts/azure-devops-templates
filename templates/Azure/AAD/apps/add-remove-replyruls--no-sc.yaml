@@ -30,7 +30,7 @@ parameters:
       - "web"
 
 steps:  
-  - powershell: |
+  - pwsh: |
         az login --service-principal --username ${{ parameters.azureClientId }} --password ${{ parameters.azureClientSecret }} --tenant ${{ parameters.azureTenant }}  --allow-no-subscriptions
 
         $appId = "${{ parameters.appId }}"
