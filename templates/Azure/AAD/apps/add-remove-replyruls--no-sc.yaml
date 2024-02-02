@@ -88,9 +88,10 @@ steps:
         Write-Host "Calling: $restUrl"
 
         $replyUrlsStr = $replyUrls | ConvertTo-Json -Compress -Depth 100
-        $replyUrlsStr = $replyUrlsStr -replace "`"", "\`""
         Write-Host "Body: $replyUrlsStr"
 
-        az rest --method PATCH --header "Content-Type=application/json" --uri $restUrl --body "{`"$appType`":{`"redirectUris`":$replyUrlsStr}}" --debug
+        $body = "{`"$appType`":{`"redirectUris`": $replyUrlsStr}}" | ConvertTo-Json
+
+        az rest --method PATCH --header "Content-Type=application/json" --uri $restUrl --body $body --debug
                 
     displayName: '${{ parameters.action }} ${{ parameters.domain }} Reply URL to ${{ parameters.appId }} ${{ parameters.name }}'
