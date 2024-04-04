@@ -28,6 +28,7 @@ steps:
       projectName: $(Build.Repository.Name)
       dockerComposeCommand: up
       arguments: --build --abort-on-container-exit
+      dockerComposePath: '/usr/libexec/docker/cli-plugins/docker-compose'
 
   - bash: |
       sourcesDirectory="$(Build.SourcesDirectory)"
