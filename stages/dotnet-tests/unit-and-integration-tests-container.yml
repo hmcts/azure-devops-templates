@@ -25,7 +25,8 @@ steps:
     inputs:
       action: Run a Docker Compose command
       dockerComposeFile: ${{ parameters.dockerComposeTestFile }}
-      projectName: $(Build.Repository.Name)
+      projectName: ${{ lower(variables['Build.Repository.Name']) }}
+      #projectName: $(Build.Repository.Name)
       dockerComposeCommand: up
       arguments: --build --abort-on-container-exit
       dockerComposePath: '/usr/libexec/docker/cli-plugins/docker-compose'
