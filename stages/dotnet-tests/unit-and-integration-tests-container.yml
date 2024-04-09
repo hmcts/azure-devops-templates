@@ -20,14 +20,12 @@ steps:
     displayName: Add NuGet Feed Authentication
     workingDirectory: ${{ parameters.appName }}
 
-  - task: DockerCompose@2
+  - task:  Bash@3
     displayName: Run Unit & Integration Tests
     inputs:
-      action: Run a Docker Compose command
-      dockerComposeFile: ${{ parameters.dockerComposeTestFile }}
-      projectName:  "vh-video-api"
-      arguments: --build --abort-on-container-exit
-      dockerComposePath: '/usr/libexec/docker/cli-plugins/docker-compose'
+      targetType: inline
+      script: >
+		docker compose -f  ${{ parameters.dockerComposeTestFile }} exec -T   --workdir  $(Build.Repository.Name)
 
   - bash: |
       sourcesDirectory="$(Build.SourcesDirectory)"
