@@ -25,7 +25,7 @@ steps:
     inputs:
       action: Run a Docker Compose command
       dockerComposeFile: ${{ parameters.dockerComposeTestFile }}
-      projectName:  'vh-video-api'
+      projectName:  $(Build.Repository.Name)
       arguments: --build --abort-on-container-exit
       dockerComposePath: '/usr/libexec/docker/cli-plugins/docker-compose'
 
