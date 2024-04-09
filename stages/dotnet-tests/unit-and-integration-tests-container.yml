@@ -25,7 +25,7 @@ steps:
     inputs:
       targetType: inline
       script: >
-		docker compose -f  ${{ parameters.dockerComposeTestFile }} exec -T   --workdir  $(Build.Repository.Name)
+        docker compose -f  ${{ parameters.dockerComposeTestFile }} exec -T   --workdir  $(Build.Repository.Name)
 
   - bash: |
       sourcesDirectory="$(Build.SourcesDirectory)"
