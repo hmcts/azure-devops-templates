@@ -27,7 +27,7 @@ steps:
       dockerComposeFile: ${{ parameters.dockerComposeTestFile }}
       projectName: $(Build.Repository.Name)
       script: >
-        docker compose -f  $dockerComposeFile --workdir $projectName 
+        docker-compose  ${{ parameters.dockerComposeTestFile }} up -d  $(Build.Repository.Name) --build --abort-on-container-exit
 
   - bash: |
       sourcesDirectory="$(Build.SourcesDirectory)"
