@@ -25,7 +25,7 @@ steps:
     inputs:
       action: Run a Docker Compose command
       dockerComposeFile: ${{ parameters.dockerComposeTestFile }}
-      projectName:   ${{ (Split("hmcts/vh-video-api","/").Result[1])}}
+      projectName:   ${{ (Split("hmcts/vh-video-api","/").Result)}}
       arguments: --build --abort-on-container-exit
       dockerComposePath: '/usr/libexec/docker/cli-plugins/docker-compose'
 
