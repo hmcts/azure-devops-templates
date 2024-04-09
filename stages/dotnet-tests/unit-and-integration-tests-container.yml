@@ -24,8 +24,10 @@ steps:
     displayName: Run Unit & Integration Tests
     inputs:
       targetType: inline
+      dockerComposeFile: ${{ parameters.dockerComposeTestFile }}
+      projectName: $(Build.Repository.Name)
       script: >
-        docker compose -f  ${{ parameters.dockerComposeTestFile }} exec -T   --workdir  $(Build.Repository.Name)
+        docker compose -f  $dockerComposeFile  exec -T   --workdir $projectName 
 
   - bash: |
       sourcesDirectory="$(Build.SourcesDirectory)"
