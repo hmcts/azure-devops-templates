@@ -27,7 +27,7 @@ steps:
       dockerComposeFile: ${{ parameters.dockerComposeTestFile }}
       projectName: $(Build.Repository.Name)
       script: >
-        docker compose -f  $dockerComposeFile  exec -T   --workdir $projectName 
+        docker compose -f  $dockerComposeFile --workdir $projectName 
 
   - bash: |
       sourcesDirectory="$(Build.SourcesDirectory)"
