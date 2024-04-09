@@ -20,7 +20,7 @@ steps:
     displayName: Add NuGet Feed Authentication
     workingDirectory: ${{ parameters.appName }}
 
-  - task: DockerCompose@0
+  - task: DockerCompose@2
     displayName: Run Unit & Integration Tests
     inputs:
       action: Run a Docker Compose command
