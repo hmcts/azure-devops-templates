@@ -27,7 +27,7 @@ steps:
       dockerComposeFile: ${{ parameters.dockerComposeTestFile }}
       projectName: $(Build.Repository.Name)
       script: >
-        docker-compose -f ${{ parameters.dockerComposeTestFile }} up -d  "vh-video-api" --build --abort-on-container-exit
+        docker-compose -f ${{ parameters.dockerComposeTestFile }} up -p vh-video-api --build --abort-on-container-exit
 
   - bash: |
       sourcesDirectory="$(Build.SourcesDirectory)"
