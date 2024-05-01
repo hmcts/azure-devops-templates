@@ -29,7 +29,7 @@ parameters:
 
   - name: netVersion
     type: string
-    default: "6.x"
+    default: "8.x"
 
 steps:
   - checkout: self
