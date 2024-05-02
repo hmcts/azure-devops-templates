@@ -44,7 +44,7 @@ parameters:
 
   - name: nodeVersion
     type: string
-    default: '16.x'
+    default: '18.x'
 
   - name: dependantStages
     type: object
@@ -99,7 +99,7 @@ parameters:
 
   - name: dotnetEfVersion
     type: string
-    default: '6.0.5'
+    default: '8.0.4'
 
 stages:
 - ${{ if or(parameters.PackageApp, parameters.PackageAcceptanceTests, parameters.ACTest, parameters.PackageNuget) }}:
