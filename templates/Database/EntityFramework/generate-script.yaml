@@ -20,7 +20,7 @@ parameters:
     default: ''
   - name: efVersion
     type: string
-    default: '8.x'
+    default: '8.0.4'
 
 steps:
 - ${{ if ne(parameters.dotnetVersion, '') }}:
