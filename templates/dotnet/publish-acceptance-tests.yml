@@ -55,6 +55,8 @@ steps:
       version: ${{ parameters.netVersion }}
       installationPath: $(Agent.ToolsDirectory)/dotnet
 
+  - task: NuGetAuthenticate@1
+
   - task: DotNetCoreCLI@2
     displayName: dotnet restore
     inputs:
