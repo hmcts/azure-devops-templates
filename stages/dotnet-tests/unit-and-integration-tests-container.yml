@@ -12,7 +12,7 @@ parameters:
     default: false
   - name: nodeTestResultFolder
     type: string
-    default: "" # Example would be $(System.DefaultWorkingDirectory)/<AppName>/<AppName>/ClientApp
+    default: '' # Example would be $(System.DefaultWorkingDirectory)/<AppName>/<AppName>/ClientApp
 
 steps:
   - bash: |
@@ -39,19 +39,19 @@ steps:
     displayName: Replace Coverage File Paths
     workingDirectory: $(System.DefaultWorkingDirectory)
 
-  - task: PublishCodeCoverageResults@1
-    displayName: "Publish Code Coverage Report"
+  - task: PublishCodeCoverageResults@2
+    displayName: 'Publish Code Coverage Report'
     inputs:
-      codeCoverageTool: "Cobertura"
       pathToSources: $(Build.SourcesDirectory)
-      summaryFileLocation: "$(System.DefaultWorkingDirectory)/**/coverage.cobertura.xml"
+      summaryFileLocation: '$(System.DefaultWorkingDirectory)/**/coverage.cobertura.xml'
+      failIfCoverageEmpty: true
 
   - task: PublishTestResults@2
     displayName: Publish API Test Results
     condition: succeededOrFailed()
     inputs:
-      testResultsFormat: "VSTest" # Options: JUnit, NUnit, VSTest, xUnit, cTest
-      testResultsFiles: "**/*TestResults.trx"
+      testResultsFormat: 'VSTest' # Options: JUnit, NUnit, VSTest, xUnit, cTest
+      testResultsFiles: '**/*TestResults.trx'
       failTaskOnFailedTests: true
 
   - ${{ if eq(parameters.publishNodeTests, true) }}:
@@ -59,7 +59,7 @@ steps:
         displayName: Publish Jasmine Test Results
         condition: eq(${{ parameters.publishNodeTests }}, true)
         inputs:
-          testResultsFormat: "JUnit" # Options: JUnit, NUnit, VSTest, xUnit, cTest
-          testResultsFiles: "**/TESTS.xml"
+          testResultsFormat: 'JUnit' # Options: JUnit, NUnit, VSTest, xUnit, cTest
+          testResultsFiles: '**/TESTS.xml'
           searchFolder: ${{ parameters.nodeTestResultFolder }}
           failTaskOnFailedTests: true
