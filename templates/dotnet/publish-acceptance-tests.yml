@@ -1,7 +1,7 @@
 parameters:
   - name: vstsFeedId
     type: string
-    default: ""
+    default: ''
 
   - name: useNugetConfig
     type: boolean
@@ -12,11 +12,11 @@ parameters:
 
   - name: nugetProjectPath
     type: string
-    default: ""
+    default: ''
 
   - name: nugetConfigPath
     type: string
-    default: ""
+    default: ''
 
   - name: packageManagers
     type: object
@@ -29,7 +29,7 @@ parameters:
 
   - name: netVersion
     type: string
-    default: "6.x"
+    default: '6.x'
 
 steps:
   - checkout: self
@@ -42,14 +42,14 @@ steps:
   - task: gitversion/setup@0
     displayName: Install Git Version
     inputs:
-      versionSpec: "5.11.1"
+      versionSpec: '5.x'
 
   - bash: |
       dotnet-gitversion /output json /output buildserver /updateassemblyinfo ${{ parameters.coreProjectPath }}.AcceptanceTests/AssemblyInfo.cs /ensureassemblyinfo
     displayName: Determine Version for Acceptance Tests
 
   - task: UseDotNet@2
-    displayName: "Install .NET Core SDK"
+    displayName: 'Install .NET Core SDK'
     inputs:
       packageType: sdk
       version: ${{ parameters.netVersion }}
@@ -61,7 +61,7 @@ steps:
     displayName: dotnet restore
     inputs:
       command: restore
-      projects: "**/*AcceptanceTests.csproj"
+      projects: '**/*AcceptanceTests.csproj'
       ${{ if ne(parameters.vstsFeedId, '') }}:
         feedsToUse: select
         vstsFeed: ${{ parameters.vstsFeedId }}
