@@ -20,7 +20,7 @@ parameters:
     default: ''
   - name: efVersion
     type: string
-    default: '6.0.24'
+    default: '8.0.4'
 
 steps:
 - ${{ if ne(parameters.dotnetVersion, '') }}:
@@ -31,7 +31,7 @@ steps:
       version: ${{ parameters.dotnetVersion }}
       installationPath: $(Agent.ToolsDirectory)/dotnet
 
-- task: NuGetAuthenticate@0
+- task: NuGetAuthenticate@1
   displayName: NuGet Authentication
 
 - pwsh : |

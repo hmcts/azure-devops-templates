@@ -22,7 +22,7 @@ parameters:
 
 - name: netVersion
   type: string
-  default: '5.x'
+  default: '8.x'
 
 stages:
 - ${{ if or(eq(variables['Build.Reason'], 'ResourceTrigger'), containsValue(parameters.environments, 'Preview')) }}:
