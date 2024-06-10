@@ -20,6 +20,7 @@ steps:
     displayName: Run Unit & Integration Tests
     inputs:
       action: Run a Docker Compose command
+      dockerComposePath: '/usr/libexec/docker/cli-plugins/docker-compose'
       dockerComposeFile: ${{ parameters.dockerComposeTestFile }}
       projectName: $(Build.Repository.Name)
       dockerComposeCommand: up
