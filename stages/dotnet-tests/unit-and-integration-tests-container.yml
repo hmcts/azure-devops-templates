@@ -15,10 +15,6 @@ parameters:
     default: "" # Example would be $(System.DefaultWorkingDirectory)/<AppName>/<AppName>/ClientApp
 
 steps:
-  - bash: |
-      sed -i "s|</configuration>|<packageSourceCredentials><vh-packages><add key=\"Username\" value=\"PAT\" /><add key=\"ClearTextPassword\" value=\"$(System.AccessToken)\" /></vh-packages></packageSourceCredentials></configuration>|" ${{ parameters.nugetConfigPath }}
-    displayName: Add NuGet Feed Authentication
-    workingDirectory: ${{ parameters.appName }}
 
   - task: DockerCompose@0
     displayName: Run Unit & Integration Tests
