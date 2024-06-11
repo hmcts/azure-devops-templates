@@ -16,16 +16,15 @@ parameters:
 
 steps:
 
-  - task: PowerShell
+  - task: PowerShell@2
     displayName: Run Unit & Integration Tests
     inputs:
-      scriptType: 'pscore'
-      scriptLocation: 'inlineScript'
-      inlineScript: |
+      targetType: 'inline'
+      script: |
         $dockerComposeTestFile = "docker-compose.test.yml"
-        $repositoryName =  $("Build.Repository.Name")kkkkxtgrxcrtfgx
+        $repositoryName =  $("Build.Repository.Name")
         $dockerComposeCommand = "up"
-        $arguments = "--build --abort-on-container-exit"hi
+        $arguments = "--build --abort-on-container-exit"
 
         Write-Host "Running Unit & Integration Tests using Docker Compose"
         $command = "docker-compose -f $dockerComposeTestFile -p $repositoryName $dockerComposeCommand $arguments"
