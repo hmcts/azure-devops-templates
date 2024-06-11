@@ -16,7 +16,7 @@ parameters:
 
 steps:
 
-  - task: PowerShell@2
+  - task: PowerShell
     displayName: Run Unit & Integration Tests
     inputs:
       scriptType: 'pscore'
