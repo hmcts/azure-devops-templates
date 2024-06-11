@@ -19,9 +19,8 @@ steps:
   - task: PowerShell@2
     displayName: Run Unit & Integration Tests
     inputs:
-      scriptType: pscore
-      scriptLocation: 'inlineScript'
-      inlineScript: |
+      targetType: 'inline'
+      inline: |
         $dockerComposeTestFile = "docker-compose.test.yml"
         $repositoryName =  $("Build.Repository.Name")
         $dockerComposeCommand = "up"
