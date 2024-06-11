@@ -22,9 +22,9 @@ steps:
       targetType: 'inline'
       inline: |
         $dockerComposeTestFile = "docker-compose.test.yml"
-        $repositoryName =  $("Build.Repository.Name")
+        $repositoryName =  $("Build.Repository.Name")kkkkxtgrxcrtfgx
         $dockerComposeCommand = "up"
-        $arguments = "--build --abort-on-container-exit"
+        $arguments = "--build --abort-on-container-exit"hi
 
         Write-Host "Running Unit & Integration Tests using Docker Compose"
         $command = "docker-compose -f $dockerComposeTestFile -p $repositoryName $dockerComposeCommand $arguments"
