@@ -15,19 +15,20 @@ parameters:
     default: "" # Example would be $(System.DefaultWorkingDirectory)/<AppName>/<AppName>/ClientApp
 
 steps:
-  - bash: |
-      sed -i "s|</configuration>|<packageSourceCredentials><vh-packages><add key=\"Username\" value=\"PAT\" /><add key=\"ClearTextPassword\" value=\"$(System.AccessToken)\" /></vh-packages></packageSourceCredentials></configuration>|" ${{ parameters.nugetConfigPath }}
-    displayName: Add NuGet Feed Authentication
-    workingDirectory: ${{ parameters.appName }}
 
-  - task: DockerCompose@0
+  - task: PowerShell@2
     displayName: Run Unit & Integration Tests
     inputs:
-      action: Run a Docker Compose command
-      dockerComposeFile: ${{ parameters.dockerComposeTestFile }}
-      projectName: "$(Build.Repository.Name)"
-      dockerComposeCommand: up
-      arguments: --build --abort-on-container-exit
+      targetType: 'inline'
+      script: |
+        $dockerComposeTestFile = "docker-compose.tests.yml"
+        $repositoryName =  "$(Build.Repository.Name)"
+        $dockerComposeCommand = "up"
+        $arguments = "--build"
+        Write-Host "Running Unit & Integration Tests using Docker Compose"
+        $command = "docker compose -f $dockerComposeTestFile -p $repositoryName $dockerComposeCommand $arguments"
+        Write-Host "Executing: $command"
+        Invoke-Expression $command
 
   - bash: |
       sourcesDirectory="$(Build.SourcesDirectory)"
