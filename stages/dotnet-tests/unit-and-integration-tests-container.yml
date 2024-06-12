@@ -24,10 +24,10 @@ steps:
         $dockerComposeTestFile = "docker-compose.test.yml"
         $repositoryName =  $("Build.Repository.Name")
         $dockerComposeCommand = "up"
-        $arguments = "--build --abort-on-container-exit"
+        $arguments = "--build"
 
         Write-Host "Running Unit & Integration Tests using Docker Compose"
-        $command = "docker-compose -f $dockerComposeTestFile -p $repositoryName $dockerComposeCommand $arguments"
+        $command = "docker compose -f $dockerComposeTestFile -p $repositoryName $dockerComposeCommand $arguments"
         Write-Host "Executing: $command"
         Invoke-Expression $command
 
