@@ -21,7 +21,7 @@ steps:
     inputs:
       targetType: 'inline'
       script: |
-        $dockerComposeTestFile = "docker-compose.test.yml"
+        $dockerComposeTestFile = "docker-compose.tests.yml"
         $repositoryName =  "vh-admin-web"
         $dockerComposeCommand = "up"
         $arguments = "--build"
