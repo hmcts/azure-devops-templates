@@ -22,7 +22,7 @@ steps:
       targetType: 'inline'
       script: |
         $dockerComposeTestFile = "docker-compose.test.yml"
-        $repositoryName =  $("Build.Repository.Name")
+        $repositoryName =  $(Build.Repository.Name)
         $dockerComposeCommand = "up"
         $arguments = "--build"
 
