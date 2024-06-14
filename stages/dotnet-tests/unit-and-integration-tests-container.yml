@@ -23,10 +23,11 @@ steps:
       script: |
         $dockerComposeTestFile = "docker-compose.tests.yml"
         $repositoryName =  "$(Build.Repository.Name)"
+        $projectName = ($repositoryName -split '/')[1]
         $dockerComposeCommand = "up"
         $arguments = "--build"
         Write-Host "Running Unit & Integration Tests using Docker Compose"
-        $command = "docker compose -f $dockerComposeTestFile -p $repositoryName $dockerComposeCommand $arguments"
+        $command = "docker compose -f $dockerComposeTestFile -p $projectName $dockerComposeCommand $arguments"
         Write-Host "Executing: $command"
         Invoke-Expression $command
 
