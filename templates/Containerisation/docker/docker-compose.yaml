@@ -30,7 +30,7 @@ steps:
             [string]$acrId = '$(acrId)',
             [string]$repositoryName = '$(repositoryName)',
             [string]$dockerComposeFile = '$(dockerComposeFile)'
-       )
+        )
 
        # Azure Container Registry login server
        $acrLoginServer = "$acrName.azurecr.io"
