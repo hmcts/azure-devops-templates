@@ -5,7 +5,7 @@ parameters:
     type: string
   - name: repositoryName
     type: string
-  - name: dockerComposeFile
+  - name: dockerfile
     type: string
     default: "**/docker-compose.yml"
     
@@ -29,4 +29,4 @@ steps:
       projectName: '${{ parameters.acrName }}/${{ parameters.repositoryName }}'
       qualifyImageNames: false
       Command: build
-      dockerfile : '**/Dockerfile'
+      dockerfile : '${{ parameters.dockerfile }}'
