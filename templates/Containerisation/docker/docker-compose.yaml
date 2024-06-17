@@ -30,3 +30,4 @@ steps:
       qualifyImageNames: false
       Command: buildAndPush
       dockerfile : '${{ parameters.dockerfile }}'
+      
