@@ -26,4 +26,5 @@ steps:
     inputs:
       targetType: 'inline'
       script: |
-        docker compose -f ${{ parameters.dockerComposeFile }} build
+        projectName: '${{ parameters.acrName }}/${{ parameters.repositoryName }}'
+        docker compose -f ${{ parameters.dockerComposeFile }} -p $projectName build 
