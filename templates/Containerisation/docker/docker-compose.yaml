@@ -7,7 +7,7 @@ parameters:
     type: string
   - name: dockerComposeFile
     type: string
-    default: "docker-compose.yml"
+    default: "**/docker-compose.yml"
     
 steps:
   - task: AzureCLI@2
