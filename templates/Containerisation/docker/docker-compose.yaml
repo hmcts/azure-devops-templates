@@ -51,7 +51,7 @@ steps:
         Write-Host "Running Docker Compose Build..."
         docker-compose -f $dockerComposeFile $dockerComposeCommand
         Write-Host "Docker Compose Build Completed."
-  env:
-    servicePrincipalId: $(servicePrincipalId)
-    servicePrincipalKey: $(servicePrincipalKey)
-    tenantId: $(tenantId)
+    env:
+      servicePrincipalId: $(servicePrincipalId)
+      servicePrincipalKey: $(servicePrincipalKey)
+      tenantId: $(tenantId)
