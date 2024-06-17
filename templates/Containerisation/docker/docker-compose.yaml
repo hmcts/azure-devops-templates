@@ -28,8 +28,9 @@ steps:
       script: |
         $dockerComposeFile = '${{ parameters.dockerComposeFile }}'
         $arguments = "--build"
+        $dockerComposeCommand = "up"
         $repositoryName = '${{ parameters.repositoryName }}'
         $projectName = ($repositoryName -split '/')[1]       
-        $command = "docker compose -f $dockerComposeFile -p $projectName $arguments"
+        $command = "docker compose -f $dockerComposeFile -p $projectName $dockerComposeCommand $arguments"
         Write-Host "Executing: $command"
         Invoke-Expression $command
