@@ -25,7 +25,7 @@ steps:
     inputs:
       azureSubscriptionEndpoint: '${{ parameters.azureSubscription }}'
       azureContainerRegistry: '$(acrId)'
-      containerRegistry: '${{ parameters.acrName }}.azurecr.io'
+      containerRegistry: '{"loginServer":"${{ parameters.acrName }}.azurecr.io", "id" : "$(acrId)"}'
       projectName: '${{ parameters.acrName }}/${{ parameters.repositoryName }}'
       repository : '${{ parameters.acrName }}/${{ parameters.repositoryName }}'
       qualifyImageNames: false
