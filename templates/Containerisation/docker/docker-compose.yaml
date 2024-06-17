@@ -25,8 +25,9 @@ steps:
     inputs:
       azureSubscriptionEndpoint: '${{ parameters.azureSubscription }}'
       azureContainerRegistry: '$(acrId)'
-      azureContainerRegistryName: '${{ parameters.acrName }}.azurecr.io'
+      containerRegistry: '${{ parameters.acrName }}.azurecr.io'
       projectName: '${{ parameters.acrName }}/${{ parameters.repositoryName }}'
+      repository : '${{ parameters.acrName }}/${{ parameters.repositoryName }}'
       qualifyImageNames: false
-      dockerComposeCommand: build --no-cache
-      dockerComposeFile: '${{ parameters.dockerComposeFile }}'
+      command: build --no-cache
+      Dockerfile: '${{ parameters.dockerComposeFile }}'
