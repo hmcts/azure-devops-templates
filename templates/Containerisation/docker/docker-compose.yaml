@@ -24,11 +24,11 @@ steps:
     displayName: 'Run a Docker Compose Build'
     inputs:
       containerRegistry: |
-      {
-        "loginServer": "${{ parameters.acrName }}.azurecr.io",
-        "id": "$(acrId)"
-      }
-      azureSubscriptionEndpoint: '${{ parameters.azureSubscription }}'
+        {
+          "loginServer": "${{ parameters.acrName }}.azurecr.io",
+          "id": "$(acrId)"
+        }
+     azureSubscriptionEndpoint: '${{ parameters.azureSubscription }}'
      command: 'compose'
      dockerComposeFile: '${{ parameters.dockerComposeFile }}'
      arguments: 'build'
