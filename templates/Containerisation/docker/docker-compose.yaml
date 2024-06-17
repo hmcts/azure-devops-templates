@@ -28,5 +28,5 @@ steps:
       azureContainerRegistryName: '${{ parameters.acrName }}.azurecr.io'
       projectName: '${{ parameters.acrName }}/${{ parameters.repositoryName }}'
       qualifyImageNames: false
-      dockerComposeCommand: build
+      dockerComposeCommand: build --no-cache
       dockerComposeFile: '${{ parameters.dockerComposeFile }}'
