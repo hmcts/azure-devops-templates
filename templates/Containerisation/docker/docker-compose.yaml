@@ -28,4 +28,4 @@ steps:
       projectName: '${{ parameters.acrName }}/${{ parameters.repositoryName }}'
       qualifyImageNames: false
       dockerComposeCommand: build
-      dockerComposeFile: '${{ parameters.dockerComposeFile }}'
+      dockerfile: '${{ parameters.dockerComposeFile }}'
