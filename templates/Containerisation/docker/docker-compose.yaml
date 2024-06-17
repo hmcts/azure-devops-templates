@@ -30,8 +30,7 @@ steps:
         $dockerComposeFile = '${{ parameters.dockerComposeFile }}'
         $dockerComposeCommand = "up"
         $arguments = "--build"
-        $projectName = '${{ parameters.acrName }}/${{ parameters.repositoryName }}'
-        echo "echo --> $command = docker compose -f $dockerComposeFile -p $projectName $dockerComposeCommand $arguments"
+        $projectName = ($repositoryName -split '/')[2]
         $command = "docker compose -f $dockerComposeFile -p $projectName $dockerComposeCommand $arguments"
         Write-Host "Executing: $command"
         Invoke-Expression $command
