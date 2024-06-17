@@ -29,4 +29,4 @@ steps:
         $dockerComposeCommand = "up"
         $arguments = "--build"
         projectName: '${{ parameters.acrName }}/${{ parameters.repositoryName }}'
-        $command = "docker compose -f $dockerComposeFile -p $projectName $dockerComposeCommand $arguments"
+        $command = "docker compose -f $dockerComposeFile -p ${{ parameters.projectName }} $dockerComposeCommand $arguments"
