@@ -28,7 +28,7 @@ steps:
           "loginServer": "${{ parameters.acrName }}.azurecr.io",
           "id": "$(acrId)"
         }
-     azureSubscriptionEndpoint: '${{ parameters.azureSubscription }}'
-     command: 'compose'
-     dockerComposeFile: '${{ parameters.dockerComposeFile }}'
-     arguments: 'build'
+      azureSubscriptionEndpoint: '${{ parameters.azureSubscription }}'
+      command: 'compose'
+      dockerComposeFile: '${{ parameters.dockerComposeFile }}'
+      arguments: 'build'
