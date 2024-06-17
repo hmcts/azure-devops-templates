@@ -28,9 +28,11 @@ steps:
       azureSubscriptionEndpoint: '${{ parameters.azureSubscription }}'
       azureContainerRegistry: '$(acrId)'
 
-  - task: Docker@2
-    displayName: 'Run Docker Compose Build'
+  - task: AzureCLI@2
+    displayName: 'Login to Azure'
     inputs:
-      command: 'run'
-      workingDirectory: '$(Build.SourcesDirectory)'
-      script: 'docker-compose -f ${{ parameters.dockerComposeFile }} build'
+      azureSubscription: '${{ parameters.azureSubscription }}'
+      scriptType: 'ps'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        az acr login --name ${{ parameters.acrName }}
