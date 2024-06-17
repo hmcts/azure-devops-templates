@@ -27,5 +27,5 @@ steps:
       azureContainerRegistry: '{"loginServer":"${{ parameters.acrName }}.azurecr.io", "id" : "$(acrId)"}'
       projectName: '${{ parameters.acrName }}/${{ parameters.repositoryName }}'
       qualifyImageNames: false
-      dockerComposeCommand: build
+      Command: build
       dockerfile: '**/Dockerfile'
