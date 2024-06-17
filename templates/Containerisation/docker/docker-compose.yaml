@@ -26,4 +26,4 @@ steps:
     inputs:
       targetType: 'inline'
       script: |
-        docker-compose -f ${{ parameters.dockerComposeFile }} build
+        docker compose -f ${{ parameters.dockerComposeFile }} build
