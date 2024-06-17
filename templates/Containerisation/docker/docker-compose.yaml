@@ -26,10 +26,10 @@ steps:
     inputs:
       targetType: 'inline'
       script: |
-        echo "dummy"
         $dockerComposeFile = '${{ parameters.dockerComposeFile }}'
         $dockerComposeCommand = "up"
         $arguments = "--build"
+        $repositoryName = '${{ parameters.repositoryName }}'
         echo "Value 1  ($repositoryName -split '/')[1]"
         echo "Value 2  ($repositoryName -split '/')[2]"
         $projectName = ($repositoryName -split '/')[1]
