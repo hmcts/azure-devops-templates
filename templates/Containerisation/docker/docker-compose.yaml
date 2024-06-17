@@ -26,5 +26,7 @@ steps:
     inputs:
       targetType: 'inline'
       script: |
+        $dockerComposeCommand = "up"
+        $arguments = "--build"
         projectName: '${{ parameters.acrName }}/${{ parameters.repositoryName }}'
-        docker compose -f ${{ parameters.dockerComposeFile }} -p $projectName build 
+        $command = "docker compose -f $dockerComposeFile -p $projectName $dockerComposeCommand $arguments"
