@@ -30,27 +30,27 @@ steps:
             [string]$acrId = '$(acrId)',
             [string]$repositoryName = '$(repositoryName)',
             [string]$dockerComposeFile = '$(dockerComposeFile)'
-      )
+       )
 
-      # Azure Container Registry login server
-      $acrLoginServer = "$acrName.azurecr.io"
+       # Azure Container Registry login server
+       $acrLoginServer = "$acrName.azurecr.io"
 
-      # Login to Azure
-      Write-Host "Logging in to Azure..."
-      az login --service-principal -u $env:servicePrincipalId -p $env:servicePrincipalKey --tenant $env:tenantId
-
-      # Login to Azure Container Registry
-      Write-Host "Logging in to Azure Container Registry..."
-      az acr login --name $acrName
-
-      # Docker Compose build command
-      $projectName = "$acrName/$repositoryName"
-      $dockerComposeCommand = "build"
-
-      # Run Docker Compose build
-      Write-Host "Running Docker Compose Build..."
-      docker-compose -f $dockerComposeFile $dockerComposeCommand
-      Write-Host "Docker Compose Build Completed."
+       # Login to Azure
+       Write-Host "Logging in to Azure..."
+       az login --service-principal -u $env:servicePrincipalId -p $env:servicePrincipalKey --tenant $env:tenantId
+  
+       # Login to Azure Container Registry
+       Write-Host "Logging in to Azure Container Registry..."
+       az acr login --name $acrName
+  
+       # Docker Compose build command
+       $projectName = "$acrName/$repositoryName"
+       $dockerComposeCommand = "build"
+  
+       # Run Docker Compose build
+       Write-Host "Running Docker Compose Build..."
+       docker-compose -f $dockerComposeFile $dockerComposeCommand
+       Write-Host "Docker Compose Build Completed."
   env:
     servicePrincipalId: $(servicePrincipalId)
     servicePrincipalKey: $(servicePrincipalKey)
