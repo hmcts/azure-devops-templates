@@ -20,7 +20,7 @@ steps:
         $acrId=az acr show -n '${{ parameters.acrName }}' --query "id" -o tsv
         echo "##vso[task.setvariable variable=acrId;isOutput=true]$acrId"
 
- - task: Docker@2
+  - task: Docker@2
     displayName: 'Login to Azure Container Registry'
     inputs:
       command: 'login'
