@@ -1,33 +1,31 @@
 parameters:
   - name: azureSubscription
-  type: string
+    type: string
   - name: acrName
-  type: string
+    type: string
   - name: repositoryName
-  type: string
-  - name: dockerfile
-  type: string
-  default: "**/docker-compose.yml"
-  
+    type: string
+  - name: dockerComposeFile
+    type: string
+    default: "**/docker-compose.yml"
+    
 steps:
   - task: AzureCLI@2
-  displayName: 'Get ID for ${{ parameters.acrName }}'
-  inputs:
-    azureSubscription: '${{ parameters.azureSubscription }}'
-    scriptType: 'pscore'
-    scriptLocation: 'inlineScript'
-    inlineScript: |
+    displayName: 'Get ID for ${{ parameters.acrName }}'
+    inputs:
+      azureSubscription: '${{ parameters.azureSubscription }}'
+      scriptType: 'pscore'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
         $acrId=az acr show -n '${{ parameters.acrName }}' --query "id" -o tsv
         echo "##vso[task.setvariable variable=acrId;isOutput=true]$acrId"
       
-    - task: Docker@2
+  - task: DockerCompose@0
     displayName: 'Run a Docker Compose Build'
     inputs:
       azureSubscription: '${{ parameters.azureSubscription }}'
       azureContainerRegistry: '{"loginServer":"${{ parameters.acrName }}.azurecr.io", "id" : "$(acrId)"}'
-      repository:  'vh-admin-web'
       projectName: '${{ parameters.acrName }}/${{ parameters.repositoryName }}'
       qualifyImageNames: false
-      Command: buildAndPush
-      dockerfile : '${{ parameters.dockerfile }}'
-      
+      dockerComposeCommand: build
+      dockerComposeFile: '${{ parameters.dockerComposeFile }}'
