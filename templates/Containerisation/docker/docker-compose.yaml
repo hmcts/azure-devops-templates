@@ -28,5 +28,5 @@ steps:
       repository:  'vh-admin-web'
       projectName: '${{ parameters.acrName }}/${{ parameters.repositoryName }}'
       qualifyImageNames: false
-      Command: build
+      Command: buildAndPush
       dockerfile : '${{ parameters.dockerfile }}'
