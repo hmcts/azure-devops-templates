@@ -19,18 +19,17 @@ steps:
       inlineScript: |
         $acrId=az acr show -n '${{ parameters.acrName }}' --query "id" -o tsv
         echo "##vso[task.setvariable variable=acrId;isOutput=true]$acrId"
-      
-- task: PowerShell@2
-  displayName: 'Run Docker Compose Build'
-  inputs:
-    targetType: 'inline'
-    script: |
-      param (
-          [string]$azureSubscription = '$(azureSubscription)',
-          [string]$acrName = '$(acrName)',
-          [string]$acrId = '$(acrId)',
-          [string]$repositoryName = '$(repositoryName)',
-          [string]$dockerComposeFile = '$(dockerComposeFile)'
+  - task: PowerShell@2
+    displayName: 'Run Docker Compose Build'
+    inputs:
+      targetType: 'inline'
+      script: |
+        param (
+            [string]$azureSubscription = '$(azureSubscription)',
+            [string]$acrName = '$(acrName)',
+            [string]$acrId = '$(acrId)',
+            [string]$repositoryName = '$(repositoryName)',
+            [string]$dockerComposeFile = '$(dockerComposeFile)'
       )
 
       # Azure Container Registry login server
@@ -56,4 +55,3 @@ steps:
     servicePrincipalId: $(servicePrincipalId)
     servicePrincipalKey: $(servicePrincipalKey)
     tenantId: $(tenantId)
-
