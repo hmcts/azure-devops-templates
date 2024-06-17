@@ -26,7 +26,8 @@ steps:
     inputs:
       targetType: 'inline'
       script: |
-        $dockerComposeFile = ${{ parameters.dockerComposeFile }}
+        echo "dummy"
+        $dockerComposeFile = '${{ parameters.dockerComposeFile }}'
         echo "docker compose -f $dockerComposeFile -p $projectName $dockerComposeCommand $arguments"
         $dockerComposeCommand = "up"
         $arguments = "--build"
