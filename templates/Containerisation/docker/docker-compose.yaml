@@ -19,18 +19,16 @@ steps:
       inlineScript: |
         $acrId=az acr show -n '${{ parameters.acrName }}' --query "id" -o tsv
         echo "##vso[task.setvariable variable=acrId;isOutput=true]$acrId"
-  - task: PowerShell@2
-    displayName: 'Run Docker Compose Build'
-    inputs:
-      targetType: 'inline'
-      script: |
-  
-        # Docker Compose build command
-        $projectName = "$acrName/$repositoryName"
-        $dockerComposeCommand = "build"
-  
-        # Run Docker Compose build
-        Write-Host "Running Docker Compose Build..."
-        docker-compose -f $dockerComposeFile $dockerComposeCommand
-        Write-Host "Docker Compose Build Completed."
 
+  - task: Docker@2
+    displayName: 'Run a Docker Compose Build'
+    inputs:
+      containerRegistry: |
+      {
+        "loginServer": "${{ parameters.acrName }}.azurecr.io",
+        "id": "$(acrId)"
+      }
+      azureSubscriptionEndpoint: '${{ parameters.azureSubscription }}'
+     command: 'compose'
+     dockerComposeFile: '${{ parameters.dockerComposeFile }}'
+     arguments: 'build'
