@@ -30,5 +30,5 @@ steps:
       repository: '${{ parameters.acrName }}/${{ parameters.repositoryName }}'
       qualifyImageNames: false
       buildContext: ${{ parameters.containerBuildContext }}
-      #containerRegistry: '{"loginServer":"${{ parameters.acrName }}.azurecr.io", "id" : "$(acrId)"}'
+      containerRegistry: "DTS-SHAREDSERVICES-DEV-Video Hearings"
       command: build
