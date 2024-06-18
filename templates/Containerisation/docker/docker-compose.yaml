@@ -26,6 +26,6 @@ steps:
       azureSubscription: '${{ parameters.azureSubscription }}'
       repository: '${{ parameters.acrName }}/${{ parameters.repositoryName }}'
       qualifyImageNames: false
-      containerRegistry: '{"loginServer":"${{ parameters.acrName }}.azurecr.io", "id" : "$(acrId)"}'
+      #containerRegistry: '{"loginServer":"${{ parameters.acrName }}.azurecr.io", "id" : "$(acrId)"}'
       command: build
       dockerComposeFile: '${{ parameters.dockerComposeFile }}'
