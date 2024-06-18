@@ -26,7 +26,7 @@ steps:
     inputs:
       targetType: 'inline'
       script: |
-        $dockerComposeFile = find / -name "docker-compose.yml"
+        $dockerComposeFile =  $(System.DefaultWorkingDirectory)/docker-compose.yml
         echo $dockerComposeFile
         $arguments = "--build"
         $dockerComposeCommand = "up"
