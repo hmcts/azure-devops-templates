@@ -8,6 +8,9 @@ parameters:
   - name: dockerComposeFile
     type: string
     default: "**/docker-compose.yml"
+  - name: containerBuildContext
+    type: string
+    default: './'
     
 steps:
   - task: AzureCLI@2
@@ -26,5 +29,6 @@ steps:
       azureSubscription: '${{ parameters.azureSubscription }}'
       repository: '${{ parameters.acrName }}/${{ parameters.repositoryName }}'
       qualifyImageNames: false
+      buildContext: ${{ parameters.containerBuildContext }}
       #containerRegistry: '{"loginServer":"${{ parameters.acrName }}.azurecr.io", "id" : "$(acrId)"}'
       command: build
