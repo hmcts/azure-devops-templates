@@ -28,4 +28,3 @@ steps:
       qualifyImageNames: false
       #containerRegistry: '{"loginServer":"${{ parameters.acrName }}.azurecr.io", "id" : "$(acrId)"}'
       command: build
-      dockerComposeFile: '${{ parameters.dockerComposeFile }}'
