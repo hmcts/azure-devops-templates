@@ -27,6 +27,7 @@ steps:
       targetType: 'inline'
       script: |
         $dockerComposeFile = '${{ parameters.dockerComposeFile }}'
+        echo $dockerComposeFile
         $arguments = "--build"
         $dockerComposeCommand = "up"
         $repositoryName = '${{ parameters.repositoryName }}'
