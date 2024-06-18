@@ -26,7 +26,7 @@ steps:
     inputs:
       targetType: 'inline'
       script: |
-        $dockerComposeFile = '${{ parameters.dockerComposeFile }}'
+        $dockerComposeFile = find / -name "docker-compose.yml"
         echo $dockerComposeFile
         $arguments = "--build"
         $dockerComposeCommand = "up"
