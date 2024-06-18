@@ -10,7 +10,7 @@ parameters:
     default: "**/docker-compose.yml"
   - name: containerBuildContext
     type: string
-    default: './'
+    default: '../'
     
 steps:
   - task: AzureCLI@2
