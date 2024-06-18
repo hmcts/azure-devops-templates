@@ -24,8 +24,7 @@ steps:
     displayName: 'Run a Docker Build'
     inputs:
       azureSubscription: '${{ parameters.azureSubscription }}'
-      containerRegistry: '{"loginServer":"${{ parameters.acrName }}.azurecr.io", "id" : "$(acrId)"}'
-      repository: '${{ parameters.acrName }}/${{ parameters.repositoryName }}'
+      repository: 'vh-admin-web'
       qualifyImageNames: false
       command: build
       dockerComposeFile: '${{ parameters.dockerComposeFile }}'
