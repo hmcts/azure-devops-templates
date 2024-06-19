@@ -26,7 +26,7 @@ steps:
     inputs:
       targetType: 'inline'
       script: |
-        $dockerComposeFile = find $(System.DefaultWorkingDirectory) -name "docker-compose.yml" 2>/dev/null
+        $dockerComposeFile = (Get-ChildItem -Path $(System.DefaultWorkingDirectory) -Recurse -Filter "docker-compose.yml").FullName
         echo $dockerComposeFile
         #$arguments = "--build"
         $dockerComposeCommand = "up"
