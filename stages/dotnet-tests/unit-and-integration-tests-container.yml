@@ -20,14 +20,20 @@ steps:
     displayName: Add NuGet Feed Authentication
     workingDirectory: ${{ parameters.appName }}
 
-  - task: DockerCompose@0
+  - task: PowerShell@2
     displayName: Run Unit & Integration Tests
     inputs:
-      action: Run a Docker Compose command
-      dockerComposeFile: ${{ parameters.dockerComposeTestFile }}
-      projectName: $(Build.Repository.Name)
-      dockerComposeCommand: up
-      arguments: --build --abort-on-container-exit
+      targetType: 'inline'
+      script: |
+        $dockerComposeTestFile = "docker-compose.tests.yml"
+        $repositoryName =  "$(Build.Repository.Name)"
+        $projectName = ($repositoryName -split '/')[1]
+        $dockerComposeCommand = "up"
+        $arguments = "--build --abort-on-container-exit"
+        Write-Host "Running Unit & Integration Tests using Docker Compose"
+        $command = "docker compose -f $dockerComposeTestFile -p $projectName $dockerComposeCommand $arguments"
+        Write-Host "Executing: $command"
+        Invoke-Expression $command
 
   - bash: |
       sourcesDirectory="$(Build.SourcesDirectory)"
