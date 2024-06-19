@@ -28,12 +28,13 @@ steps:
       script: |
         $dockerComposeFile = (Get-ChildItem -Path $(System.DefaultWorkingDirectory) -Recurse -Filter "docker-compose.yml").FullName
         echo $dockerComposeFile
-        #$arguments = "--build"
-        $dockerComposeCommand = "up"
         $repositoryName = '${{ parameters.repositoryName }}'
         $projectName = ($repositoryName -split '/')[1]       
-        docker compose config --resolve-image-digests --images
-        docker compose -f $dockerComposeFile -p $projectName $dockerComposeCommand $arguments
-        #$command = "docker compose -f $dockerComposeFile -p $projectName $dockerComposeCommand"
-       # Write-Host "Executing: $command"
-        #Invoke-Expression $command
+        $buildCommand = "docker compose -f `"$dockerComposeFile`" -p `"$projectName`" build"
+        Write-Host "Executing: $buildCommand"
+        Invoke-Expression $buildCommand
+      
+      # Start the containers without forcing recreation
+       $upCommand = "docker compose -f `"$dockerComposeFile`" -p `"$projectName`" up -d"
+       Write-Host "Executing: $upCommand"
+       Invoke-Expression $upCommand
