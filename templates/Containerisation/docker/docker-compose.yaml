@@ -33,8 +33,6 @@ steps:
         $buildCommand = "docker compose -f `"$dockerComposeFile`" -p `"$projectName`" build"
         Write-Host "Executing: $buildCommand"
         Invoke-Expression $buildCommand
-      
-      # Start the containers without forcing recreation
         $upCommand = "docker compose -f `"$dockerComposeFile`" -p `"$projectName`" up -d"
         Write-Host "Executing: $upCommand"
         Invoke-Expression $upCommand
