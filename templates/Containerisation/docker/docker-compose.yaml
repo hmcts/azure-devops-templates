@@ -36,4 +36,3 @@ steps:
         $upCommand = "docker compose -f `"$dockerComposeFile`" -p `"$projectName`" up -d"
         Write-Host "Executing: $upCommand"
         Invoke-Expression $upCommand
-        
