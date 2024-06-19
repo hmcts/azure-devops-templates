@@ -28,7 +28,7 @@ steps:
       script: |
         $dockerComposeFile = find $(System.DefaultWorkingDirectory) -name "docker-compose.yml" 2>/dev/null
         echo $dockerComposeFile
-        $arguments = "--build --no-recreate"
+        $arguments = "--build  --no-recreate"
         $dockerComposeCommand = "up"
         $repositoryName = '${{ parameters.repositoryName }}'
         $projectName = ($repositoryName -split '/')[1]       
