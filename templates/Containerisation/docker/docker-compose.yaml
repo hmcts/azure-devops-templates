@@ -28,10 +28,11 @@ steps:
       script: |
         $dockerComposeFile = find $(System.DefaultWorkingDirectory) -name "docker-compose.yml" 2>/dev/null
         echo $dockerComposeFile
-        $arguments = "--build  --no-recreate"
+        $arguments = "--build"
         $dockerComposeCommand = "up"
         $repositoryName = '${{ parameters.repositoryName }}'
         $projectName = ($repositoryName -split '/')[1]       
+        docker compose config --resolve-image-digests --images
         docker compose -f $dockerComposeFile -p $projectName $dockerComposeCommand $arguments
         #$command = "docker compose -f $dockerComposeFile -p $projectName $dockerComposeCommand $arguments"
        # Write-Host "Executing: $command"
