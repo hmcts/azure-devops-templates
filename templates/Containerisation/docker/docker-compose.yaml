@@ -26,7 +26,8 @@ steps:
     inputs:
       targetType: 'inline'
       script: |
-        $dockerComposeFile = (Get-ChildItem -Path $(System.DefaultWorkingDirectory) -Recurse -Filter "docker-compose.yml").FullName
+       # $dockerComposeFile = (Get-ChildItem -Path $(System.DefaultWorkingDirectory) -Recurse -Filter "docker-compose*.yml").FullName
+        $dockerComposeFile = Get-ChildItem -Path $env:System_DefaultWorkingDirectory -Recurse -Filter "docker-compose*.yml" | Select-Object -First 1 | Select-Object -ExpandProperty FullName
         echo $dockerComposeFile
         $repositoryName = '${{ parameters.repositoryName }}'
         $projectName = ($repositoryName -split '/')[1]       
