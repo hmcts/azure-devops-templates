@@ -28,6 +28,7 @@ steps:
         $extName="${{ parameters.extName }}"
         Write-Host $extName
         $extPublisher="${{ parameters.extPublisher }}"
+        Write-Host $extPublisher
         $restBody = '${{ parameters.restApiPutBodyJson }}'
 
         if ($null -eq $restBody -or $restBody -eq ""){
