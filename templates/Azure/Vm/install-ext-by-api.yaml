@@ -26,7 +26,7 @@ steps:
         $rgName="${{ parameters.rgName }}"
         $vmNames="${{ parameters.vmName }}"
         $extName="${{ parameters.extName }}"
-        Write-Host $extName
+        Write-Host "The extension name: $extName"
         $extPublisher="${{ parameters.extPublisher }}"
         Write-Host $extPublisher
         $restBody = '${{ parameters.restApiPutBodyJson }}'
@@ -42,6 +42,7 @@ steps:
             Write-Host "installing to $vmName"
             
             $subscriptionId = az account show --query "id" -o tsv
+            Write-Host "The subscription id is: $subscriptionId"
             $restUri = -join("https://management.azure.com/subscriptions/$subscriptionId/resourceGroups/$rgName/providers/Microsoft.Compute/virtualMachines/$vmName/extensions/", "$extName", "?api-version=2021-11-01")
             
             Write-Host "Installing $extName from $extPublisher using REST API"
