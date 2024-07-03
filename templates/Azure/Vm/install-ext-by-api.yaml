@@ -26,6 +26,7 @@ steps:
         $rgName="${{ parameters.rgName }}"
         $vmNames="${{ parameters.vmName }}"
         $extName="${{ parameters.extName }}"
+        Write-Host $extName
         $extPublisher="${{ parameters.extPublisher }}"
         $restBody = '${{ parameters.restApiPutBodyJson }}'
 
