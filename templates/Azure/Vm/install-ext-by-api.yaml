@@ -53,7 +53,7 @@ steps:
             az rest --method put --uri $restUri --body $restBody
 
             $subscriptionName = az account show --query "name" -o tsv
-            az vm extension set --created --name $extName --subscription $subscriptionName --resource-group $rgName --vm-name $vmName
+            az vm extension wait --created --name $extName --subscription $subscriptionName --resource-group $rgName --vm-name $vmName
 
           } Catch {
             Write-Host "Failed"
