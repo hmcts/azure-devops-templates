@@ -51,6 +51,10 @@ steps:
 
             $subscriptionName = az account show --query "name" -o tsv
             az vm extension wait --created --name $extName --subscription $subscriptionName --resource-group $rgName --vm-name $vmName --debug
+            Write-Host "Ext Name : $extName"
+            Write-Host "VM name : $vmName"
+            Write-Host "RG : $rgName"
+            Write-Host "Subscription : $subscriptionName"
 
           } Catch {
             Write-Host "Failed"
