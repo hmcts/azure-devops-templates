@@ -56,13 +56,8 @@ steps:
             Write-Host "VM name : $vmName"
             Write-Host "RG : $rgName"
             Write-Host "Subscription : $subscriptionName"
-            az vm extension show
 
-          } Catch {
-            Write-Host "Failed"
-            Write-Host "restUri: $restUri"
-            Write-Host "rgName: $rgName   vmName: $vmName"
-          }
+          } 
 
         }
                       
