@@ -57,7 +57,11 @@ steps:
             Write-Host "RG : $rgName"
             Write-Host "Subscription : $subscriptionName"
 
-          } 
+          } Catch {
+            Write-Host "Failed"
+            Write-Host "restUri: $restUri"
+            Write-Host "rgName: $rgName   vmName: $vmName"
+          }
 
         }
                       
