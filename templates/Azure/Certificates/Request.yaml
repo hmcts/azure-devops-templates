@@ -205,7 +205,7 @@ steps:
         while($ready -ne 0 -and $retry -lt 10) {
           sleep (10 * $retry++)  
           try{          
-            az keyvault network-rule remove --name $env:keyVaultName --ip-address "$IP/32"
+            az keyvault network-rule remove --name $env:keyVaultName --ip-address "$IP/32" --debug
             $ready = $LASTEXITCODE    
           } catch {
             $ready = 1
