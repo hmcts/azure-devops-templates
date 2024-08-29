@@ -14,7 +14,7 @@ steps:
         Write-Host "##vso[task.setvariable variable=ProjectKey;]$ProjectKey"
       displayName: Set Sonar Cloud Project Key
 
-  - task: SonarCloudPrepare@1
+  - task: SonarCloudPrepare@2
     displayName: Prepare Analysis on SonarCloud
     inputs:
       SonarCloud: ${{ parameters.EndpointName }}
