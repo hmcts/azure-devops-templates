@@ -45,10 +45,9 @@ steps:
     displayName: Replace Coverage File Paths
     workingDirectory: $(System.DefaultWorkingDirectory)
 
-  - task: PublishCodeCoverageResults@1
+  - task: PublishCodeCoverageResults@2
     displayName: "Publish Code Coverage Report"
     inputs:
-      codeCoverageTool: "Cobertura"
       pathToSources: $(Build.SourcesDirectory)
       summaryFileLocation: "$(System.DefaultWorkingDirectory)/**/coverage.cobertura.xml"
 

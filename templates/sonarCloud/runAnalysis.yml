@@ -1,6 +1,6 @@
 steps:
-  - task: SonarCloudAnalyze@1
+  - task: SonarCloudAnalyze@2
     displayName: 'Run Code Analysis'
-  
-  - task: SonarCloudPublish@1
+
+  - task: SonarCloudPublish@2
     displayName: 'Publish Quality Gate Result'
