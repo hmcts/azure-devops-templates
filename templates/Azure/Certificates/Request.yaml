@@ -157,6 +157,10 @@ steps:
       outputPem="$(Build.SourcesDirectory)/chainCert.pem"
 
       echo "" > ${outputPem}
+      ls -la
+      echo "certFile: ${certFile}""
+      echo "intermediateFile: ${intermediateFile}"
+      echo "privateKeyFile: ${privateKeyFile}"
       cat ${certFile} ${intermediateFile} ${privateKeyFile} > ${outputPem}
 
       openssl pkcs12 -export -out ${outputPfx} -in ${outputPem} -passin pass:${password} -passout pass:${password}
@@ -165,7 +169,7 @@ steps:
       echo "##vso[task.setvariable variable=pfxPass;isOutput=true;issecret=true]$password"
 
     displayName: "Repackage Cert"
-    condition: and(succeeded(), eq(variables['cert.expired'], 'True'))
+    # condition: and(succeeded(), eq(variables['cert.expired'], 'True'))
     name: "packaged"
     env:
       certFile: $(acmecert.certPath)
@@ -173,23 +177,23 @@ steps:
       privateKeyFile: $(acmecert.privateKeyPath)
       password: $(acmecert.pfxPass)
 
-  - task: AzureCLI@2
-    displayName: 'Import Certificate into ${{ parameters.keyVaultName }}'
-    condition: and(succeeded(), eq(variables['cert.expired'], 'True'))
-    inputs:
-      azureSubscription: '${{ parameters.subscriptionName }}'
-      scriptType: 'pscore'
-      scriptLocation: 'inlineScript'
-      inlineScript: |
+  # - task: AzureCLI@2
+  #   displayName: 'Import Certificate into ${{ parameters.keyVaultName }}'
+  #   condition: and(succeeded(), eq(variables['cert.expired'], 'True'))
+  #   inputs:
+  #     azureSubscription: '${{ parameters.subscriptionName }}'
+  #     scriptType: 'pscore'
+  #     scriptLocation: 'inlineScript'
+  #     inlineScript: |
 
-        $env="${{ parameters.environment }}"
-        $product="${{ parameters.product }}"
-        $keyVaultName="${{ parameters.keyVaultName }}"
-        $certName="$product-$env-le-cert"
-        $password="$(packaged.pfxPass)"
-        $pfxPath="$(packaged.pfxPath)"
+  #       $env="${{ parameters.environment }}"
+  #       $product="${{ parameters.product }}"
+  #       $keyVaultName="${{ parameters.keyVaultName }}"
+  #       $certName="$product-$env-le-cert"
+  #       $password="$(packaged.pfxPass)"
+  #       $pfxPath="$(packaged.pfxPath)"
 
-        az keyvault certificate import --vault-name $keyVaultName -n $certName -f $pfxPath --password $password
+  #       az keyvault certificate import --vault-name $keyVaultName -n $certName -f $pfxPath --password $password
 
   - task: AzureCLI@2
     displayName: Remove KeyVault FW Exception
