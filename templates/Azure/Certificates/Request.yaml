@@ -143,16 +143,15 @@ steps:
         echo "Requesting new cert..."
         New-PACertificate $domain -Plugin Azure -PluginArgs $pArgs -Verbose
         
-        echo "Contents of new cert:"
         $generatedCert=$(Get-PACertificate)
         
         # chain.cer, chain0.cer and chain1.cer are outputted files, which chain1.cer contains only the intermediate
-        echo "ChainFile: "
-        $generatedCert.ChainFile
-        $intermediatePath=$($generatedCert.ChainFile -replace 'chain.cer','chain1.cer')
+        # echo "ChainFile: "
+        # $generatedCert.ChainFile
+        # $intermediatePath=$($generatedCert.ChainFile)
 
         Write-Host "##vso[task.setvariable variable=certPath;isOutput=true]$($generatedCert.CertFile)"
-        Write-Host "##vso[task.setvariable variable=intermediatePath;isOutput=true]$intermediatePath"
+        Write-Host "##vso[task.setvariable variable=intermediatePath;isOutput=true]$($generatedCert.ChainFile)"
         Write-Host "##vso[task.setvariable variable=privateKeyPath;isOutput=true]$($generatedCert.KeyFile)"
         Write-Host "##vso[task.setvariable variable=pfxPath;isOutput=true]$($generatedCert.PfxFullChain)"
         Write-Host "##vso[task.setvariable variable=pfxPass;isOutput=true;issecret=true]$pfxPassword"
