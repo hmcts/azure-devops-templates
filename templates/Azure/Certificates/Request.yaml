@@ -131,7 +131,7 @@ steps:
 
         # Acquire access token for Azure (as we want to leverage the existing connection)
         Write-Host "Get Azure Details"
-        $azAccount = az account show -s "UK Digital, Data & Cloud Solutions" -o json | ConvertFrom-Json
+        $azAccount = az account show -s "Reform-CFT-Mgmt" -o json | ConvertFrom-Json
         Write-Host "Azure DNS Sub $($azAccount.name)"
         $token = (az account get-access-token --resource 'https://management.core.windows.net/' | ConvertFrom-Json).accessToken
 
