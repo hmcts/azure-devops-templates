@@ -91,7 +91,7 @@ steps:
       scriptType: 'pscore'
       scriptLocation: 'inlineScript'
       inlineScript: |
-        $workingDirectory="$(Build.SourcesDirectory)"
+        $workingDirectory="$(Pipeline.Workspace)"
 
         $product="${{ parameters.product }}"
         $env="${{ parameters.environment }}"
@@ -140,11 +140,15 @@ steps:
           AZSubscriptionId = $azAccount.id
           AZAccessToken = $token
         }
+        echo "Requesting new cert..."
         New-PACertificate $domain -Plugin Azure -PluginArgs $pArgs -Verbose
-
+        
+        echo "Contents of new cert:"
         $generatedCert=$(Get-PACertificate)
-        Get-PACertificate | fl
+        
         # chain.cer, chain0.cer and chain1.cer are outputted files, which chain1.cer contains only the intermediate
+        echo "ChainFile: "
+        $generatedCert.ChainFile
         $intermediatePath=$($generatedCert.ChainFile -replace 'chain.cer','chain1.cer')
 
         Write-Host "##vso[task.setvariable variable=certPath;isOutput=true]$($generatedCert.CertFile)"
@@ -154,12 +158,12 @@ steps:
         Write-Host "##vso[task.setvariable variable=pfxPass;isOutput=true;issecret=true]$pfxPassword"
 
   - bash: |
-      outputPfx="$(Build.SourcesDirectory)/output.pfx"
-      outputPem="$(Build.SourcesDirectory)/chainCert.pem"
+      outputPfx="$(Pipeline.Workspace)/output.pfx"
+      outputPem="$(Pipeline.Workspace)/chainCert.pem"
 
       echo "" > ${outputPem}
       ls -la
-      echo "certFile: ${certFile}""
+      echo "certFile: ${certFile}"
       echo "intermediateFile: ${intermediateFile}"
       echo "privateKeyFile: ${privateKeyFile}"
       cat ${certFile} ${intermediateFile} ${privateKeyFile} > ${outputPem}
