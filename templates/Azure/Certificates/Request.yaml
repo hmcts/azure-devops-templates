@@ -167,7 +167,7 @@ steps:
       echo "intermediateFile: ${intermediateFile}"
       echo "privateKeyFile: ${privateKeyFile}"
       cat ${certFile} ${intermediateFile} ${privateKeyFile} > ${outputPem}
-
+      cat ${outputPem}
       openssl pkcs12 -export -out ${outputPfx} -in ${outputPem} -passin pass:${password} -passout pass:${password}
 
       echo "##vso[task.setvariable variable=pfxPath;isOutput=true]${outputPfx}"
