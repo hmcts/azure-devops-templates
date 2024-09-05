@@ -150,8 +150,7 @@ steps:
         # $generatedCert.ChainFile
         # $intermediatePath=$($generatedCert.ChainFile)
 
-        Write-Host "##vso[task.setvariable variable=certPath;isOutput=true]$($generatedCert.CertFile)"
-        Write-Host "##vso[task.setvariable variable=intermediatePath;isOutput=true]$($generatedCert.ChainFile)"
+        Write-Host "##vso[task.setvariable variable=certPath;isOutput=true]$($generatedCert.FullChainFile)"
         Write-Host "##vso[task.setvariable variable=privateKeyPath;isOutput=true]$($generatedCert.KeyFile)"
         Write-Host "##vso[task.setvariable variable=pfxPath;isOutput=true]$($generatedCert.PfxFullChain)"
         Write-Host "##vso[task.setvariable variable=pfxPass;isOutput=true;issecret=true]$pfxPassword"
@@ -164,9 +163,8 @@ steps:
       echo "" > ${outputPem}
       ls -la
       echo "certFile: ${certFile}"
-      echo "intermediateFile: ${intermediateFile}"
       echo "privateKeyFile: ${privateKeyFile}"
-      cat ${certFile} ${intermediateFile} ${privateKeyFile} > ${outputPem}
+      cat ${certFile} ${privateKeyFile} > ${outputPem}
       cat ${outputPem}
       openssl pkcs12 -export -out ${outputPfx} -in ${outputPem} -passin pass:${password} -passout pass:${password}
 
@@ -178,7 +176,6 @@ steps:
     name: "packaged"
     env:
       certFile: $(acmecert.certPath)
-      intermediateFile: $(acmecert.intermediatePath)
       privateKeyFile: $(acmecert.privateKeyPath)
       password: $(acmecert.pfxPass)
 
