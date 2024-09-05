@@ -143,6 +143,7 @@ steps:
         New-PACertificate $domain -Plugin Azure -PluginArgs $pArgs -Verbose
 
         $generatedCert=$(Get-PACertificate)
+        Get-PACertificate | fl
         # chain.cer, chain0.cer and chain1.cer are outputted files, which chain1.cer contains only the intermediate
         $intermediatePath=$($generatedCert.ChainFile -replace 'chain.cer','chain1.cer')
 
