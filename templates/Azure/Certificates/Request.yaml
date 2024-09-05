@@ -155,6 +155,7 @@ steps:
         Write-Host "##vso[task.setvariable variable=privateKeyPath;isOutput=true]$($generatedCert.KeyFile)"
         Write-Host "##vso[task.setvariable variable=pfxPath;isOutput=true]$($generatedCert.PfxFullChain)"
         Write-Host "##vso[task.setvariable variable=pfxPass;isOutput=true;issecret=true]$pfxPassword"
+        cat $($generatedCert.ChainFile)
 
   - bash: |
       outputPfx="$(Pipeline.Workspace)/output.pfx"
