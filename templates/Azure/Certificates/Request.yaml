@@ -14,6 +14,7 @@ steps:
 
   - task: AzureCLI@2
     displayName: Add KeyVault FW Exception
+    failOnStandardError: true
     inputs:
       azureSubscription: ${{ parameters.subscriptionName }}
       scriptType: pscore
@@ -45,6 +46,7 @@ steps:
 
   - task: AzureCLI@2
     displayName: 'Check if Cert expired in ${{ parameters.keyVaultName }}'
+    failOnStandardError: true
     name: cert
     inputs:
       azureSubscription: '${{ parameters.subscriptionName }}'
@@ -86,6 +88,7 @@ steps:
     name: acmecert
     displayName: 'Request LE Cert for ${{ parameters.domain }}'
     # condition: and(succeeded(), eq(variables['cert.expired'], 'True'))
+    failOnStandardError: true
     inputs:
       azureSubscription: '${{ parameters.subscriptionName }}'
       scriptType: 'pscore'
@@ -145,11 +148,6 @@ steps:
         
         $generatedCert=$(Get-PACertificate)
         
-        # chain.cer, chain0.cer and chain1.cer are outputted files, which chain1.cer contains only the intermediate
-        # echo "ChainFile: "
-        # $generatedCert.ChainFile
-        # $intermediatePath=$($generatedCert.ChainFile)
-
         Write-Host "##vso[task.setvariable variable=certPath;isOutput=true]$($generatedCert.FullChainFile)"
         Write-Host "##vso[task.setvariable variable=privateKeyPath;isOutput=true]$($generatedCert.KeyFile)"
         Write-Host "##vso[task.setvariable variable=pfxPath;isOutput=true]$($generatedCert.PfxFullChain)"
@@ -163,8 +161,6 @@ steps:
 
       echo "" > ${outputPem}
       ls -la
-      echo "certFile: ${certFile}"
-      echo "privateKeyFile: ${privateKeyFile}"
       cat ${certFile} ${privateKeyFile} > ${outputPem}
       cat ${outputPem}
       openssl pkcs12 -export -out ${outputPfx} -in ${outputPem} -passin pass:${password} -passout pass:${password}
@@ -174,6 +170,7 @@ steps:
 
     displayName: "Repackage Cert"
     # condition: and(succeeded(), eq(variables['cert.expired'], 'True'))
+    failOnStderr: true
     name: "packaged"
     env:
       certFile: $(acmecert.certPath)
