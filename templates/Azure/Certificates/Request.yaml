@@ -101,11 +101,12 @@ steps:
         $domain="${{ parameters.domain }}"
         $acmeContact="$product@$env.com"
 
-        if ($env -eq "prod" -or $env -eq "stg" ) {
-          $leServer="LE_PROD"
-        }else {
-          $leServer="LE_STAGE"
-        }
+        # if ($env -eq "prod" -or $env -eq "stg" ) {
+        #   $leServer="LE_PROD"
+        # }else {
+        #   $leServer="LE_STAGE"
+        # }
+        $leServer="LE_STAGE"
         $pfxPassword="poshacme" # This is fixed by the module. Do not change
 
         # Set Posh-ACME working directory
@@ -148,34 +149,31 @@ steps:
         
         $generatedCert=$(Get-PACertificate)
         
-        Write-Host "##vso[task.setvariable variable=certPath;isOutput=true]$($generatedCert.FullChainFile)"
-        Write-Host "##vso[task.setvariable variable=privateKeyPath;isOutput=true]$($generatedCert.KeyFile)"
-        Write-Host "##vso[task.setvariable variable=pfxPath;isOutput=true]$($generatedCert.PfxFullChain)"
+        # Write-Host "##vso[task.setvariable variable=fullChainFile;isOutput=true]$($generatedCert.FullChainFile)"
+        # Write-Host "##vso[task.setvariable variable=privateKeyFile;isOutput=true]$($generatedCert.KeyFile)"
+        Write-Host "##vso[task.setvariable variable=pfxFullChain;isOutput=true]$($generatedCert.PfxFullChain)"
         Write-Host "##vso[task.setvariable variable=pfxPass;isOutput=true;issecret=true]$pfxPassword"
-        echo "Contents of FullChainFile:"
-        cat $($generatedCert.FullChainFile)
 
-  - bash: |
-      outputPfx="$(Pipeline.Workspace)/output.pfx"
-      outputPem="$(Pipeline.Workspace)/chainCert.pem"
+  # - bash: |
+  #     outputPfx="$(Pipeline.Workspace)/output.pfx"
+  #     outputPem="$(Pipeline.Workspace)/chainCert.pem"
 
-      echo "" > ${outputPem}
-      ls -la
-      cat ${certFile} ${privateKeyFile} > ${outputPem}
-      cat ${outputPem}
-      openssl pkcs12 -export -out ${outputPfx} -in ${outputPem} -passin pass:${password} -passout pass:${password}
+  #     echo "" > ${outputPem}
+  #     cat ${fullChainFile} ${privateKeyFile} > ${outputPem}
+  #     cat ${outputPem}
+  #     openssl pkcs12 -export -out ${outputPfx} -in ${outputPem} -passin pass:${password} -passout pass:${password}
 
-      echo "##vso[task.setvariable variable=pfxPath;isOutput=true]${outputPfx}"
-      echo "##vso[task.setvariable variable=pfxPass;isOutput=true;issecret=true]$password"
+  #     echo "##vso[task.setvariable variable=pfxPath;isOutput=true]${outputPfx}"
+  #     echo "##vso[task.setvariable variable=pfxPass;isOutput=true;issecret=true]$password"
 
-    displayName: "Repackage Cert"
-    # condition: and(succeeded(), eq(variables['cert.expired'], 'True'))
-    failOnStderr: true
-    name: "packaged"
-    env:
-      certFile: $(acmecert.certPath)
-      privateKeyFile: $(acmecert.privateKeyPath)
-      password: $(acmecert.pfxPass)
+  #   displayName: "Repackage Cert"
+  #   # condition: and(succeeded(), eq(variables['cert.expired'], 'True'))
+  #   failOnStderr: true
+  #   name: "packaged"
+  #   env:
+  #     fullChainFile: $(acmecert.fullChainFile)
+  #     privateKeyFile: $(acmecert.privateKeyFile)
+  #     password: $(acmecert.pfxPass)
 
   - task: AzureCLI@2
     displayName: 'Import Certificate into ${{ parameters.keyVaultName }}'
@@ -190,8 +188,8 @@ steps:
         $product="${{ parameters.product }}"
         $keyVaultName="${{ parameters.keyVaultName }}"
         $certName="$product-$env-le-cert"
-        $password="$(packaged.pfxPass)"
-        $pfxPath="$(packaged.pfxPath)"
+        $password="$(acmecert.pfxPass)"
+        $pfxPath="$(acmecert.pfxFullChain)"
 
         az keyvault certificate import --vault-name $keyVaultName -n $certName -f $pfxPath --password $password
 
