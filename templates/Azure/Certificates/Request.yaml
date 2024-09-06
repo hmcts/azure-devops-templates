@@ -14,11 +14,11 @@ steps:
 
   - task: AzureCLI@2
     displayName: Add KeyVault FW Exception
-    failOnStandardError: true
     inputs:
       azureSubscription: ${{ parameters.subscriptionName }}
       scriptType: pscore
       scriptLocation: inlineScript
+      failOnStandardError: true
       inlineScript: |
         while ( !$ip ) { $ip = (Invoke-WebRequest -uri "http://ifconfig.me/ip").Content }
         write-host "Our IP address is: $ip"
@@ -46,12 +46,12 @@ steps:
 
   - task: AzureCLI@2
     displayName: 'Check if Cert expired in ${{ parameters.keyVaultName }}'
-    failOnStandardError: true
     name: cert
     inputs:
       azureSubscription: '${{ parameters.subscriptionName }}'
       scriptType: 'pscore'
       scriptLocation: 'inlineScript'
+      failOnStandardError: true
       inlineScript: |
 
         $env="${{ parameters.environment }}"
@@ -88,11 +88,11 @@ steps:
     name: acmecert
     displayName: 'Request LE Cert for ${{ parameters.domain }}'
     # condition: and(succeeded(), eq(variables['cert.expired'], 'True'))
-    failOnStandardError: true
     inputs:
       azureSubscription: '${{ parameters.subscriptionName }}'
       scriptType: 'pscore'
       scriptLocation: 'inlineScript'
+      failOnStandardError: true
       inlineScript: |
         $workingDirectory="$(Pipeline.Workspace)"
 
