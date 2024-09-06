@@ -18,7 +18,7 @@ steps:
       azureSubscription: ${{ parameters.subscriptionName }}
       scriptType: pscore
       scriptLocation: inlineScript
-      failOnStandardError: true
+      failOnStandardError: false
       inlineScript: |
         while ( !$ip ) { $ip = (Invoke-WebRequest -uri "http://ifconfig.me/ip").Content }
         write-host "Our IP address is: $ip"
