@@ -87,7 +87,7 @@ steps:
   - task: AzureCLI@2
     name: acmecert
     displayName: 'Request LE Cert for ${{ parameters.domain }}'
-    # condition: and(succeeded(), eq(variables['cert.expired'], 'True'))
+    condition: and(succeeded(), eq(variables['cert.expired'], 'True'))
     inputs:
       azureSubscription: '${{ parameters.subscriptionName }}'
       scriptType: 'pscore'
@@ -153,30 +153,9 @@ steps:
         Write-Host "##vso[task.setvariable variable=pfxFullChain;isOutput=true]$($generatedCert.PfxFullChain)"
         Write-Host "##vso[task.setvariable variable=pfxPass;isOutput=true;issecret=true]$pfxPassword"
 
-  # - bash: |
-  #     outputPfx="$(Pipeline.Workspace)/output.pfx"
-  #     outputPem="$(Pipeline.Workspace)/chainCert.pem"
-
-  #     echo "" > ${outputPem}
-  #     cat ${fullChainFile} ${privateKeyFile} > ${outputPem}
-  #     cat ${outputPem}
-  #     openssl pkcs12 -export -out ${outputPfx} -in ${outputPem} -passin pass:${password} -passout pass:${password}
-
-  #     echo "##vso[task.setvariable variable=pfxPath;isOutput=true]${outputPfx}"
-  #     echo "##vso[task.setvariable variable=pfxPass;isOutput=true;issecret=true]$password"
-
-  #   displayName: "Repackage Cert"
-  #   # condition: and(succeeded(), eq(variables['cert.expired'], 'True'))
-  #   failOnStderr: true
-  #   name: "packaged"
-  #   env:
-  #     fullChainFile: $(acmecert.fullChainFile)
-  #     privateKeyFile: $(acmecert.privateKeyFile)
-  #     password: $(acmecert.pfxPass)
-
   - task: AzureCLI@2
     displayName: 'Import Certificate into ${{ parameters.keyVaultName }}'
-    # condition: and(succeeded(), eq(variables['cert.expired'], 'True'))
+    condition: and(succeeded(), eq(variables['cert.expired'], 'True'))
     inputs:
       azureSubscription: '${{ parameters.subscriptionName }}'
       scriptType: 'pscore'
