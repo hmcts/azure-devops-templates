@@ -18,6 +18,7 @@ steps:
       azureSubscription: ${{ parameters.subscriptionName }}
       scriptType: pscore
       scriptLocation: inlineScript
+      failOnStandardError: false
       inlineScript: |
         while ( !$ip ) { $ip = (Invoke-WebRequest -uri "http://ifconfig.me/ip").Content }
         write-host "Our IP address is: $ip"
@@ -50,6 +51,7 @@ steps:
       azureSubscription: '${{ parameters.subscriptionName }}'
       scriptType: 'pscore'
       scriptLocation: 'inlineScript'
+      failOnStandardError: true
       inlineScript: |
 
         $env="${{ parameters.environment }}"
@@ -90,8 +92,9 @@ steps:
       azureSubscription: '${{ parameters.subscriptionName }}'
       scriptType: 'pscore'
       scriptLocation: 'inlineScript'
+      failOnStandardError: true
       inlineScript: |
-        $workingDirectory="$(Build.SourcesDirectory)"
+        $workingDirectory="$(Pipeline.Workspace)"
 
         $product="${{ parameters.product }}"
         $env="${{ parameters.environment }}"
@@ -140,38 +143,15 @@ steps:
           AZSubscriptionId = $azAccount.id
           AZAccessToken = $token
         }
+        echo "Requesting new cert..."
         New-PACertificate $domain -Plugin Azure -PluginArgs $pArgs -Verbose
-
+        
         $generatedCert=$(Get-PACertificate)
-        # chain.cer, chain0.cer and chain1.cer are outputted files, which chain1.cer contains only the intermediate
-        $intermediatePath=$($generatedCert.ChainFile -replace 'chain.cer','chain1.cer')
-
-        Write-Host "##vso[task.setvariable variable=certPath;isOutput=true]$($generatedCert.CertFile)"
-        Write-Host "##vso[task.setvariable variable=intermediatePath;isOutput=true]$intermediatePath"
-        Write-Host "##vso[task.setvariable variable=privateKeyPath;isOutput=true]$($generatedCert.KeyFile)"
-        Write-Host "##vso[task.setvariable variable=pfxPath;isOutput=true]$($generatedCert.PfxFullChain)"
+        
+        # Write-Host "##vso[task.setvariable variable=fullChainFile;isOutput=true]$($generatedCert.FullChainFile)"
+        # Write-Host "##vso[task.setvariable variable=privateKeyFile;isOutput=true]$($generatedCert.KeyFile)"
+        Write-Host "##vso[task.setvariable variable=pfxFullChain;isOutput=true]$($generatedCert.PfxFullChain)"
         Write-Host "##vso[task.setvariable variable=pfxPass;isOutput=true;issecret=true]$pfxPassword"
-
-  - bash: |
-      outputPfx="$(Build.SourcesDirectory)/output.pfx"
-      outputPem="$(Build.SourcesDirectory)/chainCert.pem"
-
-      echo "" > ${outputPem}
-      cat ${certFile} ${intermediateFile} ${privateKeyFile} > ${outputPem}
-
-      openssl pkcs12 -export -out ${outputPfx} -in ${outputPem} -passin pass:${password} -passout pass:${password}
-
-      echo "##vso[task.setvariable variable=pfxPath;isOutput=true]${outputPfx}"
-      echo "##vso[task.setvariable variable=pfxPass;isOutput=true;issecret=true]$password"
-
-    displayName: "Repackage Cert"
-    condition: and(succeeded(), eq(variables['cert.expired'], 'True'))
-    name: "packaged"
-    env:
-      certFile: $(acmecert.certPath)
-      intermediateFile: $(acmecert.intermediatePath)
-      privateKeyFile: $(acmecert.privateKeyPath)
-      password: $(acmecert.pfxPass)
 
   - task: AzureCLI@2
     displayName: 'Import Certificate into ${{ parameters.keyVaultName }}'
@@ -186,8 +166,8 @@ steps:
         $product="${{ parameters.product }}"
         $keyVaultName="${{ parameters.keyVaultName }}"
         $certName="$product-$env-le-cert"
-        $password="$(packaged.pfxPass)"
-        $pfxPath="$(packaged.pfxPath)"
+        $password="$(acmecert.pfxPass)"
+        $pfxPath="$(acmecert.pfxFullChain)"
 
         az keyvault certificate import --vault-name $keyVaultName -n $certName -f $pfxPath --password $password
 
