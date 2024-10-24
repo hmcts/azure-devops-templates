@@ -62,7 +62,6 @@ steps:
       dotnet list package --vulnerable > $(Build.ArtifactStagingDirectory)/vulnerable_packages.txt
     displayName: List Vulnerable NuGet Packages
     workingDirectory: ${{ parameters.appName }}
-        
 
   - task: PowerShell@2
     displayName: 'Convert vulnerable packages to SARIF format'
@@ -116,6 +115,9 @@ steps:
                 )
             }
         }
+
+        # Convert the SARIF output to JSON with increased depth
+        $sarifJson = $sarifOutput | ConvertTo-Json -Depth 10
 
         # Save SARIF to file
         $sarifOutput | ConvertTo-Json | Out-File -FilePath $sarifPath -Encoding utf8
