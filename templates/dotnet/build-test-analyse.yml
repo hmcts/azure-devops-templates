@@ -63,12 +63,9 @@ steps:
     displayName: List Vulnerable NuGet Packages
     workingDirectory: ${{ parameters.appName }}
 
-  - task: PowerShell@2
-    displayName: 'Convert vulnerable packages to SARIF format'
-    inputs:
+  - bash: |
       targetType: 'inline'
       script: |
-
         #!/bin/bash
 
         # Read the JSON file
@@ -162,7 +159,8 @@ steps:
 
         # Write SARIF to file
         echo "$sarif" > "$sarif_file"
-
+    displayName: 'Convert vulnerable packages to SARIF format'
+    
   - task: PublishBuildArtifacts@1
     displayName: 'Publish SARIF artifact'
     inputs:
