@@ -59,7 +59,7 @@ steps:
 
   - bash: |
       echo "Listing vulnerable NuGet packages..."
-      dotnet list package --vulnerable > $(Build.ArtifactStagingDirectory)/vulnerable_packages.txt
+      dotnet list package --vulnerable --include-transitive --format json > $(Build.ArtifactStagingDirectory)/vulnerable_packages.json
     displayName: List Vulnerable NuGet Packages
     workingDirectory: ${{ parameters.appName }}
 
@@ -68,7 +68,7 @@ steps:
     inputs:
       targetType: 'inline'
       script: |
-        $outputPath = "$(Build.ArtifactStagingDirectory)/vulnerable_packages.txt"
+        $outputPath = "$(Build.ArtifactStagingDirectory)/vulnerable_packages.json"
         $sarifPath = "$(Build.ArtifactStagingDirectory)/vulnerable_packages.sarif"
 
         # Initialize SARIF structure
