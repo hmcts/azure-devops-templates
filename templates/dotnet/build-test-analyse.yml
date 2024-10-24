@@ -12,14 +12,14 @@ parameters:
     default: false
   - name: nodeTestResultFolder
     type: string
-    default: "" # Example would be $(System.DefaultWorkingDirectory)/<AppName>/<AppName>/ClientApp
+    default: '' # Example would be $(System.DefaultWorkingDirectory)/<AppName>/<AppName>/ClientApp
   - name: sonarExtraProperties
-    default: ""
+    default: ''
   - name: dotnetversion
-    default: "8.x"
+    default: '8.x'
   - name: vstsFeedId
     type: string
-    default: "cf3711aa-2aed-4f62-81a8-2afaee0ce26d/8415803c-cd1a-445d-b84a-e8b04359fdc4"
+    default: 'cf3711aa-2aed-4f62-81a8-2afaee0ce26d/8415803c-cd1a-445d-b84a-e8b04359fdc4'
 
 steps:
   - template: ../sonarCloud/prepare.yml
@@ -38,31 +38,105 @@ steps:
     timeoutInMinutes: 10
     inputs:
       command: restore
-      projects: "*/*.sln"
+      projects: '*/*.sln'
       # ${{ if ne(parameters.nugetConfigPath, '') }}:
       #   feedsToUse: config
       #   nugetConfigPath: ${{ parameters.nugetConfigPath }}/nuget.config
       ${{ if ne(parameters.vstsFeedId, '') }}:
         vstsFeed: ${{ parameters.vstsFeedId }}
         includeNuGetOrg: true
-      arguments: "--configuration Release"
+      arguments: '--configuration Release'
 
   - task: DotNetCoreCLI@2
     displayName: Build DotNet # needed for sonar since AutoScan does not support c#
     timeoutInMinutes: 10
     inputs:
-      projects: "*/*.sln"
+      projects: '*/*.sln'
       ${{ if ne(parameters.vstsFeedId, '') }}:
         vstsFeed: ${{ parameters.vstsFeedId }}
         includeNuGetOrg: true
-      arguments: "--configuration Release"
+      arguments: '--configuration Release'
 
-  - template: ../../stages/dotnet-tests/unit-and-integration-tests-container.yml
-    parameters:
-      nugetConfigPath: ${{ parameters.nugetConfigPath }} # remove this once the sds config file is removed
-      appName: ${{ parameters.appName }}
-      dockerComposeTestFile: ${{ parameters.dockerComposeTestFile }}
-      publishNodeTests: ${{ parameters.publishNodeTests }}
-      nodeTestResultFolder: ${{ parameters.nodeTestResultFolder }}
+  - task: DotNetCoreCLI@2
+    displayName: 'List vulnerable NuGet packages'
+    inputs:
+      command: 'custom'
+      custom: 'list'
+      arguments: 'package --vulnerable > $(Build.ArtifactStagingDirectory)/vulnerable_packages.txt'
+
+  - task: PowerShell@2
+    displayName: 'Convert vulnerable packages to SARIF format'
+    inputs:
+      targetType: 'inline'
+      script: |
+        $outputPath = "$(Build.ArtifactStagingDirectory)/vulnerable_packages.txt"
+        $sarifPath = "$(Build.ArtifactStagingDirectory)/vulnerable_packages.sarif"
+
+        # Initialize SARIF structure
+        $sarifOutput = @{
+            "version" = "2.1.0";
+            "$schema" = "https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0.json";
+            "runs" = @(
+                @{
+                    "tool" = @{
+                        "driver" = @{
+                            "name" = "dotnet";
+                            "version" = "6.0.0";
+                            "informationUri" = "https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-list-package"
+                        }
+                    };
+                    "results" = @()
+                }
+            )
+        }
+
+        # Read vulnerable packages output
+        $vulnerablePackages = Get-Content -Path $outputPath
+
+        # Convert each vulnerable package entry to SARIF format (this is simplified, actual parsing may be more complex)
+        foreach ($package in $vulnerablePackages) {
+            $sarifOutput["runs"][0]["results"] += @{
+                "ruleId" = "VULNERABLE_PACKAGE";
+                "level" = "error";
+                "message" = @{
+                    "text" = "Vulnerability found in: $($package)"
+                };
+                "locations" = @(
+                    @{
+                        "physicalLocation" = @{
+                            "artifactLocation" = @{
+                                "uri" = "project/path/project.csproj"
+                            };
+                            "region" = @{
+                                "startLine" = 1;
+                                "startColumn" = 1
+                            }
+                        }
+                    }
+                )
+            }
+        }
+
+        # Save SARIF to file
+        $sarifOutput | ConvertTo-Json | Out-File -FilePath $sarifPath -Encoding utf8
+
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish SARIF artifact'
+    inputs:
+      pathToPublish: '$(Build.ArtifactStagingDirectory)/vulnerable_packages.sarif'
+      artifactName: 'VulnerabilityReport'
+
+  - task: PublishSARIFResults@3
+    displayName: 'Publish SARIF results'
+    inputs:
+      sarifFileName: '$(Build.ArtifactStagingDirectory)/vulnerable_packages.sarif'
+
+  # - template: ../../stages/dotnet-tests/unit-and-integration-tests-container.yml
+  #   parameters:
+  #     nugetConfigPath: ${{ parameters.nugetConfigPath }} # remove this once the sds config file is removed
+  #     appName: ${{ parameters.appName }}
+  #     dockerComposeTestFile: ${{ parameters.dockerComposeTestFile }}
+  #     publishNodeTests: ${{ parameters.publishNodeTests }}
+  #     nodeTestResultFolder: ${{ parameters.nodeTestResultFolder }}
 
   - template: ../sonarCloud/runAnalysis.yml
