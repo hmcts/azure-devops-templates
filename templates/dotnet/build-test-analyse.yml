@@ -64,103 +64,101 @@ steps:
     workingDirectory: ${{ parameters.appName }}
 
   - bash: |
-      targetType: 'inline'
-      script: |
-        #!/bin/bash
+      #!/bin/bash
 
-        # Read the JSON file
-        json_file="$(Build.ArtifactStagingDirectory)/vulnerable_packages.json"
-        sarif_file="$(Build.ArtifactStagingDirectory)/vulnerable_packages.sarif"
+      # Read the JSON file
+      json_file="$(Build.ArtifactStagingDirectory)/vulnerable_packages.json"
+      sarif_file="$(Build.ArtifactStagingDirectory)/vulnerable_packages.sarif"
 
-        # Initialize SARIF structure
-        sarif=$(cat <<EOF
-        {
-          "version": "2.1.0",
-          "runs": [
-            {
-              "tool": {
-                "driver": {
-                  "name": "dotnet list package --vulnerable",
-                  "informationUri": "https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-list-package",
-                  "rules": []
-                }
-              },
-              "results": []
-            }
-          ]
-        }
-        EOF
-        )
-
-        # Parse the JSON and build SARIF
-        rules=()
-        results=()
-
-        while IFS= read -r project; do
-          project_path=$(echo "$project" | jq -r '.path')
-          frameworks=$(echo "$project" | jq -c '.frameworks[]?')
-
-          for framework in $frameworks; do
-            packages=$(echo "$framework" | jq -c '.topLevelPackages[]?, .transitivePackages[]?')
-
-            for package in $packages; do
-              package_id=$(echo "$package" | jq -r '.id')
-              resolved_version=$(echo "$package" | jq -r '.resolvedVersion')
-              vulnerabilities=$(echo "$package" | jq -c '.vulnerabilities[]?')
-
-              for vulnerability in $vulnerabilities; do
-                advisory_url=$(echo "$vulnerability" | jq -r '.advisoryurl')
-                severity=$(echo "$vulnerability" | jq -r '.severity')
-                rule_id="${package_id}-${advisory_url}"
-
-                if [[ ! " ${rules[@]} " =~ " ${rule_id} " ]]; then
-                  rules+=("$rule_id")
-                  rule=$(cat <<EOF
-        {
-          "id": "$rule_id",
-          "name": "$package_id",
-          "fullDescription": {
-            "text": "Vulnerability in $package_id version $resolved_version"
-          },
-          "helpUri": "$advisory_url",
-          "properties": {
-            "severity": "$severity"
+      # Initialize SARIF structure
+      sarif=$(cat <<EOF
+      {
+        "version": "2.1.0",
+        "runs": [
+          {
+            "tool": {
+              "driver": {
+                "name": "dotnet list package --vulnerable",
+                "informationUri": "https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-list-package",
+                "rules": []
+              }
+            },
+            "results": []
           }
-        }
-        EOF
-                  )
-                  sarif=$(echo "$sarif" | jq ".runs[0].tool.driver.rules += [$rule]")
-                fi
+        ]
+      }
+      EOF
+      )
 
-                result=$(cat <<EOF
-        {
-          "ruleId": "$rule_id",
-          "level": "${severity,,}",
-          "message": {
-            "text": "Vulnerability in $package_id version $resolved_version: $advisory_url"
-          },
-          "locations": [
-            {
-              "physicalLocation": {
-                "artifactLocation": {
-                  "uri": "$project_path"
-                }
+      # Parse the JSON and build SARIF
+      rules=()
+      results=()
+
+      while IFS= read -r project; do
+        project_path=$(echo "$project" | jq -r '.path')
+        frameworks=$(echo "$project" | jq -c '.frameworks[]?')
+
+        for framework in $frameworks; do
+          packages=$(echo "$framework" | jq -c '.topLevelPackages[]?, .transitivePackages[]?')
+
+          for package in $packages; do
+            package_id=$(echo "$package" | jq -r '.id')
+            resolved_version=$(echo "$package" | jq -r '.resolvedVersion')
+            vulnerabilities=$(echo "$package" | jq -c '.vulnerabilities[]?')
+
+            for vulnerability in $vulnerabilities; do
+              advisory_url=$(echo "$vulnerability" | jq -r '.advisoryurl')
+              severity=$(echo "$vulnerability" | jq -r '.severity')
+              rule_id="${package_id}-${advisory_url}"
+
+              if [[ ! " ${rules[@]} " =~ " ${rule_id} " ]]; then
+                rules+=("$rule_id")
+                rule=$(cat <<EOF
+      {
+        "id": "$rule_id",
+        "name": "$package_id",
+        "fullDescription": {
+          "text": "Vulnerability in $package_id version $resolved_version"
+        },
+        "helpUri": "$advisory_url",
+        "properties": {
+          "severity": "$severity"
+        }
+      }
+      EOF
+                )
+                sarif=$(echo "$sarif" | jq ".runs[0].tool.driver.rules += [$rule]")
+              fi
+
+              result=$(cat <<EOF
+      {
+        "ruleId": "$rule_id",
+        "level": "${severity,,}",
+        "message": {
+          "text": "Vulnerability in $package_id version $resolved_version: $advisory_url"
+        },
+        "locations": [
+          {
+            "physicalLocation": {
+              "artifactLocation": {
+                "uri": "$project_path"
               }
             }
-          ]
-        }
-        EOF
-                )
-                sarif=$(echo "$sarif" | jq ".runs[0].results += [$result]")
-              done
+          }
+        ]
+      }
+      EOF
+              )
+              sarif=$(echo "$sarif" | jq ".runs[0].results += [$result]")
             done
           done
-        done < <(jq -c '.projects[]' "$json_file")
+        done
+      done < <(jq -c '.projects[]' "$json_file")
 
-        # Write SARIF to file
-        echo "$sarif" > "$sarif_file"
+      # Write SARIF to file
+      echo "$sarif" > "$sarif_file"
     displayName: 'Convert vulnerable packages to SARIF format'
-    
+
   - task: PublishBuildArtifacts@1
     displayName: 'Publish SARIF artifact'
     inputs:
