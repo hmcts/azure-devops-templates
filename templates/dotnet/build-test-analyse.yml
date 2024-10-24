@@ -57,12 +57,12 @@ steps:
         includeNuGetOrg: true
       arguments: '--configuration Release'
 
-  - task: DotNetCoreCLI@2
-    displayName: 'List vulnerable NuGet packages'
-    inputs:
-      command: 'custom'
-      custom: 'list'
-      arguments: 'package --vulnerable > $(Build.ArtifactStagingDirectory)/vulnerable_packages.txt'
+  - bash: |
+      echo "Listing vulnerable NuGet packages..."
+      dotnet list package --vulnerable > $(Build.ArtifactStagingDirectory)/vulnerable_packages.txt'
+    displayName: List Vulnerable NuGet Packages
+    workingDirectory: ${{ parameters.appName }}
+        
 
   - task: PowerShell@2
     displayName: 'Convert vulnerable packages to SARIF format'
