@@ -7,12 +7,15 @@ parameters:
   - name: dockerComposeTestFile
     type: string
     default: docker-compose.tests.yml
+  - name: includeOsvResults
+    type: boolean
+    default: false
   - name: publishNodeTests
     type: boolean
     default: false
   - name: nodeTestResultFolder
     type: string
-    default: "" # Example would be $(System.DefaultWorkingDirectory)/<AppName>/<AppName>/ClientApp
+    default: '' # Example would be $(System.DefaultWorkingDirectory)/<AppName>/<AppName>/ClientApp
 
 steps:
   - bash: |
@@ -45,18 +48,29 @@ steps:
     displayName: Replace Coverage File Paths
     workingDirectory: $(System.DefaultWorkingDirectory)
 
+  - bash: |
+      sourcesDirectory="$(Build.SourcesDirectory)"
+      sarifReport="$(System.DefaultWorkingDirectory)/OSVResults/scan-results.sarif.json"
+      content=$(cat $sarifReport)
+
+      echo $content > "$(System.DefaultWorkingDirectory)/scan-results.sarif.json"
+      sed -i "s|\/app|$sourcesDirectory|g" "$(System.DefaultWorkingDirectory)/scan-results.sarif.json"
+    displayName: Replace SARIF File Paths
+    condition: eq('${{ parameters.includeOsvResults }}', true)
+    workingDirectory: $(System.DefaultWorkingDirectory)
+
   - task: PublishCodeCoverageResults@2
-    displayName: "Publish Code Coverage Report"
+    displayName: 'Publish Code Coverage Report'
     inputs:
       pathToSources: $(Build.SourcesDirectory)
-      summaryFileLocation: "$(System.DefaultWorkingDirectory)/**/coverage.cobertura.xml"
+      summaryFileLocation: '$(System.DefaultWorkingDirectory)/**/coverage.cobertura.xml'
 
   - task: PublishTestResults@2
     displayName: Publish API Test Results
     condition: succeededOrFailed()
     inputs:
-      testResultsFormat: "VSTest" # Options: JUnit, NUnit, VSTest, xUnit, cTest
-      testResultsFiles: "**/*TestResults.trx"
+      testResultsFormat: 'VSTest' # Options: JUnit, NUnit, VSTest, xUnit, cTest
+      testResultsFiles: '**/*TestResults.trx'
       failTaskOnFailedTests: true
 
   - ${{ if eq(parameters.publishNodeTests, true) }}:
@@ -64,7 +78,7 @@ steps:
         displayName: Publish Jasmine Test Results
         condition: eq(${{ parameters.publishNodeTests }}, true)
         inputs:
-          testResultsFormat: "JUnit" # Options: JUnit, NUnit, VSTest, xUnit, cTest
-          testResultsFiles: "**/TESTS.xml"
+          testResultsFormat: 'JUnit' # Options: JUnit, NUnit, VSTest, xUnit, cTest
+          testResultsFiles: '**/TESTS.xml'
           searchFolder: ${{ parameters.nodeTestResultFolder }}
           failTaskOnFailedTests: true
