@@ -54,7 +54,7 @@ steps:
       content=$(cat $sarifReport)
 
       echo $content > "$(System.DefaultWorkingDirectory)/scan-results.sarif.json"
-      sed -i "s|\/app|$sourcesDirectory|g" "$(System.DefaultWorkingDirectory)/scan-results.sarif.json"
+      sed -i "s|file:///app/|file:///|g" "$(System.DefaultWorkingDirectory)/scan-results.sarif.json"
     displayName: Replace SARIF File Paths
     condition: eq('${{ parameters.includeOsvResults }}', true)
     workingDirectory: $(System.DefaultWorkingDirectory)
