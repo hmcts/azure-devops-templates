@@ -10,6 +10,9 @@ parameters:
   - name: publishNodeTests
     type: boolean
     default: false
+  - name: includeOsvResults
+    type: boolean
+    default: false
   - name: nodeTestResultFolder
     type: string
     default: "" # Example would be $(System.DefaultWorkingDirectory)/<AppName>/<AppName>/ClientApp
@@ -64,5 +67,6 @@ steps:
       dockerComposeTestFile: ${{ parameters.dockerComposeTestFile }}
       publishNodeTests: ${{ parameters.publishNodeTests }}
       nodeTestResultFolder: ${{ parameters.nodeTestResultFolder }}
+      includeOsvResults: ${{ parameters.includeOsvResults}}
 
   - template: ../sonarCloud/runAnalysis.yml
