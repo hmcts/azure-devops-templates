@@ -59,6 +59,14 @@ steps:
     condition: eq('${{ parameters.includeOsvResults }}', true)
     workingDirectory: $(System.DefaultWorkingDirectory)
 
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish SARIF Scan Results'
+    inputs:
+      PathtoPublish: '$(System.DefaultWorkingDirectory)/scan-results.sarif.json'
+      ArtifactName: 'osv-scan-results'
+      publishLocation: 'Container'
+    condition: eq('${{ parameters.includeOsvResults }}', true)
+
   - task: PublishCodeCoverageResults@2
     displayName: 'Publish Code Coverage Report'
     inputs:
