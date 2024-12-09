@@ -9,6 +9,9 @@ parameters:
     type: string
   - name: keyVaultName
     type: string
+  - name: poshAcmeVersion
+    type: string  
+    default: "4.26.0"
 
 steps:
 
@@ -100,6 +103,7 @@ steps:
         $env="${{ parameters.environment }}"
         $domain="${{ parameters.domain }}"
         $acmeContact="$product@$env.com"
+        $poshAcmeVersion="${{ parameters.poshAcmeVersion }}"
 
         if ($env -eq "prod" -or $env -eq "stg" ) {
           $leServer="LE_PROD"
@@ -109,9 +113,9 @@ steps:
         $pfxPassword="poshacme" # This is fixed by the module. Do not change
 
         # Set Posh-ACME working directory
-        Write-Host "Install Module"
+        Write-Host "Install Posh-ACME Module v$poshAcmeVersion"
         $env:POSHACME_HOME = $workingDirectory
-        Install-Module -Name Posh-ACME -Scope CurrentUser -Force
+        Install-Module -Name Posh-ACME -Scope CurrentUser -Force -RequiredVersion $poshAcmeVersion
 
         # Configure Posh-ACME server
         Write-Host "Configure LE Server $leServer"
