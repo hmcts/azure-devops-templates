@@ -21,12 +21,12 @@ steps:
   displayName: Get BuildNumber
 
 - ${{ if eq(parameters.packageVersion, '') }}:
-  - task: gitversion/setup@0
+  - task: gitversion/setup@3.0.3
     displayName: Install Git Version
     inputs:
-      versionSpec: '5.11.1'
+      versionSpec: '6.0.x'
       
-  - task: gitversion/execute@0
+  - task: gitversion/execute@3.0.3
     displayName: Run Git Version
     inputs:
       ${{ if ne(parameters.gitVersionConfigPath, '') }}:

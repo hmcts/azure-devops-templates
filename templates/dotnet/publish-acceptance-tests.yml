@@ -39,10 +39,10 @@ steps:
       Write-Host "$(Build.BuildNumber)"
     displayName: Get BuildNumber
 
-  - task: gitversion/setup@0
+  - task: gitversion/setup@3.0.3
     displayName: Install Git Version
     inputs:
-      versionSpec: "5.11.1"
+      versionSpec: '6.0.x'
 
   - bash: |
       dotnet-gitversion /output json /output buildserver /updateassemblyinfo ${{ parameters.coreProjectPath }}.AcceptanceTests/AssemblyInfo.cs /ensureassemblyinfo
