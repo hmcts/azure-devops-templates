@@ -18,9 +18,6 @@ steps:
 
   - task: gitversion/execute@3.0.3
     displayName: Determine Version
-    inputs:
-      useConfigFile: true
-      configFilePath: '$(Build.SourcesDirectory)/GitVersion.yml'
       
   - task: AzureCLI@2
     displayName: 'Push ${{ parameters.imageName }} to ${{ parameters.acrName }}'
