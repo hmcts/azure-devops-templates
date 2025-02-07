@@ -9,6 +9,9 @@ parameters:
     type: string
   - name: imageTags
     type: object
+  - name: gitVersionConfigPath
+    type: string
+    default: ''
 
 steps:
   - task: gitversion/setup@3.0.3
@@ -18,6 +21,10 @@ steps:
 
   - task: gitversion/execute@3.0.3
     displayName: Determine Version
+    inputs:
+      ${{ if ne(parameters.gitVersionConfigPath, '') }}:
+        useConfigFile: true
+        configFilePath: '${{ parameters.gitVersionConfigPath }}'
       
   - task: AzureCLI@2
     displayName: 'Push ${{ parameters.imageName }} to ${{ parameters.acrName }}'
