@@ -36,10 +36,10 @@ steps:
           configFilePath: '${{ parameters.gitVersionConfigPath }}'
 
     - powershell: |
-      Write-Host "##vso[task.setvariable variable=BuildNum;]$(GitVersion.FullSemVer)"
-      Write-Host "$(GitVersion.FullSemVer)"
-    displayName: Get Build.BuildNumber  
- 
+        Write-Host "##vso[task.setvariable variable=BuildNum;]$(GitVersion.FullSemVer)"
+        Write-Host "$(GitVersion.FullSemVer)"
+      displayName: Get Build.BuildNumber  
+
   - task: DotNetCoreCLI@2
     displayName: dotnet restore
     inputs:
