@@ -22,11 +22,6 @@ steps:
   - checkout: self
     fetchTags: true
     
-  - powershell: |
-      Write-Host "##vso[task.setvariable variable=BuildNum;]$(Build.BuildNumber)"
-      Write-Host "$(Build.BuildNumber)"
-    displayName: Get Build.BuildNumber
-
   - ${{ if eq(parameters.packageVersion, '') }}:
     - task: gitversion/setup@0
       displayName: Install Git Version
@@ -39,7 +34,12 @@ steps:
         ${{ if ne(parameters.gitVersionConfigPath, '') }}:
           useConfigFile: true
           configFilePath: '${{ parameters.gitVersionConfigPath }}'
- 
+
+    - powershell: |
+        Write-Host "##vso[task.setvariable variable=BuildNum;]$(GitVersion.FullSemVer)"
+        Write-Host "$(GitVersion.FullSemVer)"
+      displayName: Get Build.BuildNumber  
+
   - task: DotNetCoreCLI@2
     displayName: dotnet restore
     inputs:
