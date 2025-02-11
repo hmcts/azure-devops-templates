@@ -128,12 +128,12 @@ stages:
         steps:
         - checkout: self
         
-        - task: gitversion/setup@0
+        - task: gitversion/setup@3
           displayName: Install GitVersion
           inputs:
             versionSpec: '5.11.1'
 
-        - task: gitversion/execute@0
+        - task: gitversion/execute@3
           displayName: Determine Version
           inputs:
             additionalArguments: /updateassemblyinfo ${{ parameters.coreProjectPath }}/AssemblyInfo.cs /ensureassemblyinfo
@@ -237,12 +237,12 @@ stages:
         steps:
         - checkout: self
         
-        - task: gitversion/setup@0
+        - task: gitversion/setup@3
           displayName: Install GitVersion
           inputs:
             versionSpec: '5.11.1'
 
-        - task: gitversion/execute@0
+        - task: gitversion/execute@3
           displayName: Determine Version for AcceptanceTests
           inputs:
             additionalArguments: /updateassemblyinfo ${{ parameters.coreProjectPath }}.AcceptanceTests/AssemblyInfo.cs /ensureassemblyinfo
@@ -315,12 +315,12 @@ stages:
         steps:
         - checkout: self
         
-        - task: gitversion/setup@0
+        - task: gitversion/setup@3
           displayName: Install GitVersion
           inputs:
             versionSpec: '5.11.1'
 
-        - task: gitversion/execute@0
+        - task: gitversion/execute@3
           displayName: Determine Version for AcceptanceTests
             
         - template: ../templates/pipelineCaching.yml

@@ -49,12 +49,12 @@ stages:
       steps:
       - checkout: self
       
-      - task: gitversion/setup@0
+      - task: gitversion/setup@3
         displayName: Install GitVersion
         inputs:
           versionSpec: '5.11.1'
 
-      - task: gitversion/execute@0
+      - task: gitversion/execute@3
         displayName: Determine Version
 
       - template: ../templates/pipelineCaching.yml
