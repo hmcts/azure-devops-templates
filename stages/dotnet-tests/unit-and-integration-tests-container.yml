@@ -40,6 +40,10 @@ steps:
       coverageReport="$(System.DefaultWorkingDirectory)/Coverage/coverage.opencover.xml"
       content=$(cat $coverageReport)
 
+      echo "sourcesDirectory: $sourcesDirectory"
+      echo "coverageReport: $coverageReport"
+      echo "content: $content"
+
       echo $content > "$(System.DefaultWorkingDirectory)/coverage.opencover.xml"
       sed -i "s|\/app|$sourcesDirectory|g" "$(System.DefaultWorkingDirectory)/coverage.opencover.xml"
     displayName: Replace Coverage File Paths
