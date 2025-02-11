@@ -42,7 +42,8 @@ steps:
 
       echo "sourcesDirectory: $sourcesDirectory"
       echo "coverageReport: $coverageReport"
-      echo "content: $content"
+      echo "attempting to replace '/app' with $sourcesDirectory"
+      echo "content: $content"      
 
       echo $content > "$(System.DefaultWorkingDirectory)/coverage.opencover.xml"
       sed -i "s|\/app|$sourcesDirectory|g" "$(System.DefaultWorkingDirectory)/coverage.opencover.xml"
