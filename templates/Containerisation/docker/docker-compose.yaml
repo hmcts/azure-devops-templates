@@ -7,8 +7,11 @@ parameters:
     type: string
   - name: dockerComposeFile
     type: string
-    default:  "**/docker-compose.yml"
-    
+    default: "**/docker-compose.yml"
+  - name: gitVersionConfigPath
+    type: string
+    default: '$(Build.SourcesDirectory)/sds-git-version-config.yml'
+
 steps:
   - task: AzureCLI@2
     displayName: 'Get ID for ${{ parameters.acrName }}'
@@ -27,8 +30,10 @@ steps:
       versionSpec: '5.11.1'
 
   - task: gitversion/execute@3
-    displayName: Determine Version for AcceptanceTests
+    displayName: Determine Version for App
     inputs:
+      useConfigFile: true
+      configFilePath: '${{ parameters.gitVersionConfigPath }}'
       additionalArguments: /updateassemblyinfo /ensureassemblyinfo
 
   - task: PowerShell@2
