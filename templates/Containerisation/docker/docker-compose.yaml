@@ -52,7 +52,7 @@ steps:
         echo $dockerComposeFile
         $repositoryName = '${{ parameters.repositoryName }}'
         $projectName = ($repositoryName -split '/')[1]       
-        $buildCommand = "docker compose -f `"$dockerComposeFile`" -p `"$projectName`" build --build-arg BUILD_VERSION=$(BuildVersion) --build-arg ASSEMBLY_VERSION=$(AssemblyVersion) --build-arg FILE_VERSION=$(FileVersion)"
+        $buildCommand = "docker compose -f `"$dockerComposeFile`" -p `"$projectName`" build"
         Write-Host "Executing: $buildCommand"
         Invoke-Expression $buildCommand
         $upCommand = "docker compose -f `"$dockerComposeFile`" -p `"$projectName`" up -d"
