@@ -34,7 +34,7 @@ steps:
     inputs:
       useConfigFile: true
       configFilePath: '${{ parameters.gitVersionConfigPath }}'
-      additionalArguments: /updateassemblyinfo /ensureassemblyinfo
+      additionalArguments: /updateprojectfiles
 
   - script: |
       echo "##vso[task.setvariable variable=BuildVersion]$(GitVersion.FullSemVer)"
