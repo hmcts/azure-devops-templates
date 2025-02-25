@@ -35,6 +35,14 @@ steps:
       useConfigFile: true
       configFilePath: '${{ parameters.gitVersionConfigPath }}'
       additionalArguments: /updateassemblyinfo /ensureassemblyinfo
+  
+  - task: PowerShell@2
+    displayName: "Check Updated AssemblyInfo Files"
+    inputs:
+      targetType: 'inline'
+      script: |
+        git diff --name-only
+
 
   - task: PowerShell@2
     displayName: 'Run Docker Compose Build'
