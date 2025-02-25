@@ -33,7 +33,7 @@ steps:
     displayName: Determine Version for App
     inputs:
       useConfigFile: true
-      configFilePath: '${{ variables.git_version_config_path }}'
+      configFilePath: '${{ parameters.gitVersionConfigPath }}'
       updateAssemblyInfo: true
 
   - task: PowerShell@2
