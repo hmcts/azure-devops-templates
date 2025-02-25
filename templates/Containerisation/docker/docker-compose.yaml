@@ -27,21 +27,14 @@ steps:
   - task: gitversion/setup@3
     displayName: Install GitVersion
     inputs:
-      versionSpec: '5.11.1'
+      versionSpec: '5.x'
 
   - task: gitversion/execute@3
     displayName: Determine Version for App
     inputs:
       useConfigFile: true
-      configFilePath: '${{ parameters.gitVersionConfigPath }}'
-      additionalArguments: /updateprojectfiles
-
-  - script: |
-      echo "##vso[task.setvariable variable=BuildVersion]$(GitVersion.FullSemVer)"
-      echo "##vso[task.setvariable variable=AssemblyVersion]$(GitVersion.AssemblySemVer)"
-      echo "##vso[task.setvariable variable=FileVersion]$(GitVersion.AssemblySemFileVer)"
-      echo "##vso[task.setvariable variable=InformationalVersion]$(GitVersion.InformationalVersion)"
-    displayName: "Set GitVersion Variables"
+      configFilePath: '${{ variables.git_version_config_path }}'
+      updateAssemblyInfo: true
 
   - task: PowerShell@2
     displayName: 'Run Docker Compose Build'
