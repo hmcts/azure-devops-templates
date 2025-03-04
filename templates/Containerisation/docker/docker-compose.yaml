@@ -7,8 +7,11 @@ parameters:
     type: string
   - name: dockerComposeFile
     type: string
-    default:  "**/docker-compose.yml"
-    
+    default: "**/docker-compose.yml"
+  - name: gitVersionConfigPath
+    type: string
+    default: '$(Build.SourcesDirectory)/sds-git-version-config.yml'
+
 steps:
   - task: AzureCLI@2
     displayName: 'Get ID for ${{ parameters.acrName }}'
@@ -20,6 +23,18 @@ steps:
         az acr login --name ${{ parameters.acrName }}
         $acrId=az acr show -n '${{ parameters.acrName }}' --query "id" -o tsv
         echo "##vso[task.setvariable variable=acrId;isOutput=true]$acrId"
+
+  - task: gitversion/setup@3
+    displayName: Install GitVersion
+    inputs:
+      versionSpec: '5.x'
+
+  - task: gitversion/execute@3
+    displayName: Determine Version for App
+    inputs:
+      useConfigFile: true
+      configFilePath: '${{ parameters.gitVersionConfigPath }}'
+      updateAssemblyInfo: true
 
   - task: PowerShell@2
     displayName: 'Run Docker Compose Build'
