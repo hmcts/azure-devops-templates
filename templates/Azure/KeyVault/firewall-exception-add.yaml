@@ -6,16 +6,16 @@ parameters:
     - name: ipList # Az DevOps agent outbound IPs - see https://learn.microsoft.com/en-us/azure/devops/organizations/security/allow-list-ip-url?view=azure-devops&tabs=IP-V4#outbound-connections
       type: object
       default:
-        - '13.107.6.0/24'
-        - '13.107.9.0/24'
-        - '13.107.42.0/24'
-        - '13.107.43.0/24'
-        - '150.171.22.0/24'
-        - '150.171.23.0/24'
-        - '150.171.73.0/24'
-        - '150.171.74.0/24'
-        - '150.171.75.0/24'
-        - '150.171.76.0/24'
+      - '13.107.6.0/24'
+      - '13.107.9.0/24'
+      - '13.107.42.0/24'
+      - '13.107.43.0/24'
+      - '150.171.22.0/24'
+      - '150.171.23.0/24'
+      - '150.171.73.0/24'
+      - '150.171.74.0/24'
+      - '150.171.75.0/24'
+      - '150.171.76.0/24'
 
 steps:
     - task: AzureCLI@2
