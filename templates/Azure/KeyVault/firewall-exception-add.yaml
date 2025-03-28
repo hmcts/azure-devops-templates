@@ -3,6 +3,19 @@ parameters:
       type: string
     - name: keyVaultName
       type: string
+    - name: ipList # Az DevOps agent outbound IPs - see https://learn.microsoft.com/en-us/azure/devops/organizations/security/allow-list-ip-url?view=azure-devops&tabs=IP-V4#outbound-connections
+      type: object
+      default:
+      - "13.107.6.0/24"
+      - "13.107.9.0/24"
+      - "13.107.42.0/24"
+      - "13.107.43.0/24"
+      - "150.171.22.0/24"
+      - "150.171.23.0/24"
+      - "150.171.73.0/24"
+      - "150.171.74.0/24"
+      - "150.171.75.0/24"
+      - "150.171.76.0/24"   
 
 steps:
     - task: AzureCLI@2
@@ -13,9 +26,12 @@ steps:
         scriptLocation: 'inlineScript'
         inlineScript: |
           $keyVaultName = "${{ parameters.keyVaultName }}"
+          $ipList = "${{ parameters.ipList }}"
 
-          while ( !$ip ) { $ip = (Invoke-WebRequest -uri "http://ifconfig.me/ip").Content }
-          az keyvault network-rule add --name $keyVaultName --ip-address "$IP/32"
+          foreach ($ip in $ipList) {
+            Write-Host "Adding IP address $ip to Key Vault firewall"
+            az keyvault network-rule add --name $keyVaultName --ip-address "$ip"
+          }
 
           $ready = 1; $retry = 0
           while($ready -ne 0 -and $retry -lt 10) {
