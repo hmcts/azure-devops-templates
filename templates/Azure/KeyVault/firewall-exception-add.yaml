@@ -4,7 +4,7 @@ parameters:
     - name: keyVaultName
       type: string
     - name: ipList # Az DevOps agent outbound IPs - see https://learn.microsoft.com/en-us/azure/devops/organizations/security/allow-list-ip-url?view=azure-devops&tabs=IP-V4#outbound-connections
-      type: array
+      type: object
       default: [
         '13.107.6.0/24',
         '13.107.9.0/24',
