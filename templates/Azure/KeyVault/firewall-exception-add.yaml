@@ -28,6 +28,9 @@ steps:
           $keyVaultName = "${{ parameters.keyVaultName }}"
           $ipList = '${{ convertToJson(parameters.ipList) }}' | Convertfrom-Json
 
+          while ( !$ipCurrent ) { $ipCurrent = (Invoke-WebRequest -uri "http://ifconfig.me/ip").Content }
+          az keyvault network-rule add --name $keyVaultName --ip-address "$ipCurrent/32"
+
           foreach ($ip in $ipList) {
             Write-Host "Adding IP address $ip to Key Vault firewall"
             az keyvault network-rule add --name $keyVaultName --ip-address "$ip"
