@@ -26,7 +26,7 @@ steps:
         scriptLocation: 'inlineScript'
         inlineScript: |
           $keyVaultName = "${{ parameters.keyVaultName }}"
-          $ipList = "${{ convertToJson(parameters.ipList) }}" | ConvertFrom-Json
+          $ipList = "${{ convertToJson(parameters.ipList) }}"
           Write-Host $ipList
 
           foreach ($ip in $ipList) {

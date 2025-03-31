@@ -29,10 +29,10 @@ steps:
           $keyVaultName = "${{ parameters.keyVaultName }}"
           $ipList = "${{ convertToJson(parameters.ipList) }}" | ConvertFrom-Json
 
-          foreach ($ip in $env:ipList) {
+          foreach ($ip in $ipList) {
             Write-Host "Removing IP address $ip from Key Vault firewall"
             try {
-              az keyvault network-rule remove --name $env:keyVaultName --ip-address "$ip"
+              az keyvault network-rule remove --name $keyVaultName --ip-address "$ip"
             } catch {
               Write-Host "Failed to remove IP address $ip. Continuing..."
             }
