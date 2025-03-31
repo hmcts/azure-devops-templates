@@ -27,7 +27,7 @@ steps:
       scriptLocation: inlineScript
       inlineScript: |
           $keyVaultName = "${{ parameters.keyVaultName }}"
-          $ipList = "${{ parameters.ipList }}"
+          $ipList = "${{ convertToJson(parameters.ipList) }}" | ConvertFrom-Json
 
           foreach ($ip in $env:ipList) {
             Write-Host "Removing IP address $ip from Key Vault firewall"

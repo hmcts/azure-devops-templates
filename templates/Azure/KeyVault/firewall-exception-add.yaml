@@ -27,6 +27,7 @@ steps:
         inlineScript: |
           $keyVaultName = "${{ parameters.keyVaultName }}"
           $ipList = "${{ convertToJson(parameters.ipList) }}" | ConvertFrom-Json
+          Write-Host $ipList
 
           foreach ($ip in $ipList) {
             Write-Host "Adding IP address $ip to Key Vault firewall"
