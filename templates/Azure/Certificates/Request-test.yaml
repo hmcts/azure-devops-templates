@@ -192,7 +192,7 @@ steps:
         while($ready -ne 0 -and $retry -lt 10) {
           sleep (10 * $retry++)  
           try{          
-            az keyvault update --name $keyVaultName --resource-group $resourceGroup --public-network-access Enabled --default-action Deny --bypass AzureServices
+            az keyvault update --name $keyVaultName --resource-group $resourceGroupName --public-network-access Enabled --default-action Deny --bypass AzureServices
             $ready = $LASTEXITCODE    
           } catch {
             $ready = 1
