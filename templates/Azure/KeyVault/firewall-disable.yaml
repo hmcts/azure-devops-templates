@@ -8,7 +8,7 @@ parameters:
 
 steps:
     - task: AzureCLI@2
-      displayName: Add FW Exception to ${{ parameters.keyVaultName }}
+      displayName: Remove FW Exception to ${{ parameters.keyVaultName }}
       inputs:
         azureSubscription: ${{ parameters.subscription }}
         scriptType: pscore
