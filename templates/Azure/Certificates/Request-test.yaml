@@ -193,7 +193,7 @@ steps:
           sleep (10 * $retry++)  
           try{          
             az keyvault network-rule remove --name $env:keyVaultName --ip-address "$IP/32"
-            az keyvault update --name $keyVaultName --resource-group $resourceGroupName --public-network-access Enabled --default-action Deny --bypass AzureServices
+            az keyvault update --default-action Deny --name $keyVaultName --resource-group $resourceGroupName --public-network-access Enabled --bypass AzureServices
             $ready = $LASTEXITCODE    
           } catch {
             $ready = 1
