@@ -189,7 +189,6 @@ steps:
         while ( !$ip ) { $ip = (Invoke-WebRequest -uri "http://ifconfig.me/ip").Content }
         write-host "Our IP address is: $ip" 
         az keyvault network-rule remove --name $env:keyVaultName --ip-address "$IP/32"
-        az keyvault update --name $keyVaultName --resource-group $resourceGroupName --public-network-access Enabled --default-action Deny --bypass AzureServices
 
          
 
