@@ -17,7 +17,6 @@ steps:
           $keyVaultName = "${{ parameters.keyVaultName }}"
           $resourceGroup = "${{ parameters.resourceGroup }}"
 
-          while ( !$ip ) { $ip = (Invoke-WebRequest -uri "http://ifconfig.me/ip").Content }
           az keyvault update --name $keyVaultName --resource-group $resourceGroup --public-network-access Enabled --default-action Deny --bypass AzureServices
 
           $ready = 1; $retry = 0
