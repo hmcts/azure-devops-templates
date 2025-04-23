@@ -23,7 +23,7 @@ steps:
           while($ready -ne 0 -and $retry -lt 10) {
             Start-Sleep (15 * $retry++)  
             try{          
-              write-host "checking keyvault access.."
+              write-host "checking keyvault access"
               az keyvault secret list --vault-name $keyVaultName | out-null
               $ready = $LASTEXITCODE    
             } catch {
