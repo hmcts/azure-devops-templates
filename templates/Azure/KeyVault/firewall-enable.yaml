@@ -16,17 +16,30 @@ steps:
         inlineScript: |
           $keyVaultName = "${{ parameters.keyVaultName }}"
           $resourceGroup = "${{ parameters.resourceGroup }}"
-          Write-Host "Enabling KeyVault Firewall for $keyVaultName in $resourceGroup"          
+          $wait = 10
+          $n = 10
+
+          Write-Host "Enabling Key Vault Firewall for $keyVaultName in $resourceGroup"
           az keyvault update --name $keyVaultName --resource-group $resourceGroup --public-network-access Disabled --default-action Deny --bypass AzureServices
-          
-          $ready = 1; $retry = 0
-          while($ready -ne 0 -and $retry -lt 10) {
-            Start-Sleep (15 * $retry++)  
-            try{          
-              write-host "checking keyvault access..."
-              az keyvault secret list --vault-name $keyVaultName | out-null
-              $ready = $LASTEXITCODE    
-            } catch {
-              $ready = 1
-            }        
+          Write-Host "Updated, checking it applied..."
+
+          $i = 1
+          do { 
+            Write-Host "[$i/$n] Testing Key Vault Connectivity, This May Take A Few Attempts, Please Wait..."
+            $status = az keyvault secret list --vault-name $keyVaultName | out-null
+
+            if(!($status)) {
+              Write-Host "Connection successfully failed >_<"
+              exit 0
+            } else {
+              Write-Host "Connection successful (should fail), trying again in $wait second(s)"
+              Start-Sleep -Seconds $wait
+              $i ++
+            }
+          } 
+          Until (!($Status) -or ($i -ge $n))
+
+          if($status) {
+            Write-Host "##vso[task.LogIssue type=error;]FAILED - Connection is still available after given time."
+            exit 1
           }
