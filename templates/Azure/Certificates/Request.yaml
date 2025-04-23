@@ -16,30 +16,28 @@ parameters:
 steps:
 
   - task: AzureCLI@2
-    displayName: Add KeyVault FW Exception
+    displayName: Enable Public Access to ${{ parameters.keyVaultName }}
     inputs:
       azureSubscription: ${{ parameters.subscriptionName }}
       scriptType: pscore
       scriptLocation: inlineScript
       failOnStandardError: false
       inlineScript: |
-        while ( !$ip ) { $ip = (Invoke-WebRequest -uri "http://ifconfig.me/ip").Content }
-        write-host "Our IP address is: $ip"
-        az keyvault network-rule add --name $env:keyVaultName --ip-address "$IP/32"
+        $keyVaultName = "${{ parameters.keyVaultName }}"
+        Write-Host "Enabling KeyVault Firewall for $keyVaultName"
+        az keyvault update --name $keyVaultName --public-network-access Enabled --default-action Allow --bypass AzureServices
 
         $ready = 1; $retry = 0
         while($ready -ne 0 -and $retry -lt 10) {
-          sleep (15 * $retry++)  
+          Start-Sleep (15 * $retry++)  
           try{          
-            write-host "checking keyvault access"
-            az keyvault secret list --vault-name $env:keyVaultName | out-null
+            write-host "checking keyvault access..."
+            az keyvault secret list --vault-name $keyVaultName | out-null
             $ready = $LASTEXITCODE    
           } catch {
             $ready = 1
           }        
         }
-    env:
-      keyVaultName: ${{ parameters.keyVaultName }}
 
   - template: purge.yaml
     parameters:
@@ -176,24 +174,38 @@ steps:
         az keyvault certificate import --vault-name $keyVaultName -n $certName -f $pfxPath --password $password
 
   - task: AzureCLI@2
-    displayName: Remove KeyVault FW Exception
+    displayName: Disable Public Access to ${{ parameters.keyVaultName }}
     condition: always()
     inputs:
       azureSubscription: ${{ parameters.subscriptionName }}
       scriptType: pscore
       scriptLocation: inlineScript
       inlineScript: |
-        while ( !$ip ) { $ip = (Invoke-WebRequest -uri "http://ifconfig.me/ip").Content }
-        write-host "Our IP address is: $ip"          
+        $keyVaultName = "${{ parameters.keyVaultName }}"
+        $wait = 10
+        $n = 10
 
-        while($ready -ne 0 -and $retry -lt 10) {
-          sleep (10 * $retry++)  
-          try{          
-            az keyvault network-rule remove --name $env:keyVaultName --ip-address "$IP/32"
-            $ready = $LASTEXITCODE    
-          } catch {
-            $ready = 1
-          } 
+        Write-Host "Enabling Key Vault Firewall for $keyVaultName"
+        az keyvault update --name $keyVaultName --public-network-access Enabled --default-action Deny --bypass AzureServices
+        Write-Host "Updated, checking it applied..."
+
+        $i = 1
+        do { 
+          Write-Host "[$i/$n] Testing Key Vault Connectivity, This May Take A Few Attempts, Please Wait..."
+          $status = az keyvault secret list --vault-name $keyVaultName | out-null
+
+          if(!($status)) {
+            Write-Host "Connection successfully failed >_<"
+            exit 0
+          } else {
+            Write-Host "Connection successful (should fail), trying again in $wait second(s)"
+            Start-Sleep -Seconds $wait
+            $i ++
+          }
+        } 
+        Until (!($Status) -or ($i -ge $n))
+
+        if($status) {
+          Write-Host "##vso[task.LogIssue type=error;]FAILED - Connection is still available after given time."
+          exit 1
         }
-    env:
-      keyVaultName: ${{ parameters.keyVaultName }}

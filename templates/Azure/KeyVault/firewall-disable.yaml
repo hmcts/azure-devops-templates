@@ -3,8 +3,6 @@ parameters:
       type: string
     - name: keyVaultName
       type: string
-    - name: resourceGroup
-      type: string
 
 steps:
     - task: AzureCLI@2
@@ -15,9 +13,8 @@ steps:
         scriptLocation: 'inlineScript'
         inlineScript: |
           $keyVaultName = "${{ parameters.keyVaultName }}"
-          $resourceGroup = "${{ parameters.resourceGroup }}"
-          Write-Host "Enabling KeyVault Firewall for $keyVaultName in $resourceGroup"
-          az keyvault update --name $keyVaultName --resource-group $resourceGroup --public-network-access Enabled --default-action Allow --bypass AzureServices
+          Write-Host "Enabling KeyVault Firewall for $keyVaultName"
+          az keyvault update --name $keyVaultName --public-network-access Enabled --default-action Allow --bypass AzureServices
 
           $ready = 1; $retry = 0
           while($ready -ne 0 -and $retry -lt 10) {
