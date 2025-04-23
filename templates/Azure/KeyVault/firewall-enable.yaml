@@ -8,7 +8,7 @@ parameters:
 
 steps:
     - task: AzureCLI@2
-      displayName: Add FW Exception to ${{ parameters.keyVaultName }}
+      displayName: Disable Public Access to ${{ parameters.keyVaultName }}
       inputs:
         azureSubscription: ${{ parameters.subscription }}
         scriptType: pscore
@@ -16,14 +16,14 @@ steps:
         inlineScript: |
           $keyVaultName = "${{ parameters.keyVaultName }}"
           $resourceGroup = "${{ parameters.resourceGroup }}"
-
-          az keyvault update --name $keyVaultName --resource-group $resourceGroup --public-network-access Enabled --default-action Allow --bypass AzureServices
-
+          Write-Host "Enabling KeyVault Firewall for $keyVaultName in $resourceGroup"          
+          az keyvault update --name $keyVaultName --resource-group $resourceGroup --public-network-access Disabled --default-action Deny --bypass AzureServices
+          
           $ready = 1; $retry = 0
           while($ready -ne 0 -and $retry -lt 10) {
             Start-Sleep (15 * $retry++)  
             try{          
-              write-host "checking keyvault access"
+              write-host "checking keyvault access.."
               az keyvault secret list --vault-name $keyVaultName | out-null
               $ready = $LASTEXITCODE    
             } catch {
