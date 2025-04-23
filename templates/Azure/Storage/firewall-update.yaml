@@ -18,7 +18,7 @@ parameters:
 steps:
   - ${{ if or( eq(parameters.action, 'Deny' ), eq(parameters.action, 'Allow') )}}:
     - task: AzureCLI@2
-      displayName: Update network defualt action to '${{ parameters.action }}' for ${{ parameters.storageAccountName }}
+      displayName: Update network default action to '${{ parameters.action }}' for ${{ parameters.storageAccountName }}
       ${{ if eq(parameters.alwaysRun, true ) }}:
         condition: always() 
       inputs:
