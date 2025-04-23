@@ -1,0 +1,29 @@
+parameters:
+    - name: subscription
+      type: string
+    - name: keyVaultName
+      type: string
+
+steps:
+    - task: AzureCLI@2
+      displayName: Enable Public Access to ${{ parameters.keyVaultName }}
+      inputs:
+        azureSubscription: ${{ parameters.subscription }}
+        scriptType: pscore
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          $keyVaultName = "${{ parameters.keyVaultName }}"
+          Write-Host "Enabling KeyVault Firewall for $keyVaultName"
+          az keyvault update --name $keyVaultName --public-network-access Enabled --default-action Allow --bypass AzureServices
+
+          $ready = 1; $retry = 0
+          while($ready -ne 0 -and $retry -lt 10) {
+            Start-Sleep (15 * $retry++)  
+            try{          
+              write-host "checking keyvault access..."
+              az keyvault secret list --vault-name $keyVaultName | out-null
+              $ready = $LASTEXITCODE    
+            } catch {
+              $ready = 1
+            }        
+          }
