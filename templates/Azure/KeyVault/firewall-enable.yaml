@@ -20,7 +20,7 @@ steps:
           $n = 10
 
           Write-Host "Enabling Key Vault Firewall for $keyVaultName in $resourceGroup"
-          az keyvault update --name $keyVaultName --resource-group $resourceGroup --public-network-access Disabled --default-action Deny --bypass AzureServices
+          az keyvault update --name $keyVaultName --resource-group $resourceGroup --public-network-access Enabled --default-action Deny --bypass AzureServices
           Write-Host "Updated, checking it applied..."
 
           $i = 1
