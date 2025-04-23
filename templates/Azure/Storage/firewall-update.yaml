@@ -32,7 +32,7 @@ steps:
           $wait = 10
           $n = 10
 
-          Write-Host "Starting Task: Update network defualt action to '$action' for '$storageAccountName'"
+          Write-Host "Starting Task: Update network default action to '$action' for '$storageAccountName'"
           az storage account update -g $resourceGroupName --name $storageAccountName --default-action $action --public-network-access Enabled 
           Write-Host "Updated, checking it applied..."
 
