@@ -90,7 +90,7 @@ steps:
         $replyUrlsStr = $replyUrls | ConvertTo-Json -Compress -Depth 100
         Write-Host "Body: $replyUrlsStr"
 
-        $body = "{`"$appType`":{`"redirectUris`": $replyUrlsStr}}" 
+        $body = "{`"$appType`":{`"redirectUris`": $replyUrlsStr}}" | ConvertTo-Json 
 
         az rest --method PATCH --header "Content-Type=application/json" --uri $restUrl --body $body --debug
                 
