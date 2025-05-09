@@ -1,7 +1,7 @@
 parameters:
   - name: baseAgent
     type: string
-    default: ubuntu-20.04
+    default: ubuntu-latest
 
   - name: dotnetContainer
     type: string
